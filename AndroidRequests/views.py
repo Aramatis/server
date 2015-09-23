@@ -3,7 +3,7 @@ from django.http import JsonResponse
 import requests, json
 
 
-def nearBusStops(request, pLat, pLon):
+def nearbyBusStops(request, pLat, pLon):
 	url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
 	params = {'location': str(pLat)+","+str(pLon),
 			 'sensor': True,
@@ -18,3 +18,10 @@ def nearBusStops(request, pLat, pLon):
 						 'location': {'lat': result['geometry']['location']['lat'], 
 						 			  'lon': result['geometry']['location']['lng']}})
 	return JsonResponse(response, safe=False)
+
+def nearbyBuses(request, pBusStop):
+	url = "http://dev.adderou.cl/transanpbl/busdata.php"
+	params = {'paradero': pBusStop}
+	response = requests.get(url=url, params = params)
+	data = json.loads(response.text)
+	return JsonResponse(data['servicios'], safe=False)
