@@ -8,6 +8,9 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 """
 
 import os
+import sys
+# add the path to the folder
+sys.path.append('/home/server/Documentos/server')
 
 from django.core.wsgi import get_wsgi_application
 

@@ -1,7 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-
+*.py~
 
 # OSX Finder turds
 .DS_Store
@@ -94,3 +94,6 @@ docs/_build
 
 # JIRA plugin
 atlassian-ide-plugin.xml
+
+# don't share the DB
+*.sqlite3
