@@ -19,4 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^android/', include('AndroidRequests.urls')),
+    url(r'^map/', include('MapLocationOfUsers.urls')),
 ]
