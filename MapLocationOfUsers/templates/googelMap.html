@@ -4,7 +4,10 @@
     <meta charset=utf-8 />
       <title>A simple map</title>
       <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+      <!--js script libraries-->
       <script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+      <!--CSS libraries-->
       <link href='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.css' rel='stylesheet' />
       <style>
         body { margin:0; padding:0; }
@@ -18,6 +21,62 @@
       L.mapbox.accessToken = 'pk.eyJ1IjoiY2VwaGVpIiwiYSI6ImNpZXV1cHE0ZDBxdWhsZW0wdTE3aThxZHYifQ.VIevNSQv8AzLTKJMV3k4Ew';
       var map = L.mapbox.map('map', 'cephei.nhfb48an')
           .setView([-33.446209, -70.660803], 13); 
+
+      var cssIcon = L.divIcon({
+        // Specify a class name we can refer to in CSS.
+        className: 'css-icon',
+        // Set marker width and height
+        iconSize: [60, 60]
+      });
+      
+
+      askMarkersOnMap();
+
+      function askMarkersOnMap()
+      {
+        
+        $.ajax({
+          url: "/map/activeuserpose",
+          success: function(data){
+            drawMarkersOnMap(data);
+          }
+        });
+
+        setTimeout(askMarkersOnMap,10000);
+      };
+
+      var currentMarkers = [];
+
+      function drawMarkersOnMap(markers)
+      {
+        /*L.marker([-33.456829, -70.662576], 
+            {icon: L.mapbox.marker.icon({        
+              'marker-size': 'small',        
+              'marker-ymbol': 'pitch',       
+              'marker-color': '#f10'    
+            })}).addTo(map);*/
+
+        jQuery.each(currentMarkers,function(idx, val){
+          map.removeLayer(val);
+        });
+
+        currentMarkers = [];
+
+        jQuery.each(markers, function(idx, val){
+
+          var newMarker = L.marker([val.longitud,val.latitud], {icon: L.mapbox.marker.icon({
+            'marker-size': 'small',
+            'marker-symbol': 'pitch',
+            'marker-color': '#fa0'
+          })});
+          newMarker.addTo(map);
+          currentMarkers.push(newMarker);
+        });
+
+          
+          //currentMarkers.push(newMarker);
+      }
+      
     </script>
     <!--in setView the arguments are first the pose of the center, then the zoom level-->
 
