@@ -36,6 +36,7 @@ class GetMapPositions(View):
 		now = timezone.now()
 		earlier = now - timezone.timedelta(minutes=10)
 
+		# the position of intereset are the ones ocurred in the lat 10 minutes
 		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))
 
 		response = []
