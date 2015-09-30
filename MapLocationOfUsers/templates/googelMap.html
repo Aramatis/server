@@ -64,7 +64,7 @@
 
         jQuery.each(markers, function(idx, val){
 
-          var newMarker = L.marker([val.longitud,val.latitud], {icon: L.mapbox.marker.icon({
+          var newMarker = L.marker([val.latitud,val.longitud], {icon: L.mapbox.marker.icon({
             'marker-size': 'small',
             'marker-symbol': 'pitch',
             'marker-color': '#fa0'

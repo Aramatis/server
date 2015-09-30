@@ -19,7 +19,6 @@ def nearbyBusStops(request, pLat, pLon):
 	currPose = DevicePositionInTime(longitud = pLon, latitud = pLat \
 	,timeStamp = timezone.now())
 	currPose.save()
-	print currPose.timeStamp
 
 	response = requests.get(url=url, params = params)
 	data = json.loads(response.text)
@@ -36,14 +35,3 @@ def nearbyBuses(request, pBusStop):
 	response = requests.get(url=url, params = params)
 	data = json.loads(response.text)
 	return JsonResponse(data['servicios'], safe=False)
-
-#class GiveDevicePose(object):
-#	"""This class recives a pose from a given device"""
-#	def __init__(self, arg):
-#		'''The data to pass to the html template'''
-##
-#	def get(self, requests, longitud, latitud, dateTime):
-#		'''Recieves logitud an latitud from devies and the time the measurmet was made'''
-###		
-#		return JsonResponse(response, safe=False)
-		

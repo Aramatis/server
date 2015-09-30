@@ -4,6 +4,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.utils import timezone
 
+
 # models 
 from AndroidRequests.models import DevicePositionInTime
 
@@ -37,9 +38,8 @@ class GetMapPositions(View):
 
 		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))
 
-		print 'ask for poses'
 		response = []
 		for aPosition in postions:
-			response.append({'latitud': aPosition.longitud, 'longitud': aPosition.latitud})
+			response.append({'latitud': aPosition.latitud, 'longitud': aPosition.longitud})
 
 		return JsonResponse(response, safe=False)
