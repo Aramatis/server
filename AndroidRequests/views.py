@@ -12,13 +12,14 @@ import os
 # import DB's models
 from AndroidRequests.models import DevicePositionInTime, ActiveToken, PoseInTrajectoryOfToken
 
-def nearbyBusStops(request, pLat, pLon):
-	url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+def userPosition(request, pLat, pLon):
+	'''This function stores the pose of an active user'''
+	'''url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
 	params = {'location': str(pLat)+","+str(pLon),
 			 'sensor': True,
 			 'key': "AIzaSyDFxEVKnPKStiQoLMU0xm0ASXPfTzcmTno",
 			 'rankby': "distance",
-			 'types': "bus_station"}
+			 'types': "bus_station"}'''
 
 	# the pose is stored
 
@@ -26,13 +27,15 @@ def nearbyBusStops(request, pLat, pLon):
 	,timeStamp = timezone.now())
 	currPose.save()
 
-	response = requests.get(url=url, params = params)
+	'''response = requests.get(url=url, params = params)
 	data = json.loads(response.text)
 	response = []
 	for result in data["results"]:
 		response.append({'name': result['name'], 
 						 'location': {'lat': result['geometry']['location']['lat'], 
-						 			  'lon': result['geometry']['location']['lng']}})
+						 			  'lon': result['geometry']['location']['lng']}})'''
+
+	response = {'response':'Pose register.'}
 	return JsonResponse(response, safe=False)
 
 def nearbyBuses(request, pBusStop):
