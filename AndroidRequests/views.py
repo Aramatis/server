@@ -9,7 +9,8 @@ import hashlib
 import os
 
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, ActiveToken, PoseInTrajactoryOfToken
+# import DB's models
+from AndroidRequests.models import DevicePositionInTime, ActiveToken, PoseInTrajectoryOfToken
 
 def nearbyBusStops(request, pLat, pLon):
 	url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
@@ -52,14 +53,13 @@ class RequestToken(View):
 		data = timezone.now() # the token is primary a hash of the 
 		salt = os.urandom(20) # time stamp plus a random salt
 		hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
-		print 'lolol'
-		ActiveToken.objects.create(timeStamp=data,tocken=hashToken)
+
+		ActiveToken.objects.create(timeStamp=data,token=hashToken)
 
 		# we store the active token
 		response = {}
-		response['toekn'] = hashToken
+		response['token'] = hashToken
 
-		print response
 		return JsonResponse(response, safe=False)
 		
 
@@ -73,11 +73,11 @@ class EndRoute(View):
 		
 		response = {}
 
-		if ActiveToken.objects.filter(tocken=pToken).exists():
-			aToken = ActiveToken.objects.get(tocken=pToken).delete()
+		if ActiveToken.objects.filter(token=pToken).exists():
+			aToken = ActiveToken.objects.get(token=pToken).delete()
 			response['response'] = 'Trip ended.'
 		else:#if the token was not found alert
-			response['response'] = 'token doesn\'t exist.'
+			response['response'] = 'Token doesn\'t exist.'
 
 		return JsonResponse(response, safe=False)
 
@@ -89,17 +89,25 @@ class SendPoses(View):
 	def get(self, request, pToken, pTrajectory):
 		response = {}
 
-
-		print pTrajectory
-		if ActiveToken.objects.filter(tocken=pToken).exists():
+		if ActiveToken.objects.filter(token=pToken).exists():
 			trajectory = json.loads(pTrajectory)
 			trajectory = trajectory['poses']
+
+			#update the token time stamp, for maintanence purpuses
+			aToken = ActiveToken.objects.get(token=pToken)
+			aToken.timeStamp = timezone.now()
+			aToken.save()
+
 			for pose in trajectory:
-				PoseInTrajactoryOfToken.objects.create(longitud=pose['longitud'],latitud=pose['latitud'],\
-					timeStamp=dateparse.parse_datetime(pose['timeStamp']),tocken=pToken)
+				# set awareness to time stamp, to the server UTC
+				aTimeStamp = dateparse.parse_datetime(pose['timeStamp'])
+				aTimeStamp = timezone.make_aware(aTimeStamp)
+
+				PoseInTrajectoryOfToken.objects.create(longitud=pose['longitud'],latitud=pose['latitud'],\
+					timeStamp=aTimeStamp,token=pToken)
 
 			response['response'] = 'Poses were register.'
 		else:#if the token was not found alert
-			response['response'] = 'token doesn\'t exist.'
+			response['response'] = 'Token doesn\'t exist.'
 
 		return JsonResponse(response, safe=False)

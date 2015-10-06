@@ -97,3 +97,6 @@ atlassian-ide-plugin.xml
 
 # don't share the DB
 *.sqlite3
+
+# migrate files
+*/migrations/*
