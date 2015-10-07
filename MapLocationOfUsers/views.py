@@ -4,9 +4,8 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.utils import timezone
 
-
 # models 
-from AndroidRequests.models import DevicePositionInTime
+from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
 
 # Create your views here.
 
@@ -44,3 +43,48 @@ class GetMapPositions(View):
 			response.append({'latitud': aPosition.latitud, 'longitud': aPosition.longitud})
 
 		return JsonResponse(response, safe=False)
+
+class GetMapTrajectory(View):
+	"""This class handles the request for getting the Trajectory of some tokens that where
+	updated un the last 10 minutes"""
+
+	def __init__(self):
+		"""the contructor, context are the parameter given to the html template"""
+		self.context={}	
+
+	def get(self, request):
+		
+		tokens = self.getTokenUsedIn10LastMinutes()
+
+		response = []
+
+		for aToken in tokens:
+			tokenResponse = {}
+			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken)
+			responseTrajectory = []
+			for aPose in trajectory:
+				responseTrajectory.append((aPose.latitud, aPose.longitud))
+			tokenResponse['trajectory'] = responseTrajectory
+			tokenResponse['token'] = aToken
+			tokenResponse['myColor'] = trajectory[0].color
+			response.append(tokenResponse)
+
+		print response
+		return JsonResponse(response, safe=False)
+
+			
+	def getTokenUsedIn10LastMinutes(self):
+		'''return the tokens that have the latest entry atleast 10 minutes ago'''
+		now = timezone.now()
+		earlier = now - timezone.timedelta(minutes=10)
+		allPoses = PoseInTrajectoryOfToken.objects.filter(timeStamp__range=(earlier,now))
+
+		tokens = []
+
+		for aPose in allPoses:
+			if not aPose.token in tokens:
+				tokens.append(aPose.token)
+
+		return tokens
+
+

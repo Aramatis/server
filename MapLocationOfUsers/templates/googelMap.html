@@ -18,6 +18,10 @@
 
     <div id='map'></div>
     <script>
+
+      //util functions
+      
+      //get the map
       L.mapbox.accessToken = 'pk.eyJ1IjoiY2VwaGVpIiwiYSI6ImNpZXV1cHE0ZDBxdWhsZW0wdTE3aThxZHYifQ.VIevNSQv8AzLTKJMV3k4Ew';
 
       //centering in Santiago
@@ -34,6 +38,13 @@
           url: "/map/activeuserpose",// ask for current poses
           success: function(data){
             drawMarkersOnMap(data);
+          }
+        });
+
+        $.ajax({
+          url: "/map/activetrajectory",// ask for current poses
+          success: function(data){
+            drawTrajactorysOnMap(data);
           }
         });
         //this does the update in the map
@@ -65,7 +76,84 @@
           // keep reference to the current markers
           currentMarkers.push(newMarker);
         });
-      }
+      };
+
+      var currentTrajectorys = [];
+
+      function drawTrajactorysOnMap(trajectorys)
+      {
+
+        //removes prevevius markers
+        jQuery.each(currentTrajectorys,function(idx, val){
+          map.removeLayer(val);
+        });
+
+        jQuery.each(trajectorys, function(idx, val){
+          // the color of the line
+          var myColor = val.myColor;
+          //get the trajectory points
+          var line_points = val.trajectory;
+          //set the style, in this case the color of the line
+          var polyline_options = {
+            color: myColor
+          };
+
+          //generate the line given the trajectory points
+          var polyline = L.polyline(line_points, polyline_options);
+          //add the line to the map
+          polyline.addTo(map);
+
+          currentTrajectorys.push(polyline);
+
+          var initialMarkerPos = line_points[0];
+          var finalMarkerPos = line_points[line_points.length - 1];
+
+          var initialMarker = L.marker(initialMarkerPos, {icon: L.mapbox.marker.icon({
+            'marker-size': 'small',
+            'marker-symbol': 'star-stroked',
+            'marker-color': myColor
+          })});
+          var finalMarker = L.marker(finalMarkerPos, {icon: L.mapbox.marker.icon({
+            'marker-size': 'small',
+            'marker-symbol': 'star',
+            'marker-color': myColor
+          })});
+
+          // draws it in the map
+          initialMarker.addTo(map);
+          finalMarker.addTo(map);
+
+          currentTrajectorys.push(initialMarker)
+          currentTrajectorys.push(finalMarker)
+        })
+      };
+
+
+      /*
+      var line_points = [
+          [38.893596444352134, -77.0381498336792],
+          [38.89337933372204, -77.03792452812195],
+          [38.89316222242831, -77.03761339187622],
+          [38.893028615148424, -77.03731298446655],
+          [38.892920059048464, -77.03691601753235],
+          [38.892903358095296, -77.03637957572937],
+          [38.89301191422077, -77.03592896461487],
+          [38.89316222242831, -77.03549981117249],
+          [38.89340438498248, -77.03514575958252],
+          [38.893596444352134, -77.0349633693695]
+      ];
+
+      // Define polyline options
+      // http://leafletjs.com/reference.html#polyline
+      var polyline_options = {
+          color: '#000'
+      };
+
+      // Defining a polygon here instead of a polyline will connect the
+      // endpoints and fill the path.
+      // http://leafletjs.com/reference.html#polygon
+      var polyline = L.polyline(line_points, polyline_options).addTo(map);
+      */
       
     </script>
   </body>

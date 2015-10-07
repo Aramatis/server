@@ -7,6 +7,7 @@ from django.utils import timezone, dateparse
 import requests, json
 import hashlib
 import os
+from random import random
 
 # my stuff
 # import DB's models
@@ -14,26 +15,10 @@ from AndroidRequests.models import DevicePositionInTime, ActiveToken, PoseInTraj
 
 def userPosition(request, pLat, pLon):
 	'''This function stores the pose of an active user'''
-	'''url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-	params = {'location': str(pLat)+","+str(pLon),
-			 'sensor': True,
-			 'key': "AIzaSyDFxEVKnPKStiQoLMU0xm0ASXPfTzcmTno",
-			 'rankby': "distance",
-			 'types': "bus_station"}'''
-
 	# the pose is stored
-
 	currPose = DevicePositionInTime(longitud = pLon, latitud = pLat \
 	,timeStamp = timezone.now())
 	currPose.save()
-
-	'''response = requests.get(url=url, params = params)
-	data = json.loads(response.text)
-	response = []
-	for result in data["results"]:
-		response.append({'name': result['name'], 
-						 'location': {'lat': result['geometry']['location']['lat'], 
-						 			  'lon': result['geometry']['location']['lng']}})'''
 
 	response = {'response':'Pose register.'}
 	return JsonResponse(response, safe=False)
@@ -57,13 +42,20 @@ class RequestToken(View):
 		salt = os.urandom(20) # time stamp plus a random salt
 		hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
 
-		ActiveToken.objects.create(timeStamp=data,token=hashToken)
+		ActiveToken.objects.create(timeStamp=data,token=hashToken, color=self.getRandomColor())
 
 		# we store the active token
 		response = {}
 		response['token'] = hashToken
 
 		return JsonResponse(response, safe=False)
+
+	def getRandomColor(self):
+		letters = '0123456789ABCDEF0'
+		color = '#'
+		for cont in range(6):
+			color += letters[int(round(random() * 16))]
+		return color
 		
 
 class EndRoute(View):
@@ -107,7 +99,7 @@ class SendPoses(View):
 				aTimeStamp = timezone.make_aware(aTimeStamp)
 
 				PoseInTrajectoryOfToken.objects.create(longitud=pose['longitud'],latitud=pose['latitud'],\
-					timeStamp=aTimeStamp,token=pToken)
+					timeStamp=aTimeStamp,token=pToken,color=aToken.color)
 
 			response['response'] = 'Poses were register.'
 		else:#if the token was not found alert

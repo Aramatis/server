@@ -12,7 +12,9 @@ class PoseInTrajectoryOfToken(models.Model):
 	latitud = models.FloatField(null=False, blank=False)
 	timeStamp = models.DateTimeField(null=False, blank=False)
 	token = models.CharField(max_length=128, null = False, blank=False)
+	color = models.CharField(max_length=7,default='#00a0f0')
 
 class ActiveToken(models.Model):
+	color = models.CharField(max_length=7, default='#00a0f0')
 	timeStamp = models.DateTimeField(null=False, blank=False)
 	token = models.CharField(max_length=128, primary_key=True)
