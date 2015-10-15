@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 # models 
-from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
+from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, Token
 
 # Create your views here.
 
@@ -61,22 +61,24 @@ class GetMapTrajectory(View):
 		for aToken in tokens:
 			tokenResponse = {}
 			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken)
+			theToken =  Token.objects.filter(token=aToken)
 			responseTrajectory = []
 			for aPose in trajectory:
 				responseTrajectory.append((aPose.latitud, aPose.longitud))
 			tokenResponse['trajectory'] = responseTrajectory
 			tokenResponse['token'] = aToken
-			tokenResponse['myColor'] = trajectory[0].color
+			tokenResponse['myColor'] = theToken.color
 			response.append(tokenResponse)
 
-		print response
 		return JsonResponse(response, safe=False)
 
 			
 	def getTokenUsedIn10LastMinutes(self):
 		'''return the tokens that have the latest entry atleast 10 minutes ago'''
 		now = timezone.now()
+		print now
 		earlier = now - timezone.timedelta(minutes=10)
+		print earlier
 		allPoses = PoseInTrajectoryOfToken.objects.filter(timeStamp__range=(earlier,now))
 
 		tokens = []

@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 import json
 
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, ActiveToken
+from AndroidRequests.models import DevicePositionInTime, ActiveToken, Token
 from AndroidRequests.views import EndRoute, RequestToken, SendPoses
 # Create your tests here.
 
@@ -43,7 +43,7 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
 
         reponseView = RequestToken()
-        response = reponseView.get(request)
+        response = reponseView.get(request,'503','ZZZZ00')
 
         self.assertEqual(response.status_code, 200)
 
@@ -51,7 +51,7 @@ class DevicePositionInTimeTest(TestCase):
         testToken = testToken['token']
 
         self.assertEqual(ActiveToken.objects.filter(token=testToken).exists(), True)
-
+        self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
         request = self.factory.get('/android/endRoute/' + testToken)
         request.user = AnonymousUser()
 
@@ -78,7 +78,7 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
 
         reponseView = RequestToken()
-        response = reponseView.get(request)
+        response = reponseView.get(request,'503','ZZZZ00')
 
         self.assertEqual(response.status_code, 200)
 
