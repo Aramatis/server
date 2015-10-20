@@ -47,9 +47,9 @@ class RequestToken(View):
 		data = timezone.now() # the token is primary a hash of the 
 		salt = os.urandom(20) # time stamp plus a random salt
 		hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
-		
-		aToken = Token.objects.create(token=hashToken, busService=pBusService, \
-			busRegistrationPlate=pRegistrationPlate, color=self.getRandomColor())
+		bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
+		 service = pBusService)[0]
+		aToken = Token.objects.create(token=hashToken, bus = bus, color=self.getRandomColor())
 		ActiveToken.objects.create(timeStamp=data,token=aToken)
 
 		# we store the active token
