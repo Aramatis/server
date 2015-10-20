@@ -76,9 +76,7 @@ class GetMapTrajectory(View):
 	def getTokenUsedIn10LastMinutes(self):
 		'''return the tokens that have the latest entry atleast 10 minutes ago'''
 		now = timezone.now()
-		print now
 		earlier = now - timezone.timedelta(minutes=10)
-		print earlier
 		allPoses = PoseInTrajectoryOfToken.objects.filter(timeStamp__range=(earlier,now))
 
 		tokens = []

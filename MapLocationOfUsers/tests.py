@@ -109,9 +109,6 @@ class GetMapPositionsTest(TestCase):
         reponseView = GetMapTrajectory()#pToken, pTrajectory
         response = reponseView.get(request)
 
-        print 'lol'
-        print reponseView.getTokenUsedIn10LastMinutes()
-        print 'lol'
         bla = PoseInTrajectoryOfToken.objects.all()
 
         #for aResponse in bla:
