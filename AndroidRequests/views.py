@@ -7,11 +7,11 @@ from django.utils import timezone, dateparse
 import requests, json
 import hashlib
 import os
-from random import random
+from random import random, uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import DevicePositionInTime, ActiveToken, PoseInTrajectoryOfToken, Token
+from AndroidRequests.models import *
 
 def userPosition(request, pLat, pLon):
 	'''This function stores the pose of an active user'''
@@ -28,7 +28,30 @@ def nearbyBuses(request, pBusStop):
 	params = {'paradero': pBusStop}
 	response = requests.get(url=url, params = params)
 	data = json.loads(response.text)
-	return JsonResponse(data['servicios'], safe=False)
+	servicios = []
+	for dato in data['servicios']:
+		dato['hasPassenger'] = 1
+		dato['lat'] = -33.456967 + uniform(0.000000, 0.000003)
+		dato['lon'] = -70.662169 + uniform(0.000000, 0.000003)
+		servicios.append(dato)
+	#Eventos dummy
+	eventos = []
+
+	evento1 = {}
+	evento1["id"] = "npi"
+	evento1["descripcion"] = "Paradero lleno"
+
+	evento2 = {}
+	evento2["id"] = "ble"
+	evento2["descripcion"] = "Paradero roto"
+
+	eventos.append(evento1)
+	eventos.append(evento2)
+
+	response = {}
+	response["servicios"] = servicios
+	response["eventos"] = eventos
+	return JsonResponse(response, safe=False)
 
 class RequestToken(View):
 	"""This class handles the start of the traking, asignin a token
@@ -41,9 +64,9 @@ class RequestToken(View):
 		data = timezone.now() # the token is primary a hash of the 
 		salt = os.urandom(20) # time stamp plus a random salt
 		hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
-
-		aToken = Token.objects.create(token=hashToken, busService=pBusService, \
-			busRegistrationPlate=pRegistrationPlate, color=self.getRandomColor())
+		bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
+		 service = pBusService)[0]
+		aToken = Token.objects.create(token=hashToken, bus = bus, color=self.getRandomColor())
 		ActiveToken.objects.create(timeStamp=data,token=aToken)
 
 		# we store the active token
