@@ -34,7 +34,24 @@ def nearbyBuses(request, pBusStop):
 		dato['lat'] = -33.456967 + uniform(0.000000, 0.000003)
 		dato['lon'] = -70.662169 + uniform(0.000000, 0.000003)
 		servicios.append(dato)
-	return JsonResponse(servicios, safe=False)
+	#Eventos dummy
+	eventos = []
+
+	evento1 = {}
+	evento1["id"] = "npi"
+	evento1["descripcion"] = "Paradero lleno"
+
+	evento2 = {}
+	evento2["id"] = "ble"
+	evento2["descripcion"] = "Paradero roto"
+
+	eventos.append(evento1)
+	eventos.append(evento2)
+
+	response = {}
+	response["servicios"] = servicios
+	response["eventos"] = eventos
+	return JsonResponse(response, safe=False)
 
 class RequestToken(View):
 	"""This class handles the start of the traking, asignin a token
