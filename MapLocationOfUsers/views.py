@@ -61,13 +61,13 @@ class GetMapTrajectory(View):
 		for aToken in tokens:
 			tokenResponse = {}
 			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken)
-			theToken =  Token.objects.filter(token=aToken)
+
 			responseTrajectory = []
 			for aPose in trajectory:
 				responseTrajectory.append((aPose.latitud, aPose.longitud))
 			tokenResponse['trajectory'] = responseTrajectory
-			tokenResponse['token'] = aToken
-			tokenResponse['myColor'] = theToken.color
+			tokenResponse['token'] = aToken.token
+			tokenResponse['myColor'] = aToken.color
 			response.append(tokenResponse)
 
 		return JsonResponse(response, safe=False)
