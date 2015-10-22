@@ -75,13 +75,6 @@ class RequestToken(View):
 
 		return JsonResponse(response, safe=False)
 
-	#def getRandomColor(self):
-	#	letters = '0123456789ABCDEF0'
-	#	color = '#'
-	#	for cont in range(6):
-	#		color += letters[int(round(random() * 16))]
-	#	return color
-
 	def getRandomColor(self):
 		letters = '0123456789ABCDEF0'
 		color = '#'
@@ -89,9 +82,7 @@ class RequestToken(View):
 		#for cont in range(6):
 		#color += letters[int(round(random() * 16))]
 		color = list(colors)[int(round(random() * 4))]
-		return color
-
-		
+		return color		
 
 class EndRoute(View):
 	"""This class handles the ending of a trip tracking removing the token
@@ -144,4 +135,16 @@ class SendPoses(View):
 		else:#if the token was not found alert
 			response['response'] = 'Token doesn\'t exist.'
 
+		return JsonResponse(response, safe=False)
+
+class RegisterEventBus(View):
+	'''This class handles the requests that reports events of a bus'''
+
+	def get(self, request, pTimeStamp, pEventID, pConfirmDecline):
+		theEvent = Events.objects.get(id=pEventID)
+
+		oldestAlertedTime = dateparse.parse_datetime(pTimeStamp) - timezone.timedelta(minutes=theEvent.lifespam)
+
+		if EventForBus.objects.filter()
+		response['response'] = 'Thanks for the information, give to recieve.'
 		return JsonResponse(response, safe=False)

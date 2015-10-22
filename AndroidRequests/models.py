@@ -12,16 +12,32 @@ class DevicePositionInTime(Location):
 class Event(models.Model):
 	id = models.CharField(max_length=8, primary_key = True)
 	name = models.CharField(max_length=30, null=False, blank=False)
+	description = models.CharField(max_length=140, null=True)
+	lifespam = models.IntegerField(default=30)# this value is in minutes
+
+class EventRegistration(models.Model):
+	'''This model stores the reposts of events coming from the  
+	passagers of the public Bus transport system.'''
+	timeStamp = models.DateTimeField()
+	event = models.ForeignKey(Event, verbose_name='The event information')
+	eventConfirm = models.IntegerField(default=1)
+	eventDecline = models.IntegerField(default=0)
+
+class EventForBusStop(EventRegistration):
+	busStop = models.ForeignKey('BusStop', verbose_name='The bustop')
+
+class EventForBus(EventRegistration):
+	bus = models.ForeignKey('Bus', verbose_name='the bus')
 
 class BusStop(models.Model):
 	code = models.CharField(max_length=6, primary_key = True)
 	name = models.CharField(max_length=30, null = False, blank = False)
-	events = models.ManyToManyField(Event)
+	events = models.ManyToManyField(Event, verbose_name='the event' ,through=EventForBusStop)
 
 class Bus(models.Model):
 	registrationPlate = models.CharField(max_length=8, primary_key = True)
 	service = models.CharField(max_length=5, null=False, blank=False)
-	events = models.ManyToManyField(Event)
+	events = models.ManyToManyField(Event,  verbose_name='the event' ,through=EventForBus)
 
 class Token(models.Model):
 	token = models.CharField(max_length=128, primary_key=True)
