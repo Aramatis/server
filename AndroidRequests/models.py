@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Location(models.Model):
+
 	longitud = models.FloatField(null=False, blank=False)
 	latitud = models.FloatField(null=False, blank=False)
 
@@ -29,7 +30,9 @@ class Token(models.Model):
 	color = models.CharField(max_length=7, default='#00a0f0')
 
 class PoseInTrajectoryOfToken(Location):
+	#TODO: cambiar nombre campo sender
 	timeStamp = models.DateTimeField(null=False, blank=False)
+	sender =models.CharField(max_length=15)
 	token = models.ForeignKey(Token)
 
 class ActiveToken(models.Model):
