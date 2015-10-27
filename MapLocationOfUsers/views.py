@@ -60,7 +60,7 @@ class GetMapTrajectory(View):
 
 		for aToken in tokens:
 			tokenResponse = {}
-			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken)
+			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, sender="vehicle")
 
 			responseTrajectory = []
 			for aPose in trajectory:
