@@ -27,7 +27,12 @@ class EventForBusStop(EventRegistration):
 	busStop = models.ForeignKey('BusStop', verbose_name='The bustop')
 
 class EventForBus(EventRegistration):
+	REPORT_STATE = (
+		('i','the event was taken insede the bus'), # is an I from inside
+		('o','the event was taken from a bustop')) # in an O from outside
+
 	bus = models.ForeignKey('Bus', verbose_name='the bus')
+	origin = models.CharField(max_length=1, choices=REPORT_STATE)
 
 class BusStop(models.Model):
 	code = models.CharField(max_length=6, primary_key = True)
