@@ -67,8 +67,9 @@ class BusStopLoader(Loader):
 
 			try:
 				bustop.save()
-			except:
+			except Exception, e:
 				self.log.write(self.notSavedMessage(data))
+				self.log.write(str(e) + "\n")
 			i+=1
 			if(i%ticks==0):
 				print super(BusStopLoader, self).rowAddedMessage(self.className, i)
@@ -106,8 +107,9 @@ class ServiceStopDistanceLoader(Loader):
 
 			try:
 				route.save()
-			except:
+			except Exception, e:
 				self.log.write(self.notSavedMessage(data))
+				self.log.write(str(e) + "\n")
 			i+=1
 			if(i%ticks==0):
 				print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
@@ -144,8 +146,9 @@ class ServiceLocationLoader(Loader):
 
 			try:
 				serviceloc.save()
-			except:
+			except Exception, e:
 				self.log.write(self.notSavedMessage(data))
+				self.log.write(str(e) + "\n")
 			i+=1
 			if(i%ticks==0):
 				print super(ServiceLocationLoader, self).rowAddedMessage(self.className, i)
