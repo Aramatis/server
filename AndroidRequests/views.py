@@ -30,6 +30,8 @@ def nearbyBuses(request, pBusStop):
 	data = json.loads(response.text)
 	servicios = []
 	for dato in data['servicios']:
+		if(dato["valido"]!=1):
+			continue
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'].replace("-", ""), \
 										service = dato['servicio'])[0]
 		busdata = bus.getLocation(data['id'], dato['distancia'].replace(' mts.', ''))

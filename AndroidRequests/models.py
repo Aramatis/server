@@ -17,6 +17,12 @@ class Event(models.Model):
 	id = models.CharField(max_length=8, primary_key = True)
 	name = models.CharField(max_length=30, null=False, blank=False)
 
+
+class ServicesByBusStop(models.Model):
+	busStop = models.ForeignKey(BusStop)
+	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" y "Retorno"
+	service = models.CharField(max_length=5, null=False, blank=False)
+
 class BusStop(Location):
 	code = models.CharField(max_length=6, primary_key = True)
 	name = models.CharField(max_length=70, null = False, blank = False)
