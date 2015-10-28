@@ -20,7 +20,7 @@ class Event(models.Model):
 
 class ServicesByBusStop(models.Model):
 	busStop = models.ForeignKey(BusStop)
-	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" y "Retorno"
+	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
 	service = models.CharField(max_length=5, null=False, blank=False)
 
 class BusStop(Location):
