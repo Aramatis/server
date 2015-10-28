@@ -38,7 +38,6 @@ class SendPoses(View):
 
 				aTimeStamp = timezone.make_aware(aTimeStamp)
 
-				
 				PoseInTrajectoryOfToken.objects.create(longitud=pose['longitud'],latitud=pose['latitud'],\
 					 timeStamp=aTimeStamp, sender=pose["sender"],token=theToken)
 

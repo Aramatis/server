@@ -49,7 +49,7 @@ class EventForBus(EventRegistration):
 
 
 class ServicesByBusStop(models.Model):
-	busStop = models.ForeignKey(BusStop)
+	busStop = models.ForeignKey('BusStop')
 	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
 	service = models.CharField(max_length=5, null=False, blank=False)
 
@@ -126,7 +126,7 @@ class Token(models.Model):
 class PoseInTrajectoryOfToken(Location):
 	#TODO: cambiar nombre campo sender
 	timeStamp = models.DateTimeField(null=False, blank=False)
-	sender =models.CharField(max_length=15)
+	sender =models.CharField(max_length=15) # vehicle, non_vehicle
 	token = models.ForeignKey(Token)
 
 class ActiveToken(models.Model):
