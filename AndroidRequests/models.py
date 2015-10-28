@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 # Create your models here.
-
+# Remembre to add new models to admin.py
 class Location(models.Model):
 	longitud = models.FloatField(null=False, blank=False)
 	latitud = models.FloatField(null=False, blank=False)
@@ -22,7 +22,7 @@ class Event(models.Model):
 
 	REPORT_ORIGIN = (
 		('i','the event was taken insede the bus'), # is an I from inside
-		('o','the event was taken from a bustop'),)
+		('o','the event was taken from a bustop'),) # this is an O from outside
 	REPORT_TYPE = (
 		('bus','An event for the bus.'),
 		('busStop','An event for the busStop.'))
