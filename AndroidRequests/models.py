@@ -4,9 +4,11 @@ from django.utils import timezone
 # Create your models here.
 
 class Location(models.Model):
-
 	longitud = models.FloatField(null=False, blank=False)
 	latitud = models.FloatField(null=False, blank=False)
+
+	class Meta:
+		abstract = True
 
 class DevicePositionInTime(Location):	
 	timeStamp = models.DateTimeField(null=False, blank=False)
@@ -45,6 +47,12 @@ class EventForBus(EventRegistration):
 	bus = models.ForeignKey('Bus', verbose_name='the bus')
 	aditionalInfo = models.CharField(max_length=140, null=True, blank=True)# particular informaction of the event	
 
+
+class ServicesByBusStop(models.Model):
+	busStop = models.ForeignKey(BusStop)
+	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
+	service = models.CharField(max_length=5, null=False, blank=False)
+
 class BusStop(Location):
 	code = models.CharField(max_length=6, primary_key = True)
 	name = models.CharField(max_length=70, null = False, blank = False)
@@ -58,12 +66,12 @@ class Bus(models.Model):
 	class Meta:
 		unique_together = ('registrationPlate', 'service')
 
-	def getLocation(self, distance):
+	def getLocation(self, busstop, distance):
 		from random import uniform
 		tokens = Token.objects.filter(bus=self)
 		lastDate = timezone.now()-timezone.timedelta(days=30)
 		lat = -500
-		lon = -500
+		lon = -500 
 		for token in tokens:
 			if(not hasattr(token, 'activetoken')):
 				continue
@@ -73,14 +81,32 @@ class Bus(models.Model):
 				lat = lastPose.latitud
 				lon = lastPose.longitud
 		if(lat == lon and lat == -500):			
-			return {'latitud': -33.456967 + uniform(0.000000, 0.000003),
-					'longitud': -70.662169 + uniform(0.000000, 0.000003),
-					'estimated': True
-					}
+			return self.__estimatedPosition(busstop, distance)
 		return {'latitud': lat,
 				'longitud': lon,
 				'estimated': False
 				}
+
+	def __estimatedPosition(self, busstop, distance):
+		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = self.service).distance - int(distance)
+		try:
+			closest_gt = ServiceLocation.objects.filter(distance__gt=ssd).order_by('distance')[0].distance
+		except:
+			closest_gt = 5000000
+		try:
+			closest_lt = ServiceLocation.objects.filter(distance__lt=ssd).order_by('-distance')[0].distance
+		except:
+			closest_lt = 10
+		if(abs(closest_gt-ssd) < abs(closest_lt-ssd)):
+			closest = closest_gt
+		else:
+			closest = closest_lt
+		location = ServiceLocation.objects.filter(service = self.service, distance = closest)[0]
+		return {'latitud': location.latitud,
+				'longitud': location.longitud,
+				'estimated': True
+				}
+
 
 class ServiceLocation(Location):
 	service = models.CharField(max_length=5, null=False, blank=False)
