@@ -22,5 +22,5 @@ for i in range(1, len(sys.argv), 2):
 	csv.next()
 	factory = LoaderFactory()
 	loader = factory.getModelLoader(sys.argv[i])(csv, log)
-	loader.load(ticks[((i+1)/2)%len(ticks)])
+	loader.load(ticks[((i+1)/2-1)%len(ticks)])
 	csv.close()
