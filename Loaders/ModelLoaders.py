@@ -2,7 +2,6 @@
 
 import abc
 import os
-from Loader import Loader
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()

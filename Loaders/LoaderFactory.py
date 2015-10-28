@@ -6,7 +6,7 @@ class LoaderFactory():
 			return BusStopLoader
 		elif(model.lower()=="servicestopdistance"):
 			return ServiceStopDistanceLoader
-		elif(model=="servicelocation"):
+		elif(model.lower()=="servicelocation"):
 			return ServiceLocationLoader
 		else:
 			return None
