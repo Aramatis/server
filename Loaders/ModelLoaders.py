@@ -27,7 +27,7 @@ class Loader:
 	def inDBMessage(self, data):
 		return " is already in the DB\n"
 
-	def rowAddedMessage(className, rowsNum):
+	def rowAddedMessage(self, className, rowsNum):
 		return str(rowsNum) + " " + className + " rows added"
 
 	@abc.abstractmethod

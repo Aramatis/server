@@ -12,7 +12,7 @@ django.setup()
 ## HOW TO USE IT
 ## run the script giving the parameters by command line
 ## the parameters must be the name of the model and the paths to the csv files with the data
-## EX: python loadData.py busstop InitialData\busstops.csv servicestopdistance InitialData\servicestopdistance.csv ServiceLocation InitialData\servicelocation.csv
+## EX: python loadData.py busstop InitialData/busstops.csv servicestopdistance InitialData/servicestopdistance.csv ServiceLocation InitialData/servicelocation.csv
 
 
 log = open('loadDataError.log', 'w')
