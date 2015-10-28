@@ -32,7 +32,7 @@ def nearbyBuses(request, pBusStop):
 	for dato in data['servicios']:
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'].replace("-", ""), \
 										service = dato['servicio'])[0]
-		busdata = bus.getLocation(dato['distancia'].replace(' mts.', ''))
+		busdata = bus.getLocation(data['id'], dato['distancia'].replace(' mts.', ''))
 		dato['hasPassenger'] = 0 if busdata['estimated'] else 1
 		dato['lat'] = busdata['latitud']
 		dato['lon'] = busdata['longitud']
