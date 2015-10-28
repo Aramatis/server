@@ -16,25 +16,34 @@ class Event(models.Model):
 	name = models.CharField(max_length=30, null=False, blank=False)
 	description = models.CharField(max_length=140, null=True)
 	lifespam = models.IntegerField(default=30)# this value is in minutes
+	category = models.CharField(max_length=20)
+
+	REPORT_ORIGIN = (
+		('i','the event was taken insede the bus'), # is an I from inside
+		('o','the event was taken from a bustop'),)
+	REPORT_TYPE = (
+		('bus','An event for the bus.'),
+		('busStop','An event for the busStop.'))
+	origin = models.CharField(max_length=1, choices=REPORT_ORIGIN, default='o')
+	eventType = models.CharField(max_length=7, choices=REPORT_TYPE)
 
 class EventRegistration(models.Model):
 	'''This model stores the reposts of events coming from the  
 	passagers of the public Bus transport system.'''
-	timeStamp = models.DateTimeField()
+	timeStamp = models.DateTimeField() # lastime it was updated
+	timeCreation = models.DateTimeField() # the date and time when it was first reported
 	event = models.ForeignKey(Event, verbose_name='The event information')
 	eventConfirm = models.IntegerField(default=1)
 	eventDecline = models.IntegerField(default=0)
 
 class EventForBusStop(EventRegistration):
+	'''This model stotes the reported events for the busStop'''
 	busStop = models.ForeignKey('BusStop', verbose_name='The bustop')
 
 class EventForBus(EventRegistration):
-	REPORT_STATE = (
-		('i','the event was taken insede the bus'), # is an I from inside
-		('o','the event was taken from a bustop')) # in an O from outside
-
+	'''This model stotes the reported events for the BUS'''
 	bus = models.ForeignKey('Bus', verbose_name='the bus')
-	origin = models.CharField(max_length=1, choices=REPORT_STATE)
+	aditionalInfo = models.CharField(max_length=140, null=True, blank=True)# particular informaction of the event	
 
 class BusStop(Location):
 	code = models.CharField(max_length=6, primary_key = True)

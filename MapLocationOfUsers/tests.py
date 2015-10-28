@@ -5,7 +5,12 @@ from django.contrib.auth.models import AnonymousUser
 # import my stuff
 from MapLocationOfUsers.views import MapHandler, GetMapPositions, GetMapTrajectory
 from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
-from AndroidRequests.views import EndRoute, RequestToken, SendPoses
+#views
+from AndroidRequests.allviews.RequestToken import RequestToken
+from AndroidRequests.allviews.EndRoute import EndRoute
+from AndroidRequests.allviews.SendPoses import SendPoses
+from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
+from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 
 import json
 

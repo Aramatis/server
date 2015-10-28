@@ -5,7 +5,12 @@ import json
 
 # my stuff
 from AndroidRequests.models import DevicePositionInTime, ActiveToken, Token
-from AndroidRequests.views import EndRoute, RequestToken, SendPoses
+# views
+from AndroidRequests.allviews.RequestToken import RequestToken
+from AndroidRequests.allviews.EndRoute import EndRoute
+from AndroidRequests.allviews.SendPoses import SendPoses
+from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
+from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 # Create your tests here.
 
 class DevicePositionInTimeTest(TestCase):
