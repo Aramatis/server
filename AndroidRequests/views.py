@@ -140,11 +140,36 @@ class SendPoses(View):
 class RegisterEventBus(View):
 	'''This class handles the requests that reports events of a bus'''
 
-	def get(self, request, pTimeStamp, pEventID, pConfirmDecline):
+	def get(self, request, pBusID, pTimeStamp, pEventID, pConfirmDecline, pMessageOrigin):
 		theEvent = Events.objects.get(id=pEventID)
+		theBus = Bus.objects.get(service=pBusID)
 
-		oldestAlertedTime = dateparse.parse_datetime(pTimeStamp) - timezone.timedelta(minutes=theEvent.lifespam)
+		aTimeStamp = dateparse.parse_datetime(pTimeStamp)
+		aTimeStamp = timezone.make_aware(aTimeStamp)
 
-		if EventForBus.objects.filter()
+		oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
+
+		if EventForBus.objects.filter(timeStamp_gt = oldestAlertedTime, bus=theBus, event=theEvent).exist():
+			eventReport = EventForBus.objects.get(timeStamp_gt = oldestAlertedTime, bus=theBus, event=theEvent)
+
+			# updates to the event reported
+			eventReport.timeStamp = aTimeStamp
+			if pConfirmDecline == 'decline':
+				eventReport.eventDecline += 1
+			else:
+				eventReport.eventConfirm += 1
+
+			eventReport.save()
+		else:
+			aEventReport = EventForBus.objects.create(bus=theBus, event=theEvent, origin=pMessageOrigin, timeStamp=aTimeStamp)
+
+			if pConfirmDecline == 'decline':
+				aEventReport.eventDecline = 1
+				aEventReport.eventConfirm = 0
+
+			aEventReport.save()
+
+
+
 		response['response'] = 'Thanks for the information, give to recieve.'
 		return JsonResponse(response, safe=False)
