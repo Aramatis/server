@@ -6,7 +6,6 @@ from AndroidRequests.models import *
 
 admin.site.register(DevicePositionInTime)
 admin.site.register(Event)
-admin.site.register(EventRegistration)
 admin.site.register(EventForBusStop)
 admin.site.register(EventForBus)
 admin.site.register(ServicesByBusStop)

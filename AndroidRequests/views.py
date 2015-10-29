@@ -12,6 +12,8 @@ from random import random, uniform
 # my stuff
 # import DB's models
 from AndroidRequests.models import *
+from AndroidRequests.allviews.EventsByBusStop import *
+from AndroidRequests.allviews.EventsByBus import *
 
 def userPosition(request, pLat, pLon):
 	'''This function stores the pose of an active user'''
@@ -29,6 +31,12 @@ def nearbyBuses(request, pBusStop):
 	response = requests.get(url=url, params = params)
 	data = json.loads(response.text)
 	servicios = []
+
+	timeNow = timezone.now()
+	theBusStop = BusStop.objects.get(code=pBusStop)
+	getEventsBusStop = EventsByBusStop()
+	busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
+
 	for dato in data['servicios']:
 		if(dato["valido"]!=1):
 			continue
@@ -38,22 +46,15 @@ def nearbyBuses(request, pBusStop):
 		dato['hasPassenger'] = 0 if busdata['estimated'] else 1
 		dato['lat'] = busdata['latitud']
 		dato['lon'] = busdata['longitud']
+
+		getEventBus = EventsByBus()
+		busEvents = getEventBus.getEventForBus(bus)
+
+		dato['events'] = busEvents
+
 		servicios.append(dato)
-	#Eventos dummy
-	eventos = []
-
-	evento1 = {}
-	evento1["id"] = "npi"
-	evento1["descripcion"] = "Paradero lleno"
-
-	evento2 = {}
-	evento2["id"] = "ble"
-	evento2["descripcion"] = "Paradero roto"
-
-	eventos.append(evento1)
-	eventos.append(evento2)
 
 	response = {}
 	response["servicios"] = servicios
-	response["eventos"] = eventos
+	response["eventos"] = busStopEvent
 	return JsonResponse(response, safe=False)

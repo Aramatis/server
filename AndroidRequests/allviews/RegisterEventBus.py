@@ -16,13 +16,15 @@ from AndroidRequests.models import *
 class RegisterEventBus(View):
 	'''This class handles the requests that reports events of a bus'''
 
-	def get(self, request, pBusService, pBusPlate, pTimeStamp, pEventID, pConfirmDecline):
+	def get(self, request, pBusService, pBusPlate, pEventID, pConfirmDecline):
 		response = {}
+
+		aTimeStamp = timezone.now()
 		theEvent = Event.objects.get(id=pEventID)
+
 		theBus = Bus.objects.get(service=pBusService, registrationPlate=pBusPlate)
 
-		aTimeStamp = dateparse.parse_datetime(pTimeStamp)
-		aTimeStamp = timezone.make_aware(aTimeStamp)
+		aTimeStamp = timezone.now()
 
 		oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
 
