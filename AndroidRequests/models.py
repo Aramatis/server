@@ -38,12 +38,15 @@ class EventRegistration(models.Model):
 	eventConfirm = models.IntegerField(default=1)
 	eventDecline = models.IntegerField(default=0)
 
+	class Meta:
+		abstract = True
+
 class EventForBusStop(EventRegistration):
-	'''This model stotes the reported events for the busStop'''
+	'''This model stores the reported events for the busStop'''
 	busStop = models.ForeignKey('BusStop', verbose_name='The bustop')
 
 class EventForBus(EventRegistration):
-	'''This model stotes the reported events for the BUS'''
+	'''This model stores the reported events for the Bus'''
 	bus = models.ForeignKey('Bus', verbose_name='the bus')
 	aditionalInfo = models.CharField(max_length=140, null=True, blank=True)# particular informaction of the event	
 
