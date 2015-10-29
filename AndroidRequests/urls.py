@@ -7,6 +7,7 @@ from AndroidRequests.allviews.SendPoses import SendPoses
 from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.allviews.RequestEventsToNotified import RequestEventsToNotified
 
 urlpatterns = [
 	url(r'^nearbyBuses/(?P<pBusStop>\w+)$', views.nearbyBuses),
@@ -17,4 +18,5 @@ urlpatterns = [
     url(r'^reportEventBus/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9]*)/(?P<pTimeStamp>.*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBus.as_view()),
     url(r'^reportEventBusStop/(?P<pBusStopCode>[\w,0-9]*)/(?P<pTimeStamp>.*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBusStop.as_view()),
     url(r'^requestEventsForBus/(?P<pRegistrationPlate>[\w,0-9]*)$', EventsByBus.as_view()),
+    url(r'^requestEventsToNotified/(?P<pWhich>[\w,0-9]*)$', RequestEventsToNotified.as_view()),
 ]
