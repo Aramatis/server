@@ -29,6 +29,17 @@ class Event(models.Model):
 	origin = models.CharField(max_length=1, choices=REPORT_ORIGIN, default='o')
 	eventType = models.CharField(max_length=7, choices=REPORT_TYPE)
 
+	def getDictionary(self):
+		dictionary = {}
+		dictionary['name'] = self.name
+		dictionary['description'] = self.description
+		dictionary['eventcode'] = self.id
+		return dictionary
+##
+#
+# This are the modles to handel the registration of events for a bus or a busstop
+#
+##
 class EventRegistration(models.Model):
 	'''This model stores the reposts of events coming from the  
 	passagers of the public Bus transport system.'''
@@ -38,16 +49,50 @@ class EventRegistration(models.Model):
 	eventConfirm = models.IntegerField(default=1)
 	eventDecline = models.IntegerField(default=0)
 
+	def getDictionary(self):
+		dictionary = {}
+
+		dictionary['eventConfirm'] = self.eventConfirm
+		dictionary['eventDecline'] = self.eventDecline
+		dictionary['timeCreation'] = self.timeCreation
+		eventDictionay = self.event.getDictionary()
+		dictionary.update(eventDictionay)
+
+		return dictionary
+'''
+class Foo(Bar):
+    def baz(self, arg):
+        return super(Foo, self).baz(arg)
+'''
+
 class EventForBusStop(EventRegistration):
 	'''This model stotes the reported events for the busStop'''
 	busStop = models.ForeignKey('BusStop', verbose_name='The bustop')
+	aditionalInfo = models.CharField(max_length=140, null=True, blank=True)# particular informaction of the event	
+
+	def getDictionary(self):
+		dictionary = super(EventForBusStop, self).getDictionary()
+
+		dictionary.update(self.busStop.getDictionary())
+
+		return dictionary
 
 class EventForBus(EventRegistration):
 	'''This model stotes the reported events for the BUS'''
 	bus = models.ForeignKey('Bus', verbose_name='the bus')
-	aditionalInfo = models.CharField(max_length=140, null=True, blank=True)# particular informaction of the event	
 
+	def getDictionary(self):
+		dictionary = super(EventForBus, self).getDictionary()
 
+		dictionary.update(self.bus.getDictionary())
+		
+		return dictionary
+
+##
+#
+# The end for the model for the registration
+#
+##
 class ServicesByBusStop(models.Model):
 	busStop = models.ForeignKey('BusStop')
 	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
@@ -57,6 +102,14 @@ class BusStop(Location):
 	code = models.CharField(max_length=6, primary_key = True)
 	name = models.CharField(max_length=70, null = False, blank = False)
 	events = models.ManyToManyField(Event, verbose_name='the event' ,through=EventForBusStop)
+
+	def getDictionary(self):
+		dictionary = {}
+
+		dictionary['codeBusStop'] = self.code
+		dictionary['nameBusStop'] = self.name
+
+		return dictionary
 
 class Bus(models.Model):
 	registrationPlate = models.CharField(max_length=8)
@@ -107,6 +160,13 @@ class Bus(models.Model):
 				'estimated': True
 				}
 
+	def getDictionary(self):
+		dictionary = {}
+
+		dictionary['serviceBus'] = self.service
+		dictionary['registrationPlateBus'] = self.registrationPlate
+
+		return dictionary
 
 class ServiceLocation(Location):
 	service = models.CharField(max_length=5, null=False, blank=False)

@@ -35,15 +35,7 @@ class RequestEventsToNotified(View):
 		response = []
 
 		for data in events:
-			responseAux = {}
-			responseAux['name'] = data.name
-			responseAux['description'] = data.description
-			responseAux['lifespam'] = data.lifespam
-			responseAux['category'] = data.category
-			responseAux['origin'] = data.origin
-			responseAux['eventType'] = data.eventType
-			print responseAux
-			response.append(responseAux)
+			response.append(data.getDictionary())
 
 		return JsonResponse(response, safe=False)
 

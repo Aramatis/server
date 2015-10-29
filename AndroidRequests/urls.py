@@ -1,12 +1,13 @@
 from django.conf.urls import include, url
 from . import views
 
-from AndroidRequests.allviews.RequestToken import RequestToken
-from AndroidRequests.allviews.EndRoute import EndRoute
-from AndroidRequests.allviews.SendPoses import SendPoses
-from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
-from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
-from AndroidRequests.allviews.RequestEventsToNotified import RequestEventsToNotified
+from AndroidRequests.allviews.RequestToken import *
+from AndroidRequests.allviews.EndRoute import *
+from AndroidRequests.allviews.SendPoses import *
+from AndroidRequests.allviews.RegisterEventBus import *
+from AndroidRequests.allviews.RegisterEventBusStop import *
+from AndroidRequests.allviews.RequestEventsToNotified import *
+from AndroidRequests.allviews.RequestCurrentEventsForBusStop import *
 
 urlpatterns = [
 	url(r'^nearbyBuses/(?P<pBusStop>\w+)$', views.nearbyBuses),
@@ -17,4 +18,6 @@ urlpatterns = [
     url(r'^reportEventBus/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9]*)/(?P<pTimeStamp>.*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBus.as_view()),
     url(r'^reportEventBusStop/(?P<pBusStopCode>[\w,0-9]*)/(?P<pTimeStamp>.*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBusStop.as_view()),
     url(r'^requestEventsToNotified/(?P<pWhich>[\w,0-9]*)$', RequestEventsToNotified.as_view()),
+    url(r'^requestCurrentEventsForBusStop/(?P<pTimeStamp>.*)/(?P<pBusStopCode>[\w,0-9]*)$', RequestCurrentEventsForBusStop.as_view()),
 ]
+
