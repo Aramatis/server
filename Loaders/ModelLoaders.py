@@ -210,7 +210,7 @@ class LoadEvents(object):
 			lifespam=43200, category='estado físico', origin='o', eventType='busStop')
 		Event.objects.get_or_create(id ='evn00012', name='No hay iluminación', description='En el paradero no hay luces que lo iliminen.',\
 			lifespam=43200, category='estado físico', origin='o', eventType='busStop')
-		Event.objects.get_or_create(id ='evn00013', name='No hay informacion de recorridos.', description='En el paradero no se especifica que servicios pasan por ahi.',\
+		Event.objects.get_or_create(id ='evn00013', name='Falta informacion recorridos.', description='En el paradero no se especifica que servicios pasan por ahi.',\
 			lifespam=43200, category='estado físico', origin='o', eventType='busStop')
 		# Events for Robos o desordenes
 		Event.objects.get_or_create(id ='evn00020', name='Robos o desordenes', description='En el paradero se precencias robos o se han producido disturbios',\
