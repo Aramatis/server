@@ -47,10 +47,9 @@ class EventsByBus(View):
 				continue
 			eventDict= model_to_dict(event, fields=['name', 'description', 'category'])
 			registryDict = model_to_dict(registry, fields=['eventConfirm', 'eventDecline', 'aditionalInfo'])
-			print registryDict
 			registryDict['confirm'] = registryDict.pop('eventConfirm')
 			registryDict['decline'] = registryDict.pop('eventDecline')
-			#registryDict['info'] = registryDict.pop('aditionalInfo')
+			registryDict['info'] = registryDict.pop('aditionalInfo')
 			eventDict.update(registryDict)
 			events.append(eventDict)
 			
