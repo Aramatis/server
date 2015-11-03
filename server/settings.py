@@ -39,7 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'AndroidRequests',
     'MapLocationOfUsers',
-    'django_crontab', 
 )
 
 MIDDLEWARE_CLASSES = (
@@ -79,19 +78,19 @@ WSGI_APPLICATION = 'server.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASES = {
-    #'default': {
-    #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #    'NAME': 'ghostinspector',
-    #    'USER': 'inspector',
-    #    'PASSWORD': '1ghost2inspector',
-    #    'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
-    #    'PORT': '', 
-    #}
-    # for development purpuse use SQLite
     'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
-       'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'ghostinspector',
+        'USER': 'inspector',
+        'PASSWORD': '1ghost2inspector',
+        'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
+        'PORT': '', 
     }
+    # for development purpuse use SQLite
+    #'default': {
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #}
 }
 
 
@@ -114,8 +113,3 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
-
-#Cron settings
-CRONJOBS = [
-    ('*/5 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
-] 
