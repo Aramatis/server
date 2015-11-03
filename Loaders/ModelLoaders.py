@@ -232,7 +232,7 @@ class LoadEvents(object):
 		# Event for ambiente
 		Event.objects.get_or_create(id ='evn00200', name='Imposible moverse', description='No se puede transitar por el bus, dada la cantidad de gente.',\
 			lifespam=5, category='ambiente', origin='i', eventType='bus')
-		Event.objects.get_or_create(id ='evn00201', name='Se puede caminar con dificultad', description='El bus esta lleno y es dificil circular por él.',\
+		Event.objects.get_or_create(id ='evn00201', name='Se camina con dificultad', description='El bus esta lleno y es dificil circular por él.',\
 			lifespam=5, category='ambiente', origin='i', eventType='bus')
 		Event.objects.get_or_create(id ='evn00202', name='No hay asientos disponibles', description='No se puede serntar en ningun asiento.',\
 			lifespam=5, category='ambiente', origin='i', eventType='bus')
