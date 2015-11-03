@@ -130,7 +130,9 @@ class Bus(models.Model):
 				}
 
 	def __estimatedPosition(self, busstop, distance):
-		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = self.service).distance - int(distance)
+		busStop = BusStop.objects.get(code=busstop)
+		serviceCode = ServicesByBusStop.objects.get(busStop = busStop, service = self.service).code
+		ssd = ServiceStopDistance.objects.get(busStop = busStop, service = serviceCode).distance - int(distance)
 		try:
 			closest_gt = ServiceLocation.objects.filter(distance__gt=ssd).order_by('distance')[0].distance
 		except:
@@ -158,12 +160,12 @@ class Bus(models.Model):
 		return dictionary
 
 class ServiceLocation(Location):
-	service = models.CharField(max_length=5, null=False, blank=False)
+	service = models.CharField(max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
 	distance = models.IntegerField()
 
 class ServiceStopDistance(models.Model):
 	busStop = models.ForeignKey(BusStop)
-	service = models.CharField(max_length=5, null=False, blank=False)
+	service = models.CharField(max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
 	distance = models.IntegerField()
 
 
