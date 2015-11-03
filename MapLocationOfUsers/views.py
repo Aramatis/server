@@ -55,17 +55,16 @@ class GetMapTrajectory(View):
 	def get(self, request):
 		
 		tokens = self.getTokenUsedIn10LastMinutes()
-
 		response = []
 
 		for aToken in tokens:
 			tokenResponse = {}
-			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, sender="vehicle")
+			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, sender="vehicle").order_by('-timeStamp')
+		
+			aPose = trajectory[0]
 
-			responseTrajectory = []
-			for aPose in trajectory:
-				responseTrajectory.append((aPose.latitud, aPose.longitud))
-			tokenResponse['trajectory'] = responseTrajectory
+			tokenResponse['lastPose'] = (aPose.latitud, aPose.longitud)
+			print aPose.timeStamp
 			tokenResponse['token'] = aToken.token
 			tokenResponse['myColor'] = aToken.color
 			response.append(tokenResponse)
@@ -76,6 +75,7 @@ class GetMapTrajectory(View):
 	def getTokenUsedIn10LastMinutes(self):
 		'''return the tokens that have the latest entry atleast 10 minutes ago'''
 		now = timezone.now()
+
 		earlier = now - timezone.timedelta(minutes=10)
 		allPoses = PoseInTrajectoryOfToken.objects.filter(timeStamp__range=(earlier,now))
 
