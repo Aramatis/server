@@ -114,6 +114,48 @@ class ServiceStopDistanceLoader(Loader):
 				print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
 
 
+class ServicesByBusStopLoader(Loader):
+	_className = "ServicesByBusStop"
+
+	@property
+	def className(self):
+		return self._className
+
+	def notSavedMessage(self, data):
+		end = super(ServicesByBusStopLoader, self).notSavedMessage("")
+		return "The service " + data[1] + " for the busStop "+ data[0] + end
+
+	def inDBMessage(self, data):
+		end = super(ServicesByBusStopLoader, self).inDBMessage("")
+		return "The service " + data[1] + " for the busStop "+ data[0] + end
+
+	def load(self, ticks):
+		i = 1
+		for line in self.csv:
+			data = line.split(";")
+			if(data.count('\n')>0):
+				continue
+			services = data[1].split("-")
+			for service in services:
+				try:
+					busstop = BusStop.objects.get(code=data[0])
+					serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busstop, \
+						code=service, service = service[:-1])[0]
+				except Exception, e:
+					self.log.write(self.inDBMessage([data[0], service]))
+					self.log.write(str(e) + "\n")
+					continue
+
+				try:
+					serviceByBusStop.save()
+				except Exception, e:
+					self.log.write(self.notSavedMessage([data[0], service]))
+					self.log.write(str(e) + "\n")
+				i+=1
+				if(i%ticks==0):
+					print super(ServicesByBusStopLoader, self).rowAddedMessage(self.className, i)
+
+
 class ServiceLocationLoader(Loader):
 	_className = "ServiceLocation"
 
