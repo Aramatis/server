@@ -137,6 +137,7 @@ class ServicesByBusStopLoader(Loader):
 				continue
 			services = data[1].split("-")
 			for service in services:
+				service = service.replace("\n", "")
 				try:
 					busstop = BusStop.objects.get(code=data[0])
 					serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busstop, \
