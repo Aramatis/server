@@ -142,11 +142,11 @@ class Bus(models.Model):
 		serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 		try:
-			closest_gt = ServiceLocation.objects.filter(distance__gt=ssd).order_by('distance')[0].distance
+			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
 		except:
 			closest_gt = 5000000
 		try:
-			closest_lt = ServiceLocation.objects.filter(distance__lt=ssd).order_by('-distance')[0].distance
+			closest_lt = ServiceLocation.objects.filter(service = serviceCode, distance__lt=ssd).order_by('-distance')[0].distance
 		except:
 			closest_lt = 10
 		if(abs(closest_gt-ssd) < abs(closest_lt-ssd)):
