@@ -33,6 +33,7 @@ class Event(models.Model):
 		dictionary = {}
 		dictionary['name'] = self.name
 		dictionary['description'] = self.description
+		print self.id
 		dictionary['eventcode'] = self.id
 		return dictionary
 
