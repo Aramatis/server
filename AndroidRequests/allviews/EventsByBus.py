@@ -37,7 +37,6 @@ class EventsByBus(View):
 
 		response['events'] = events
 
-		print response
 		return JsonResponse(response, safe=False)
 
 	def getEventForBus(self,pBus):
