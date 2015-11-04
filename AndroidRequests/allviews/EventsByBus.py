@@ -36,6 +36,8 @@ class EventsByBus(View):
 		#	events.append(eventDict)
 
 		response['events'] = events
+
+		print response
 		return JsonResponse(response, safe=False)
 
 	def getEventForBus(self,pBus):
@@ -45,10 +47,10 @@ class EventsByBus(View):
 			registry = EventForBus.objects.filter(bus = pBus, event=event).order_by('-timeStamp')[0]
 			if(registry.timeStamp + datetime.timedelta(minutes = event.lifespam)<timezone.now()):
 				continue
-			eventDict= model_to_dict(event, fields=['name', 'description', 'category'])
-			registryDict = model_to_dict(registry, fields=['eventConfirm', 'eventDecline'])
-			registryDict['confirm'] = registryDict.pop('eventConfirm')
-			registryDict['decline'] = registryDict.pop('eventDecline')
+			#eventDict= model_to_dict(event, fields=['name', 'description', 'category'])
+			#registryDict = model_to_dict(registry, fields=['eventConfirm', 'eventDecline'])
+			#registryDict['confirm'] = registryDict.pop('eventConfirm')
+			registryDict = registry.getDictionary()#['decline'] = registryDict.pop('eventDecline')
 			eventDict.update(registryDict)
 			events.append(eventDict)
 			
