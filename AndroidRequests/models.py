@@ -60,6 +60,7 @@ class EventRegistration(models.Model):
 		dictionary['eventConfirm'] = self.eventConfirm
 		dictionary['eventDecline'] = self.eventDecline
 		dictionary['timeCreation'] = self.timeCreation
+		dictionary['timeStamp'] = self.timeStamp
 		eventDictionay = self.event.getDictionary()
 		dictionary.update(eventDictionay)
 
@@ -68,7 +69,7 @@ class EventRegistration(models.Model):
 class EventForBusStop(EventRegistration):
 	'''This model stores the reported events for the busStop'''
 	busStop = models.ForeignKey('BusStop', verbose_name='The bustop')
-	aditionalInfo = models.CharField(max_length=140, null=True, blank=True)# particular informaction of the event	
+	aditionalInfo = models.CharField(max_length=140, default='nothing')
 
 
 class EventForBus(EventRegistration):
@@ -126,6 +127,7 @@ class Bus(models.Model):
 			try:
 				return self.__estimatedPosition(busstop, distance)
 			except:
+				raise
 				return {'latitud': -33.456967 + uniform(0.000000, 0.0003),
 						'longitud': -70.662169 + uniform(0.000000, 0.0003),
 						'estimated': True, 

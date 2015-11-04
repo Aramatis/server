@@ -46,10 +46,9 @@ class EventsByBus(View):
 			if(registry.timeStamp + datetime.timedelta(minutes = event.lifespam)<timezone.now()):
 				continue
 			eventDict= model_to_dict(event, fields=['name', 'description', 'category'])
-			registryDict = model_to_dict(registry, fields=['eventConfirm', 'eventDecline', 'aditionalInfo'])
+			registryDict = model_to_dict(registry, fields=['eventConfirm', 'eventDecline'])
 			registryDict['confirm'] = registryDict.pop('eventConfirm')
 			registryDict['decline'] = registryDict.pop('eventDecline')
-			registryDict['info'] = registryDict.pop('aditionalInfo')
 			eventDict.update(registryDict)
 			events.append(eventDict)
 			
