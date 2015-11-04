@@ -128,10 +128,12 @@ class Bus(models.Model):
 			except:
 				return {'latitud': -33.456967 + uniform(0.000000, 0.0003),
 						'longitud': -70.662169 + uniform(0.000000, 0.0003),
-						'estimated': True, 'random':True}
+						'estimated': True, 
+						'random':True}
 		return {'latitud': lat,
 				'longitud': lon,
-				'estimated': False
+				'estimated': False,
+				'random': False
 				}
 
 	def __estimatedPosition(self, busstop, distance):
@@ -152,7 +154,8 @@ class Bus(models.Model):
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
-				'estimated': True
+				'estimated': True,
+				'random': False
 				}
 
 	def getDictionary(self):
