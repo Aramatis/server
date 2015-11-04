@@ -60,6 +60,7 @@ class EventRegistration(models.Model):
 		dictionary['eventConfirm'] = self.eventConfirm
 		dictionary['eventDecline'] = self.eventDecline
 		dictionary['timeCreation'] = self.timeCreation
+		dictionary['timeStamp'] = self.timeStamp
 		eventDictionay = self.event.getDictionary()
 		dictionary.update(eventDictionay)
 
