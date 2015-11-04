@@ -22,7 +22,7 @@ class RegisterEventBus(View):
 		aTimeStamp = timezone.now()
 		theEvent = Event.objects.get(id=pEventID)
 
-		theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)
+		theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
 
 		aTimeStamp = timezone.now()
 
