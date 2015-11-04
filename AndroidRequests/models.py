@@ -128,16 +128,17 @@ class Bus(models.Model):
 			except:
 				return {'latitud': -33.456967 + uniform(0.000000, 0.0003),
 						'longitud': -70.662169 + uniform(0.000000, 0.0003),
-						'estimated': True}
+						'estimated': True, 
+						'random':True}
 		return {'latitud': lat,
 				'longitud': lon,
-				'estimated': False
+				'estimated': False,
+				'random': False
 				}
 
 	def __estimatedPosition(self, busstop, distance):
-		busStop = BusStop.objects.get(code=busstop)
-		serviceCode = ServicesByBusStop.objects.get(busStop = busStop, service = self.service).code
-		ssd = ServiceStopDistance.objects.get(busStop = busStop, service = serviceCode).distance - int(distance)
+		serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
+		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 		try:
 			closest_gt = ServiceLocation.objects.filter(distance__gt=ssd).order_by('distance')[0].distance
 		except:
@@ -150,10 +151,11 @@ class Bus(models.Model):
 			closest = closest_gt
 		else:
 			closest = closest_lt
-		location = ServiceLocation.objects.filter(service = self.service, distance = closest)[0]
+		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
-				'estimated': True
+				'estimated': True,
+				'random': False
 				}
 
 	def getDictionary(self):
