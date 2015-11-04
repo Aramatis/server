@@ -41,7 +41,7 @@ def nearbyBuses(request, pBusStop):
 		if(dato["valido"]!=1):
 			continue
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'].replace("-", ""), \
-										service = dato['servicio'])[0]
+										service = dato['servicio'].lower())[0]
 		busdata = bus.getLocation(data['id'], dato['distancia'].replace(' mts.', ''))
 		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1
 		dato['lat'] = busdata['latitud']
