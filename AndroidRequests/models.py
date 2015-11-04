@@ -128,8 +128,8 @@ class Bus(models.Model):
 				return self.__estimatedPosition(busstop, distance)
 			except:
 				#raise
-				return {'latitud': -33.456967 + uniform(0.000000, 0.0003),
-						'longitud': -70.662169 + uniform(0.000000, 0.0003),
+				return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
+						'longitud': -70.434710 + uniform(0.000000, 0.0005),
 						'estimated': True, 
 						'random':True}
 		return {'latitud': lat,
@@ -139,7 +139,10 @@ class Bus(models.Model):
 				}
 
 	def __estimatedPosition(self, busstop, distance):
-		serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
+		try:
+			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
+		except:
+			serviceCode = self.service + "I"
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 		try:
 			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
