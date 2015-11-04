@@ -44,6 +44,10 @@ class EventsByBus(View):
 
 		for event in pBus.events.all():
 			registry = EventForBus.objects.filter(bus = pBus, event=event).order_by('-timeStamp')[0]
+
+			print registry.timeStamp + datetime.timedelta(minutes = event.lifespam)
+			print timezone.now()
+			print registry.timeStamp + datetime.timedelta(minutes = event.lifespam)<timezone.now()
 			if(registry.timeStamp + datetime.timedelta(minutes = event.lifespam)<timezone.now()):
 				continue
 			#eventDict= model_to_dict(event, fields=['name', 'description', 'category'])
