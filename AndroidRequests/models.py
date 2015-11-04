@@ -68,7 +68,7 @@ class EventRegistration(models.Model):
 class EventForBusStop(EventRegistration):
 	'''This model stores the reported events for the busStop'''
 	busStop = models.ForeignKey('BusStop', verbose_name='The bustop')
-	aditionalInfo = models.CharField(max_length=140, default='none')
+	aditionalInfo = models.CharField(max_length=140, default='nothing')
 
 
 class EventForBus(EventRegistration):
