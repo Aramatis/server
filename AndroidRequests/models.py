@@ -126,6 +126,7 @@ class Bus(models.Model):
 			try:
 				return self.__estimatedPosition(busstop, distance)
 			except:
+				#raise
 				return {'latitud': -33.456967 + uniform(0.000000, 0.0003),
 						'longitud': -70.662169 + uniform(0.000000, 0.0003),
 						'estimated': True, 

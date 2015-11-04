@@ -47,7 +47,7 @@ def nearbyBuses(request, pBusStop):
 		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1
 		dato['lat'] = busdata['latitud']
 		dato['lon'] = busdata['longitud']
-
+		dato['random'] = busdata['random']
 		getEventBus = EventsByBus()
 		busEvents = getEventBus.getEventForBus(bus)
 
