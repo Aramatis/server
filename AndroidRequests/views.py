@@ -50,6 +50,7 @@ def nearbyBuses(request, pBusStop):
 		dato['lon'] = busdata['longitud']
 		dato['random'] = busdata['random']
 		getEventBus = EventsByBus()
+		print bus.registrationPlate, bus.service
 		busEvents = getEventBus.getEventForBus(bus)
 
 		dato['eventos'] = busEvents

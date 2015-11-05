@@ -15,10 +15,10 @@ class EventsByBus(View):
 	def __init__(self):
 		self.context={}
 
-	def get(self, request, pRegistrationPlate):
+	def get(self, request, pRegistrationPlate,pBusService):
 		
 		response = {}
-		bus = Bus.objects.get(registrationPlate=pRegistrationPlate)
+		bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
 		response['registrationPlate'] = pRegistrationPlate
 		response['service'] = bus.service
 		events = self.getEventForBus(bus)
