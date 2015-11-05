@@ -223,7 +223,6 @@ class DevicePositionInTimeTest(TestCase):
         response0View = EventsByBusStop()
         response0 = response0View.get(request0,busStopCode)
         response0 = json.loads(response0.content)
-        print response0
 
         self.assertEqual(response0['codeBusStop'],busStopCode)
         self.assertEqual(response0['events'][0]['eventDecline'],0)
