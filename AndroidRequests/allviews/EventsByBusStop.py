@@ -25,7 +25,7 @@ class EventsByBusStop(View):
 
 		eventsData = self.getEventsForBusStop(theBusStop, aTimeStamp)
 
-		eventeDictionary = pBusStop.getDictionary()
+		eventeDictionary = theBusStop.getDictionary()
 		eventeDictionary['events'] = eventsData
 		
 		return JsonResponse(eventeDictionary, safe=False)
