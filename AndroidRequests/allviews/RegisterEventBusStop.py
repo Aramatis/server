@@ -17,6 +17,7 @@ class RegisterEventBusStop(View):
 	'''This class handles the requests that reports events of a busstop'''
 
 	def get(self, request, pBusStopCode, pEventID, pConfirmDecline):
+		"""Is the save as for the Bus, check that out if in doubt."""
 		response = {}
 
 		theEvent = Event.objects.get(id=pEventID)

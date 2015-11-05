@@ -198,6 +198,7 @@ class DevicePositionInTimeTest(TestCase):
         anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
 
+        # ask for ecents and the answere should be none
         response0 = response0View.get(request0, licencePlate,busService)
         response0 = json.loads(response0.content)
 
@@ -258,6 +259,7 @@ class DevicePositionInTimeTest(TestCase):
         anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
 
+        # ask for ecents and the answere should be none
         response0 = response0View.get(request0,busStopCode)
         response0 = json.loads(response0.content)
 
