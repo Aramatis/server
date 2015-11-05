@@ -40,9 +40,14 @@ def nearbyBuses(request, pBusStop):
 	for dato in data['servicios']:
 		if(dato["valido"]!=1):
 			continue
+		# clean the strings from spaces and unwanted format
 		dato['servicio'] = dato['servicio'].strip()
+		dato['patente'] = dato['patente'].replace("-", "")
+		dato['patente'] = dato['patente'].strip()
 		dato['servicio'] = dato['servicio'][0] + dato['servicio'][1:].lower()
-		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'].replace("-", ""), \
+
+		# request the correct bus
+		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], \
 										service = dato['servicio'])[0]
 		busdata = bus.getLocation(data['id'], dato['distancia'].replace(' mts.', ''))
 		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1
