@@ -113,7 +113,7 @@ class BusStop(Location):
 class Bus(models.Model):
 	"""The bus. The bus is consideres the unique combination of registration plate and service as one.
 	So there can be two buses whit same service (da) and two buses whit same registration plate.
-	The last thing means that"""
+	The last thing means that one fisical bus can work in two different service."""
 	registrationPlate = models.CharField(max_length=8)
 	service = models.CharField(max_length=5, null=False, blank=False)
 	events = models.ManyToManyField(Event,  verbose_name='the event' ,through=EventForBus)
@@ -122,6 +122,7 @@ class Bus(models.Model):
 		unique_together = ('registrationPlate', 'service')
 
 	def getLocation(self, busstop, distance):
+		"""This method estimate the location of a bus given one user the is inside."""
 		from random import uniform
 		tokens = Token.objects.filter(bus=self)
 		lastDate = timezone.now()-timezone.timedelta(days=30)
