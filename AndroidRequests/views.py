@@ -48,12 +48,18 @@ def nearbyBuses(request, pBusStop):
 			closerDist = int(distance)
 			time = dato['tiempo']
 
+		# clean the strings from spaces and unwanted format
 		dato['servicio'] = dato['servicio'].strip()
+		dato['patente'] = dato['patente'].replace("-", "")
+		dato['patente'] = dato['patente'].strip()
 		dato['servicio'] = dato['servicio'][0] + dato['servicio'][1:].lower()
+
 		if(dato['servicio'] == "506"):
 			if(jumper==1):
 				continue
 			jumper += 1
+
+		# request the correct bus
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'].replace("-", ""), \
 										service = dato['servicio'])[0]
 		busdata = bus.getLocation(pBusStop, distance)
@@ -63,6 +69,7 @@ def nearbyBuses(request, pBusStop):
 		dato['random'] = busdata['random']
 
 		getEventBus = EventsByBus()
+		
 		busEvents = getEventBus.getEventForBus(bus)
 
 		dato['eventos'] = busEvents
@@ -78,7 +85,7 @@ def nearbyBuses(request, pBusStop):
 		dato = {}
 		dato['servicio'] = "506"
 		dato['patente'] = "AA0000"
-		dato['distancia'] = str(closerDist) + " mts."
+		dato['distancia'] = str(closerDist + 20) + " mts."
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], service = dato['servicio'])[0]
 		busdata = bus.getLocation(pBusStop, closerDist + 20)
 		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1

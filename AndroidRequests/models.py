@@ -3,17 +3,23 @@ from django.utils import timezone
 
 # Create your models here.
 # Remembre to add new models to admin.py
+
 class Location(models.Model):
+	""" Some of our models require to set a location (coodinates)"""
 	longitud = models.FloatField(null=False, blank=False)
 	latitud = models.FloatField(null=False, blank=False)
 
 	class Meta:
+		"""This makes that the fields here define are added to the tables that
+		extends this, and no ForeignKey is made."""
 		abstract = True
 
 class DevicePositionInTime(Location):	
+	"""Helps storing the position of active users"""
 	timeStamp = models.DateTimeField(null=False, blank=False)
 
 class Event(models.Model):
+	"""Here are all the events, its configurarion and info."""
 	id = models.CharField(max_length=8, primary_key = True)
 	name = models.CharField(max_length=30, null=False, blank=False)
 	description = models.CharField(max_length=140, null=True)
@@ -30,10 +36,10 @@ class Event(models.Model):
 	eventType = models.CharField(max_length=7, choices=REPORT_TYPE)
 
 	def getDictionary(self):
+		"""Return a dictionary whit information of the event."""
 		dictionary = {}
 		dictionary['name'] = self.name
 		dictionary['description'] = self.description
-		print self.id
 		dictionary['eventcode'] = self.id
 		return dictionary
 
@@ -85,11 +91,13 @@ class EventForBus(EventRegistration):
 ##
 
 class ServicesByBusStop(models.Model):
+	"""This model helps to determin the direction of the bus service I or R."""
 	busStop = models.ForeignKey('BusStop')
 	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
 	service = models.CharField(max_length=5, null=False, blank=False)
 
 class BusStop(Location):
+	"""Represents the busStop itself."""
 	code = models.CharField(max_length=6, primary_key = True)
 	name = models.CharField(max_length=70, null = False, blank = False)
 	events = models.ManyToManyField(Event, verbose_name='the event' ,through=EventForBusStop)
@@ -103,6 +111,9 @@ class BusStop(Location):
 		return dictionary
 
 class Bus(models.Model):
+	"""The bus. The bus is consideres the unique combination of registration plate and service as one.
+	So there can be two buses whit same service (da) and two buses whit same registration plate.
+	The last thing means that one fisical bus can work in two different service."""
 	registrationPlate = models.CharField(max_length=8)
 	service = models.CharField(max_length=5, null=False, blank=False)
 	events = models.ManyToManyField(Event,  verbose_name='the event' ,through=EventForBus)
@@ -111,6 +122,7 @@ class Bus(models.Model):
 		unique_together = ('registrationPlate', 'service')
 
 	def getLocation(self, busstop, distance):
+		"""This method estimate the location of a bus given one user the is inside."""
 		from random import uniform
 		tokens = Token.objects.filter(bus=self)
 		lastDate = timezone.now()-timezone.timedelta(days=30)

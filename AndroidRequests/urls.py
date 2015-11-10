@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^sendTrajectory/(?P<pToken>[0-9,a-f]{128})/(?P<pTrajectory>.*)$', SendPoses.as_view()),
     url(r'^reportEventBus/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBus.as_view()),
     url(r'^reportEventBusStop/(?P<pBusStopCode>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBusStop.as_view()),
-    url(r'^requestEventsForBus/(?P<pRegistrationPlate>[\w,0-9]*)$', EventsByBus.as_view()),
+    url(r'^requestEventsForBus/(?P<pRegistrationPlate>[\w,0-9]*)/(?P<pBusService>[\w,0-9]*)$', EventsByBus.as_view()),
     url(r'^requestEventsToNotified/(?P<pWhich>[\w,0-9]*)$', RequestEventsToNotified.as_view()),
     url(r'^requestEventsForBusStop/(?P<pBusStopCode>[\w,0-9]*)$', EventsByBusStop.as_view()),
 ]

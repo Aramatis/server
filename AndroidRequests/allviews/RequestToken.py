@@ -39,7 +39,5 @@ class RequestToken(View):
 		letters = '0123456789ABCDEF0'
 		color = '#'
 		colors = {'#2c7fb8','#dd1c77','#016c59','#de2d26','#d95f0e'}
-		#for cont in range(6):
-		#color += letters[int(round(random() * 16))]
 		color = list(colors)[int(round(random() * 4))]
 		return color	

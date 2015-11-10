@@ -4,13 +4,16 @@ from django.contrib.auth.models import AnonymousUser
 import json
 
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, ActiveToken, Token
+from AndroidRequests.models import *
 # views
 from AndroidRequests.allviews.RequestToken import RequestToken
 from AndroidRequests.allviews.EndRoute import EndRoute
 from AndroidRequests.allviews.SendPoses import SendPoses
 from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
+from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
+
 # Create your tests here.
 
 class DevicePositionInTimeTest(TestCase):
@@ -28,6 +31,14 @@ class DevicePositionInTimeTest(TestCase):
 
         # initial config for ActiveToken
 
+        #loads the events
+        from Loaders.ModelLoaders import LoadEvents
+
+        loadAllEvents = LoadEvents()
+        loadAllEvents.loadEvents()
+
+        # add one busStop
+        BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
 
 
     def test_consistencyModelDevicePositionInTime(self):
@@ -122,15 +133,135 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
 
         reponseView = EndRoute()
-        response = reponseView.get(request,'01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567')
+        response = reponseView.get(request,'01234567890123456789012345678901234567890\
+            123456789012345678901234567890123456789012345678901234567890123456789012345678901234567')
         
         contentResponse = json.loads(response.content)
         contentResponse = contentResponse['response']
 
         self.assertEqual(contentResponse,'Token doesn\'t exist.')
 
+    def test_EventsByBus(self):
+        '''This method test two thing, the posibility to report an event and asking 
+        the events for the specific bus'''
+
+        licencePlate = 'AA0000'
+        busService = '507'
+        eventCode = 'evn00101'
+        # submitting some events to the server
+        request = self.factory.get('/android/reportEventBus/')
+        request.user = AnonymousUser()
+
+        request0 = self.factory.get('/android/requestEventsForBus/')
+        request0.user = AnonymousUser()
+
+        reponseView = RegisterEventBus()#request, pBusService, pBusPlate, pEventID, pConfirmDecline):
+        response = reponseView.get(request,busService,licencePlate,eventCode,'confirm')
+
+        # report one event, and confirm it
+        response0View = EventsByBus()
+        response0 = response0View.get(request0,licencePlate,busService)
+
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(response0['registrationPlate'],licencePlate)
+        self.assertEqual(response0['events'][0]['eventDecline'],0)
+        self.assertEqual(response0['events'][0]['eventConfirm'],1)
+        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
 
 
+        # do event +1 to the event
+        response = reponseView.get(request,busService,licencePlate,eventCode,'confirm')
+        response0 = response0View.get(request0, licencePlate,busService)
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(response0['registrationPlate'],licencePlate)
+        self.assertEqual(response0['events'][0]['eventDecline'],0)
+        self.assertEqual(response0['events'][0]['eventConfirm'],2)
+        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
+
+        # do event -1 to the event
+        response = reponseView.get(request,busService,licencePlate,eventCode,'decline')
+        response0 = response0View.get(request0, licencePlate,busService)
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(response0['registrationPlate'],licencePlate)
+        self.assertEqual(response0['events'][0]['eventDecline'],1)
+        self.assertEqual(response0['events'][0]['eventConfirm'],2)
+        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
+
+        # change manualy the timeStamp to simulate an event that has expired
+        bus= Bus.objects.get(registrationPlate=licencePlate, service=busService)
+        event = Event.objects.get(id=eventCode)
+        anEvent = EventForBus.objects.get(bus=bus,event=event)
+
+        anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
+        anEvent.save()
+
+        # ask for ecents and the answere should be none
+        response0 = response0View.get(request0, licencePlate,busService)
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(len(response0['events']),0)
+
+    def test_EventsByBusStop(self):
+        '''This method test two thing, the posibility to report an event and asking 
+        the events for the specific busStop'''
+
+        busStopCode = 'PA459'
+        eventCode = 'evn00001'
+        # submitting some events to the server
+        request = self.factory.get('/android/reportEventBusStop/')
+        request.user = AnonymousUser()
+
+        request0 = self.factory.get('/android/requestEventsForBusStop/')
+        request0.user = AnonymousUser()
+
+        reponseView = RegisterEventBusStop()#request, pBusService, pBusPlate, pEventID, pConfirmDecline):
+        response = reponseView.get(request,busStopCode,eventCode,'confirm')
+
+        # report one event, and confirm it
+        response0View = EventsByBusStop()
+        response0 = response0View.get(request0,busStopCode)
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(response0['codeBusStop'],busStopCode)
+        self.assertEqual(response0['events'][0]['eventDecline'],0)
+        self.assertEqual(response0['events'][0]['eventConfirm'],1)
+        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
 
 
+        # do event +1 to the event
+        response = reponseView.get(request,busStopCode,eventCode,'confirm')
+        response0 = response0View.get(request0,busStopCode)
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(response0['codeBusStop'],busStopCode)
+        self.assertEqual(response0['events'][0]['eventDecline'],0)
+        self.assertEqual(response0['events'][0]['eventConfirm'],2)
+        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
+
+        # do event -1 to the event
+        response = reponseView.get(request,busStopCode,eventCode,'decline')
+        response0 = response0View.get(request0,busStopCode)
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(response0['codeBusStop'],busStopCode)
+        self.assertEqual(response0['events'][0]['eventDecline'],1)
+        self.assertEqual(response0['events'][0]['eventConfirm'],2)
+        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
+
+        # change manualy the timeStamp to simulate an event that has expired
+        busStop= BusStop.objects.get(code=busStopCode)
+        event = Event.objects.get(id=eventCode)
+        anEvent = EventForBusStop.objects.get(busStop=busStop,event=event)
+
+        anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
+        anEvent.save()
+
+        # ask for ecents and the answere should be none
+        response0 = response0View.get(request0,busStopCode)
+        response0 = json.loads(response0.content)
+
+        self.assertEqual(len(response0['events']),0)
 

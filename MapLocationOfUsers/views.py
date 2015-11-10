@@ -64,7 +64,6 @@ class GetMapTrajectory(View):
 			aPose = trajectory[0]
 
 			tokenResponse['lastPose'] = (aPose.latitud, aPose.longitud)
-			print aPose.timeStamp
 			tokenResponse['token'] = aToken.token
 			tokenResponse['myColor'] = aToken.color
 			response.append(tokenResponse)
