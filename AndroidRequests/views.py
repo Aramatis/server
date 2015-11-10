@@ -91,8 +91,8 @@ def nearbyBuses(request, pBusStop):
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], service = dato['servicio'])[0]
 		busdata = bus.getLocation(pBusStop, closerDist + 20)
 		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1
-		dato['lat'] = busdata['latitud']
-		dato['lon'] = busdata['longitud']
+		dato['lat'] = -33.479396
+		dato['lon'] = -70.524530
 		dato['random'] = busdata['random']
 		r = requests.get("http://200.9.100.91:8080/android/reportEventBus/" + dato['servicio'] + "/" + dato['patente'] + "/evn00220/confirm")
 		getEventBus = EventsByBus()
