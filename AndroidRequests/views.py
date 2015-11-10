@@ -38,6 +38,7 @@ def nearbyBuses(request, pBusStop):
 	busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
 	closerDist = 10000
 	time = ""
+	jumper = 0
 	for dato in data['servicios']:
 		if(dato["valido"]!=1):
 			continue
@@ -46,8 +47,13 @@ def nearbyBuses(request, pBusStop):
 		if (int(distance)<closerDist):
 			closerDist = int(distance)
 			time = dato['tiempo']
+
 		dato['servicio'] = dato['servicio'].strip()
 		dato['servicio'] = dato['servicio'][0] + dato['servicio'][1:].lower()
+		if(dato['servicio'] == "506"):
+			if(jumper==1):
+				continue
+			jumper += 1
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'].replace("-", ""), \
 										service = dato['servicio'])[0]
 		busdata = bus.getLocation(pBusStop, distance)
@@ -65,6 +71,8 @@ def nearbyBuses(request, pBusStop):
 
 	if(pBusStop=="PD1359"):
 		for dato in data['servicios']:
+			if(dato["valido"]!=1):
+				continue
 			r = requests.get("http://200.9.100.91:8080/android/reportEventBus/" + dato['servicio'] + "/" + dato['patente'] + "/evn00201/confirm")
 
 		dato = {}
