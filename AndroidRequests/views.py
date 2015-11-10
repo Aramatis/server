@@ -86,6 +86,8 @@ def nearbyBuses(request, pBusStop):
 		dato['servicio'] = "506"
 		dato['patente'] = "AA0000"
 		dato['distancia'] = str(closerDist + 20) + " mts."
+		dato['valido'] = 1
+		dato['tiempo'] = time
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], service = dato['servicio'])[0]
 		busdata = bus.getLocation(pBusStop, closerDist + 20)
 		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1
