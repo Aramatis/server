@@ -135,6 +135,12 @@
               var addVal = [val.token, postionMarker, 1];
               currentTrajectorys.splice(cont+1, 0, addVal);
             }
+            else if( cont == 0)
+            {
+              postionMarker.addTo(map);
+              var addVal = [val.token, postionMarker, 1];
+              currentTrajectorys.splice(cont, 0, addVal);
+            }
           }
           
         });
