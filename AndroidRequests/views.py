@@ -8,7 +8,7 @@ import requests, json
 import hashlib
 import os
 from random import random, uniform
-import requests
+
 # my stuff
 # import DB's models
 from AndroidRequests.models import *
@@ -36,38 +36,24 @@ def nearbyBuses(request, pBusStop):
 	theBusStop = BusStop.objects.get(code=pBusStop)
 	getEventsBusStop = EventsByBusStop()
 	busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
-	closerDist = 10000
-	time = ""
-	jumper = 0
+
 	for dato in data['servicios']:
 		if(dato["valido"]!=1):
 			continue
-
-		distance = dato['distancia'].replace(' mts.', '')
-		if (int(distance)<closerDist):
-			closerDist = int(distance)
-			time = dato['tiempo']
-
 		# clean the strings from spaces and unwanted format
 		dato['servicio'] = dato['servicio'].strip()
 		dato['patente'] = dato['patente'].replace("-", "")
 		dato['patente'] = dato['patente'].strip()
 		dato['servicio'] = dato['servicio'][0] + dato['servicio'][1:].lower()
 
-		if(dato['servicio'] == "506"):
-			if(jumper==1):
-				continue
-			jumper += 1
-
 		# request the correct bus
-		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'].replace("-", ""), \
+		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], \
 										service = dato['servicio'])[0]
-		busdata = bus.getLocation(pBusStop, distance)
+		busdata = bus.getLocation(data['id'], dato['distancia'].replace(' mts.', ''))
 		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1
 		dato['lat'] = busdata['latitud']
 		dato['lon'] = busdata['longitud']
 		dato['random'] = busdata['random']
-
 		getEventBus = EventsByBus()
 		
 		busEvents = getEventBus.getEventForBus(bus)
@@ -76,31 +62,6 @@ def nearbyBuses(request, pBusStop):
 
 		servicios.append(dato)
 
-	if(pBusStop=="PD1359"):
-		for dato in data['servicios']:
-			if(dato["valido"]!=1):
-				continue
-			r = requests.get("http://200.9.100.91:8080/android/reportEventBus/" + dato['servicio'] + "/" + dato['patente'] + "/evn00201/confirm")
-
-		dato = {}
-		dato['servicio'] = "506"
-		dato['patente'] = "AA0000"
-		dato['distancia'] = str(closerDist + 20) + " mts."
-		dato['valido'] = 1
-		dato['tiempo'] = time
-		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], service = dato['servicio'])[0]
-		busdata = bus.getLocation(pBusStop, closerDist + 20)
-		dato['tienePasajeros'] = 0 if busdata['estimated'] else 1
-		dato['lat'] = -33.479396
-		dato['lon'] = -70.524530
-		dato['random'] = busdata['random']
-		r = requests.get("http://200.9.100.91:8080/android/reportEventBus/" + dato['servicio'] + "/" + dato['patente'] + "/evn00220/confirm")
-		getEventBus = EventsByBus()
-		busEvents = getEventBus.getEventForBus(bus)
-
-		dato['eventos'] = busEvents
-
-		servicios.append(dato)
 	response = {}
 	response["servicios"] = servicios
 	response["eventos"] = busStopEvent
