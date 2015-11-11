@@ -13,7 +13,7 @@ from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.EventsByBus import EventsByBus
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-
+import AndroidRequests.views as views
 # Create your tests here.
 
 class DevicePositionInTimeTest(TestCase):
@@ -265,3 +265,13 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(len(response0['events']),0)
 
+    def test_registerPose(self):
+        request = self.factory.get('/android/userPosition')
+        request.user = AnonymousUser()
+        lat = 45
+        lon = 46
+        response = views.userPosition(request, lat, lon)
+
+        self.assertEqual(response.status_code,200)
+
+        self.assertEqual(DevicePositionInTime.objects.filter(longitud=lon, latitud=lat).exists(), True)
