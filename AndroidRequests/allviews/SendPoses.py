@@ -39,7 +39,7 @@ class SendPoses(View):
 				aTimeStamp = timezone.make_aware(aTimeStamp)
 
 				PoseInTrajectoryOfToken.objects.create(longitud=pose['longitud'],latitud=pose['latitud'],\
-					 timeStamp=aTimeStamp, sender=pose["sender"],token=theToken)
+					 timeStamp=aTimeStamp, inVehicleOrNot=pose["inVehicleOrNot"],token=theToken)
 
 			response['response'] = 'Poses were register.'
 		else:#if the token was not found alert

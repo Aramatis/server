@@ -57,15 +57,15 @@ class GetMapPositionsTest(TestCase):
         timeStampNow = str(timezone.now())
         timeStampNow = timeStampNow[0:19]
         testPoses = {"poses":[
-        {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp":str(timeStampNow)    ,"sender":"vehicle"},\
-        {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp":"2015-10-01T18:10:10","sender":"vehicle"},\
-        {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp":"2015-10-01T18:10:15","sender":"vehicle"},\
-        {"latitud":-33.458646,"longitud" : -70.673799, "timeStamp":"2015-10-01T18:10:20","sender":"vehicle"},\
-        {"latitud":-33.458413,"longitud" : -70.671631, "timeStamp":"2015-10-01T18:10:24","sender":"vehicle"},\
-        {"latitud":-33.457983,"longitud" : -70.669035, "timeStamp":"2015-10-01T18:10:30","sender":"vehicle"},\
-        {"latitud":-33.457518,"longitud" : -70.666718, "timeStamp":"2015-10-01T18:10:35","sender":"vehicle"},\
-        {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp":"2015-10-01T18:10:40","sender":"vehicle"},\
-        {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp":str(timeStampNow)    ,"sender":"vehicle"}]}
+        {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp":str(timeStampNow)    ,"inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp":"2015-10-01T18:10:10","inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp":"2015-10-01T18:10:15","inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.458646,"longitud" : -70.673799, "timeStamp":"2015-10-01T18:10:20","inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.458413,"longitud" : -70.671631, "timeStamp":"2015-10-01T18:10:24","inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.457983,"longitud" : -70.669035, "timeStamp":"2015-10-01T18:10:30","inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.457518,"longitud" : -70.666718, "timeStamp":"2015-10-01T18:10:35","inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp":"2015-10-01T18:10:40","inVehicleOrNot":"vehicle"},\
+        {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp":str(timeStampNow)    ,"inVehicleOrNot":"vehicle"}]}
 
         testTokens = []
 

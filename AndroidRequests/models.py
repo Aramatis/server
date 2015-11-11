@@ -62,6 +62,8 @@ class EventRegistration(models.Model):
 		abstract = True
 
 	def getDictionary(self):
+		'''A doctionary whit info of the event, not all only what was of interest
+		to return to the app.'''
 		dictionary = {}
 
 		dictionary['eventConfirm'] = self.eventConfirm
@@ -91,18 +93,22 @@ class EventForBus(EventRegistration):
 ##
 
 class ServicesByBusStop(models.Model):
-	"""This model helps to determin the direction of the bus service I or R."""
+	"""This model helps to determin the direction of the bus service I or R.
+	All of this is tide to the bus stop code and the service provided by it.
+	It's usefull to hace the direction of the service to been able to determin
+	position of the bus."""
 	busStop = models.ForeignKey('BusStop')
 	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
 	service = models.CharField(max_length=5, null=False, blank=False)
 
 class BusStop(Location):
 	"""Represents the busStop itself."""
-	code = models.CharField(max_length=6, primary_key = True)
+	code = models.CharField(max_length=6, primary_key = True) # For example PA443
 	name = models.CharField(max_length=70, null = False, blank = False)
 	events = models.ManyToManyField(Event, verbose_name='the event' ,through=EventForBusStop)
 
 	def getDictionary(self):
+		"""usefull information regarding the bus."""
 		dictionary = {}
 
 		dictionary['codeBusStop'] = self.code
@@ -122,7 +128,8 @@ class Bus(models.Model):
 		unique_together = ('registrationPlate', 'service')
 
 	def getLocation(self, busstop, distance):
-		"""This method estimate the location of a bus given one user the is inside."""
+		"""This method estimate the location of a bus given one user the is inside or gives the location estimated by
+		transantiago."""
 		from random import uniform
 		tokens = Token.objects.filter(bus=self)
 		lastDate = timezone.now()-timezone.timedelta(days=30)
@@ -152,6 +159,8 @@ class Bus(models.Model):
 				}
 
 	def __estimatedPosition(self, busstop, distance):
+		'''Given a distace from the bus to the busstop, this method returns the global position of
+		the machine.'''
 		try:
 			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
 		except:
@@ -185,26 +194,33 @@ class Bus(models.Model):
 		return dictionary
 
 class ServiceLocation(Location):
+	'''This models stores the position allong the route of every bus at 10 meters apart. 
+	You can give the distance form the start of the travel and it return the position at 
+	that distance.'''
 	service = models.CharField(max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
 	distance = models.IntegerField()
 
 class ServiceStopDistance(models.Model):
+	'''This model stores the distance for every bustop in every bus rout for every service.
+	Given a bus direction code xxxI or xxR or something alike.'''
 	busStop = models.ForeignKey(BusStop)
 	service = models.CharField(max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
 	distance = models.IntegerField()
 
 
 class Token(models.Model):
+	'''This table has all the tokens the have ever beeing used.'''
 	token = models.CharField(max_length=128, primary_key=True)
 	bus = models.ForeignKey(Bus)
 	color = models.CharField(max_length=7, default='#00a0f0')
 
 class PoseInTrajectoryOfToken(Location):
-	#TODO: cambiar nombre campo sender
+	'''This stores all the poses of a trajectory. The trajectory can start on foot and end on foot.'''
 	timeStamp = models.DateTimeField(null=False, blank=False)
-	sender =models.CharField(max_length=15) # vehicle, non_vehicle
+	inVehicleOrNot =models.CharField(max_length=15) # vehicle, non_vehicle
 	token = models.ForeignKey(Token)
 
 class ActiveToken(models.Model):
+	'''This are the tokens that are currently beeing use to upload positions.'''
 	timeStamp = models.DateTimeField(null=False, blank=False)
 	token = models.OneToOneField(Token)

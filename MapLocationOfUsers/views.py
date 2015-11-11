@@ -59,7 +59,7 @@ class GetMapTrajectory(View):
 
 		for aToken in tokens:
 			tokenResponse = {}
-			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, sender="vehicle").order_by('-timeStamp')
+			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, inVehicleOrNot="vehicle").order_by('-timeStamp')
 		
 			aPose = trajectory[0]
 

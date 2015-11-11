@@ -17,9 +17,9 @@ from AndroidRequests.models import *
 
 class RequestEventsToNotified(View):
 	"""This class sends the event that can be notified in at a given time,
-	for examle if i'm on a busstop i can report some events regarding what i see,
+	for examle if I'm at a busstop, I can report some events regarding what i see,
 	so i report things from the bustop and what i can see of the bus. If i'm on a bus
-	i can report problems whit the bus with more detail."""
+	I can report problems whit the bus with more detail."""
 
 	def get(self, request, pWhich):
 		
