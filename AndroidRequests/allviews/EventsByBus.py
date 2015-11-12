@@ -44,5 +44,6 @@ class EventsByBus(View):
 
 			#checks if the event is active
 			if registry.exists():
+				registry = registry[0]
 				events.append(registry.getDictionary())
 		return events
