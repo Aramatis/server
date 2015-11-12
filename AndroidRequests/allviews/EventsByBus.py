@@ -43,6 +43,6 @@ class EventsByBus(View):
 			registry = EventForBus.objects.filter(bus = pBus, event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
 
 			#checks if the event is active
-			if registry.exist():
+			if registry.exists():
 				events.append(registry.getDictionary())
 		return events
