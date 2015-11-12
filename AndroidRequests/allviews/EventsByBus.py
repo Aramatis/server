@@ -34,17 +34,15 @@ class EventsByBus(View):
 		"""this method look for the active envents of a bus, thouse whoms lifespam hasn't expire since the
 		last time there where reported"""
 		events = []
+		
+		eventsToAsk = Event.objects.filter(eventType='bus')
 
-		for event in pBus.events.all():
-			registry = EventForBus.objects.filter(bus = pBus, event=event).order_by('-timeStamp')[0]
+		for event in eventsToAsk:
+			eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
+
+			registry = EventForBus.objects.filter(bus = pBus, event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
 
 			#checks if the event is active
-			if(registry.timeStamp + datetime.timedelta(minutes = event.lifespam)<timezone.now()):
-				continue
-
-			# ask the specific data for the event. It's a dictionary defied in the models
-			registryDict = registry.getDictionary()
-			# this makes a list of dictionarys
-			events.append(registryDict)
-			
+			if registry.exist():
+				events.append(registry.getDictionary())
 		return events

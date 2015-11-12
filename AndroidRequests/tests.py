@@ -275,3 +275,20 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual(response.status_code,200)
 
         self.assertEqual(DevicePositionInTime.objects.filter(longitud=lon, latitud=lat).exists(), True)
+
+    def test_nearbyBuses(self):
+        request = self.factory.get('/android/nearbyBuses')
+        request.user = AnonymousUser()
+
+        busStopCodeThis = 'PA459'
+        response = views.nearbyBuses(request,busStopCodeThis)
+
+        self.assertEqual(response.status_code,200)
+
+        jSonResponse = json.loads(response.content)
+        
+        self.assertEqual('servicios' in jSonResponse, True)
+        self.assertEqual('eventos' in jSonResponse, True)
+        
+
+
