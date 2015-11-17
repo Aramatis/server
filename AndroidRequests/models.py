@@ -208,6 +208,9 @@ class ServiceLocation(Location):
 	service = models.CharField(max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
 	distance = models.IntegerField()
 
+	class Meta:
+		index_together = ["service", "distance"]
+
 class ServiceStopDistance(models.Model):
 	'''This model stores the distance for every bustop in every bus rout for every service.
 	Given a bus direction code xxxI or xxR or something alike.'''
