@@ -6,7 +6,7 @@ from django.utils import timezone
 from AndroidRequests.models import *
 from AndroidRequests.allviews.EventsByBusStop import *
 
-class BusStopByService(View):
+class BusStopsByService(View):
 	"""This class handles request for the list of bus stop for an specific service."""
 	def __init__(self):
 		self.context={}
