@@ -10,5 +10,7 @@ class LoaderFactory():
 			return ServiceLocationLoader
 		elif(model.lower()=="servicesbybusstop"):
 			return ServicesByBusStopLoader
+		elif(model.lower()=="service"):
+			return ServiceLoader
 		else:
 			return None
