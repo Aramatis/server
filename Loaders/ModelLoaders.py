@@ -57,15 +57,19 @@ class BusStopLoader(Loader):
 			if(data.count('\n')>0):
 				continue
 			try:
-				bustop = BusStop.objects.get_or_create(code=data[0], name = data[1], \
-					latitud = data[2], longitud = data[3])[0]
+				busStop = BusStop.objects.get_or_create(code=data[0], \
+					defaults={'name': 'default', 'latitud': -100, 'longitud': -100})[0]
 			except Exception, e:
 				self.log.write(self.inDBMessage(data))
 				self.log.write(str(e) + "\n")
 				continue
+			else:
+				busStop.name = data[1]
+				busStop.latitud = data[2]
+				busStop.longitud = data[3]
 
 			try:
-				bustop.save()
+				busStop.save()
 			except Exception, e:
 				self.log.write(self.notSavedMessage(data))
 				self.log.write(str(e) + "\n")
@@ -96,13 +100,15 @@ class ServiceStopDistanceLoader(Loader):
 			if(data.count('\n')>0):
 				continue
 			try:
-				busstop = BusStop.objects.get(code=data[0])
-				route = ServiceStopDistance.objects.get_or_create(busStop = busstop, \
-					service = data[1], distance=data[2])[0]
+				busStop = BusStop.objects.get(code=data[0])
+				route = ServiceStopDistance.objects.get_or_create(busStop = busStop, \
+					service = data[1], defaults={'distance': 0})[0]
 			except Exception, e:
 				self.log.write(self.inDBMessage(data))
 				self.log.write(str(e) + "\n")
 				continue
+			else:
+				route.distance = int(data[2])
 
 			try:
 				route.save()
@@ -139,13 +145,15 @@ class ServicesByBusStopLoader(Loader):
 			for service in services:
 				service = service.replace("\n", "")
 				try:
-					busstop = BusStop.objects.get(code=data[0])
-					serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busstop, \
-						code=service, service = service[:-1])[0]
+					busStop = BusStop.objects.get(code=data[0])
+					serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busStop, \
+						code=service, defaults={'service': '000'})[0]
 				except Exception, e:
 					self.log.write(self.inDBMessage([data[0], service]))
 					self.log.write(str(e) + "\n")
 					continue
+				else:
+					serviceByBusStop.service = service[:-1]
 
 				try:
 					serviceByBusStop.save()
@@ -180,11 +188,14 @@ class ServiceLocationLoader(Loader):
 				continue
 			try:
 				serviceloc = ServiceLocation.objects.get_or_create(service=data[0], \
-					distance = data[1], latitud=data[2], longitud=data[3])[0]
+					distance = data[1], defaults={'latitud': -100, 'longitud': -100})[0]
 			except Exception, e:
 				self.log.write(self.inDBMessage(data))
 				self.log.write(str(e) + "\n")
 				continue
+			else:
+				serviceloc.latitud=data[2]
+				serviceloc.longitud=data[3]
 
 			try:
 				serviceloc.save()
