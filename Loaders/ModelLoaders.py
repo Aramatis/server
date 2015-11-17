@@ -120,6 +120,51 @@ class ServiceStopDistanceLoader(Loader):
 				print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
 
 
+class ServiceLoader(Loader):
+	_className = "Service"
+
+	@property
+	def className(self):
+		return self._className
+
+	def notSavedMessage(self, data):
+		end = super(ServiceLoader, self).notSavedMessage("")
+		return "The service " + data + end
+
+	def inDBMessage(self, data):
+		end = super(ServiceLoader, self).inDBMessage("")
+		return "The service " + data + end
+
+	def load(self, ticks):
+		i = 1
+		for line in self.csv:
+			data = line.split(";")
+			if(data.count('\n')>0):
+				continue
+			try:
+				service = Service.objects.get_or_create(service = data[0], \
+					defaults={'origin': 'origin', 'destiny': 'destiny', 'color_id': 0})[0]
+			except Exception, e:
+				self.log.write(self.inDBMessage(data[0]))
+				self.log.write(str(e) + "\n")
+				continue
+			else:
+				service.origin = data[1]
+				service.destiny = data[2]
+				service.color = data[3]
+				service.color_id = data[4]
+
+			try:
+				serviceByBusStop.save()
+			except Exception, e:
+				self.log.write(self.notSavedMessage(data[0]))
+				self.log.write(str(e) + "\n")
+			i+=1
+			if(i%ticks==0):
+				print super(ServiceLoader, self).rowAddedMessage(self.className, i)
+
+
+
 class ServicesByBusStopLoader(Loader):
 	_className = "ServicesByBusStop"
 
@@ -145,15 +190,16 @@ class ServicesByBusStopLoader(Loader):
 			for service in services:
 				service = service.replace("\n", "")
 				try:
+					serviceObj = Service.objects.get(service = service[:-1])
 					busStop = BusStop.objects.get(code=data[0])
 					serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busStop, \
-						code=service, defaults={'service': '000'})[0]
+						service=serviceObj, defaults={'code': '000'})[0]
 				except Exception, e:
 					self.log.write(self.inDBMessage([data[0], service]))
 					self.log.write(str(e) + "\n")
 					continue
 				else:
-					serviceByBusStop.service = service[:-1]
+					serviceByBusStop.code = service
 
 				try:
 					serviceByBusStop.save()
