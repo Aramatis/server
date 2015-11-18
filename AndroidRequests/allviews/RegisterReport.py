@@ -1,14 +1,11 @@
-from django.contrib.sites import requests
 from django.http import JsonResponse
 from django.views.generic import View
-from django.utils import timezone
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 # import DB's models
 from AndroidRequests.models import *
-from AndroidRequests.allviews.EventsByBusStop import *
 
 class RegisterReport(View):
 	"""This class handles request for the list of bus stop for an specific service."""
@@ -35,6 +32,7 @@ class RegisterReport(View):
 				imageFile.write(stringImage)
 				imageFile.close()
 				report.path = path
+				report.save()
 			except:
 				report.delete()
 				fine = False
