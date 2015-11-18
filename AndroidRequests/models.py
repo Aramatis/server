@@ -97,9 +97,7 @@ class ServicesByBusStop(models.Model):
 	All of this is tide to the bus stop code and the service provided by it.
 	It's usefull to hace the direction of the service to been able to determin
 	position of the bus."""
-	busStop = models.ForeignKey('BusStop')
 	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
-	service = models.CharField(max_length=5, null=False, blank=False)
 
 class BusStop(Location):
 	"""Represents the busStop itself."""
@@ -115,6 +113,16 @@ class BusStop(Location):
 		dictionary['nameBusStop'] = self.name
 
 		return dictionary
+
+
+class Service(models.Model):
+	""" Represent a Service like '506' and save his data """
+	service = models.CharField(max_length=5, primary_key = True)
+	origin = models.CharField(max_length=100, null=False, blank=False)
+	destiny = models.CharField(max_length=100, null=False, blank=False)
+	color = models.CharField(max_length=7, default='#00a0f0')
+	color_id = models.IntegerField()
+	busStops = models.ManyToManyField(BusStop, verbose_name='the Bus Stop' ,through=ServicesByBusStop)
 
 class Bus(models.Model):
 	"""The bus. The bus is consideres the unique combination of registration plate and service as one.

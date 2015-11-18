@@ -57,15 +57,19 @@ class BusStopLoader(Loader):
 			if(data.count('\n')>0):
 				continue
 			try:
-				bustop = BusStop.objects.get_or_create(code=data[0], name = data[1], \
-					latitud = data[2], longitud = data[3])[0]
+				busStop = BusStop.objects.get_or_create(code=data[0], \
+					defaults={'name': 'default', 'latitud': -100, 'longitud': -100})[0]
 			except Exception, e:
 				self.log.write(self.inDBMessage(data))
 				self.log.write(str(e) + "\n")
 				continue
+			else:
+				busStop.name = data[1]
+				busStop.latitud = data[2]
+				busStop.longitud = data[3]
 
 			try:
-				bustop.save()
+				busStop.save()
 			except Exception, e:
 				self.log.write(self.notSavedMessage(data))
 				self.log.write(str(e) + "\n")
@@ -96,13 +100,15 @@ class ServiceStopDistanceLoader(Loader):
 			if(data.count('\n')>0):
 				continue
 			try:
-				busstop = BusStop.objects.get(code=data[0])
-				route = ServiceStopDistance.objects.get_or_create(busStop = busstop, \
-					service = data[1], distance=data[2])[0]
+				busStop = BusStop.objects.get(code=data[0])
+				route = ServiceStopDistance.objects.get_or_create(busStop = busStop, \
+					service = data[1], defaults={'distance': 0})[0]
 			except Exception, e:
 				self.log.write(self.inDBMessage(data))
 				self.log.write(str(e) + "\n")
 				continue
+			else:
+				route.distance = int(data[2])
 
 			try:
 				route.save()
@@ -112,6 +118,51 @@ class ServiceStopDistanceLoader(Loader):
 			i+=1
 			if(i%ticks==0):
 				print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
+
+
+class ServiceLoader(Loader):
+	_className = "Service"
+
+	@property
+	def className(self):
+		return self._className
+
+	def notSavedMessage(self, data):
+		end = super(ServiceLoader, self).notSavedMessage("")
+		return "The service " + data + end
+
+	def inDBMessage(self, data):
+		end = super(ServiceLoader, self).inDBMessage("")
+		return "The service " + data + end
+
+	def load(self, ticks):
+		i = 1
+		for line in self.csv:
+			data = line.split(";")
+			if(data.count('\n')>0):
+				continue
+			try:
+				service = Service.objects.get_or_create(service = data[0], \
+					defaults={'origin': 'origin', 'destiny': 'destiny', 'color_id': 0})[0]
+			except Exception, e:
+				self.log.write(self.inDBMessage(data[0]))
+				self.log.write(str(e) + "\n")
+				continue
+			else:
+				service.origin = data[1]
+				service.destiny = data[2]
+				service.color = data[3]
+				service.color_id = data[4]
+
+			try:
+				serviceByBusStop.save()
+			except Exception, e:
+				self.log.write(self.notSavedMessage(data[0]))
+				self.log.write(str(e) + "\n")
+			i+=1
+			if(i%ticks==0):
+				print super(ServiceLoader, self).rowAddedMessage(self.className, i)
+
 
 
 class ServicesByBusStopLoader(Loader):
@@ -139,13 +190,16 @@ class ServicesByBusStopLoader(Loader):
 			for service in services:
 				service = service.replace("\n", "")
 				try:
-					busstop = BusStop.objects.get(code=data[0])
-					serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busstop, \
-						code=service, service = service[:-1])[0]
+					serviceObj = Service.objects.get(service = service[:-1])
+					busStop = BusStop.objects.get(code=data[0])
+					serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busStop, \
+						service=serviceObj, defaults={'code': '000'})[0]
 				except Exception, e:
 					self.log.write(self.inDBMessage([data[0], service]))
 					self.log.write(str(e) + "\n")
 					continue
+				else:
+					serviceByBusStop.code = service
 
 				try:
 					serviceByBusStop.save()
@@ -180,11 +234,14 @@ class ServiceLocationLoader(Loader):
 				continue
 			try:
 				serviceloc = ServiceLocation.objects.get_or_create(service=data[0], \
-					distance = data[1], latitud=data[2], longitud=data[3])[0]
+					distance = data[1], defaults={'latitud': -100, 'longitud': -100})[0]
 			except Exception, e:
 				self.log.write(self.inDBMessage(data))
 				self.log.write(str(e) + "\n")
 				continue
+			else:
+				serviceloc.latitud=data[2]
+				serviceloc.longitud=data[3]
 
 			try:
 				serviceloc.save()
