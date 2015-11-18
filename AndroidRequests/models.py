@@ -234,3 +234,8 @@ class ActiveToken(models.Model):
 	'''This are the tokens that are currently beeing use to upload positions.'''
 	timeStamp = models.DateTimeField(null=False, blank=False)
 	token = models.OneToOneField(Token)
+
+class Report(models.Model):
+	""" This is the free report, it save the message and the picture location in the system  """
+	message = models.TextField()
+	path = models.CharField(max_length=500, blank=False, null=False)
