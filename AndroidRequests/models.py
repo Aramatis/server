@@ -128,7 +128,7 @@ class Bus(models.Model):
 		unique_together = ('registrationPlate', 'service')
 
 	def getLocation(self, busstop, distance):
-		"""This method estimate the location of a bus given one user the is inside or gives the location estimated by
+		"""This method estimate the location of a bus given one user that is inside or gives the location estimated by
 		transantiago."""
 		from random import uniform
 		tokens = Token.objects.filter(bus=self)
@@ -138,11 +138,13 @@ class Bus(models.Model):
 		for token in tokens:
 			if(not hasattr(token, 'activetoken')):
 				continue
-			lastPose = PoseInTrajectoryOfToken.objects.filter(token = token).latest('timeStamp');
-			if (lastPose.timeStamp>=lastDate):
-				lastDate = lastPose.timeStamp
-				lat = lastPose.latitud
-				lon = lastPose.longitud
+			trajectoryQuery = PoseInTrajectoryOfToken.objects.filter(token = token)
+			if trajectoryQuery.exists():
+				lastPose = trajectoryQuery.latest('timeStamp');
+				if (lastPose.timeStamp>=lastDate):
+					lastDate = lastPose.timeStamp
+					lat = lastPose.latitud
+					lon = lastPose.longitud
 		if(lat == lon and lat == -500):
 			try:
 				return self.__estimatedPosition(busstop, distance)
