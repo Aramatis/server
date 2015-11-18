@@ -10,9 +10,11 @@ from AndroidRequests.allviews.EventsByBus import *
 from AndroidRequests.allviews.RequestEventsToNotified import *
 from AndroidRequests.allviews.EventsByBusStop import *
 from AndroidRequests.allviews.BusStopsByService import *
+from AndroidRequests.allviews.RegisterReport import *
 
 urlpatterns = [
 	url(r'^nearbyBuses/(?P<pBusStop>\w+)$', views.nearbyBuses),
+    url(r'^registerReport/$', RegisterReport.as_view()),
     url(r'^userPosition/(?P<pLat>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLon>[\-+]?[0-9]*\.?[0-9]*)$', views.userPosition),
     url(r'^requestToken/(?P<pBusService>[0-9,\w]*)/(?P<pRegistrationPlate>[0-9,\w]*)$', RequestToken.as_view()),
     url(r'^endRoute/(?P<pToken>[0-9,a-f]{128})$', EndRoute.as_view()),
