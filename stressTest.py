@@ -7,8 +7,8 @@ import time
 
 minP = -33.519893, -70.740650
 maxP = -33.403286, -70.573249
-serverIP = "172.17.77.240"
-serverPort = "80"
+serverIP = "200.9.100.91"
+serverPort = "8080"
 
 
 class StadisticHello(object):
@@ -67,15 +67,11 @@ def nearbyBuses( pData):#/android/sendTrajectoy
 			lon5 = uniform(minP[1],maxP[1])
 
 			testPoses = {"poses":[\
-			{"latitud":-33.458771,"longitud" : -70.676266, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.458699,"longitud" : -70.675708, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.458646,"longitud" : -70.674678, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.458646,"longitud" : -70.673799, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.458413,"longitud" : -70.671631, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.457983,"longitud" : -70.669035, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.457518,"longitud" : -70.666718, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.457196,"longitud" : -70.664636, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
-			{"latitud":-33.457070,"longitud" : -70.660559, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"}]}
+			{"latitud": lat1,"longitud" : lon1, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
+			{"latitud": lat2,"longitud" : lon2, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
+			{"latitud": lat3,"longitud" : lon3, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
+			{"latitud": lat4,"longitud" : lon4, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"},\
+			{"latitud": lat5,"longitud" : lon5, "timeStamp":date + " " + times, "inVehicleOrNot":"vehicle"}]}
 
 			
 			trajectoryJson = json.dumps(testPoses)
