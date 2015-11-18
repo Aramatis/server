@@ -98,6 +98,9 @@ class ServicesByBusStop(models.Model):
 	It's usefull to hace the direction of the service to been able to determin
 	position of the bus."""
 	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
+	busStop = models.ForeignKey('BusStop', verbose_name='the busStop')
+	service = models.ForeignKey('Service', verbose_name='the service')
+
 
 class BusStop(Location):
 	"""Represents the busStop itself."""
