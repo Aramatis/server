@@ -171,7 +171,9 @@ class Bus(models.Model):
 		if(lat == lon and lat == -500):
 			try:
 				return self.__estimatedPosition(busstop, distance)
+
 			except:
+				print 'fail to estimate'
 				#raise
 				return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
 						'longitud': -70.434710 + uniform(0.000000, 0.0005),
@@ -215,6 +217,7 @@ class Bus(models.Model):
 			closest = closest_lt
 			print 16
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
+		print location.latitud, location.longitud
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
 				'estimated': True,
