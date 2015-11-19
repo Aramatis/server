@@ -186,6 +186,7 @@ class Bus(models.Model):
 	def __estimatedPosition(self, busstop, distance):
 		'''Given a distace from the bus to the busstop, this method returns the global position of
 		the machine.'''
+		print 'asss',busstop, distance
 		try:
 			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
 			print 'passThis'
