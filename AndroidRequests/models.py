@@ -174,7 +174,7 @@ class Bus(models.Model):
 
 			except:
 				print 'fail to estimate'
-				#raise
+				raise
 				return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
 						'longitud': -70.434710 + uniform(0.000000, 0.0005),
 						'estimated': True, 
