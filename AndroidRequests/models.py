@@ -187,7 +187,7 @@ class Bus(models.Model):
 		'''Given a distace from the bus to the busstop, this method returns the global position of
 		the machine.'''
 		try:
-			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, busStop = self.service).code
+			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
 		except:
 			serviceCode = self.service + "I"
 			
