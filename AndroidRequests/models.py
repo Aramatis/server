@@ -190,7 +190,9 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, busStop = self.service).code
 		except:
 			serviceCode = self.service + "I"
+			
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
+
 		try:
 			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
 		except:
@@ -205,7 +207,7 @@ class Bus(models.Model):
 		else:
 			closest = closest_lt
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
-
+		print location.latitud, location.longitud
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
 				'estimated': True,
