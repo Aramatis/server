@@ -16,7 +16,7 @@ from AndroidRequests.models import *
 class RegisterEventBusStop(View):
 	'''This class handles the requests that reports events of a busstop'''
 
-	def get(self, request, pBusStopCode, pEventID, pConfirmDecline):
+	def get(self, request, pBusStopCode, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
 		"""Is the save as for the Bus, check that out if in doubt."""
 		response = {}
 
@@ -38,6 +38,9 @@ class RegisterEventBusStop(View):
 				eventReport.eventConfirm += 1
 
 			eventReport.save()
+
+			StadisticDataFromRegistrationBusStop.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
+			reportOfEvent=eventReport, longitud=500, latitud=500)
 		else:
 			aEventReport = EventForBusStop.objects.create(busStop=theBusStop, event=theEvent, timeStamp=aTimeStamp, timeCreation=aTimeStamp)
 			
@@ -47,6 +50,9 @@ class RegisterEventBusStop(View):
 				aEventReport.eventConfirm = 0
 
 			aEventReport.save()
+
+			StadisticDataFromRegistrationBusStop.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
+			reportOfEvent=aEventReport, longitud=500, latitud=500)
 
 
 

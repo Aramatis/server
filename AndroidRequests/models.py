@@ -48,6 +48,18 @@ class Event(models.Model):
 # This are the modles to handel the registration of events for a bus or a busstop
 #
 ##
+class StadisticDataFromRegistration(Location):
+	timeStamp = models.DateTimeField(null=False, blank=False)
+	confirmDecline = models.CharField(max_length=10)
+
+	class Meta:
+		abstract = True
+
+class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
+	reportOfEvent = models.ForeignKey('EventForBus')
+
+class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
+	reportOfEvent = models.ForeignKey('EventForBusStop')
 
 class EventRegistration(models.Model):
 	'''This model stores the reposts of events coming from the  
@@ -176,9 +188,12 @@ class Bus(models.Model):
 		the machine.'''
 		try:
 			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
+			print 'passThis'
 		except:
 			serviceCode = self.service + "I"
+			print 'error on this'
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
+		print 'all'
 		try:
 			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
 		except:
