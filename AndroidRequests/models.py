@@ -196,16 +196,23 @@ class Bus(models.Model):
 		print 'all'
 		try:
 			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
+			print 11
 		except:
 			closest_gt = 5000000
+			print 12
 		try:
 			closest_lt = ServiceLocation.objects.filter(service = serviceCode, distance__lt=ssd).order_by('-distance')[0].distance
+			print 13
 		except:
 			closest_lt = 10
+			print 14
+
 		if(abs(closest_gt-ssd) < abs(closest_lt-ssd)):
 			closest = closest_gt
+			print 15
 		else:
 			closest = closest_lt
+			print 16
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
