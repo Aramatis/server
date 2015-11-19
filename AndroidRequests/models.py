@@ -193,6 +193,7 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
 			print 'passThis'
 		except:
+			raise
 			serviceCode = self.service + "I"
 			print 'error on this'
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
