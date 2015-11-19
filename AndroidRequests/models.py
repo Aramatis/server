@@ -173,8 +173,6 @@ class Bus(models.Model):
 				return self.__estimatedPosition(busstop, distance)
 
 			except:
-				print 'fail to estimate'
-				raise
 				return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
 						'longitud': -70.434710 + uniform(0.000000, 0.0005),
 						'estimated': True, 
@@ -188,37 +186,26 @@ class Bus(models.Model):
 	def __estimatedPosition(self, busstop, distance):
 		'''Given a distace from the bus to the busstop, this method returns the global position of
 		the machine.'''
-		print 'asss',busstop, len(busstop), distance,'aaaa0',type(self.service),len(self.service), self.service
 		try:
-			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
-			print 'passThis'
+			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, busStop = self.service).code
 		except:
-			raise
 			serviceCode = self.service + "I"
-			print 'error on this'
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
-		print 'all'
 		try:
 			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
-			print 11
 		except:
 			closest_gt = 5000000
-			print 12
 		try:
 			closest_lt = ServiceLocation.objects.filter(service = serviceCode, distance__lt=ssd).order_by('-distance')[0].distance
-			print 13
 		except:
 			closest_lt = 10
-			print 14
 
 		if(abs(closest_gt-ssd) < abs(closest_lt-ssd)):
 			closest = closest_gt
-			print 15
 		else:
 			closest = closest_lt
-			print 16
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
-		print location.latitud, location.longitud
+
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
 				'estimated': True,
