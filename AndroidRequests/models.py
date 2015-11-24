@@ -157,20 +157,20 @@ class Bus(models.Model):
 		except:
 			serviceCode = self.service + "I"
 
-		distance = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(pDistance)
-		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gte=ssd).order_by('distance')
-		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=ssd).order_by('-distance')
+		distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
+		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gte=distance).order_by('distance')
+		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')
 		try:
-			greater = greaters[0].distance
+			greater = greaters[0]
 		except:
-			greater = lowers[0].distance
-			lower = lowers[1].distance
+			greater = lowers[0]
+			lower = lowers[1]
 		else:
 			try:
-				lower = lowers[0].distance
+				lower = lowers[0]
 			except:
 				lower = greater
-				greater = greaters[1].distance
+				greater = greaters[1]
 
 		x1 = lower.latitud
 		x2 = greater.latitud
