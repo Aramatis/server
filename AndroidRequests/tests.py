@@ -38,7 +38,15 @@ class DevicePositionInTimeTest(TestCase):
         loadAllEvents.loadEvents()
 
         # add one busStop
-        BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
+        busStop = BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
+        Service.objects.create( service = '507', origin = 'bla', destiny = 'bla')#'#00a0f0'color_id = models.IntegerField(default = 0)
+        ServiceStopDistance.objects.create( busStop = busStop,  service = '507I', distance = 5)
+        ServiceLocation.objects.create(service = '507I', distance = 1, longitud=4, latitud=5)
+        ServiceLocation.objects.create(service = '507I', distance = 2, longitud=5, latitud=5)
+        ServiceLocation.objects.create(service = '507I', distance = 3, longitud=6, latitud=5)
+        ServiceLocation.objects.create(service = '507I', distance = 4, longitud=7, latitud=5)
+        ServiceLocation.objects.create(service = '507I', distance = 5, longitud=8, latitud=5)
+        ServiceLocation.objects.create(service = '507I', distance = 6, longitud=9, latitud=5)
 
 
     def test_consistencyModelDevicePositionInTime(self):

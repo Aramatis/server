@@ -22,7 +22,6 @@ class RegisterEventBus(View):
 
 		# here we request all the info needed to preoced
 		aTimeStamp = timezone.now()
-		print pEventID
 		theEvent = Event.objects.get(id=pEventID)
 		theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
 
