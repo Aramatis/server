@@ -16,11 +16,13 @@ from AndroidRequests.models import *
 class RegisterEventBus(View):
 	'''This class handles the requests that reports events of a bus'''
 
-	def get(self, request, pBusService, pBusPlate, pEventID, pConfirmDecline):
+	'''Falta agregar la pose a esto'''
+	def get(self, request, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
 		response = {}
 
 		# here we request all the info needed to preoced
 		aTimeStamp = timezone.now()
+		print pEventID
 		theEvent = Event.objects.get(id=pEventID)
 		theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
 
@@ -45,6 +47,9 @@ class RegisterEventBus(View):
 
 			# save changes
 			eventReport.save()
+
+			StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
+			 reportOfEvent=eventReport, longitud=pLatitud, latitud=pLongitud)
 		else:
 			# if an event was not found, create a new one
 			aEventReport = EventForBus.objects.create(bus=theBus, event=theEvent, timeStamp=aTimeStamp,timeCreation=aTimeStamp)
@@ -55,6 +60,9 @@ class RegisterEventBus(View):
 				aEventReport.eventConfirm = 0
 
 			aEventReport.save()
+
+			StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline, \
+				reportOfEvent=aEventReport, longitud=pLatitud, latitud=pLongitud)
 
 
 

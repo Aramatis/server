@@ -48,6 +48,18 @@ class Event(models.Model):
 # This are the modles to handel the registration of events for a bus or a busstop
 #
 ##
+class StadisticDataFromRegistration(Location):
+	timeStamp = models.DateTimeField(null=False, blank=False)
+	confirmDecline = models.CharField(max_length=10)
+
+	class Meta:
+		abstract = True
+
+class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
+	reportOfEvent = models.ForeignKey('EventForBus')
+
+class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
+	reportOfEvent = models.ForeignKey('EventForBusStop')
 
 class EventRegistration(models.Model):
 	'''This model stores the reposts of events coming from the  
@@ -98,6 +110,9 @@ class ServicesByBusStop(models.Model):
 	It's usefull to hace the direction of the service to been able to determin
 	position of the bus."""
 	code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
+	busStop = models.ForeignKey('BusStop', verbose_name='the busStop')
+	service = models.ForeignKey('Service', verbose_name='the service')
+
 
 class BusStop(Location):
 	"""Represents the busStop itself."""
@@ -136,7 +151,7 @@ class Bus(models.Model):
 		unique_together = ('registrationPlate', 'service')
 
 	def getLocation(self, busstop, distance):
-		"""This method estimate the location of a bus given one user the is inside or gives the location estimated by
+		"""This method estimate the location of a bus given one user that is inside or gives the location estimated by
 		transantiago."""
 		from random import uniform
 		tokens = Token.objects.filter(bus=self)
@@ -146,16 +161,18 @@ class Bus(models.Model):
 		for token in tokens:
 			if(not hasattr(token, 'activetoken')):
 				continue
-			lastPose = PoseInTrajectoryOfToken.objects.filter(token = token).latest('timeStamp');
-			if (lastPose.timeStamp>=lastDate):
-				lastDate = lastPose.timeStamp
-				lat = lastPose.latitud
-				lon = lastPose.longitud
+			trajectoryQuery = PoseInTrajectoryOfToken.objects.filter(token = token)
+			if trajectoryQuery.exists():
+				lastPose = trajectoryQuery.latest('timeStamp');
+				if (lastPose.timeStamp>=lastDate):
+					lastDate = lastPose.timeStamp
+					lat = lastPose.latitud
+					lon = lastPose.longitud
 		if(lat == lon and lat == -500):
 			try:
 				return self.__estimatedPosition(busstop, distance)
+
 			except:
-				#raise
 				return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
 						'longitud': -70.434710 + uniform(0.000000, 0.0005),
 						'estimated': True, 
@@ -173,7 +190,9 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
 		except:
 			serviceCode = self.service + "I"
+			
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
+
 		try:
 			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
 		except:
@@ -182,11 +201,13 @@ class Bus(models.Model):
 			closest_lt = ServiceLocation.objects.filter(service = serviceCode, distance__lt=ssd).order_by('-distance')[0].distance
 		except:
 			closest_lt = 10
+
 		if(abs(closest_gt-ssd) < abs(closest_lt-ssd)):
 			closest = closest_gt
 		else:
 			closest = closest_lt
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
+		print location.latitud, location.longitud
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
 				'estimated': True,
@@ -235,3 +256,8 @@ class ActiveToken(models.Model):
 	'''This are the tokens that are currently beeing use to upload positions.'''
 	timeStamp = models.DateTimeField(null=False, blank=False)
 	token = models.OneToOneField(Token)
+
+class Report(models.Model):
+	""" This is the free report, it save the message and the picture location in the system  """
+	message = models.TextField()
+	path = models.CharField(max_length=500, blank=False, null=False)
