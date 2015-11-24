@@ -156,9 +156,9 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
 		except:
 			serviceCode = self.service + "I"
-
+		
 		distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
-		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gte=distance).order_by('distance')
+		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')
 		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')
 		try:
 			greater = greaters[0]
