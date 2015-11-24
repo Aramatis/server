@@ -150,6 +150,36 @@ class Bus(models.Model):
 	class Meta:
 		unique_together = ('registrationPlate', 'service')
 
+	def getDirection(self, pBusStop, pDistance):
+		import math
+		try:
+			serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
+		except:
+			serviceCode = self.service + "I"
+
+		distance = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(pDistance)
+		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gte=ssd).order_by('distance')
+		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=ssd).order_by('-distance')
+		try:
+			greater = greaters[0].distance
+		except:
+			greater = lowers[0].distance
+			lower = lowers[1].distance
+		else:
+			try:
+				lower = lowers[0].distance
+			except:
+				lower = greater
+				greater = greaters[1].distance
+
+		x1 = lower.latitud
+		x2 = greater.latitud
+		if(x2-x1>=0):
+			return True
+		else:
+			return False
+
+
 	def getLocation(self, busstop, distance):
 		"""This method estimate the location of a bus given one user that is inside or gives the location estimated by
 		transantiago."""
@@ -194,13 +224,13 @@ class Bus(models.Model):
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 
 		try:
-			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gt=ssd).order_by('distance')[0].distance
+			closest_gt = ServiceLocation.objects.filter(service = serviceCode, distance__gte=ssd).order_by('distance')[0].distance
 		except:
-			closest_gt = 5000000
+			closest_gt = 50000
 		try:
-			closest_lt = ServiceLocation.objects.filter(service = serviceCode, distance__lt=ssd).order_by('-distance')[0].distance
+			closest_lt = ServiceLocation.objects.filter(service = serviceCode, distance__lte=ssd).order_by('-distance')[0].distance
 		except:
-			closest_lt = 10
+			closest_lt = 0
 
 		if(abs(closest_gt-ssd) < abs(closest_lt-ssd)):
 			closest = closest_gt

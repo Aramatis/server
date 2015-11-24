@@ -62,6 +62,7 @@ def nearbyBuses(request, pBusStop):
 		dato['lon'] = busdata['longitud']
 		dato['random'] = busdata['random']
 		dato['color'] = Service.objects.get(service=dato['servicio']).color_id
+		dato['derecha'] = 1 if bus.getDirection(data['id'], dato['distancia'].replace(' mts.', '')) else 0
 		getEventBus = EventsByBus()
 		
 		busEvents = getEventBus.getEventForBus(bus)
