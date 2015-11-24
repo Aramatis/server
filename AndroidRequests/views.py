@@ -26,16 +26,23 @@ def userPosition(request, pLat, pLon):
 	return JsonResponse(response, safe=False)
 
 def nearbyBuses(request, pBusStop):
-	url = "http://dev.adderou.cl/transanpbl/busdata.php"
-	params = {'paradero': pBusStop}
-	response = requests.get(url=url, params = params)
-	data = json.loads(response.text)
-	servicios = []
 
+	servicios = []
 	timeNow = timezone.now()
 	theBusStop = BusStop.objects.get(code=pBusStop)
 	getEventsBusStop = EventsByBusStop()
 	busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
+
+	url = "http://dev.adderou.cl/transanpbl/busdata.php"
+	params = {'paradero': pBusStop}
+	response = requests.get(url=url, params = params)
+	if(response.text!=""):
+		response = {}
+		response["servicios"] = servicios
+		response["eventos"] = busStopEvent
+		return JsonResponse(response, safe=False)
+		
+	data = json.loads(response.text)	
 
 	for dato in data['servicios']:
 		if(dato["valido"]!=1):
