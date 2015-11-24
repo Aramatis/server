@@ -31,12 +31,13 @@ class Loader:
 		return str(rowsNum) + " " + className + " rows added"
 
 	@abc.abstractmethod
-	def load(self, ticks):
+	def load(self):
 		return
 
 
 class BusStopLoader(Loader):
 	_className = "BusStop"
+	ticks = 1000
 
 	@property
 	def className(self):
@@ -50,7 +51,7 @@ class BusStopLoader(Loader):
 		end = super(BusStopLoader, self).inDBMessage("")
 		return "the " + self.className + " " + data[0] +  end
 
-	def load(self, ticks):
+	def load(self):
 		i = 1
 		for line in self.csv:
 			data = line.split(";")
@@ -74,12 +75,13 @@ class BusStopLoader(Loader):
 				self.log.write(self.notSavedMessage(data))
 				self.log.write(str(e) + "\n")
 			i+=1
-			if(i%ticks==0):
+			if(i%self.ticks==0):
 				print super(BusStopLoader, self).rowAddedMessage(self.className, i)
 
 
 class ServiceStopDistanceLoader(Loader):
 	_className = "ServiceStopDistance"
+	ticks = 5000
 
 	@property
 	def className(self):
@@ -93,7 +95,7 @@ class ServiceStopDistanceLoader(Loader):
 		end = super(ServiceStopDistanceLoader, self).inDBMessage("")
 		return "The distance traveled by the service " + data[1] + " to the busStop "+ data[0] + end
 
-	def load(self, ticks):
+	def load(self):
 		i = 1
 		for line in self.csv:
 			data = line.split(";")
@@ -116,12 +118,13 @@ class ServiceStopDistanceLoader(Loader):
 				self.log.write(self.notSavedMessage(data))
 				self.log.write(str(e) + "\n")
 			i+=1
-			if(i%ticks==0):
+			if(i%self.ticks==0):
 				print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
 
 
 class ServiceLoader(Loader):
 	_className = "Service"
+	ticks = 50
 
 	@property
 	def className(self):
@@ -135,7 +138,7 @@ class ServiceLoader(Loader):
 		end = super(ServiceLoader, self).inDBMessage("")
 		return "The service " + data + end
 
-	def load(self, ticks):
+	def load(self):
 		i = 1
 		for line in self.csv:
 			data = line.split(";")
@@ -160,13 +163,14 @@ class ServiceLoader(Loader):
 				self.log.write(self.notSavedMessage(data[0]))
 				self.log.write(str(e) + "\n")
 			i+=1
-			if(i%ticks==0):
+			if(i%self.ticks==0):
 				print super(ServiceLoader, self).rowAddedMessage(self.className, i)
 
 
 
 class ServicesByBusStopLoader(Loader):
 	_className = "ServicesByBusStop"
+	ticks = 1000
 
 	@property
 	def className(self):
@@ -180,7 +184,7 @@ class ServicesByBusStopLoader(Loader):
 		end = super(ServicesByBusStopLoader, self).inDBMessage("")
 		return "The service " + data[1] + " for the busStop "+ data[0] + end
 
-	def load(self, ticks):
+	def load(self):
 		i = 1
 		for line in self.csv:
 			data = line.split(";")
@@ -207,12 +211,13 @@ class ServicesByBusStopLoader(Loader):
 					self.log.write(self.notSavedMessage([data[0], service]))
 					self.log.write(str(e) + "\n")
 				i+=1
-				if(i%ticks==0):
+				if(i%self.ticks==0):
 					print super(ServicesByBusStopLoader, self).rowAddedMessage(self.className, i)
 
 
 class ServiceLocationLoader(Loader):
 	_className = "ServiceLocation"
+	ticks = 50000
 
 	@property
 	def className(self):
@@ -226,7 +231,7 @@ class ServiceLocationLoader(Loader):
 		end = super(ServiceLocationLoader, self).inDBMessage("")
 		return "The location of the service " + data[0] + end
 
-	def load(self, ticks):
+	def load(self):
 		i = 1
 		for line in self.csv:
 			data = line.split(";")
@@ -249,7 +254,7 @@ class ServiceLocationLoader(Loader):
 				self.log.write(self.notSavedMessage(data))
 				self.log.write(str(e) + "\n")
 			i+=1
-			if(i%ticks==0):
+			if(i%self.ticks==0):
 				print super(ServiceLocationLoader, self).rowAddedMessage(self.className, i)
 
 class LoadEvents(object):
