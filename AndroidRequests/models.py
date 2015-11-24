@@ -81,7 +81,8 @@ class EventRegistration(models.Model):
 		dictionary['eventConfirm'] = self.eventConfirm
 		dictionary['eventDecline'] = self.eventDecline
 		dictionary['timeCreation'] = self.timeCreation
-		dictionary['timeStamp'] = self.timeStamp
+		dictionary['timeStamp'] = '%i-%i-%i %i:%i:%i' % (self.timeStamp.day, self.timeStamp.month,\
+			self.timeStamp.year, self.timeStamp.hour, self.timeStamp.minute, self.timeStamp.second)
 		eventDictionay = self.event.getDictionary()
 		dictionary.update(eventDictionay)
 
