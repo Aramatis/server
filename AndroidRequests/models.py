@@ -136,7 +136,7 @@ class Service(models.Model):
 	origin = models.CharField(max_length=100, null=False, blank=False)
 	destiny = models.CharField(max_length=100, null=False, blank=False)
 	color = models.CharField(max_length=7, default='#00a0f0')
-	color_id = models.IntegerField()
+	color_id = models.IntegerField(default = 0)
 	busStops = models.ManyToManyField(BusStop, verbose_name='the Bus Stop' ,through=ServicesByBusStop)
 
 class Bus(models.Model):

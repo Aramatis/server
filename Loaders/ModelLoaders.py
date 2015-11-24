@@ -146,7 +146,7 @@ class ServiceLoader(Loader):
 				continue
 			try:
 				service = Service.objects.get_or_create(service = data[0], \
-					defaults={'origin': 'origin', 'destiny': 'destiny', 'color_id': 0})[0]
+					defaults={'origin': 'origin', 'destiny': 'destiny'})[0]
 			except Exception, e:
 				self.log.write(self.inDBMessage(data[0]))
 				self.log.write(str(e) + "\n")
@@ -158,7 +158,7 @@ class ServiceLoader(Loader):
 				service.color_id = data[4]
 
 			try:
-				serviceByBusStop.save()
+				service.save()
 			except Exception, e:
 				self.log.write(self.notSavedMessage(data[0]))
 				self.log.write(str(e) + "\n")
