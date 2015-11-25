@@ -173,13 +173,23 @@ class Bus(models.Model):
 			except:
 				lower = greater
 				greater = greaters[1]
-
-		x1 = lower.latitud
-		x2 = greater.latitud
-		if(x2-x1>=0):
-			return True
+		epsilon = 0.00004
+		x1 = lower.longitud
+		y1 = lower.latitud
+		x2 = greater.longitud
+		y2 = greater.latitud
+		print str(pDistance) + ": " + str(x1) + ", " + str(y1)
+		print str(pDistance) + ": " + str(x2) + ", " + str(y2)
+		if(abs(x2-x1)>=epsilon):
+			if(x2-x1>0):
+				return "Derecha"
+			else:
+				return "Izquierda"
 		else:
-			return False
+			if(y2-y1>0):
+				return "Arriba"
+			else:
+				return "Abajo"
 
 
 	def getLocation(self, busstop, distance):
@@ -239,7 +249,6 @@ class Bus(models.Model):
 		else:
 			closest = closest_lt
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
-		print location.latitud, location.longitud
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
 				'estimated': True,
