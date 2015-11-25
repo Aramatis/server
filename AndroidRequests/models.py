@@ -175,8 +175,12 @@ class Bus(models.Model):
 				greater = greaters[1]
 
 		x1 = lower.longitud
+		y1 = lower.latitud
 		x2 = greater.longitud
+		y2 = greater.latitud
 		if(x2-x1>=0):
+			print str(pDistance) + ": " + str(x1) + ", " + str(y1)
+			print str(pDistance) + ": " + str(x2) + ", " + str(y2)
 			return True
 		else:
 			return False
@@ -239,7 +243,6 @@ class Bus(models.Model):
 		else:
 			closest = closest_lt
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
-		print location.latitud, location.longitud
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
 				'estimated': True,
