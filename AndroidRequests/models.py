@@ -80,8 +80,10 @@ class EventRegistration(models.Model):
 
 		dictionary['eventConfirm'] = self.eventConfirm
 		dictionary['eventDecline'] = self.eventDecline
-		dictionary['timeCreation'] = self.timeCreation
-		dictionary['timeStamp'] = self.timeStamp
+		dictionary['timeCreation'] = '%i-%i-%i %i:%i:%i' % (self.timeCreation.day, self.timeCreation.month,\
+			self.timeCreation.year, self.timeCreation.hour, self.timeCreation.minute, self.timeCreation.second)
+		dictionary['timeStamp'] = '%i-%i-%i %i:%i:%i' % (self.timeStamp.day, self.timeStamp.month,\
+			self.timeStamp.year, self.timeStamp.hour, self.timeStamp.minute, self.timeStamp.second)
 		eventDictionay = self.event.getDictionary()
 		dictionary.update(eventDictionay)
 
@@ -156,9 +158,9 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
 		except:
 			serviceCode = self.service + "I"
-
+		
 		distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
-		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gte=distance).order_by('distance')
+		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')
 		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')
 		try:
 			greater = greaters[0]
