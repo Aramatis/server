@@ -173,7 +173,7 @@ class Bus(models.Model):
 			except:
 				lower = greater
 				greater = greaters[1]
-		epsilon = 0.00004
+		epsilon = 0.00008
 		x1 = lower.longitud
 		y1 = lower.latitud
 		x2 = greater.longitud
