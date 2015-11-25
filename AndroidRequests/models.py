@@ -174,8 +174,8 @@ class Bus(models.Model):
 				lower = greater
 				greater = greaters[1]
 
-		x1 = lower.latitud
-		x2 = greater.latitud
+		x1 = lower.longitud
+		x2 = greater.longitud
 		if(x2-x1>=0):
 			return True
 		else:

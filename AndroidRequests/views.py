@@ -65,7 +65,7 @@ def nearbyBuses(request, pBusStop):
 		try:
 			dato['derecha'] = 1 if bus.getDirection(data['id'], dato['distancia'].replace(' mts.', '')) else 0
 		except:
-			pass
+			dato['derecha'] = 1
 		getEventBus = EventsByBus()
 		
 		busEvents = getEventBus.getEventForBus(bus)
