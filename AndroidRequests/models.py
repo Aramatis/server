@@ -178,14 +178,14 @@ class Bus(models.Model):
 		y1 = lower.latitud
 		x2 = greater.longitud
 		y2 = greater.latitud
+		print str(pDistance) + ": " + str(x1) + ", " + str(y1)
+		print str(pDistance) + ": " + str(x2) + ", " + str(y2)
 		if(abs(x2-x1)>=epsilon):
 			if(x2-x1>0):
 				return "Derecha"
 			else:
 				return "Izquierda"
 		else:
-			print str(pDistance) + ": " + str(x1) + ", " + str(y1)
-			print str(pDistance) + ": " + str(x2) + ", " + str(y2)
 			if(y2-y1>0):
 				return "Arriba"
 			else:
