@@ -184,6 +184,8 @@ class Bus(models.Model):
 			else:
 				return "Izquierda"
 		else:
+			print str(pDistance) + ": " + str(x1) + ", " + str(y1)
+			print str(pDistance) + ": " + str(x2) + ", " + str(y2)
 			if(y2-y1>0):
 				return "Arriba"
 			else:
