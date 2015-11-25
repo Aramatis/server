@@ -287,9 +287,12 @@ class Token(models.Model):
 
 class PoseInTrajectoryOfToken(Location):
 	'''This stores all the poses of a trajectory. The trajectory can start on foot and end on foot.'''
-	timeStamp = models.DateTimeField(null=False, blank=False)
+	timeStamp = models.DateTimeField(null=False, blank=False, db_index=True)
 	inVehicleOrNot =models.CharField(max_length=15) # vehicle, non_vehicle
 	token = models.ForeignKey(Token)
+	
+	class Meta:
+		index_together = ["token", "timeStamp"]
 
 class ActiveToken(models.Model):
 	'''This are the tokens that are currently beeing use to upload positions.'''
