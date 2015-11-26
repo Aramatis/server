@@ -56,7 +56,7 @@ class GetMapPositionsTest(TestCase):
         Use timeStampNow = str(timezone.now()-timezone.timedelta(minutes=10)) so that it pass.
         SQLITE doesn't store the the time domain you gave. In Chile it's 3.'''
 
-        timeStampNow = str(timezone.now())
+        timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
         testPoses = {"poses":[
         {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp":str(timeStampNow)    ,"inVehicleOrNot":"vehicle"},\
