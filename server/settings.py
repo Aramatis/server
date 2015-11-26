@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     'AndroidRequests',
     'MapLocationOfUsers',
 )
@@ -116,3 +117,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+#Cron settings
+#the job is executed every day at 24
+CRONJOBS = [
+    ('0 0 * * *', 'AndroidRequests.cronTasks.clearnEventsThatHaveBeenDecline')
+] 

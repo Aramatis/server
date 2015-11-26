@@ -7,8 +7,8 @@ import time
 
 minP = -33.519893, -70.740650
 maxP = -33.403286, -70.573249
-serverIP = "200.9.100.91"
-serverPort = "8080"
+serverIP = "54.94.231.101"
+serverPort = "80"
 
 
 class StadisticHello(object):
@@ -21,7 +21,7 @@ class StadisticHello(object):
 		self.failrequest = 0
 		self.requestsCount = 0
 
-def nearbyBuses( pData):#/android/sendTrajectoy
+def sendTrajectory( pData):#/android/sendTrajectoy
 	
 	dt = datetime.datetime.now()
 
@@ -81,11 +81,13 @@ def nearbyBuses( pData):#/android/sendTrajectoy
 			response = requests.get(url=url)
 			end = time.time()
 
-			pData.requestsCount += 1
+			
 			trajectoryTime = trajectoryTime + end - start
 			#print url
 			if response.status_code == 500:
 				print "fail: ", response.url
+			elif response.status_code == 200:
+				pData.requestsCount += 1
 			#print url
 			#print 'response: ' + response.text
 			#time.sleep(0.02)#uniform(0.02,1)
@@ -107,7 +109,30 @@ def nearbyBuses( pData):#/android/sendTrajectoy
 	pData.requestsCount += 1
 	pData.endRouteTime = end - start
 
+def nearbyBuses( pData):#/android/sendTrajectoy
+	trajectoryTime = 0.0
+	nIter = 30
+	try:
+		for cont in range(nIter):
+			
+			url = "http://" + serverIP + ":" + serverPort + "/android/nearbyBuses/PA668"
+			
+			start = time.time()
+			response = requests.get(url=url)
+			end = time.time()
 
+			trajectoryTime = trajectoryTime + end - start
+
+			if response.status_code == 500:
+				print "fail: ", response.url
+			elif response.status_code == 200:
+				pData.requestsCount += 1
+
+	except requests.ConnectionError:
+		pData.failrequest += 1
+
+	pData.trajectoryTime = trajectoryTime/pData.requestsCount
+	pData.succes = True
 
 def main():
 	threads = list()
@@ -116,7 +141,7 @@ def main():
 	generalTime = time.time()
 	for i in range(threadsNumber):
 		dataS = StadisticHello()
-		t = threading.Thread(target=nearbyBuses, args=(dataS,) )
+		t = threading.Thread(target=sendTrajectory, args=(dataS,) )
 		threads.append(t)
 		info.append(dataS)
 		t.start()
@@ -140,14 +165,17 @@ def main():
 		print val.requestsCount
 		print val.failrequest
 		generalRequest += val.requestsCount
-		generalNotFail += val.failrequest
+		generalFailRequest += val.failrequest
 		generalAverage += val.trajectoryTime
 
 
-	print "allTime: " ,generalTime
-	print "requests per second: ", generalRequest/generalTime
-	print "fail request per second: ", generalFailRequest/generalTime
+	print "All time: " ,generalTime
+	print "Requests per second: ", generalRequest/generalTime
+	print "Fail request per second: ", generalFailRequest/generalTime
 	print "Average send trajectory request per second: ", generalAverage/generalTime
+	print "Failure porcentage: ", generalFailRequest / (0.0 + generalFailRequest + generalRequest)
+	print "Succes request:", generalRequest
+	print "Fail request:",generalFailRequest
 
 if __name__ == "__main__":
 	main()
