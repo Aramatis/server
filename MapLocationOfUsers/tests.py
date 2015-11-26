@@ -52,9 +52,7 @@ class GetMapPositionsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_getGetMapTrajectory(self):
-        '''this test the trajectory that the server gives to the. This test fails in SQLITE.
-        Use timeStampNow = str(timezone.now()-timezone.timedelta(minutes=10)) so that it pass.
-        SQLITE doesn't store the the time domain you gave. In Chile it's 3.'''
+        '''this test the trajectory that the server gives to the. '''
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
