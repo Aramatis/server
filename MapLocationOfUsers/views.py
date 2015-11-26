@@ -18,7 +18,7 @@ class MapHandler(View):
 		self.context={}	
 
 	def get(self, request):
-		template = "googelMap.html"
+		template = "map.html"
 
 		return render(request, template, self.context)
 
@@ -30,7 +30,6 @@ class GetMapPositions(View):
 		self.context={}	
 
 	def get(self, request):
-		template = "googelMap.html"
 
 		now = timezone.now()
 		earlier = now - timezone.timedelta(minutes=10)

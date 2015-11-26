@@ -52,7 +52,9 @@ class GetMapPositionsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_getGetMapTrajectory(self):
-        '''this test the trajectory that the server gives to the '''
+        '''this test the trajectory that the server gives to the. This test fails in SQLITE.
+        Use timeStampNow = str(timezone.now()-timezone.timedelta(minutes=10)) so that it pass.
+        SQLITE doesn't store the the time domain you gave. In Chile it's 3.'''
 
         timeStampNow = str(timezone.now())
         timeStampNow = timeStampNow[0:19]
@@ -115,7 +117,12 @@ class GetMapPositionsTest(TestCase):
         reponseView = GetMapTrajectory()#pToken, pTrajectory
         response = reponseView.get(request)
 
-        bla = PoseInTrajectoryOfToken.objects.all()
+        responseMessage = json.loads(response.content)
+
+        for aMsg in responseMessage:
+            self.assertEqual(aMsg['token'] != timeOutToken , True)
+
+        self.assertEqual(len(responseMessage), len(testTokens)-1)
 
         #for aResponse in bla:
         #    print aResponse.timeStamp

@@ -302,4 +302,4 @@ class ActiveToken(models.Model):
 class Report(models.Model):
 	""" This is the free report, it save the message and the picture location in the system  """
 	message = models.TextField()
-	path = models.CharField(max_length=500, blank=False, null=False)
+	path = models.CharField(max_length=500, default="no image")
