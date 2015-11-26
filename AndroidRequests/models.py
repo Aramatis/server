@@ -173,17 +173,21 @@ class Bus(models.Model):
 			except:
 				lower = greater
 				greater = greaters[1]
-
+		epsilon = 0.00008
 		x1 = lower.longitud
 		y1 = lower.latitud
 		x2 = greater.longitud
 		y2 = greater.latitud
-		if(x2-x1>=0):
-			print str(pDistance) + ": " + str(x1) + ", " + str(y1)
-			print str(pDistance) + ": " + str(x2) + ", " + str(y2)
-			return True
+		if(abs(x2-x1)>=epsilon):
+			if(x2-x1>0):
+				return "right"
+			else:
+				return "left"
 		else:
-			return False
+			if(y2-y1>0):
+				return "up"
+			else:
+				return "down"
 
 
 	def getLocation(self, busstop, distance):
@@ -283,9 +287,12 @@ class Token(models.Model):
 
 class PoseInTrajectoryOfToken(Location):
 	'''This stores all the poses of a trajectory. The trajectory can start on foot and end on foot.'''
-	timeStamp = models.DateTimeField(null=False, blank=False)
+	timeStamp = models.DateTimeField(null=False, blank=False, db_index=True)
 	inVehicleOrNot =models.CharField(max_length=15) # vehicle, non_vehicle
 	token = models.ForeignKey(Token)
+	
+	class Meta:
+		index_together = ["token", "timeStamp"]
 
 class ActiveToken(models.Model):
 	'''This are the tokens that are currently beeing use to upload positions.'''
