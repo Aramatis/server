@@ -5,9 +5,11 @@ from django.utils import timezone
 # Remembre to add new models to admin.py
 
 class Location(models.Model):
-	""" Some of our models require to set a location (coodinates)"""
-	longitud = models.FloatField(null=False, blank=False)
-	latitud = models.FloatField(null=False, blank=False)
+	""" Some of our models require to set a geolocation (coodinates)"""
+	longitud = models.FloatField('Longitude', null=False, blank=False)
+	""" longitude from the geolocation """
+	latitud = models.FloatField('Latitude', null=False, blank=False)
+	""" longitude from the geolocation """
 
 	class Meta:
 		"""This makes that the fields here define are added to the tables that
@@ -17,6 +19,7 @@ class Location(models.Model):
 class DevicePositionInTime(Location):	
 	"""Helps storing the position of active users"""
 	timeStamp = models.DateTimeField(null=False, blank=False)
+	""" longitude from the geolocation """
 
 class Event(models.Model):
 	"""Here are all the events, its configurarion and info."""
@@ -196,11 +199,13 @@ class Bus(models.Model):
 		from random import uniform
 		tokens = Token.objects.filter(bus=self)
 		lastDate = timezone.now()-timezone.timedelta(days=30)
+		passengers = 0
 		lat = -500
 		lon = -500 
 		for token in tokens:
 			if(not hasattr(token, 'activetoken')):
 				continue
+			passengers += 1
 			trajectoryQuery = PoseInTrajectoryOfToken.objects.filter(token = token)
 			if trajectoryQuery.exists():
 				lastPose = trajectoryQuery.latest('timeStamp');
@@ -210,20 +215,20 @@ class Bus(models.Model):
 					lon = lastPose.longitud
 		if(lat == lon and lat == -500):
 			try:
-				return self.__estimatedPosition(busstop, distance)
+				return self.__estimatedPosition(busstop, distance, passengers)
 
 			except:
 				return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
 						'longitud': -70.434710 + uniform(0.000000, 0.0005),
-						'estimated': True, 
+						'passengers': passengers, 
 						'random':True}
 		return {'latitud': lat,
 				'longitud': lon,
-				'estimated': False,
+				'passengers': passengers,
 				'random': False
 				}
 
-	def __estimatedPosition(self, busstop, distance):
+	def __estimatedPosition(self, busstop, distance, passengers):
 		'''Given a distace from the bus to the busstop, this method returns the global position of
 		the machine.'''
 		try:
@@ -249,7 +254,7 @@ class Bus(models.Model):
 		location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
 		return {'latitud': location.latitud,
 				'longitud': location.longitud,
-				'estimated': True,
+				'passengers': passengers,
 				'random': False
 				}
 
