@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'AndroidRequests',
     'MapLocationOfUsers',
     'modelsdoc',
+    'DataDictionary',
 )
 
 MIDDLEWARE_CLASSES = (
