@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django_crontab',
     'AndroidRequests',
     'MapLocationOfUsers',
+    'modelsdoc',
 )
 
 MIDDLEWARE_CLASSES = (
