@@ -100,4 +100,11 @@ atlassian-ide-plugin.xml
 
 # migrate files
 */migrations/*
+
+# media files, images from the free report
 *media/*
+
+# the mk and html from the data dictionary
+DataDictionary/templates/dataDic.html
+DataDictionary/templates/dataDic.md
+
