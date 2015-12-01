@@ -100,3 +100,4 @@ atlassian-ide-plugin.xml
 
 # migrate files
 */migrations/*
+*media/*
