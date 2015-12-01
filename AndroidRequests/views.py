@@ -57,7 +57,7 @@ def nearbyBuses(request, pBusStop):
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], \
 										service = dato['servicio'])[0]
 		busdata = bus.getLocation(data['id'], dato['distancia'].replace(' mts.', ''))
-		dato['pasajeros'] = busdata['passengers']
+		dato['tienePasajeros'] = busdata['passengers']
 		dato['lat'] = busdata['latitud']
 		dato['lon'] = busdata['longitud']
 		dato['random'] = busdata['random']
