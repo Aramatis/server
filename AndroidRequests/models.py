@@ -96,10 +96,10 @@ class EventRegistration(models.Model):
 
 		dictionary['eventConfirm'] = self.eventConfirm
 		dictionary['eventDecline'] = self.eventDecline
-		dictionary['timeCreation'] = '%i-%i-%i %i:%i:%i' % (self.timeCreation.day, self.timeCreation.month,\
-			self.timeCreation.year, self.timeCreation.hour, self.timeCreation.minute, self.timeCreation.second)
-		dictionary['timeStamp'] = '%i-%i-%i %i:%i:%i' % (self.timeStamp.day, self.timeStamp.month,\
-			self.timeStamp.year, self.timeStamp.hour, self.timeStamp.minute, self.timeStamp.second)
+		creation = timezone.localtime(self.timeCreation)
+		stamp = timezone.localtime(self.timeStamp)
+		dictionary['timeCreation'] = creation.strftime(%d-%m-%Y %H:%M:%S)
+		dictionary['timeStamp'] = stamp.strftime(%d-%m-%Y %H:%M:%S)
 		eventDictionay = self.event.getDictionary()
 		dictionary.update(eventDictionay)
 
