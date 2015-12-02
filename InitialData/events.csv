@@ -1,0 +1,34 @@
+id;eventType;category;origin;name;description;lifespam
+evn00000;busStop;buses Juntos;o;2 juntos;Dos buses del mismo servicio pasan juntos por la misma parada.;30
+evn00001;busStop;buses Juntos;o;3 o + juntos;Más de dos busesdel mismo servicio pasan juntos por la misma parada.;30
+evn00010;busStop;estado físico;o;No hay techo;Al paradero le falta el techo completo o parte de él.;43200
+evn00011;busStop;estado físico;o;No hay asientos;En el paradero no existe un lugar adecuado para sentarse;43200
+evn00012;busStop;estado físico;o;No hay iluminación;En el paradero no hay luces que lo iliminen.;43200
+evn00013;busStop;estado físico;o;Falta informacion recorridos.;En el paradero no se especifica que servicios pasan por ahi.;43200
+evn00020;busStop;ambiente;o;Robos o desordenes;En el paradero se precencias robos o se han producido disturbios;5
+evn00021;busStop;ambiente;o;Ebrio;Hay personas ebrais en el paradero;5
+evn00022;busStop;ambiente;o;Paradero lleno;El paradero esta repleto;5
+evn00100;bus;desde paradero;o;Bus en transito;El bus que estaba informado para pasar por el paradero paso en transito.;3000
+evn00101;bus;desde paradero;o;Bus vacio no se detuvo;El bus estaba vacio o casi vacio de pasajeros y no paro en el paradero.;3000
+evn00102;bus;desde parader0;o;Bus lleno no se detuvo;El bus estaba lleno de pasajeros y no paro en el paradero.;3000
+evn00200;bus;ambiente;i;Imposible moverse;No se puede transitar por el bus, dada la cantidad de gente.;5
+evn00201;bus;ambiente;i;Se camina con dificultad;El bus esta lleno y es dificil circular por él.;5
+evn00202;bus;ambiente;i;No hay asientos disponibles;No se puede serntar en ningun asiento.;5
+evn00203;bus;ambiente;i;Hay asientos disponibles;El bus tiene asientos libres.;5
+evn00210;bus;incidentes en el bus;i;Están Robando;En el bus se presencio un robo.;5
+evn00211;bus;incidentes en el bus;i;Están Bebiendo;El bus hay pasajero(s) bebiendo.;5
+evn00212;bus;incidentes en el bus;i;Grupo haciendo desorden;Hay gente haciendo desorden al interior del bus.;5
+evn00213;bus;incidentes en el bus;i;Todo tranquilo;El bus esta bien.;5
+evn00220;bus;estado físico;i;Puerta en mal estado;El bus tiene al menos una puerta en mal estado.;3000
+evn00221;bus;estado físico;i;Pasamanos en mal estado;El bus tiene al menos un pasamanos en mal estado.;3000
+evn00222;bus;estado físico;i;Ventana en mal estado;El bus tiene al menos una ventana en mal estado.;3000
+evn00223;bus;estado físico;i;Timbre en mal estado;El bus tiene al menos un timbre en mal estado.;3000
+evn00224;bus;estado físico;i;Sucio;El bus esta sucio.;3000
+evn00225;bus;estado físico;i;Bus en buen estado;El bus esta en buenas condiciones para funcionar.;3000
+evn00230;bus;conductor;i;conducción brusca;El chofer raliza maniobras que hacer peligrar mi bien estar.;30
+evn00231;bus;conductor;i;no para en parader;El bus no paro en el paradero, pese a que alguien pidio la parada desde el bus o el paradero.;30
+evn00232;bus;conductor;i;habla por celular;El chofer hable por celular mientras maneja.;5
+evn00233;bus;conductor;i;buen comportamiento;El bus va bien.;5
+evn00240;bus;incidente en la via;i;taco;El bus esta en un taco.;5
+evn00241;bus;incidente en la via;i;accidente;El bus paso cerca de un accidente.;5
+evn00242;bus;incidente en la via;i;sin novedad;El bus va bien.;5
