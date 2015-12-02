@@ -12,5 +12,7 @@ class LoaderFactory():
 			return ServicesByBusStopLoader
 		elif(model.lower()=="service"):
 			return ServiceLoader
+		elif(model.lower()=="event"):
+			return EventLoades
 		else:
 			return None
