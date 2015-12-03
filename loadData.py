@@ -23,3 +23,4 @@ for i in range(1, len(sys.argv), 2):
 	loader = factory.getModelLoader(sys.argv[i])(csv, log)
 	loader.load()
 	csv.close()
+log.close()

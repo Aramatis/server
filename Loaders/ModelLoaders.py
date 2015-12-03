@@ -259,7 +259,7 @@ class ServiceLocationLoader(Loader):
 
 class EventLoades(Loader):
 	_className = "Event"
-	ticks = 5
+	ticks = 1000
 
 	@property
 	def className(self):
