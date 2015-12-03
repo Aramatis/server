@@ -127,3 +127,5 @@ CRONJOBS = [
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearnEventsThatHaveBeenDecline'),
     ('* */1 * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
 ] 
+
+MODELSDOC_APPS = ('AndroidRequests',)   
