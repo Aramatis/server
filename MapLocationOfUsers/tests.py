@@ -106,7 +106,6 @@ class GetMapPositionsTest(TestCase):
         nonTrajectory = PoseInTrajectoryOfToken.objects.filter(token=timeOutToken)
         for data in nonTrajectory:
             data.timeStamp = data.timeStamp -timezone.timedelta(minutes=11)
-
             data.save()
 
         request = self.factory.get('/map/activetrajectory')
@@ -121,14 +120,4 @@ class GetMapPositionsTest(TestCase):
             self.assertEqual(aMsg['token'] != timeOutToken , True)
 
         self.assertEqual(len(responseMessage), len(testTokens)-1)
-
-        #for aResponse in bla:
-        #    print aResponse.timeStamp
-
-        #print ""
-        #print timeStampNow
-
-
-
-
-        
+       
