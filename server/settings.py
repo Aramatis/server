@@ -125,3 +125,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 CRONJOBS = [
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearnEventsThatHaveBeenDecline')
 ] 
+
+MODELSDOC_APPS = ('AndroidRequests',)
