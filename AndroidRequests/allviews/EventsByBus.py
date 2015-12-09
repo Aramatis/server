@@ -11,13 +11,13 @@ import datetime
 from AndroidRequests.models import *
 
 class EventsByBus(View):
-	"""This class handles request for the registered event for an specific bus."""
+	"""This class handles requests for the registered events for an specific bus."""
 	def __init__(self):
 		self.context={}
 
 	def get(self, request, pRegistrationPlate,pBusService):
-		"""It is important to give the registrarion plate and the bus
-		service, becuase one plate could gave two service."""
+		"""It's important to give the registrarion plate and the bus
+		service, because one plate could have two services."""
 		response = {}
 		bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
 		response['registrationPlate'] = pRegistrationPlate
@@ -31,8 +31,8 @@ class EventsByBus(View):
 		return JsonResponse(response, safe=False)
 
 	def getEventForBus(self,pBus):
-		"""this method look for the active envents of a bus, thouse whoms lifespam hasn't expire since the
-		last time there where reported"""
+		"""this method look for the active events of a bus, those whose lifespan hasn't expired 
+		since the last time there were reported"""
 		events = []
 		
 		eventsToAsk = Event.objects.filter(eventType='bus')

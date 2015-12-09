@@ -52,7 +52,7 @@ class GetMapPositionsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_getGetMapTrajectory(self):
-        '''this test the trajectory that the server gives to the. '''
+        '''this test the trajectory that the server gives to the map. '''
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]

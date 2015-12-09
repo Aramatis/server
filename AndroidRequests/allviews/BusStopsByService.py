@@ -7,7 +7,7 @@ from AndroidRequests.models import *
 from AndroidRequests.allviews.EventsByBusStop import *
 
 class BusStopsByService(View):
-	"""This class handles request for the list of bus stop for an specific service."""
+	"""This class handles requests for the list of bus stops for an specific service."""
 	def __init__(self):
 		self.context={}
 

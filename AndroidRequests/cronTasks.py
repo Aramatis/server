@@ -10,8 +10,8 @@ from AndroidRequests.models import *
 from django.utils import timezone
 
 def cleanActiveTokenTable():
-	"""To clean the active tokens table on the DB. This chechs that the last time a 
-	token was granted with new position doen't exeede a big amount of time."""
+	"""It cleans the active tokens table on the DB. This checks that the last time a 
+	token was granted with new position doesn't exceed a big amount of time."""
 
 	activeTokens = ActiveToken.objects.all()
 	currentTimeMinus11Minutes = timezone.now() - timezone.timedelta(minutes=30)
@@ -20,7 +20,7 @@ def cleanActiveTokenTable():
 			aToken.delete()
 
 def clearnEventsThatHaveBeenDecline():
-	'''This clears the event that have lost credibilitay'''
+	'''This clears the events that have lost credibility'''
 	minimumNumberOfDeclines = 30
 	porcentageOfDeclineOverConfirm = 60.0 
 

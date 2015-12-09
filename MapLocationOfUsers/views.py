@@ -11,7 +11,7 @@ from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
 
 class MapHandler(View):
 	'''This class manages the map where the markers from the devices using the
-	aplication are shown'''
+	application are shown'''
 	
 	def __init__(self):
 		"""the contructor, context are the parameter given to the html template"""
@@ -23,7 +23,7 @@ class MapHandler(View):
 		return render(request, template, self.context)
 
 class GetMapPositions(View):
-	'''This class request to to the database the values of the actives users'''
+	'''This class requests to the database the values of the actives users'''
 	
 	def __init__(self):
 		"""the contructor, context are the parameter given to the html template"""
@@ -34,7 +34,7 @@ class GetMapPositions(View):
 		now = timezone.now()
 		earlier = now - timezone.timedelta(minutes=10)
 
-		# the position of intereset are the ones ocurred in the lat 10 minutes
+		# the position of interest are the ones ocurred in the last 10 minutes
 		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))
 
 		response = []
@@ -44,8 +44,8 @@ class GetMapPositions(View):
 		return JsonResponse(response, safe=False)
 
 class GetMapTrajectory(View):
-	"""This class handles the request for getting the Trajectory of some tokens that where
-	updated un the last 10 minutes"""
+	"""This class handles the requests for getting the Trajectory of some tokens that where
+	updated in the last 10 minutes"""
 
 	def __init__(self):
 		"""the contructor, context are the parameter given to the html template"""
@@ -71,7 +71,7 @@ class GetMapTrajectory(View):
 
 			
 	def getTokenUsedIn10LastMinutes(self):
-		'''return the tokens that have the latest entry atleast 10 minutes ago'''
+		'''return the tokens that have the latest entry at least 10 minutes ago'''
 		now = timezone.now()
 
 		earlier = now - timezone.timedelta(minutes=10)
