@@ -1,7 +1,9 @@
 from ModelLoaders import *
 class LoaderFactory():
-
+	"""This class acts like a factory of loaders."""
 	def getModelLoader(self, model):
+		"""It receives a string indicating the table/model where you want to save the data
+		and returns the respective Loader."""
 		if(model.lower()=="busstop"):
 			return BusStopLoader
 		elif(model.lower()=="servicestopdistance"):

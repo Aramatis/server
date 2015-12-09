@@ -8,7 +8,7 @@ django.setup()
 from AndroidRequests.models import *
 
 class Loader:
-	
+	""" Abstract class for data loaders """
 	__metaclass__ = abc.ABCMeta
 
 	@abc.abstractproperty
@@ -16,26 +16,33 @@ class Loader:
 		return
 
 	def __init__(self, csv, log):
+		"""The constructor, receives a csv file with the data, 
+		and a log file to write the errors occurred in the process."""
 		self.csv = csv;
 		self.log = log;
 
 	@abc.abstractmethod
 	def notSavedMessage(self, data):
+		"""Return a message indicating that the data couldn't be saved in the database."""
 		return " couldn't be saved\n"
 
 	@abc.abstractmethod
 	def inDBMessage(self, data):
+		"""Return a message indicating that the data is already in the database."""
 		return " is already in the DB\n"
 
 	def rowAddedMessage(self, className, rowsNum):
+		"""Return an String indicating the amount of rows added to the database."""
 		return str(rowsNum) + " " + className + " rows added"
 
 	@abc.abstractmethod
 	def load(self):
+		"""Read the file given and load the data in the database."""
 		return
 
 
 class BusStopLoader(Loader):
+	""" This class load the bus stop data to the database."""
 	_className = "BusStop"
 	ticks = 1000
 
@@ -80,6 +87,7 @@ class BusStopLoader(Loader):
 
 
 class ServiceStopDistanceLoader(Loader):
+	""" This class load the data for the ServiceStopDistance table."""
 	_className = "ServiceStopDistance"
 	ticks = 5000
 
@@ -123,6 +131,7 @@ class ServiceStopDistanceLoader(Loader):
 
 
 class ServiceLoader(Loader):
+	""" This class load the service data to the database."""
 	_className = "Service"
 	ticks = 50
 
@@ -169,6 +178,7 @@ class ServiceLoader(Loader):
 
 
 class ServicesByBusStopLoader(Loader):
+	""" This class load the data for the ServicesByBusStop table."""
 	_className = "ServicesByBusStop"
 	ticks = 1000
 
@@ -216,6 +226,7 @@ class ServicesByBusStopLoader(Loader):
 
 
 class ServiceLocationLoader(Loader):
+	""" This class load the data for the ServiceLocation table."""
 	_className = "ServiceLocation"
 	ticks = 50000
 
@@ -258,6 +269,8 @@ class ServiceLocationLoader(Loader):
 				print super(ServiceLocationLoader, self).rowAddedMessage(self.className, i)
 
 class EventLoades(Loader):
+	""" This class load the events data to the database."""
+
 	_className = "Event"
 	ticks = 5
 
