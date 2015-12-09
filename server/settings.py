@@ -121,7 +121,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 #Cron settings
-#the job is executed every day at 24
+
 CRONJOBS = [
-    ('0 0 * * *', 'AndroidRequests.cronTasks.clearnEventsThatHaveBeenDecline')
+    #the job is executed every day at 24
+    ('0 0 * * *', 'AndroidRequests.cronTasks.clearnEventsThatHaveBeenDecline'),
+    ('* */1 * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
 ] 
+
+MODELSDOC_APPS = ('AndroidRequests',)   

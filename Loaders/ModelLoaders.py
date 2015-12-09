@@ -272,7 +272,7 @@ class EventLoades(Loader):
 	""" This class load the events data to the database."""
 
 	_className = "Event"
-	ticks = 5
+	ticks = 1000
 
 	@property
 	def className(self):
@@ -301,7 +301,7 @@ class EventLoades(Loader):
 				event.origin = data[3]
 				event.name = data[4]
 				event.description = data[5]
-				event.lifespam = data[6]
+				event.lifespam = int(data[6])
 
 				self.log.write(self.inDBMessage(data))		
 				try:

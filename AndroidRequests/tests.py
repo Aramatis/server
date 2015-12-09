@@ -32,12 +32,22 @@ class DevicePositionInTimeTest(TestCase):
         # initial config for ActiveToken
 
         #loads the events
-        from Loaders.ModelLoaders import LoadEvents
+        import os, sys
+        from Loaders.LoaderFactory import LoaderFactory
 
-        loadAllEvents = LoadEvents()
-        loadAllEvents.loadEvents()
+        log = open('loadDataErrorTest.log', 'w')
+
+        csv = open('InitialData/events.csv', 'r') #path to Bus Stop csv file
+        csv.next()
+        factory = LoaderFactory()
+        loader = factory.getModelLoader('event')(csv, log)
+        loader.load()
+        csv.close()
+        log.close()
+
 
         # add one busStop
+        Bus.objects.create(registrationPlate = 'AA1111', service = '507')
         busStop = BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
         Service.objects.create( service = '507', origin = 'bla', destiny = 'bla')#'#00a0f0'color_id = models.IntegerField(default = 0)
         ServiceStopDistance.objects.create( busStop = busStop,  service = '507I', distance = 5)
@@ -297,6 +307,58 @@ class DevicePositionInTimeTest(TestCase):
         
         self.assertEqual('servicios' in jSonResponse, True)
         self.assertEqual('eventos' in jSonResponse, True)
+
+    def test_preferPositionOfPersonInsideABus(self):
+        
+        #Bus.objects.create(registrationPlate = 'AA1111', service = '507')
+
+        timeStampNow = str(timezone.localtime(timezone.now()))
+        timeStampNow = timeStampNow[0:19]
+        useLatitud = -33.458771
+        userLongitud = -70.676266
+
+        testPoses = {"poses":[
+        {"latitud": useLatitud ,"longitud" : userLongitud , "timeStamp":str(timeStampNow)    ,"inVehicleOrNot":"vehicle"}]}
+
+        # first we test the position of the bus without passsangers
+        bus = Bus.objects.get(registrationPlate='AA1111', service='507')
+
+        busPose = bus.getLocation('PA459',1)
+
+        self.assertEqual( busPose['latitud'], 5)
+        self.assertEqual( busPose['longitud'], 7)
+        self.assertEqual( busPose['passengers'] > 0, False) 
+
+        
+        # add the position of a passanger inside the bus
+        request = self.factory.get('/android/requestToken')
+        request.user = AnonymousUser()
+
+        reponseView = RequestToken()
+        response = reponseView.get(request,'507','AA1111')
+
+        testToken = json.loads(response.content)
+        testToken = testToken['token']
+
+        request = self.factory.get('/android/sendTrajectoy')
+        request.user = AnonymousUser()
+
+        reponseView = SendPoses()#pToken, pTrajectory
+        response = reponseView.get(request,testToken,json.dumps(testPoses))
+
+        # ask the position of the bus whit a passanger
+        bus = Bus.objects.get(registrationPlate='AA1111', service='507')
+
+        busPose = bus.getLocation('PA459',1)
+
+        self.assertEqual( busPose['latitud'], useLatitud)
+        self.assertEqual( busPose['longitud'], userLongitud)
+        self.assertEqual( busPose['random'], False)
+        self.assertEqual( busPose['passengers'] > 0, True) 
+
+
+        reponseView = EndRoute()
+        response = reponseView.get(request,testToken)
         
 
 
