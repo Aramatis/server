@@ -14,8 +14,8 @@ from random import random, uniform
 from AndroidRequests.models import *
 
 class RequestToken(View):
-	"""This class handles the start of the traking, asignin a token
-	to identifie the trip, not the device."""
+	"""This class handles the start of the tracking, assigning a token
+	to identify the trip, not the device."""
 
 	def __init__(self):
 		self.context={}

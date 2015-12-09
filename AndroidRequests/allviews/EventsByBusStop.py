@@ -13,11 +13,11 @@ from random import random, uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import *
+from AndroidRequests.models import * 
 
 class EventsByBusStop(View):
-	"""This class gives the response to requesting the current
-	reported events for a given busstop."""
+	"""This class handles requests for the current reported events 
+	for a given bus stop."""
 
 	def get(self, resquest, pBusStopCode):
 		"""Only the busto code is needed."""
@@ -33,7 +33,7 @@ class EventsByBusStop(View):
 		return JsonResponse(eventeDictionary, safe=False)
 
 	def getEventsForBusStop(self, pBusStop, pTimeStamp):
-		'''this method returns all the events that are active given they timestamp.'''
+		'''this method returns all the events that are active given their timestamp.'''
 
 		currentEventReport = []
 

@@ -8,7 +8,7 @@ import os
 from AndroidRequests.models import *
 
 class RegisterReport(View):
-	"""This class handles request for the list of bus stop for an specific service."""
+	"""This class handles requests for report an event not supported by the system."""
 	def __init__(self):
 		self.context={}
 
@@ -18,7 +18,8 @@ class RegisterReport(View):
 
 
 	def post(self, request):
-		"""it receive the data for the free report, receive the ."""
+		"""It receives the data for the free report, receives a text, 
+		an image and the extension for that image."""
 		fine = True
 		if request.method == 'POST':
 			text = request.POST['text']

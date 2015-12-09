@@ -14,7 +14,7 @@ from random import random, uniform
 from AndroidRequests.models import *
 
 class SendPoses(View):
-	"""This class recieves a segmente of the trajectory asociate to a token."""
+	"""This class receives a segment of the trajectory associated to a token."""
 	def __init__(self):
 		self.context={}
 

@@ -20,7 +20,7 @@ class EndRoute(View):
 		self.context={}
 
 	def get(self, request, pToken):
-		"""Delete the token from the actibe ones."""
+		"""Delete the token from the active ones."""
 		response = {}
 		# check if the token exist
 		if ActiveToken.objects.filter(token=pToken).exists():

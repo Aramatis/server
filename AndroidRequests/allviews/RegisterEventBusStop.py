@@ -14,10 +14,9 @@ from random import random, uniform
 from AndroidRequests.models import *
 
 class RegisterEventBusStop(View):
-	'''This class handles the requests that reports events of a busstop'''
+	'''This class handles the requests that report events of a bus stop'''
 
 	def get(self, request, pBusStopCode, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
-		"""Is the save as for the Bus, check that out if in doubt."""
 		response = {}
 
 		theEvent = Event.objects.get(id=pEventID)

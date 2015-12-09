@@ -14,13 +14,13 @@ from random import random, uniform
 from AndroidRequests.models import *
 
 class RegisterEventBus(View):
-	'''This class handles the requests that reports events of a bus'''
+	'''This class handles requests that report events of a bus.'''
 
 	'''Falta agregar la pose a esto'''
 	def get(self, request, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
 		response = {}
 
-		# here we request all the info needed to preoced
+		# here we request all the info needed to proceed
 		aTimeStamp = timezone.now()
 		theEvent = Event.objects.get(id=pEventID)
 		theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
@@ -29,7 +29,7 @@ class RegisterEventBus(View):
 		# if there is no event here a new one is created
 		oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
 
-		# check id there id an event
+		# check if there is an event
 		if EventForBus.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent).exists():
 			# get the event
 			eventsReport = EventForBus.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent)
@@ -53,7 +53,7 @@ class RegisterEventBus(View):
 			# if an event was not found, create a new one
 			aEventReport = EventForBus.objects.create(bus=theBus, event=theEvent, timeStamp=aTimeStamp,timeCreation=aTimeStamp)
 			
-			# set the initial values for this fiels
+			# set the initial values for this fields
 			if pConfirmDecline == 'decline':
 				aEventReport.eventDecline = 1
 				aEventReport.eventConfirm = 0
@@ -65,11 +65,11 @@ class RegisterEventBus(View):
 
 
 
-		response['response'] = 'Thanks for the information, give to recieve.'
+		response['response'] = 'Thanks for the information, give to receive.'
 		return JsonResponse(response, safe=False)
 
 	def getLastEvent(self, querySet):
-		"""if the query has two response, return the latest one"""
+		"""if the query has two responses, return the latest one"""
 		toReturn = querySet[0]
 
 		for val in range(len(querySet)-1):

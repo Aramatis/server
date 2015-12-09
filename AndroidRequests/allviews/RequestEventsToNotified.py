@@ -16,10 +16,10 @@ from random import random, uniform
 from AndroidRequests.models import *
 
 class RequestEventsToNotified(View):
-	"""This class sends the event that can be notified in at a given time,
-	for examle if I'm at a busstop, I can report some events regarding what i see,
-	so i report things from the bustop and what i can see of the bus. If i'm on a bus
-	I can report problems whit the bus with more detail."""
+	"""This class sends the event that can be notified in a given time.
+	For example if I'm in a bus stop, I can report some events regarding what I see,
+	so I report things from the bus stop and what I can see of the bus. If i'm on a bus
+	I can report detailed problems about the bus."""
 
 	def get(self, request, pWhich):
 		
