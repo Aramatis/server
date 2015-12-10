@@ -25,8 +25,11 @@ class RegisterReport(View):
 			text = request.POST['text']
 			stringImage = request.POST['img'].decode('base64')
 			extension = request.POST['ext']
-			report = Report(message=text, path="default")
+			aditionalInfo = request.POST['report_info']
+
+			report = Report(message=text, path="default", reportInfo=aditionalInfo)
 			report.save()
+			
 			try:
 				path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
 				imageFile = open(path, "wb")

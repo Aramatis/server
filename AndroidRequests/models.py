@@ -342,3 +342,5 @@ class Report(models.Model):
 	""" Text reported by the user """
 	path = models.CharField(max_length=500, default="no image")
 	""" Location in the file system where the picture was saved """
+	reportInfo = model.TextField()
+	""" Aditinal information regarding the report. For example the user location."""
