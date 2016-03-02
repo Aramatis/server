@@ -25,5 +25,5 @@ install:
 # Tell Travis how to run the test script itself
 script: coverage run --source="." manage.py test
 
-after_succes:
+after_success:
   - coveralls
