@@ -3,6 +3,7 @@
   Copyright (C) 2015  
 
 [![Build Status](https://travis-ci.org/InspectorIncognito/server.svg)](https://travis-ci.org/InspectorIncognito/server) [![todofy badge](https://todofy.org/b/InspectorIncognito/server)](https://todofy.org/r/InspectorIncognito/server)
+[![Coverage Status](https://coveralls.io/repos/github/InspectorIncognito/server/badge.svg?branch=master)](https://coveralls.io/github/InspectorIncognito/server?branch=master)
 
 ## What is TranSapp?
 
