@@ -5,7 +5,11 @@ branches:
 # Tell Travis you want a Python environment to test in
 language: python
 sudo: required
+addons:
+  postgresql: "9.3"
 # List the versions of Python you'd like to test against
+service: 
+  postgresql
 python:
   - "2.7"
 # List the versions of Django you'd like to test against
@@ -24,7 +28,9 @@ install:
  - pip install -q Django==$DJANGO_VERSION --use-mirrors
 
 before_script:
-  - psql -c "CREATE USER inspector;GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;"
+  - psql -c "CREATE DATABASE ghostinspector;" -U postgres
+  - psql -c "CREATE USER inspector WITH PASSWORD '1ghost2inspector';" -U postgres
+  - psql -c "GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;" -U postgres
 # Tell Travis how to run the test script itself
 script: coverage run --source="." manage.py test
 
