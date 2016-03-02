@@ -23,7 +23,7 @@ install:
    # Travis is currently working on
  - pip install -q Django==$DJANGO_VERSION --use-mirrors
 # Tell Travis how to run the test script itself
-script: coverage run --source cookiecutter setup.py test
+script: coverage run --source="." manage.py test
 
 after_succes:
   - coveralls
