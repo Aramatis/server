@@ -22,6 +22,9 @@ install:
    # Install whatever version of Django that's listed above
    # Travis is currently working on
  - pip install -q Django==$DJANGO_VERSION --use-mirrors
+
+before_script:
+  - psql -c "CREATE USER inspector WITH PASSWORD '1ghost2inspector';GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;"
 # Tell Travis how to run the test script itself
 script: coverage run --source="." manage.py test
 
