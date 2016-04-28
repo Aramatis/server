@@ -13,6 +13,8 @@ from random import random, uniform
 # import DB's models
 from AndroidRequests.models import *
 
+from EventsByBus import EventsByBus
+
 class RegisterEventBus(View):
 	'''This class handles requests that report events of a bus.'''
 
@@ -52,7 +54,7 @@ class RegisterEventBus(View):
 		else:
 			# if an event was not found, create a new one
 			aEventReport = EventForBus.objects.create(bus=theBus, event=theEvent, timeStamp=aTimeStamp,timeCreation=aTimeStamp)
-			
+
 			# set the initial values for this fields
 			if pConfirmDecline == 'decline':
 				aEventReport.eventDecline = 1
@@ -63,10 +65,11 @@ class RegisterEventBus(View):
 			StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline, \
 				reportOfEvent=aEventReport, longitud=pLatitud, latitud=pLongitud)
 
-
-
-		response['response'] = 'Thanks for the information, give to receive.'
-		return JsonResponse(response, safe=False)
+                """ Returns updated event list for a bus """
+                eventsByBus = EventsByBus()
+                return eventsByBus.get(request, pBusPlate, pBusService)
+		# response['response'] = 'Thanks for the information, give to receive.'
+		# return JsonResponse(response, safe=False)
 
 	def getLastEvent(self, querySet):
 		"""if the query has two responses, return the latest one"""
