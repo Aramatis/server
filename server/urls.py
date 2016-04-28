@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^android/', include('AndroidRequests.urls')),
     url(r'^map/', include('MapLocationOfUsers.urls')),
     url(r'^modeldic/', include('DataDictionary.urls')),
+    url(r'^silk/', include('silk.urls', namespace='silk')),
 ]

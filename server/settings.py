@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'MapLocationOfUsers',
     'modelsdoc',
     'DataDictionary',
+    'silk',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,6 +54,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'silk.middleware.SilkyMiddleware',
 )
 
 ROOT_URLCONF = 'server.urls'
@@ -88,7 +90,7 @@ DATABASES = {
        'USER': 'inspector',
        'PASSWORD': '1ghost2inspector',
        'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
-       'PORT': '', 
+       'PORT': '',
     }
     # for development purpuse use SQLite
     #'default': {
@@ -126,9 +128,9 @@ CRONJOBS = [
     #the job is executed every day at 24
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearnEventsThatHaveBeenDecline'),
     ('* */1 * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
-] 
+]
 
-MODELSDOC_APPS = ('AndroidRequests',)   
+MODELSDOC_APPS = ('AndroidRequests',)
 
 # secure proxy SSL header and secure cookies
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -140,4 +142,12 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
+
+# Silk settings
+
+#SILKY_AUTHENTICATION = True # User must login
+#SILKY_AUTHORISATION = True # User must have permissions (is_staff=true)
+
+#SILKY_META = True # show off the effect Silk  is having on the request/response time.
+#SILKY_INTERCEPT_PERCENT = 50 # log only 50% of requests
 
