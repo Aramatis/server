@@ -15,21 +15,27 @@ from AndroidRequests.models import *
 from AndroidRequests.allviews.EventsByBusStop import *
 from AndroidRequests.allviews.EventsByBus import *
 
-def userPosition(request, pLat, pLon):
+def userPosition(request, pUserId, pLat, pLon):
 	'''This function stores the pose of an active user'''
 	# the pose is stored
 	currPose = DevicePositionInTime(longitud = pLon, latitud = pLat \
-	,timeStamp = timezone.now())
+	,timeStamp = timezone.now(), userId = pUserId)
 	currPose.save()
 
-	response = {'response':'Pose register.'}
+	response = {'response':'Pose registered.'}
 	return JsonResponse(response, safe=False)
 
-def nearbyBuses(request, pBusStop):
+def nearbyBuses(request, pUserId, pBusStop):
+        """ return all information about bus stop: events and buses """
 
-	servicios = []
 	timeNow = timezone.now()
 	theBusStop = BusStop.objects.get(code=pBusStop)
+
+        register = NearByBusesLog(userId = pUserId, busStop = theBusStop, timeStamp = timeNow)
+        register.save()
+        """ register user request """
+
+	servicios = []
 	getEventsBusStop = EventsByBusStop()
 	busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
 
@@ -42,7 +48,7 @@ def nearbyBuses(request, pBusStop):
 		response["eventos"] = busStopEvent
 		return JsonResponse(response, safe=False)
 
-	data = json.loads(response.text)	
+	data = json.loads(response.text)
 
 	for dato in data['servicios']:
 		if(dato["valido"]!=1):
@@ -67,7 +73,7 @@ def nearbyBuses(request, pBusStop):
 		except:
 			dato['sentido'] = "right"
 		getEventBus = EventsByBus()
-		
+
 		busEvents = getEventBus.getEventForBus(bus)
 
 		dato['eventos'] = busEvents

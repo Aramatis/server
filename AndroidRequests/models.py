@@ -354,3 +354,17 @@ class Report(models.Model):
 	""" Aditinal information regarding the report. For example the user location."""
         userId = models.UUIDField()
         """ To identify the data owner """
+
+##
+#
+# Log for some requests
+#
+##
+class NearByBusesLog(models.Model):
+    """ Register user request for bus stop """
+    timeStamp = models.DateTimeField('Time Stamp', null=False, blank=False)
+    """ Specific date time when the server received the request """
+    busStop = models.ForeignKey(BusStop, verbose_name='Bus Stop')
+    """ Bus stops where the service is stopped """
+    userId = models.UUIDField()
+    """ To identify the data owner """
