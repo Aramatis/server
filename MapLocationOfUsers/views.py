@@ -35,7 +35,8 @@ class GetMapPositions(View):
 		earlier = now - timezone.timedelta(minutes=10)
 
 		# the position of interest are the ones ocurred in the last 10 minutes
-		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))
+		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now)).\
+			orderBy('-timeStamp').distinct('userId')
 
 		response = []
 		for aPosition in postions:
