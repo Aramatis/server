@@ -16,10 +16,12 @@ class Location(models.Model):
 		extends this, and no ForeignKey is made."""
 		abstract = True
 
-class DevicePositionInTime(Location):	
+class DevicePositionInTime(Location):
 	"""Helps storing the position of active users"""
 	timeStamp = models.DateTimeField("Time Stamp", null=False, blank=False)
 	""" Specific date time when the server received the device's position """
+        userId = models.UUIDField()
+        """ To identify the data owner """
 
 class Event(models.Model):
 	"""Here are all the events, it's configuration and information."""
@@ -63,6 +65,8 @@ class StadisticDataFromRegistration(Location):
 	""" Specific date time when the server received the event registration """
 	confirmDecline = models.CharField('Confirm - Decline', max_length=10)
 	""" Represents if the event was confirmed or declined """
+        userId = models.UUIDField()
+        """ To identify the data owner """
 
 	class Meta:
 		abstract = True
@@ -86,6 +90,8 @@ class EventRegistration(models.Model):
 	""" Amount of confirmations for this event """
 	eventDecline = models.IntegerField('Declines', default=0)
 	""" amount of declinations for this event """
+        userId = models.UUIDField()
+        """ To identify the data owner """
 
 	class Meta:
 		abstract = True
@@ -185,7 +191,7 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
 		except:
 			serviceCode = self.service + "I"
-		
+
 		distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
 		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')[:3]
 		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')[:3]
@@ -224,7 +230,7 @@ class Bus(models.Model):
 		lastDate = timezone.now()-timezone.timedelta(days=30)
 		passengers = 0
 		lat = -500
-		lon = -500 
+		lon = -500
 		for token in tokens:
 			if(not hasattr(token, 'activetoken')):
 				continue
@@ -243,7 +249,7 @@ class Bus(models.Model):
 			except:
 				return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
 						'longitud': -70.434710 + uniform(0.000000, 0.0005),
-						'passengers': passengers, 
+						'passengers': passengers,
 						'random':True}
 		return {'latitud': lat,
 				'longitud': lon,
@@ -257,7 +263,7 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
 		except:
 			serviceCode = self.service + "I"
-			
+
 		ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 
 		try:
@@ -290,7 +296,7 @@ class Bus(models.Model):
 		return dictionary
 
 class ServiceLocation(Location):
-	'''This models stores the position along the route of every bus at 20 meters apart. 
+	'''This models stores the position along the route of every bus at 20 meters apart.
 	You can give the distance from the start of the travel and it return the position at that distance.'''
 	service = models.CharField('Service Code', max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
 	""" Service code where the last character indicates its direction """
@@ -318,6 +324,8 @@ class Token(models.Model):
 	'''Bus that is making the trip'''
 	color = models.CharField("Icon's color", max_length=7, default='#00a0f0')
 	'''Color to paint the travel icon'''
+        userId = models.UUIDField()
+        """ To identify the data owner """
 
 class PoseInTrajectoryOfToken(Location):
 	'''This stores all the poses of a trajectory. The trajectory can start on foot and end on foot.'''
@@ -326,7 +334,7 @@ class PoseInTrajectoryOfToken(Location):
 	inVehicleOrNot =models.CharField(max_length=15) # vehicle, non_vehicle
 	""" Identify if a pose was sended inside a vehicle or not """
 	token = models.ForeignKey(Token, verbose_name='Token')
-	
+
 	class Meta:
 		index_together = ["token", "timeStamp"]
 
@@ -337,10 +345,12 @@ class ActiveToken(models.Model):
 	token = models.OneToOneField(Token, verbose_name='Token')
 
 class Report(models.Model):
-	""" This is the free report, it save the message and the picture location in the system """
+	""" This is the free report, it saves the message and the picture location in the system """
 	message = models.TextField()
 	""" Text reported by the user """
 	path = models.CharField(max_length=500, default="no image")
 	""" Location in the file system where the picture was saved """
 	reportInfo = models.TextField()
 	""" Aditinal information regarding the report. For example the user location."""
+        userId = models.UUIDField()
+        """ To identify the data owner """
