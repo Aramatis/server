@@ -19,7 +19,7 @@ class RegisterEventBus(View):
 	'''This class handles requests that report events of a bus.'''
 
 	'''Falta agregar la pose a esto'''
-	def get(self, request, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
+	def get(self, request, pUserId, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
 		response = {}
 
 		# here we request all the info needed to proceed
@@ -46,14 +46,14 @@ class RegisterEventBus(View):
 			else:
 				eventReport.eventConfirm += 1
 
-			# save changes
 			eventReport.save()
 
 			StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
-			 reportOfEvent=eventReport, longitud=pLatitud, latitud=pLongitud)
+			 reportOfEvent=eventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
 		else:
 			# if an event was not found, create a new one
-			aEventReport = EventForBus.objects.create(bus=theBus, event=theEvent, timeStamp=aTimeStamp,timeCreation=aTimeStamp)
+			aEventReport = EventForBus.objects.create(userId=pUserId, bus=theBus, event=theEvent, timeStamp=aTimeStamp,\
+                                timeCreation=aTimeStamp)
 
 			# set the initial values for this fields
 			if pConfirmDecline == 'decline':
@@ -63,7 +63,7 @@ class RegisterEventBus(View):
 			aEventReport.save()
 
 			StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline, \
-				reportOfEvent=aEventReport, longitud=pLatitud, latitud=pLongitud)
+				reportOfEvent=aEventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
 
                 """ Returns updated event list for a bus """
                 eventsByBus = EventsByBus()

@@ -18,7 +18,7 @@ from EventsByBusStop import EventsByBusStop
 class RegisterEventBusStop(View):
 	'''This class handles the requests that report events of a bus stop'''
 
-	def get(self, request, pBusStopCode, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
+	def get(self, request, pUserId, pBusStopCode, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
 		response = {}
 
 		theEvent = Event.objects.get(id=pEventID)
@@ -41,9 +41,10 @@ class RegisterEventBusStop(View):
 			eventReport.save()
 
 			StadisticDataFromRegistrationBusStop.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
-			reportOfEvent=eventReport, longitud=500, latitud=500)
+			reportOfEvent=eventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId)
 		else:
-			aEventReport = EventForBusStop.objects.create(busStop=theBusStop, event=theEvent, timeStamp=aTimeStamp, timeCreation=aTimeStamp)
+			aEventReport = EventForBusStop.objects.create(busStop=theBusStop, event=theEvent, timeStamp=aTimeStamp,\
+                                timeCreation=aTimeStamp, userId=pUserId)
 
 
 			if pConfirmDecline == 'decline':
@@ -53,7 +54,7 @@ class RegisterEventBusStop(View):
 			aEventReport.save()
 
 			StadisticDataFromRegistrationBusStop.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
-			reportOfEvent=aEventReport, longitud=500, latitud=500)
+			reportOfEvent=aEventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId)
 
                 """ Returns updated event list for a busstop """
                 eventsByBusStop = EventsByBusStop()

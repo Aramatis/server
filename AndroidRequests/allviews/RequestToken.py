@@ -20,13 +20,15 @@ class RequestToken(View):
 	def __init__(self):
 		self.context={}
 
-	def get(self, request, pBusService, pRegistrationPlate):
-		data = timezone.now() # the token is primary a hash of the 
+	def get(self, request, pUserId, pBusService, pRegistrationPlate):
+		data = timezone.now() # the token is primary a hash of the
 		salt = os.urandom(20) # time stamp plus a random salt
 		hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
 		bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
 		 service = pBusService)[0]
-		aToken = Token.objects.create(token=hashToken, bus = bus, color=self.getRandomColor())
+
+		aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
+                        color=self.getRandomColor())
 		ActiveToken.objects.create(timeStamp=data,token=aToken)
 
 		# we store the active token
@@ -40,4 +42,4 @@ class RequestToken(View):
 		color = '#'
 		colors = {'#2c7fb8','#dd1c77','#016c59','#de2d26','#d95f0e'}
 		color = list(colors)[int(round(random() * 4))]
-		return color	
+		return color

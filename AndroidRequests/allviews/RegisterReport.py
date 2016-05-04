@@ -18,7 +18,7 @@ class RegisterReport(View):
 
 
 	def post(self, request):
-		"""It receives the data for the free report, receives a text, 
+		"""It receives the data for the free report, receives a text,
 		an image and the extension for that image."""
 		fine = True
 		if request.method == 'POST':
@@ -26,10 +26,11 @@ class RegisterReport(View):
 			stringImage = request.POST['img'].decode('base64')
 			extension = request.POST['ext']
 			aditionalInfo = request.POST['report_info']
+                        pUserId = request.POST['userId']
 
-			report = Report(message=text, path="default", reportInfo=aditionalInfo)
+			report = Report(userId=pUserId, message=text, path="default", reportInfo=aditionalInfo)
 			report.save()
-			
+
 			try:
 				path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
 				imageFile = open(path, "wb")
