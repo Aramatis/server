@@ -35,12 +35,16 @@ class GetMapPositions(View):
 		earlier = now - timezone.timedelta(minutes=10)
 
 		# the position of interest are the ones ocurred in the last 10 minutes
-		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now)).\
-			orderBy('-timeStamp').distinct('userId')
-
+		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))\
+			.order_by('-timeStamp')
+		
+		# TODO: get unique users from query and not fiter here
 		response = []
+		users = []
 		for aPosition in postions:
-			response.append({'latitud': aPosition.latitud, 'longitud': aPosition.longitud})
+			if not (aPosition.userId in users):
+				response.append({'latitud': aPosition.latitud, 'longitud': aPosition.longitud})
+				users.append(aPosition.userId)
 
 		return JsonResponse(response, safe=False)
 
