@@ -346,6 +346,8 @@ class ActiveToken(models.Model):
 
 class Report(models.Model):
 	""" This is the free report, it saves the message and the picture location in the system """
+	timeStamp = models.DateTimeField(null=False, blank=False, db_index=True)
+	""" Specific date time when the server received a pose in the trajectory """
 	message = models.TextField()
 	""" Text reported by the user """
 	path = models.CharField(max_length=500, default="no image")
