@@ -16,18 +16,59 @@ from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 import AndroidRequests.views as views
 # Create your tests here.
 
-class DevicePositionInTimeTest(TestCase):
+class DevicePositionInTimeTestCase(TestCase):
+    """ test for DevicePositionInTime model """
     def setUp(self):
+        """ this method will automatically call for every single test """
+
+        self.timeStamp = [timezone.now(), timezone.now(), timezone.now()]
+        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.latitude = [-33.4577491104941, -33.4445256604888, -33.4402777996082]
+        self.longitude = [-70.6634020999999, -70.6509264499999, -70.6433333]
+
+    def test_consistency_model_DevicePositionInTime(self):
+        """ This method test the database for the DevicePositionInTime model """
+
+        for n in range(3):
+            DevicePositionInTime.objects.create(userId = self.userId, longitud = self.longitude[n],\
+                    latitud = self.latitude[n], timeStamp = self.timeStamp[n])
+
+        for n in range(3):
+            devicePosition = DevicePositionInTime.objects.get(longitud = self.longitude[n])
+            self.assertEqual(devicePosition.latitud, self.latitude[n])
+            self.assertEqual(devicePosition.timeStamp, self.timeStamp[n])
+
+    def test_wrong_userId(self):
+        """ create a register with a wrong userId """
+
+        userId = "this is a wrong userid"
+
+        self.assertRaises(ValueError,\
+                DevicePositionInTime.objects.create,\
+                userId = userId,\
+                longitud = self.latitude[0],\
+                latitud = self.longitude[0],\
+                timeStamp = self.timeStamp[0])
+                #"badly formed hexadecimal UUID string")
+
+
+class DevicePositionInTimeTest(TestCase):
+    """ test for DevicePositionInTime model """
+
+    def setUp(self):
+        """ this method will automatically call for every single test """
         # for testing requests inside the project
         self.factory = RequestFactory()
 
-        # iniital config for DevicePositionInTime
+        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+
+        # inital config for DevicePositionInTime
         self.time = timezone.now()
-        DevicePositionInTime.objects.create(longitud = 3.5, latitud = 5.2, timeStamp = self.time)
-        DevicePositionInTime.objects.create(longitud = 3.4, latitud = 5.2, timeStamp = self.time)
+        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.5, latitud = 5.2, timeStamp = self.time)
+        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.4, latitud = 5.2, timeStamp = self.time)
         # this should not be answered
-        DevicePositionInTime.objects.create(longitud = 3.3, latitud = 4.2, timeStamp = self.time\
-        	-timezone.timedelta(minutes=11))        
+        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.3, latitud = 4.2, timeStamp = self.time\
+                -timezone.timedelta(minutes=11))
 
         # initial config for ActiveToken
 
@@ -45,11 +86,13 @@ class DevicePositionInTimeTest(TestCase):
         csv.close()
         log.close()
 
-
-        # add one busStop
+        # add dummy  bus
         Bus.objects.create(registrationPlate = 'AA1111', service = '507')
+        # add dummy bus stop
         busStop = BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
-        Service.objects.create( service = '507', origin = 'bla', destiny = 'bla')#'#00a0f0'color_id = models.IntegerField(default = 0)
+
+        # add dummy service and its path
+        Service.objects.create( service = '507', origin = 'origin_test', destiny = 'destination_test')#'#00a0f0'color_id = models.IntegerField(default = 0)
         ServiceStopDistance.objects.create( busStop = busStop,  service = '507I', distance = 5)
         ServiceLocation.objects.create(service = '507I', distance = 1, longitud=4, latitud=5)
         ServiceLocation.objects.create(service = '507I', distance = 2, longitud=5, latitud=5)
@@ -57,7 +100,6 @@ class DevicePositionInTimeTest(TestCase):
         ServiceLocation.objects.create(service = '507I', distance = 4, longitud=7, latitud=5)
         ServiceLocation.objects.create(service = '507I', distance = 5, longitud=8, latitud=5)
         ServiceLocation.objects.create(service = '507I', distance = 6, longitud=9, latitud=5)
-
 
     def test_consistencyModelDevicePositionInTime(self):
         '''This method test the database for the DevicePositionInTime model'''
@@ -67,9 +109,9 @@ class DevicePositionInTimeTest(TestCase):
         timeStamps = [self.time,self.time,self.time-timezone.timedelta(minutes=11)]
 
         for cont in range(3):
-        	devicePosition = DevicePositionInTime.objects.get(longitud = longituds[cont])
-        	self.assertEqual(devicePosition.latitud, latituds[cont])
-        	self.assertEqual(devicePosition.timeStamp, timeStamps[cont])
+            devicePosition = DevicePositionInTime.objects.get(longitud = longituds[cont])
+            self.assertEqual(devicePosition.latitud, latituds[cont])
+            self.assertEqual(devicePosition.timeStamp, timeStamps[cont])
 
     def test_consistencyModelActiveToken(self):
         '''This method test the database for the ActiveToken model'''
@@ -77,15 +119,18 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
 
         reponseView = RequestToken()
-        response = reponseView.get(request,'503','ZZZZ00')
+        response = reponseView.get(request, self.userId, '503', 'ZZZZ00')
 
         self.assertEqual(response.status_code, 200)
 
         testToken = json.loads(response.content)
         testToken = testToken['token']
 
+        # the created token is an active token
         self.assertEqual(ActiveToken.objects.filter(token=testToken).exists(), True)
+        # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
+
         request = self.factory.get('/android/endRoute/' + testToken)
         request.user = AnonymousUser()
 
@@ -99,21 +144,21 @@ class DevicePositionInTimeTest(TestCase):
         '''this method test the PoseInTrajectoryOfToken'''
 
         testPoses = {"poses":[\
-        {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp":"2015-10-01T18:10:00", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp":"2015-10-01T18:10:10", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp":"2015-10-01T18:10:15", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.458646,"longitud" : -70.673799, "timeStamp":"2015-10-01T18:10:20", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.458413,"longitud" : -70.671631, "timeStamp":"2015-10-01T18:10:24", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.457983,"longitud" : -70.669035, "timeStamp":"2015-10-01T18:10:30", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.457518,"longitud" : -70.666718, "timeStamp":"2015-10-01T18:10:35", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp":"2015-10-01T18:10:40", "inVehicleOrNot":"vehicle"},\
-        {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp":"2015-10-01T18:10:50", "inVehicleOrNot":"vehicle"}]}
+                {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp":"2015-10-01T18:10:00", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp":"2015-10-01T18:10:10", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp":"2015-10-01T18:10:15", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458646,"longitud" : -70.673799, "timeStamp":"2015-10-01T18:10:20", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458413,"longitud" : -70.671631, "timeStamp":"2015-10-01T18:10:24", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457983,"longitud" : -70.669035, "timeStamp":"2015-10-01T18:10:30", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457518,"longitud" : -70.666718, "timeStamp":"2015-10-01T18:10:35", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp":"2015-10-01T18:10:40", "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp":"2015-10-01T18:10:50", "inVehicleOrNot":"vehicle"}]}
 
         request = self.factory.get('/android/requestToken')
         request.user = AnonymousUser()
 
         reponseView = RequestToken()
-        response = reponseView.get(request,'503','ZZZZ00')
+        response = reponseView.get(request, self.userId, '503','ZZZZ00')
 
         self.assertEqual(response.status_code, 200)
 
@@ -123,7 +168,7 @@ class DevicePositionInTimeTest(TestCase):
         request = self.factory.get('/android/sendTrajectoy')
         request.user = AnonymousUser()
 
-        reponseView = SendPoses()#pToken, pTrajectory
+        reponseView = SendPoses()
         response = reponseView.get(request,testToken,json.dumps(testPoses))
 
         contentResponse = json.loads(response.content)
@@ -139,7 +184,7 @@ class DevicePositionInTimeTest(TestCase):
         request = self.factory.get('/android/sendTrajectoy')
         request.user = AnonymousUser()
 
-        reponseView = SendPoses()#pToken, pTrajectory
+        reponseView = SendPoses()
         response = reponseView.get(request,testToken,json.dumps(testPoses))
 
         contentResponse = json.loads(response.content)
@@ -152,63 +197,97 @@ class DevicePositionInTimeTest(TestCase):
 
         reponseView = EndRoute()
         response = reponseView.get(request,'01234567890123456789012345678901234567890\
-            123456789012345678901234567890123456789012345678901234567890123456789012345678901234567')
-        
+                123456789012345678901234567890123456789012345678901234567890123456789012345678901234567')
+
         contentResponse = json.loads(response.content)
         contentResponse = contentResponse['response']
 
         self.assertEqual(contentResponse,'Token doesn\'t exist.')
 
     def test_EventsByBus(self):
-        '''This method test two thing, the posibility to report an event and asking 
+        '''This method test two thing, the posibility to report an event and asking
         the events for the specific bus'''
 
         licencePlate = 'AA0000'
         busService = '507'
         eventCode = 'evn00101'
-        # submitting some events to the server
-        request = self.factory.get('/android/reportEventBus/')
-        request.user = AnonymousUser()
 
-        request0 = self.factory.get('/android/requestEventsForBus/')
-        request0.user = AnonymousUser()
+        # submitting one event to the server
+        requestToReportEventBus = self.factory.get('/android/reportEventBus/')
+        requestToReportEventBus.user = AnonymousUser()
 
-        reponseView = RegisterEventBus()#request, pBusService, pBusPlate, pEventID, pConfirmDecline):
-        response = reponseView.get(request,busService,licencePlate,eventCode,'confirm')
+        reportEventBusView = RegisterEventBus()
+        responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, \
+                self.userId, busService, licencePlate, eventCode, 'confirm')
 
-        # report one event, and confirm it
-        response0View = EventsByBus()
-        response0 = response0View.get(request0,licencePlate,busService)
+        responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
-        response0 = json.loads(response0.content)
+        self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
+        self.assertEqual(responseToReportEventBus['service'], busService)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 1)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
 
-        self.assertEqual(response0['registrationPlate'],licencePlate)
-        self.assertEqual(response0['events'][0]['eventDecline'],0)
-        self.assertEqual(response0['events'][0]['eventConfirm'],1)
-        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
+        # ===================================================================================
+        # getting events for a specific bus
+        requestToRequestEventForBus = self.factory.get('/android/requestEventsForBus/')
+        requestToRequestEventForBus.user = AnonymousUser()
 
+        # verify the previous event reported
+        requestEventForBusView = EventsByBus()
+        responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus, \
+                licencePlate, busService)
 
+        responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
+
+        self.assertEqual(responseToRequestEventForBus['registrationPlate'], licencePlate)
+        self.assertEqual(responseToRequestEventForBus['service'], busService)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventDecline'], 0)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventConfirm'], 1)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventcode'], eventCode)
+
+        # ===================================================================================
         # do event +1 to the event
-        response = reponseView.get(request,busService,licencePlate,eventCode,'confirm')
-        response0 = response0View.get(request0, licencePlate,busService)
-        response0 = json.loads(response0.content)
+        responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, self.userId,\
+                busService, licencePlate, eventCode, 'confirm')
+        responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
-        self.assertEqual(response0['registrationPlate'],licencePlate)
-        self.assertEqual(response0['events'][0]['eventDecline'],0)
-        self.assertEqual(response0['events'][0]['eventConfirm'],2)
-        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
+        self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
+        self.assertEqual(responseToReportEventBus['service'], busService)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 2)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
+
+        responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
+                licencePlate, busService)
+        responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
+
+        self.assertEqual(responseToRequestEventForBus['registrationPlate'],licencePlate)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventDecline'],0)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventConfirm'],2)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventcode'],eventCode)
 
         # do event -1 to the event
-        response = reponseView.get(request,busService,licencePlate,eventCode,'decline')
-        response0 = response0View.get(request0, licencePlate,busService)
-        response0 = json.loads(response0.content)
+        responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, self.userId, \
+                busService, licencePlate, eventCode, 'decline')
+        responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
-        self.assertEqual(response0['registrationPlate'],licencePlate)
-        self.assertEqual(response0['events'][0]['eventDecline'],1)
-        self.assertEqual(response0['events'][0]['eventConfirm'],2)
-        self.assertEqual(response0['events'][0]['eventcode'],eventCode)
+        self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
+        self.assertEqual(responseToReportEventBus['service'], busService)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 1)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 2)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
 
-        # change manualy the timeStamp to simulate an event that has expired
+        responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
+                licencePlate,busService)
+        responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
+
+        self.assertEqual(responseToRequestEventForBus['registrationPlate'], licencePlate)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventDecline'], 1)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventConfirm'], 2)
+        self.assertEqual(responseToRequestEventForBus['events'][0]['eventcode'], eventCode)
+
+        # change manually the timeStamp to simulate an event that has expired
         bus= Bus.objects.get(registrationPlate=licencePlate, service=busService)
         event = Event.objects.get(id=eventCode)
         anEvent = EventForBus.objects.get(bus=bus,event=event)
@@ -216,14 +295,14 @@ class DevicePositionInTimeTest(TestCase):
         anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
 
-        # ask for ecents and the answere should be none
-        response0 = response0View.get(request0, licencePlate,busService)
-        response0 = json.loads(response0.content)
+        # ask for events and the answer should be none
+        responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus, licencePlate,busService)
+        responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
-        self.assertEqual(len(response0['events']),0)
+        self.assertEqual(len(responseToRequestEventForBus['events']),0)
 
     def test_EventsByBusStop(self):
-        '''This method test two thing, the posibility to report an event and asking 
+        '''This method test two thing, the posibility to report an event and asking
         the events for the specific busStop'''
 
         busStopCode = 'PA459'
@@ -235,8 +314,8 @@ class DevicePositionInTimeTest(TestCase):
         request0 = self.factory.get('/android/requestEventsForBusStop/')
         request0.user = AnonymousUser()
 
-        reponseView = RegisterEventBusStop()#request, pBusService, pBusPlate, pEventID, pConfirmDecline):
-        response = reponseView.get(request,busStopCode,eventCode,'confirm')
+        reponseView = RegisterEventBusStop()
+        response = reponseView.get(request, self.userId, busStopCode, eventCode, 'confirm')
 
         # report one event, and confirm it
         response0View = EventsByBusStop()
@@ -250,7 +329,7 @@ class DevicePositionInTimeTest(TestCase):
 
 
         # do event +1 to the event
-        response = reponseView.get(request,busStopCode,eventCode,'confirm')
+        response = reponseView.get(request,self.userId, busStopCode,eventCode,'confirm')
         response0 = response0View.get(request0,busStopCode)
         response0 = json.loads(response0.content)
 
@@ -260,7 +339,7 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual(response0['events'][0]['eventcode'],eventCode)
 
         # do event -1 to the event
-        response = reponseView.get(request,busStopCode,eventCode,'decline')
+        response = reponseView.get(request, self.userId, busStopCode,eventCode,'decline')
         response0 = response0View.get(request0,busStopCode)
         response0 = json.loads(response0.content)
 
@@ -288,7 +367,7 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
         lat = 45
         lon = 46
-        response = views.userPosition(request, lat, lon)
+        response = views.userPosition(request, self.userId, lat, lon)
 
         self.assertEqual(response.status_code,200)
 
@@ -299,17 +378,17 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
 
         busStopCodeThis = 'PA459'
-        response = views.nearbyBuses(request,busStopCodeThis)
+        response = views.nearbyBuses(request, self.userId, busStopCodeThis)
 
         self.assertEqual(response.status_code,200)
 
         jSonResponse = json.loads(response.content)
-        
+
         self.assertEqual('servicios' in jSonResponse, True)
         self.assertEqual('eventos' in jSonResponse, True)
 
     def test_preferPositionOfPersonInsideABus(self):
-        
+
         #Bus.objects.create(registrationPlate = 'AA1111', service = '507')
 
         timeStampNow = str(timezone.localtime(timezone.now()))
@@ -318,7 +397,7 @@ class DevicePositionInTimeTest(TestCase):
         userLongitud = -70.676266
 
         testPoses = {"poses":[
-        {"latitud": useLatitud ,"longitud" : userLongitud , "timeStamp":str(timeStampNow)    ,"inVehicleOrNot":"vehicle"}]}
+            {"latitud": useLatitud ,"longitud" : userLongitud , "timeStamp":str(timeStampNow)    ,"inVehicleOrNot":"vehicle"}]}
 
         # first we test the position of the bus without passsangers
         bus = Bus.objects.get(registrationPlate='AA1111', service='507')
@@ -327,15 +406,15 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual( busPose['latitud'], 5)
         self.assertEqual( busPose['longitud'], 7)
-        self.assertEqual( busPose['passengers'] > 0, False) 
+        self.assertEqual( busPose['passengers'] > 0, False)
 
-        
+
         # add the position of a passanger inside the bus
         request = self.factory.get('/android/requestToken')
         request.user = AnonymousUser()
 
         reponseView = RequestToken()
-        response = reponseView.get(request,'507','AA1111')
+        response = reponseView.get(request, self.userId, '507','AA1111')
 
         testToken = json.loads(response.content)
         testToken = testToken['token']
@@ -354,11 +433,11 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual( busPose['latitud'], useLatitud)
         self.assertEqual( busPose['longitud'], userLongitud)
         self.assertEqual( busPose['random'], False)
-        self.assertEqual( busPose['passengers'] > 0, True) 
+        self.assertEqual( busPose['passengers'] > 0, True)
 
 
         reponseView = EndRoute()
         response = reponseView.get(request,testToken)
-        
+
 
 

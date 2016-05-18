@@ -16,16 +16,18 @@ import json
 
 class GetMapPositionsTest(TestCase):
     def setUp(self):
-        DevicePositionInTime.objects.create(longitud = 3.4, latitud = 5.2, timeStamp = timezone.now())
-        DevicePositionInTime.objects.create(longitud = 3.4, latitud = 5.2, timeStamp = timezone.now())
+        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+
+        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.4, latitud = 5.2, timeStamp = timezone.now())
+        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.4, latitud = 5.2, timeStamp = timezone.now())
         # this should not be answered
-        DevicePositionInTime.objects.create(longitud = 3.3, latitud = 4.2, timeStamp = timezone.now()\
+        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.3, latitud = 4.2, timeStamp = timezone.now()\
         	-timezone.timedelta(minutes=11))
         self.factory = RequestFactory()
 
     def test_getPositions(self):
     	'''This test the response of the current poses'''
-        
+
         request = self.factory.get('/map/activeuserpose')
         request.user = AnonymousUser()
 
@@ -74,14 +76,14 @@ class GetMapPositionsTest(TestCase):
 
         for cont in range(5):
             reponseView = RequestToken()
-            response = reponseView.get(request,'503','ZZZZ00')
+            response = reponseView.get(request, self.userId, '503', 'ZZZZ00')
 
             testToken = json.loads(response.content)
             testToken = testToken['token']
             testTokens.append(testToken)
 
         reponseView = RequestToken()
-        response = reponseView.get(request,'503','ZZZZ00')
+        response = reponseView.get(request, self.userId, '503', 'ZZZZ00')
 
         testToken = json.loads(response.content)
         testToken = testToken['token']
@@ -120,4 +122,4 @@ class GetMapPositionsTest(TestCase):
             self.assertEqual(aMsg['token'] != timeOutToken , True)
 
         self.assertEqual(len(responseMessage), len(testTokens)-1)
-       
+
