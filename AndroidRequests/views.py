@@ -50,28 +50,29 @@ def nearbyBuses(request, pUserId, pBusStop):
 
 	data = json.loads(response.text)
 
+        busStopCode=data['id']
+
 	for dato in data['servicios']:
 		if(dato["valido"]!=1):
 			continue
 		# clean the strings from spaces and unwanted format
-		dato['servicio'] = dato['servicio'].strip()
-		dato['patente'] = dato['patente'].replace("-", "")
-		dato['patente'] = dato['patente'].strip()
-		dato['servicio'] = dato['servicio'][0] + dato['servicio'][1:].lower()
+		dato['servicio']  = dato['servicio'].strip()
+		dato['patente']   = dato['patente'].replace("-", "")
+		dato['patente']   = dato['patente'].strip()
+		dato['servicio']  = dato['servicio'][0:].lower()
+                distance = dato['distancia'].replace(' mts.', '')
 
 		# request the correct bus
 		bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], \
 										service = dato['servicio'])[0]
-		busdata = bus.getLocation(data['id'], dato['distancia'].replace(' mts.', ''))
+		busdata = bus.getLocation(busStopCode, distance)
 		dato['tienePasajeros'] = busdata['passengers']
 		dato['lat'] = busdata['latitud']
 		dato['lon'] = busdata['longitud']
 		dato['random'] = busdata['random']
 		dato['color'] = Service.objects.get(service=dato['servicio']).color_id
-		try:
-			dato['sentido'] = bus.getDirection(data['id'], dato['distancia'].replace(' mts.', ''))
-		except:
-			dato['sentido'] = "right"
+		dato['sentido'] = bus.getDirection(busStopCode, distance)
+
 		getEventBus = EventsByBus()
 
 		busEvents = getEventBus.getEventForBus(bus)

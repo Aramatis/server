@@ -191,10 +191,16 @@ class Bus(models.Model):
 			serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
 		except:
 			serviceCode = self.service + "I"
+                        # default is IDA (I)
 
 		distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
-		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')[:3]
-		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')[:3]
+                # bus service distance from route origin
+		greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')[:2]
+                # get 3 locations greater than current location (nearer to the bus stop)
+		lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')[:2]
+                # get 3 locations lower than current location
+
+                # we need two point to detect the bus direction (left, right, up, down)
 		try:
 			greater = greaters[0]
 		except:
@@ -206,21 +212,26 @@ class Bus(models.Model):
 			except:
 				lower = greater
 				greater = greaters[1]
+
 		epsilon = 0.00008
 		x1 = lower.longitud
-		y1 = lower.latitud
+		#y1 = lower.latitud
 		x2 = greater.longitud
-		y2 = greater.latitud
+		#y2 = greater.latitud
+
 		if(abs(x2-x1)>=epsilon):
 			if(x2-x1>0):
 				return "right"
 			else:
 				return "left"
 		else:
-			if(y2-y1>0):
-				return "up"
+                        # we compare bus location with bus stop location
+                        busStopObj = BusStop.objects.get(code = pBusStop)
+                        xBusStop = busStopObj.longitud
+			if(x2-xBusStop>0):
+				return "right"
 			else:
-				return "down"
+				return "left"
 
 
 	def getLocation(self, busstop, distance):
