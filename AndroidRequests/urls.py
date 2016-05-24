@@ -14,7 +14,7 @@ from AndroidRequests.allviews.RegisterReport import *
 
 urlpatterns = [
 	url(r'^nearbyBuses/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStop>\w+)$', views.nearbyBuses),
-    url(r'^registerReport/(?P<pUserId>[0-9a-z-]+)$', RegisterReport.as_view()),
+    url(r'^registerReport$', RegisterReport.as_view()),
     url(r'^userPosition/(?P<pUserId>[0-9a-z-]+)/(?P<pLat>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLon>[\-+]?[0-9]*\.?[0-9]*)$', views.userPosition),
     url(r'^requestToken/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[0-9,\w]*)/(?P<pRegistrationPlate>[0-9,\w]*)$', RequestToken.as_view()),
     url(r'^endRoute/(?P<pToken>[0-9,a-f]{128})$', EndRoute.as_view()),

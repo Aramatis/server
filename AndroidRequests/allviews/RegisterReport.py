@@ -27,8 +27,9 @@ class RegisterReport(View):
 			extension = request.POST['ext']
 			aditionalInfo = request.POST['report_info']
                         pUserId = request.POST['userId']
+			pTimeStamp = timezone.now()
 
-			report = Report(userId=pUserId, message=text, path="default", reportInfo=aditionalInfo)
+			report = Report(timeStamp=pTimeStamp, userId=pUserId, message=text, path="default", reportInfo=aditionalInfo)
 			report.save()
 
 			try:
