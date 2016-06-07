@@ -38,6 +38,7 @@ class RequestToken(View):
 		return JsonResponse(response, safe=False)
 
 	def getRandomColor(self):
+		# color used by web page that shows trip trajectories
 		letters = '0123456789ABCDEF0'
 		color = '#'
 		colors = {'#2c7fb8','#dd1c77','#016c59','#de2d26','#d95f0e'}
