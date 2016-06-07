@@ -1,28 +1,26 @@
+# validate script syntax with http://lint.travis-ci.org/
 # base of this file: http://datadesk.latimes.com/posts/2012/06/test-your-django-app-with-travisci/
 branches:
   only:
     - master
 # Tell Travis you want a Python environment to test in
 language: python
-sudo: required
-addons:
-  postgresql: "9.3"
 # List the versions of Python you'd like to test against
-service: 
-  postgresql
 python:
   - "2.7.6"
+sudo: required
+services: 
+  postgresql
+addons:
+  postgresql: "9.3"
 # List the versions of Django you'd like to test against
 env:
   - DJANGO_VERSION=1.8
 #  - DJANGO_VERSION=1.9
 # Tell it the things it will need to install when it boots
 install: 
-  # Install the dependencies the app itself has
-  # which in this case I choose to keep in a requirements file
+  # Install the dependencies the app itself 
  - pip install -r requirements.txt --use-mirrors
-  # ref: https://github.com/audreyr/how-to/blob/master/python/use_coverage_with_unittest.rst
- - pip install coveralls
   # Install whatever version of Django that's listed above
   # Travis is currently working on
  - pip install -q Django==$DJANGO_VERSION --use-mirrors
@@ -33,7 +31,8 @@ before_script:
   - psql -c "GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;" -U postgres
 # Tell Travis how to run the test script itself
 script: 
-  - "python manage.py test"
+  - "coverage run --source='.' manage.py test"
+  - "coverage report -m"
 
 after_success:
   - coveralls
