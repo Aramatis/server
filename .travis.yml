@@ -32,6 +32,7 @@ before_script:
   - psql -c "GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;" -U postgres
 # Tell Travis how to run the test script itself
 script: 
+  - "python manage.py makemigrations"
   - "python manage.py migrate"
   - "coverage run --source='.' manage.py test"
   - "coverage report -m"
