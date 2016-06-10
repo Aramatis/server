@@ -14,6 +14,7 @@ from random import random, uniform
 from AndroidRequests.models import *
 from AndroidRequests.allviews.EventsByBusStop import *
 from AndroidRequests.allviews.EventsByBus import *
+from AndroidRequests.predictorTranSantiago.WebService import *
 
 def userPosition(request, pUserId, pLat, pLon):
 	'''This function stores the pose of an active user'''
@@ -39,9 +40,13 @@ def nearbyBuses(request, pUserId, pBusStop):
 	getEventsBusStop = EventsByBusStop()
 	busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
 
+        # for dev purpose
+        # OBS: there isn't garanty about this url. it is third-party url
+        """
 	url = "http://dev.adderou.cl/transanpbl/busdata.php"
 	params = {'paradero': pBusStop}
 	response = requests.get(url=url, params = params)
+
 	if(response.text==""):
 		response = {}
 		response["servicios"] = servicios
@@ -49,6 +54,11 @@ def nearbyBuses(request, pUserId, pBusStop):
 		return JsonResponse(response, safe=False)
 
 	data = json.loads(response.text)
+        """
+
+        # DTPM source
+        ws = WebService(request)
+        data = ws.askForServices(pBusStop)
 
         busStopCode=data['id']
 
@@ -70,6 +80,7 @@ def nearbyBuses(request, pUserId, pBusStop):
 		dato['lat'] = busdata['latitud']
 		dato['lon'] = busdata['longitud']
 		dato['random'] = busdata['random']
+                #TODO: log unregistered services
 		dato['color'] = Service.objects.get(service=dato['servicio']).color_id
 		dato['sentido'] = bus.getDirection(busStopCode, distance)
 
