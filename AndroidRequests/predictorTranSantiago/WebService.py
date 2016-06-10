@@ -31,6 +31,8 @@ class WebService:
             # resolution code: code, pixel size image, device resolution
             # used for makerting purposes, ignored by us
             self.resCode = info['resolutionCode']
+            # transactionId
+            self.transactionId = 0
 
     clientInstance = None
 
@@ -48,7 +50,9 @@ class WebService:
         clientCode = WebService.clientInstance.clientCode
         resCode = WebService.clientInstance.resCode[0]['code']
         ipFinalUser = self.__ipFinalUser
-        webTransId = WebService.clientInstance.prefix + self.__randomKey(20)
+        webTransId = WebService.clientInstance.prefix + \
+                self.__completeId(WebService.clientInstance.transactionId)
+        WebService.clientInstance.transactionId += 1
 
         print "WebService: \n\tclientCode:{}\n\tresolutionCode:{}\n\tipFinalUser:{},\n\twebTransId:{} "\
                 .format(clientCode, resCode, ipFinalUser, webTransId)
@@ -72,12 +76,9 @@ class WebService:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    def __randomKey(self, length):
-        """ Returns a random alphanumeric string of length 'length' """
-        key = ''
-        for i in range(length):
-            key += random.choice(string.lowercase + string.uppercase + string.digits)
-        return key
+    def __completeId(self, number):
+        """ complete with zeros until get 20 digits """
+        return str(number).zfill(20)
 
     def __parserDTPMData(self, dtpmInfo):
         """ separate buses. Each one in an array """
