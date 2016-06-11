@@ -20,8 +20,6 @@ class WebService:
             with open(os.path.join(os.path.dirname(__file__), 'DTPMConnectionParams.json')) as data_file:
                 info = json.load(data_file)
 
-            # web service ip
-            self.ip = info['ip']
             # prefix for webTransId
             self.prefix = info['prefix']
             # client code to identify who is querying data
@@ -32,7 +30,7 @@ class WebService:
             # used for makerting purposes, ignored by us
             self.resCode = info['resolutionCode']
             # transactionId
-            self.transactionId = 0
+            self.transactionId = 23
 
     clientInstance = None
 
@@ -92,9 +90,10 @@ class WebService:
         response['id'] = dtpmInfo['paradero']
         response['descripcion'] = dtpmInfo['nomett']
         response['servicios'] = []
+        response['error'] = None
 
         if (dtpmInfo['respuestaParadero'] != None):
-            response['mensajeError'] = dtpmInfo['respuestaParadero']
+            response['error'] = dtpmInfo['respuestaParadero']
 
         # for each service
         for service in dtpmInfo['servicios'][0]:
@@ -125,7 +124,3 @@ class WebService:
             response['servicios'].append(bus2)
 
         return response
-
-
-
-

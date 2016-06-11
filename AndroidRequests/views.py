@@ -93,6 +93,8 @@ def nearbyBuses(request, pUserId, pBusStop):
 		servicios.append(dato)
 
 	response = {}
+        if data['error'] != None:
+            response['error'] = data['error']
 	response["servicios"] = servicios
 	response["eventos"] = busStopEvent
 	return JsonResponse(response, safe=False)
