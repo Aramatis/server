@@ -54,6 +54,7 @@ def nearbyBuses(request, pUserId, pBusStop):
 		return JsonResponse(response, safe=False)
 
 	data = json.loads(response.text)
+        data['error'] = None
         """
 
         # DTPM source
