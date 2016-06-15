@@ -1,0 +1,7 @@
+{
+    "comment": "this file was created for testing purpose",
+    "prefix": "XXXX",
+    "clientCode": 00,
+    "answerCode": [{"code":"00"}],
+    "resolutionCode": [{"code":"11"}]
+}
