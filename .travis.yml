@@ -30,6 +30,8 @@ before_script:
   - psql -c "CREATE USER inspector WITH PASSWORD '1ghost2inspector';" -U postgres
   - psql -c "ALTER USER inspector CREATEDB;" -U postgres
   - psql -c "GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;" -U postgres
+  - sudo apt-get install tree
+  - tree $HOME
   - cp $HOME/server/.travis/DTPMConnectionParams.json $HOME/server/AndroidRequests/predictorTranSantiago/
 # Tell Travis how to run the test script itself
 script: 
