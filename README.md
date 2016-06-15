@@ -4,6 +4,7 @@
 
 [![Build Status](https://travis-ci.org/InspectorIncognito/server.svg)](https://travis-ci.org/InspectorIncognito/server) [![todofy badge](https://todofy.org/b/InspectorIncognito/server)](https://todofy.org/r/InspectorIncognito/server)
 [![Coverage Status](https://coveralls.io/repos/github/InspectorIncognito/server/badge.svg?branch=master)](https://coveralls.io/github/InspectorIncognito/server?branch=master)
+[![Code Health](https://landscape.io/github/InspectorIncognito/server/master/landscape.svg?style=plastic)](https://landscape.io/github/InspectorIncognito/server/master)
 
 ## What is TranSapp?
 
