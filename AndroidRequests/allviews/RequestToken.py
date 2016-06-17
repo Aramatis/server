@@ -20,10 +20,11 @@ class RequestToken(View):
 	def __init__(self):
 		self.context={}
 
-	def get(self, request, pUserId, pBusService, pRegistrationPlate):
-		data = timezone.now() # the token is primary a hash of the
-		salt = os.urandom(20) # time stamp plus a random salt
+	def get(self, request, pUserId, pBusService, pRegistrationPlate, data=timezone.now()):
+                """ the token is primary a hash of the time stamp plus a random salt """
+                salt = os.urandom(20)
 		hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
+
 		bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
 		 service = pBusService)[0]
 
