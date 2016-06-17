@@ -6,14 +6,16 @@ import json
 # my stuff
 from AndroidRequests.models import *
 # views
-from AndroidRequests.allviews.RequestToken import RequestToken
+from AndroidRequests.allviews.BusStopsByService import BusStopsByService
 from AndroidRequests.allviews.EndRoute import EndRoute
-from AndroidRequests.allviews.SendPoses import SendPoses
-from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
-from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.EventsByBus import EventsByBus
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
+from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
+from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
+from AndroidRequests.allviews.RequestToken import RequestToken
+from AndroidRequests.allviews.SendPoses import SendPoses
 import AndroidRequests.views as views
+
 # Create your tests here.
 
 class DevicePositionInTimeTestCase(TestCase):
@@ -50,7 +52,6 @@ class DevicePositionInTimeTestCase(TestCase):
                 latitud = self.longitude[0],\
                 timeStamp = self.timeStamp[0])
                 #"badly formed hexadecimal UUID string")
-
 
 class DevicePositionInTimeTest(TestCase):
     """ test for DevicePositionInTime model """
@@ -373,6 +374,7 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(DevicePositionInTime.objects.filter(longitud=lon, latitud=lat).exists(), True)
 
+    """
     def test_nearbyBuses(self):
         request = self.factory.get('/android/nearbyBuses')
         request.user = AnonymousUser()
@@ -386,6 +388,7 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual('servicios' in jSonResponse, True)
         self.assertEqual('eventos' in jSonResponse, True)
+    """
 
     def test_preferPositionOfPersonInsideABus(self):
 
@@ -438,6 +441,5 @@ class DevicePositionInTimeTest(TestCase):
 
         reponseView = EndRoute()
         response = reponseView.get(request,testToken)
-
 
 
