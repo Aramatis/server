@@ -4,8 +4,6 @@ import json
 import base64
 import os
 
-# my stuff
-from AndroidRequests.models import *
 # views
 from AndroidRequests.allviews.RegisterReport import RegisterReport
 
