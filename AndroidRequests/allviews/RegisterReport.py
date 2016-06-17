@@ -3,9 +3,17 @@ from django.views.generic import View
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.db import IntegrityError
+
 import os
 # import DB's models
 from AndroidRequests.models import *
+
+class IncorrectExtensionImageError(Exception):
+    """ Image extension is not valid """
+
+class EmptyTextMessageError(Exception):
+    """ Text message is empty """
 
 class RegisterReport(View):
 	"""This class handles requests for report an event not supported by the system."""
@@ -16,11 +24,11 @@ class RegisterReport(View):
 	def dispatch(self, request, *args, **kwargs):
 		return super(RegisterReport, self).dispatch(request, *args, **kwargs)
 
-
 	def post(self, request):
-		"""It receives the data for the free report, receives a text,
-		an image and the extension for that image."""
-		fine = True
+		""" It receives the data for the free report """
+		fine = False
+                message = ''
+
 		if request.method == 'POST':
 			text = request.POST['text']
 			stringImage = request.POST['img'].decode('base64')
@@ -29,20 +37,37 @@ class RegisterReport(View):
                         pUserId = request.POST['userId']
 			pTimeStamp = timezone.now()
 
-			report = Report(timeStamp=pTimeStamp, userId=pUserId, message=text, path="default", reportInfo=aditionalInfo)
-			report.save()
+                        try:
+                                if text == '':
+                                    raise EmptyTextMessageError
 
-			try:
-				path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
-				imageFile = open(path, "wb")
-				imageFile.write(stringImage)
-				imageFile.close()
-				report.path = path
-				report.save()
-			except:
-				report.delete()
-				fine = False
-		else:
-			fine = False
-		response = {'valid': fine}
+			        report = Report(timeStamp=pTimeStamp, userId=pUserId, \
+                                        message=text, path="default", reportInfo=aditionalInfo)
+                                report.save()
+
+                                if stringImage != '' and extension not in ['JPG', 'JPEG', 'PNG']:
+                                    raise IncorrectExtensionImageError
+
+                                path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
+        		        imageFile = open(path, "wb")
+	        		imageFile.write(stringImage)
+		        	imageFile.close()
+        		        report.path = path
+	            		report.save()
+
+                                fine = True
+
+                        except EmptyTextMessageError:
+                                message = 'Has to exist a text message.'
+                        except (IntegrityError, ValueError):
+                                message = 'Error to create record.'
+                        except IncorrectExtensionImageError:
+                                message = 'Extension image is not valid.'
+                                report.delete()
+	        	except:
+                                message = 'Error to save image'
+			        report.delete()
+
+                response = {'valid': fine, 'message': ''}
 		return JsonResponse(response, safe=False)
+
