@@ -1,6 +1,4 @@
 import os, sys
-from Loaders.LoaderFactory import LoaderFactory
-from Loaders.ModelLoaders import LoadEvents
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
@@ -9,20 +7,23 @@ django.setup()
 from AndroidRequests.models import *
 from django.utils import timezone
 
+# in minutes
+MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 30
+
 def cleanActiveTokenTable():
-	"""It cleans the active tokens table on the DB. This checks that the last time a 
+	"""It cleans the active tokens table on the DB. This checks that the last time a
 	token was granted with new position doesn't exceed a big amount of time."""
 
 	activeTokens = ActiveToken.objects.all()
-	currentTimeMinus11Minutes = timezone.now() - timezone.timedelta(minutes=30)
+	currentTimeMinusXMinutes = timezone.now() - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
 	for aToken in activeTokens:
-		if aToken.timeStamp < currentTimeMinus11Minutes:
+		if aToken.timeStamp < currentTimeMinusXMinutes:
 			aToken.delete()
 
 def clearnEventsThatHaveBeenDecline():
 	'''This clears the events that have lost credibility'''
 	minimumNumberOfDeclines = 30
-	porcentageOfDeclineOverConfirm = 60.0 
+	porcentageOfDeclineOverConfirm = 60.0
 
 	currentEventReport = []
 
@@ -32,7 +33,7 @@ def clearnEventsThatHaveBeenDecline():
 		eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
 		aux = EventForBusStop.objects.filter(event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
 
-		
+
 		for evnt in aux:
 			currentEventReport.append(evnt)
 
