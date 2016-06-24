@@ -1,17 +1,14 @@
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone, dateparse
 
 #python utilities
 import requests, json
-import hashlib
-import os
-from random import random, uniform
+from random import uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import *
+from AndroidRequests.models import ActiveToken, Token, PoseInTrajectoryOfToken
 
 class SendPoses(View):
     """This class receives a segment of the trajectory associated to a token."""

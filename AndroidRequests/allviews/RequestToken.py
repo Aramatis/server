@@ -1,17 +1,16 @@
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.generic import View
-from django.utils import timezone, dateparse
+from django.utils import timezone
 
 #python utilities
-import requests, json
+import requests
 import hashlib
 import os
 from random import random, uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import *
+from AndroidRequests.models import Bus, Token, ActiveToken
 
 class RequestToken(View):
     """This class handles the start of the tracking, assigning a token
@@ -40,7 +39,7 @@ class RequestToken(View):
 
     def getRandomColor(self):
         # color used by web page that shows trip trajectories
-        letters = '0123456789ABCDEF0'
+        #unused -> letters = '0123456789ABCDEF0'
         color = '#'
         colors = {'#2c7fb8','#dd1c77','#016c59','#de2d26','#d95f0e'}
         color = list(colors)[int(round(random() * 4))]
