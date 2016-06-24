@@ -13,13 +13,12 @@ class WebService:
         """ singleton for suds client """
 
         def __init__(self):
-            # WSDL url. it was gotten throught Wireless-IQ
-            wsdl = 'http://198.41.36.67:8080/wspatentedos/services/PredictorParaderoServicioWS?WSDL'
-            self.client = Client(wsdl)
 
             with open(os.path.join(os.path.dirname(__file__), 'DTPMConnectionParams.json')) as data_file:
                 info = json.load(data_file)
 
+            # WSDL url. it was gotten throught Wireless-IQ
+            self.client = Client(info['wsdl'])
             # prefix for webTransId
             self.prefix = info['prefix']
             # client code to identify who is querying data
@@ -30,7 +29,7 @@ class WebService:
             # used for makerting purposes, ignored by us
             self.resCode = info['resolutionCode']
             # transactionId
-            self.transactionId = 23
+            self.transactionId = 300
 
     clientInstance = None
 
