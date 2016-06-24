@@ -1,13 +1,9 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.views.generic import View
-from django.utils import timezone, dateparse
+from django.utils import timezone
 
 #python utilities
-import requests, json
-import hashlib
-import os
-from random import random, uniform
+import requests
+from random import uniform
 
 # my stuff
 # import DB's models
@@ -18,10 +14,7 @@ from EventsByBus import EventsByBus
 class RegisterEventBus(View):
     '''This class handles requests that report events of a bus.'''
 
-    '''Falta agregar la pose a esto'''
     def get(self, request, pUserId, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
-        response = {}
-
         # here we request all the info needed to proceed
         aTimeStamp = timezone.now()
         theEvent = Event.objects.get(id=pEventID)
@@ -65,11 +58,9 @@ class RegisterEventBus(View):
             StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline, \
                 reportOfEvent=aEventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
 
-        """ Returns updated event list for a bus """
+        # Returns updated event list for a bus
         eventsByBus = EventsByBus()
         return eventsByBus.get(request, pBusPlate, pBusService)
-        # response['response'] = 'Thanks for the information, give to receive.'
-        # return JsonResponse(response, safe=False)
 
     def getLastEvent(self, querySet):
         """if the query has two responses, return the latest one"""

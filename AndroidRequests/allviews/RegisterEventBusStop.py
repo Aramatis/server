@@ -1,13 +1,9 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.views.generic import View
-from django.utils import timezone, dateparse
+from django.utils import timezone
 
 #python utilities
-import requests, json
-import hashlib
-import os
-from random import random, uniform
+import requests
+from random import uniform
 
 # my stuff
 # import DB's models
@@ -19,7 +15,6 @@ class RegisterEventBusStop(View):
     '''This class handles the requests that report events of a bus stop'''
 
     def get(self, request, pUserId, pBusStopCode, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
-        response = {}
 
         theEvent = Event.objects.get(id=pEventID)
         theBusStop = BusStop.objects.get(code=pBusStopCode)
@@ -56,11 +51,9 @@ class RegisterEventBusStop(View):
             StadisticDataFromRegistrationBusStop.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
             reportOfEvent=aEventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId)
 
-        """ Returns updated event list for a busstop """
+        # Returns updated event list for a busstop
         eventsByBusStop = EventsByBusStop()
         return eventsByBusStop.get(request, pBusStopCode)
-        # response['response'] = 'Thanks for the information, give to recieve.'
-        # return JsonResponse(response, safe=False)
 
     def getLastEvent(self, querySet):
         toReturn = querySet[0]
