@@ -2,7 +2,7 @@
     "wsdl": "http://198.41.36.67:8080/wspatentedos/services/PredictorParaderoServicioWS?WSDL"
     "comment": "this file was created for testing purpose",
     "prefix": "XXXX",
-    "clientCode": 00,
+    "clientCode": "00",
     "answerCode": [{"code":"00"}],
     "resolutionCode": [{"code":"11"}]
 }
