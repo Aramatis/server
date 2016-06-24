@@ -16,58 +16,58 @@ class EmptyTextMessageError(Exception):
     """ Text message is empty """
 
 class RegisterReport(View):
-	"""This class handles requests for report an event not supported by the system."""
-	def __init__(self):
-		self.context={}
+    """This class handles requests for report an event not supported by the system."""
+    def __init__(self):
+        self.context={}
 
-	@method_decorator(csrf_exempt)
-	def dispatch(self, request, *args, **kwargs):
-		return super(RegisterReport, self).dispatch(request, *args, **kwargs)
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RegisterReport, self).dispatch(request, *args, **kwargs)
 
-	def post(self, request):
-		""" It receives the data for the free report """
-		fine = False
-                message = ''
+    def post(self, request):
+        """ It receives the data for the free report """
+        fine = False
+        message = ''
 
-		if request.method == 'POST':
-			text = request.POST['text']
-			stringImage = request.POST['img'].decode('base64')
-			extension = request.POST['ext']
-			aditionalInfo = request.POST['report_info']
-                        pUserId = request.POST['userId']
-			pTimeStamp = timezone.now()
+        if request.method == 'POST':
+            text = request.POST['text']
+            stringImage = request.POST['img'].decode('base64')
+            extension = request.POST['ext']
+            aditionalInfo = request.POST['report_info']
+            pUserId = request.POST['userId']
+            pTimeStamp = timezone.now()
 
-                        try:
-                                if text == '':
-                                    raise EmptyTextMessageError
+            try:
+                if text == '':
+                    raise EmptyTextMessageError
 
-			        report = Report(timeStamp=pTimeStamp, userId=pUserId, \
-                                        message=text, path="default", reportInfo=aditionalInfo)
-                                report.save()
+                report = Report(timeStamp=pTimeStamp, userId=pUserId, \
+                                message=text, path="default", reportInfo=aditionalInfo)
+                report.save()
 
-                                if stringImage != '' and extension not in ['JPG', 'JPEG', 'PNG']:
-                                    raise IncorrectExtensionImageError
+                if stringImage != '' and extension not in ['JPG', 'JPEG', 'PNG']:
+                    raise IncorrectExtensionImageError
 
-                                path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
-        		        imageFile = open(path, "wb")
-	        		imageFile.write(stringImage)
-		        	imageFile.close()
-        		        report.path = path
-	            		report.save()
+                path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
+                imageFile = open(path, "wb")
+                imageFile.write(stringImage)
+                imageFile.close()
+                report.path = path
+                report.save()
 
-                                fine = True
+                fine = True
 
-                        except EmptyTextMessageError:
-                                message = 'Has to exist a text message.'
-                        except (IntegrityError, ValueError):
-                                message = 'Error to create record.'
-                        except IncorrectExtensionImageError:
-                                message = 'Extension image is not valid.'
-                                report.delete()
-	        	except:
-                                message = 'Error to save image'
-			        report.delete()
+            except EmptyTextMessageError:
+                message = 'Has to exist a text message.'
+            except (IntegrityError, ValueError):
+                message = 'Error to create record.'
+            except IncorrectExtensionImageError:
+                message = 'Extension image is not valid.'
+                report.delete()
+            except:
+                message = 'Error to save image'
+                report.delete()
 
-                response = {'valid': fine, 'message': ''}
-		return JsonResponse(response, safe=False)
+        response = {'valid': fine, 'message': message}
+        return JsonResponse(response, safe=False)
 
