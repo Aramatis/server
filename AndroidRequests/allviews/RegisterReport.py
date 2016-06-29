@@ -33,26 +33,26 @@ class RegisterReport(View):
         message = ''
 
         if request.method == 'POST':
-            text = request.POST.get('text')
-            stringImage = request.POST.get('img')
+            text = request.POST.get('text', '')
+            stringImage = request.POST.get('img', '')
             if stringImage is not None:
                 stringImage = stringImage.decode('base64')
-            extension = request.POST.get('ext')
+            extension = request.POST.get('ext', '')
             aditionalInfo = request.POST.get('report_info', '')
-            pUserId = request.POST.get('userId')
+            pUserId = request.POST.get('userId', '')
             pTimeStamp = timezone.now()
 
             try:
-                if text is None:
+                if text == '':
                     raise EmptyTextMessageError
-                if pUserId is None:
+                if pUserId == '':
                     raise EmptyUserIdError
 
                 report = Report(timeStamp=pTimeStamp, userId=pUserId, \
                                 message=text, path="default", reportInfo=aditionalInfo)
                 report.save()
                 
-                if stringImage is not None:
+                if stringImage != '':
                     if extension not in ['JPG', 'JPEG', 'PNG']:
                         raise IncorrectExtensionImageError
 
