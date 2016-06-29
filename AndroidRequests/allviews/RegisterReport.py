@@ -15,6 +15,9 @@ class IncorrectExtensionImageError(Exception):
 class EmptyTextMessageError(Exception):
     """ Text message is empty """
 
+class EmptyUserIdError(Exception):
+    """ UserId is empty """
+
 class RegisterReport(View):
     """This class handles requests for report an event not supported by the system."""
     def __init__(self):
@@ -30,33 +33,40 @@ class RegisterReport(View):
         message = ''
 
         if request.method == 'POST':
-            text = request.POST['text']
-            stringImage = request.POST['img'].decode('base64')
-            extension = request.POST['ext']
-            aditionalInfo = request.POST['report_info']
-            pUserId = request.POST['userId']
+            text = request.POST.get('text')
+            stringImage = request.POST.get('img')
+            if stringImage is not None:
+                stringImage = stringImage.decode('base64')
+            extension = request.POST.get('ext')
+            aditionalInfo = request.POST.get('report_info', '')
+            pUserId = request.POST.get('userId')
             pTimeStamp = timezone.now()
 
             try:
-                if text == '':
+                if text is None:
                     raise EmptyTextMessageError
+                if pUserId is None:
+                    raise EmptyUserIdError
 
                 report = Report(timeStamp=pTimeStamp, userId=pUserId, \
                                 message=text, path="default", reportInfo=aditionalInfo)
                 report.save()
+                
+                if stringImage is not None:
+                    if extension not in ['JPG', 'JPEG', 'PNG']:
+                        raise IncorrectExtensionImageError
 
-                if stringImage != '' and extension not in ['JPG', 'JPEG', 'PNG']:
-                    raise IncorrectExtensionImageError
-
-                path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
-                imageFile = open(path, "wb")
-                imageFile.write(stringImage)
-                imageFile.close()
-                report.path = path
-                report.save()
+                    path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
+                    imageFile = open(path, "wb")
+                    imageFile.write(stringImage)
+                    imageFile.close()
+                    report.path = path
+                    report.save()
 
                 fine = True
 
+            except EmptyUserIdError:
+                message = 'Has to exist a user id.'
             except EmptyTextMessageError:
                 message = 'Has to exist a text message.'
             except (IntegrityError, ValueError):

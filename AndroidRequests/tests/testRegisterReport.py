@@ -46,37 +46,48 @@ class RegisterReportTestCase(TestCase):
         jsonResponse = json.loads(response.content)
 
         self.assertEqual(jsonResponse['valid'], True)
-        self.assertEqual(len(Report.objects.all()), 1)
+        self.assertEqual(Report.objects.all().count(), 1)
 
     def test_send_report_without_text(self):
         request = self.request
-        request.POST['text'] = ''
+        request.POST.pop('text')
 
         response = self.reponseView.post(request)
         jsonResponse = json.loads(response.content)
 
         self.assertFalse(jsonResponse['valid'])
-        self.assertEqual(len(Report.objects.all()), 0)
+        self.assertEqual(Report.objects.all().count(), 0)
 
     def test_send_report_without_image(self):
         request = self.request
-        request.POST['img'] = ''
-
+        request.POST.pop('img')
+        
         response = self.reponseView.post(request)
         jsonResponse = json.loads(response.content)
 
         self.assertTrue(jsonResponse['valid'])
-        self.assertEqual(len(Report.objects.all()), 1)
+        self.assertEqual(Report.objects.all().count(), 1)
+
+    def test_send_report_without_image_and_without_extension(self):
+        request = self.request
+        request.POST.pop('img')
+        request.POST.pop('ext')
+        
+        response = self.reponseView.post(request)
+        jsonResponse = json.loads(response.content)
+
+        self.assertTrue(jsonResponse['valid'])
+        self.assertEqual(Report.objects.all().count(), 1)
 
     def test_send_report_with_image_but_without_extension(self):
         request = self.request
-        request.POST['ext'] = ''
+        request.POST.pop('ext')
 
         response = self.reponseView.post(request)
         jsonResponse = json.loads(response.content)
 
         self.assertFalse(jsonResponse['valid'])
-        self.assertEqual(len(Report.objects.all()), 0)
+        self.assertEqual(Report.objects.all().count(), 0)
 
     def test_send_report_with_image_but_with_invalid_extension(self):
         request = self.request
@@ -86,12 +97,12 @@ class RegisterReportTestCase(TestCase):
         jsonResponse = json.loads(response.content)
 
         self.assertFalse(jsonResponse['valid'])
-        self.assertEqual(len(Report.objects.all()), 0)
+        self.assertEqual(Report.objects.all().count(), 0)
 
 
     def test_send_report_without_user_id(self):
         request = self.request
-        request.POST['userId'] = ''
+        request.POST.pop('userId')
 
         with transaction.atomic():
             response = self.reponseView.post(request)
@@ -102,7 +113,7 @@ class RegisterReportTestCase(TestCase):
 
     def test_send_report_without_additional_info(self):
         request = self.request
-        request.POST['report_info'] = ''
+        request.POST.pop('report_info')
 
         response = self.reponseView.post(request)
         jsonResponse = json.loads(response.content)
