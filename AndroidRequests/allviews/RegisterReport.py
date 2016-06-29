@@ -30,7 +30,7 @@ class RegisterReport(View):
     def post(self, request):
         """ It receives the data for the free report """
         fine = False
-        message = ''
+        message = 'Report saved.'
 
         if request.method == 'POST':
             text = request.POST.get('text', '')
@@ -53,7 +53,7 @@ class RegisterReport(View):
                 report.save()
                 
                 if stringImage != '':
-                    if extension not in ['JPG', 'JPEG', 'PNG']:
+                    if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
                         raise IncorrectExtensionImageError
 
                     path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
