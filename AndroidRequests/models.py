@@ -195,23 +195,21 @@ class Bus(models.Model):
 
         distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
         # bus service distance from route origin
-        greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')[:2]
-        # get 3 locations greater than current location (nearer to the bus stop)
-        lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')[:2]
-        # get 3 locations lower than current location
+        greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')[:1]
+        # get 2 locations greater than current location (nearer to the bus stop)
+        lowers = ServiceLocation.objects.filter(service = serviceCode, distance__lte=distance).order_by('-distance')[:1]
+        # get 2 locations lower than current location
 
         # we need two point to detect the bus direction (left, right, up, down)
-        try:
+        if len(greaters) > 0 and len(lowers) > 0:
             greater = greaters[0]
-        except:
+            lower = lowers[0]
+        elif len(greaters) == 0 and len(lowers) == 2:
             greater = lowers[0]
             lower = lowers[1]
-        else:
-            try:
-                lower = lowers[0]
-            except:
-                lower = greater
-                greater = greaters[1]
+        elif len(lowers) == 0 and len(greaters) == 2:
+            lower = greater[0]
+            greater = graters[1]
 
         epsilon = 0.00008
         x1 = lower.longitud
@@ -229,10 +227,9 @@ class Bus(models.Model):
             busStopObj = BusStop.objects.get(code = pBusStop)
             xBusStop = busStopObj.longitud
             if(x2-xBusStop>0):
-                return "right"
-            else:
                 return "left"
-
+            else:
+                return "right"
 
     def getLocation(self, busstop, distance):
         """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
