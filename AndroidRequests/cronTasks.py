@@ -40,7 +40,7 @@ def clearEventsThatHaveBeenDecline():
         for evnt in aux:
             currentEventReport.append(evnt)
 
-	for event in currentEventReport:
+        for event in currentEventReport:
             if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
                event.eventConfirm * percentageOverConfirm < event.eventDecline:
                 theEvent = event.event
@@ -49,10 +49,10 @@ def clearEventsThatHaveBeenDecline():
                 event.save()
 
         # Event for buses
-	eventsToAsk = Event.objects.filter(eventType='bus')
-	currentEventReport = []
+        eventsToAsk = Event.objects.filter(eventType='bus')
+        currentEventReport = []
 
-	for event in eventsToAsk:
+        for event in eventsToAsk:
             eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
             registry = EventForBus.objects.\
                     filter(event=event, timeStamp__gt=eventTime).\
@@ -61,7 +61,7 @@ def clearEventsThatHaveBeenDecline():
             for aux in registry:
                 currentEventReport.append(aux)
 
-	for event in currentEventReport:
+        for event in currentEventReport:
             if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
                event.eventConfirm * percentageOverConfirm < event.eventDecline:
                 theEvent = event.event
