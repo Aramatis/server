@@ -13,13 +13,13 @@ class EndRoute(View):
         self.context={}
 
     def get(self, request, pToken):
-	"""Delete the token from the active ones."""
-	response = {}
-	# check if the token exist
-	if ActiveToken.objects.filter(token=pToken).exists():
-	    ActiveToken.objects.get(token=pToken).delete()
-	    response['response'] = 'Trip ended.'
-	else:#if the token was not found alert
-	    response['response'] = 'Token doesn\'t exist.'
+        """Delete the token from the active ones."""
+        response = {}
+        # check if the token exist
+        if ActiveToken.objects.filter(token=pToken).exists():
+            ActiveToken.objects.get(token=pToken).delete()
+            response['response'] = 'Trip ended.'
+        else:#if the token was not found alert
+            response['response'] = 'Token doesn\'t exist.'
 
-	return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False)
