@@ -374,7 +374,7 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(DevicePositionInTime.objects.filter(longitud=lon, latitud=lat).exists(), True)
 
-    """
+
     def test_nearbyBuses(self):
         request = self.factory.get('/android/nearbyBuses')
         request.user = AnonymousUser()
@@ -388,7 +388,6 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual('servicios' in jSonResponse, True)
         self.assertEqual('eventos' in jSonResponse, True)
-    """
 
     def test_preferPositionOfPersonInsideABus(self):
 
