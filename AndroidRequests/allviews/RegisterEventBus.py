@@ -1,13 +1,9 @@
 from django.views.generic import View
 from django.utils import timezone
 
-#python utilities
-import requests
-from random import uniform
-
 # my stuff
 # import DB's models
-from AndroidRequests.models import *
+from AndroidRequests.models import Event, Bus, EventForBus, StadisticDataFromRegistrationBus
 
 from EventsByBus import EventsByBus
 
