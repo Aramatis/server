@@ -53,7 +53,7 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=100, latitud=100)
+        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=100, latitud=95)
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(busStop = busStop,  service = self.serviceCode, distance = 45)
@@ -65,16 +65,16 @@ class BusDirectionTestCase(TestCase):
         #              *
         #              B
         # *   *  P  *  *
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 10, longitud=120, latitud=80)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 20, longitud=120, latitud=90)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 30, longitud=120, latitud=100)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 40, longitud=110, latitud=100)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 50, longitud=90, latitud=100)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 60, longitud=80, latitud=100)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 10, longitud=120, latitud=-80)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 20, longitud=120, latitud=-90)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 30, longitud=120, latitud=-100)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 40, longitud=110, latitud=-100)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 50, longitud=90, latitud=-100)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 60, longitud=80, latitud=-100)
 
         distance = 25
 
-        print "upper_right_corner"
+        # print "upper_right_corner"
         orientation = self.bus.getDirection(self.busStopCode, distance)
 
         self.assertEqual( orientation, 'left')
@@ -118,7 +118,7 @@ class BusDirectionTestCase(TestCase):
 
         distance = 20
 
-        print "lower_right_corner"
+        # print "lower_right_corner"
         orientation = self.bus.getDirection(self.busStopCode, distance)
 
         self.assertEqual( orientation, 'left')
@@ -161,7 +161,7 @@ class BusDirectionTestCase(TestCase):
         ServiceLocation.objects.create(service = self.serviceCode, distance = 60, longitud=-70.660871, latitud=-33.457091)
 
         distance = 20
-        print "lower_left_corner"
+        # print "lower_left_corner"
         orientation = self.bus.getDirection(self.busStopCode, distance)
 
         self.assertEqual( orientation, 'right')
@@ -184,7 +184,7 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=-70.662800, latitud=-33.457199)
+        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=140, latitud=-33.457199)
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(busStop = busStop,  service = self.serviceCode, distance = 45)
@@ -197,16 +197,16 @@ class BusDirectionTestCase(TestCase):
         # B
         # *   *  P  *  *
         #
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 10, longitud=-70.664819, latitud=-33.454325)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 20, longitud=-70.664819, latitud=-33.4554)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 30, longitud=-70.664819, latitud=-33.457199)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 40, longitud=-70.663617, latitud=-33.457199)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 50, longitud=-70.662244, latitud=-33.457199)
-        ServiceLocation.objects.create(service = self.serviceCode, distance = 60, longitud=-70.660871, latitud=-33.457199)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 10, longitud=120, latitud=-33.454325)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 20, longitud=120, latitud=-33.4554)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 30, longitud=120, latitud=-33.457199)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 40, longitud=130, latitud=-33.457199)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 50, longitud=150, latitud=-33.457199)
+        ServiceLocation.objects.create(service = self.serviceCode, distance = 60, longitud=160, latitud=-33.457199)
 
-        distance = 20
+        distance = 25
 
-        print "upper_left_corner"
+        # print "upper_left_corner"
         orientation = self.bus.getDirection(self.busStopCode, distance)
 
         self.assertEqual( orientation, 'right')

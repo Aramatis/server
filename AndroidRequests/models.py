@@ -207,9 +207,15 @@ class Bus(models.Model):
         elif len(greaters) == 0 and len(lowers) == 2:
             greater = lowers[0]
             lower = lowers[1]
+        elif len(greaters) == 0 and len(lowers) == 1:
+            greater = lowers[0]
+            lower = lowers[0]
         elif len(lowers) == 0 and len(greaters) == 2:
-            lower = greater[0]
-            greater = graters[1]
+            lower = greaters[0]
+            greater = greaters[1]
+        elif len(lowers) == 0 and len(greaters) == 1:
+            lower = greaters[0]
+            greater = greaters[0]
 
         epsilon = 0.00008
         x1 = lower.longitud
