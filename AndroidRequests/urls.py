@@ -33,4 +33,5 @@ urlpatterns = [
     url(r'^requestEventsForBusStop/(?P<pBusStopCode>[\w,0-9]*)$', EventsByBusStop.as_view()),
     # List of bus stop of a service
     url(r'^requestBusStopsForService/(?P<pBusService>[\w,0-9]*)$', BusStopsByService.as_view()),
+    url(r'^requestRouteForService/(?P<pBusService>[\w,0-9]*)/(?P<pLat1>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLon1>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLat2>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLon2>[\-+]?[0-9]*\.?[0-9]*)$', ServiceRoute.as_view()),
 ]
