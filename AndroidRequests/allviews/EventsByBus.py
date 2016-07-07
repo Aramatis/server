@@ -22,9 +22,7 @@ class EventsByBus(View):
         response['service'] = bus.service
 
         # ask for the events in this bus
-        events = []
-        if pRegistrationPlate != Constants.DUMMY_LICENSE_PLATE:
-            events = self.getEventForBus(bus)
+        events = self.getEventForBus(bus)
 
         response['events'] = events
 
@@ -34,6 +32,9 @@ class EventsByBus(View):
         """this method look for the active events of a bus, those whose lifespan hasn't expired
         since the last time there were reported"""
         events = []
+
+        if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+            return events
 
         eventsToAsk = Event.objects.filter(eventType='bus')
 
