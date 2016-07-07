@@ -2,11 +2,11 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
 
-#python utilities
-import requests
 # my stuff
 # import DB's models
-from AndroidRequests.models import *
+from AndroidRequests.models import Bus, Event, EventForBus
+# constants
+import AndroidRequests.constants as Constants
 
 class EventsByBus(View):
     """This class handles requests for the registered events for an specific bus."""
@@ -22,7 +22,9 @@ class EventsByBus(View):
         response['service'] = bus.service
 
         # ask for the events in this bus
-        events = self.getEventForBus(bus)
+        events = []
+        if pRegistrationPlate != Constants.DUMMY_LICENSE_PLATE:
+            events = self.getEventForBus(bus)
 
         response['events'] = events
 
