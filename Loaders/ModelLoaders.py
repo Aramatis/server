@@ -344,8 +344,8 @@ class RouteLoader(Loader):
 
             if routePoint.exists():
                 routePoint = Route.objects.get(serviceCode=data[0], sequence=data[3])
-                event.latitud = data[1]
-                event.longitud = data[2]
+                routePoint.latitud = data[1]
+                routePoint.longitud = data[2]
 
                 self.log.write(self.inDBMessage(data))
                 try:
@@ -358,4 +358,4 @@ class RouteLoader(Loader):
                                         longitud=data[2], sequence=data[3])
             i+=1
             if(i%self.ticks==0):
-                print super(EventLoades, self).rowAddedMessage(self.className, i)
+                print super(RouteLoader, self).rowAddedMessage(self.className, i)
