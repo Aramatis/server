@@ -384,3 +384,10 @@ class NearByBusesLog(models.Model):
     """ Bus stops where the service is stopped """
     userId = models.UUIDField()
     """ To identify the data owner """
+
+class Route(Location):
+    """ Route for each service """
+    serviceCode = models.CharField(max_length=6, null=False, blank=False)
+    """ Bus identifier """
+    sequence = models.IntegerField('Sequence')
+    """ point position in a route """
