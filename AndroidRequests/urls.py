@@ -11,6 +11,7 @@ from AndroidRequests.allviews.RequestEventsToNotified import *
 from AndroidRequests.allviews.EventsByBusStop import *
 from AndroidRequests.allviews.BusStopsByService import *
 from AndroidRequests.allviews.RegisterReport import *
+from AndroidRequests.allviews.ServiceRoute import *
 
 urlpatterns = [
     url(r'^nearbyBuses/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStop>\w+)$', views.nearbyBuses),
