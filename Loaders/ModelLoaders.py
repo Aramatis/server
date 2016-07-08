@@ -320,7 +320,7 @@ class RouteLoader(Loader):
     """ This class load service-routes data to the database."""
 
     _className = "Route"
-    ticks = 1000
+    ticks = 30000
 
     @property
     def className(self):
