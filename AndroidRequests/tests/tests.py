@@ -384,10 +384,14 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(response.status_code,200)
 
-        jSonResponse = json.loads(response.content)
+        jsonResponse = json.loads(response.content)
 
-        self.assertEqual('servicios' in jSonResponse, True)
-        self.assertEqual('eventos' in jSonResponse, True)
+        if (jsonResponse['error'] != ""):
+            self.assertEqual(jsonResponse['error'], \
+                    "Usted no cuenta con los permisos necesarios para realizar esta consulta.")
+        else:
+            self.assertEqual('servicios' in jsonResponse, True)
+            self.assertEqual('eventos' in jsonResponse, True)
 
     def test_preferPositionOfPersonInsideABus(self):
 
