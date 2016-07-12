@@ -8,7 +8,7 @@ from random import uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import *
+from AndroidRequests.models import BusStop, Event, EventForBusStop
 
 class EventsByBusStop(View):
     """This class handles requests for the current reported events
