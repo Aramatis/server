@@ -387,7 +387,7 @@ class NearByBusesLog(models.Model):
 
 class Route(Location):
     """ Route for each service """
-    serviceCode = models.CharField(db_index=True, max_length=10, null=False, blank=False)
+    serviceCode = models.CharField(db_index=True, max_length=11, null=False, blank=False)
     """ Bus identifier """
     sequence = models.IntegerField('Sequence')
     """ point position in a route """
