@@ -7,7 +7,7 @@ from random import uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Bus, Service
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBus import EventsByBus
 from AndroidRequests.predictorTranSantiago.WebService import WebService
