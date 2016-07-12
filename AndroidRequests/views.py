@@ -1,20 +1,17 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.generic import View
-from django.utils import timezone, dateparse
+from django.utils import timezone
 
 #python utilities
-import requests, json
-import hashlib
-import os
-from random import random, uniform
+import requests
+from random import uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import *
-from AndroidRequests.allviews.EventsByBusStop import *
-from AndroidRequests.allviews.EventsByBus import *
-from AndroidRequests.predictorTranSantiago.WebService import *
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog
+from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
+from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.predictorTranSantiago.WebService import WebService
 
 def userPosition(request, pUserId, pLat, pLon):
     '''This function stores the pose of an active user'''

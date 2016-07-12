@@ -1,9 +1,9 @@
-import os, sys
+import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
 
-from AndroidRequests.models import *
+from AndroidRequests.models import ActiveToken, Event, EventForBusStop, EventForBus
 from django.utils import timezone
 
 # for cleanActiveTokenTable method

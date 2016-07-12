@@ -3,10 +3,9 @@ from django.views.generic import View
 from django.utils import timezone
 
 #python utilities
-import requests
 import hashlib
 import os
-from random import random, uniform
+from random import random
 
 # my stuff
 # import DB's models

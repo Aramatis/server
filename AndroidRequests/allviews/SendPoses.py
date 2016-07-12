@@ -3,8 +3,7 @@ from django.views.generic import View
 from django.utils import timezone, dateparse
 
 #python utilities
-import requests, json
-from random import uniform
+import json
 
 # my stuff
 # import DB's models

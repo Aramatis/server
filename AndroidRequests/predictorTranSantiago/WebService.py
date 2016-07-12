@@ -3,8 +3,6 @@ from suds.client import Client
 # python utilities
 import os
 import json
-import random
-import string
 
 class WebService:
     """ communicate with TranSantiago predictor service """
