@@ -3,8 +3,8 @@ from django.views.generic import View
 from django.utils import timezone
 
 # import DB's models
-from AndroidRequests.models import *
-from AndroidRequests.allviews.EventsByBusStop import *
+from AndroidRequests.models import ServicesByBusStop
+from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 
 class BusStopsByService(View):
 	"""This class handles requests for the list of bus stops for an specific service."""
@@ -25,7 +25,7 @@ class BusStopsByService(View):
 
 	def getBusStopsForService(self,pBusService):
 		"""this method look for all the bus stops where the service stops."""
-		busStops = []		
+		busStops = []
 
 		for sbs in ServicesByBusStop.objects.filter(service=pBusService):
 			data = {}
