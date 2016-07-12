@@ -3,6 +3,7 @@ from django.utils import timezone
 
 #python utilities
 import requests
+import json
 from random import uniform
 
 # my stuff
@@ -38,7 +39,7 @@ def nearbyBuses(request, pUserId, pBusStop):
 
     # for dev purpose
     # OBS: there isn't garanty about this url. it is third-party url
-    """
+    
     url = "http://dev.adderou.cl/transanpbl/busdata.php"
     params = {'paradero': pBusStop}
     response = requests.get(url=url, params = params)
@@ -51,10 +52,10 @@ def nearbyBuses(request, pUserId, pBusStop):
 
     data = json.loads(response.text)
     data['error'] = None
-    """
+    
     # DTPM source
-    ws = WebService(request)
-    data = ws.askForServices(pBusStop)
+    #ws = WebService(request)
+    #data = ws.askForServices(pBusStop)
 
     busStopCode=data['id']
 
