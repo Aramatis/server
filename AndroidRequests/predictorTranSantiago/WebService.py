@@ -99,11 +99,11 @@ class WebService:
             bus2 = {}
             # if response is ok
             if service['codigorespuesta'] == "00":
-                bus1['valido'] = True
-                bus2['valido'] = True
+                bus1['valido'] = 1
+                bus2['valido'] = 1
             else:
-                bus1['valido'] = False
-                bus2['valido'] = False
+                bus1['valido'] = 0
+                bus2['valido'] = 0
                 bus1['mensajeError'] = service['respuestaServicio']
                 bus2['mensajeError'] = service['respuestaServicio']
 
