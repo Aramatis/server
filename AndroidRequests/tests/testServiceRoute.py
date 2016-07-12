@@ -50,8 +50,13 @@ class ServiceRouteTestCase(TestCase):
         self.assertEqual(jsonResponse['statusCode'], "200")
 
         index = 1
+
         for route in jsonResponse['route']:
-            self.assertEqual(route['variant'], self.serviceCodeI)
+            if index < 6:
+                self.assertEqual(route['variant'], self.serviceCodeI)
+            else:
+                self.assertEqual(route['variant'], self.serviceCodeR)
+
             for point in route['route']:
                 self.assertEqual(point['sequence'], index)
                 self.assertEqual(point['latitude'], index)
