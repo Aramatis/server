@@ -4,10 +4,11 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db import IntegrityError
+from django.utils import timezone
 
 import os
 # import DB's models
-from AndroidRequests.models import *
+from AndroidRequests.models import Report
 
 class IncorrectExtensionImageError(Exception):
     """ Image extension is not valid """
@@ -51,7 +52,7 @@ class RegisterReport(View):
                 report = Report(timeStamp=pTimeStamp, userId=pUserId, \
                                 message=text, path="default", reportInfo=aditionalInfo)
                 report.save()
-                
+
                 if stringImage != '':
                     if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
                         raise IncorrectExtensionImageError
