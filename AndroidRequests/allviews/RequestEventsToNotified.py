@@ -2,10 +2,6 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
 
-#python utilities
-import requests
-from random import uniform
-
 # my stuff
 # import DB's models
 from AndroidRequests.models import Event
