@@ -1,17 +1,17 @@
-from django.conf.urls import include, url
+from django.conf.urls import url
 from . import views
 
-from AndroidRequests.allviews.RequestToken import *
-from AndroidRequests.allviews.EndRoute import *
-from AndroidRequests.allviews.SendPoses import *
-from AndroidRequests.allviews.RegisterEventBus import *
-from AndroidRequests.allviews.RegisterEventBusStop import *
-from AndroidRequests.allviews.EventsByBus import *
-from AndroidRequests.allviews.RequestEventsToNotified import *
-from AndroidRequests.allviews.EventsByBusStop import *
-from AndroidRequests.allviews.BusStopsByService import *
-from AndroidRequests.allviews.RegisterReport import *
-from AndroidRequests.allviews.ServiceRoute import *
+from AndroidRequests.allviews.RequestToken import RequestToken
+from AndroidRequests.allviews.EndRoute import EndRoute
+from AndroidRequests.allviews.SendPoses import SendPoses
+from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
+from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
+from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.allviews.RequestEventsToNotified import RequestEventsToNotified
+from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
+from AndroidRequests.allviews.BusStopsByService import BusStopsByService
+from AndroidRequests.allviews.RegisterReport import RegisterReport
+from AndroidRequests.allviews.ServiceRoute import ServiceRoute
 
 urlpatterns = [
     url(r'^nearbyBuses/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStop>\w+)$', views.nearbyBuses),
