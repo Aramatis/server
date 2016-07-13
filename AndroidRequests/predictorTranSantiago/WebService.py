@@ -110,12 +110,12 @@ class WebService:
             bus1['servicio'] = service['servicio']
             bus1['patente'] = service['ppubus1']
             bus1['tiempo'] = service['horaprediccionbus1']
-            bus1['distancia'] = service['distanciabus1']
+            bus1['distancia'] = "{} {}".format(service['distanciabus1'], ' mts.')
 
             bus2['servicio'] = service['servicio']
             bus2['patente'] = service['ppubus2']
             bus2['tiempo'] = service['horaprediccionbus2']
-            bus2['distancia'] = service['distanciabus2']
+            bus2['distancia'] = "{} {}".format(service['distanciabus2'], ' mts.')
 
             response['servicios'].append(bus1)
             response['servicios'].append(bus2)
