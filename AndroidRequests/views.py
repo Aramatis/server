@@ -39,7 +39,7 @@ def nearbyBuses(request, pUserId, pBusStop):
 
     # for dev purpose
     # OBS: there isn't garanty about this url. it is third-party url
-    
+
     url = "http://dev.adderou.cl/transanpbl/busdata.php"
     params = {'paradero': pBusStop}
     response = requests.get(url=url, params = params)
@@ -48,11 +48,12 @@ def nearbyBuses(request, pUserId, pBusStop):
         response = {}
         response["servicios"] = servicios
         response["eventos"] = busStopEvent
+        response["error"] = "there is not response."
         return JsonResponse(response, safe=False)
 
     data = json.loads(response.text)
     data['error'] = None
-    
+
     # DTPM source
     #ws = WebService(request)
     #data = ws.askForServices(pBusStop)
@@ -66,7 +67,7 @@ def nearbyBuses(request, pUserId, pBusStop):
         dato['servicio']  = dato['servicio'].strip()
         dato['patente']   = dato['patente'].replace("-", "")
         dato['patente']   = dato['patente'].strip()
-        dato['servicio']  = dato['servicio'][0:].lower()
+        dato['servicio']  = formatServiceName(dato['servicio'])
         distance = dato['distancia'].replace(' mts.', '')
 
         # request the correct bus
@@ -92,6 +93,14 @@ def nearbyBuses(request, pUserId, pBusStop):
     response = {}
     if data['error'] != None:
         response['error'] = data['error']
+    else:
+        response['error'] = ""
     response["servicios"] = servicios
     response["eventos"] = busStopEvent
     return JsonResponse(response, safe=False)
+
+def formatServiceName(serviceName):
+    """ apply common format used by transantiago to show service name to user  """
+    if not serviceName[-1:] == 'N':
+        serviceName = "{}{}".format(serviceName[0],serviceName[1:].lower())
+    return serviceName
