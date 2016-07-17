@@ -14,8 +14,11 @@ class SendPoses(View):
     def __init__(self):
         self.context={}
 
-    def get(self, request, pToken, pTrajectory):
+    def get(self, request):
         response = {}
+
+        pToken = request.POST.get('pToken', '')
+        pTrajectory = request.POST.get('pTrajectory', '')
 
         if ActiveToken.objects.filter(token=pToken).exists():
             trajectory = json.loads(pTrajectory)
@@ -31,7 +34,6 @@ class SendPoses(View):
             for pose in trajectory:
                 # set awareness to time stamp, to the server UTC
                 aTimeStamp = dateparse.parse_datetime(pose['timeStamp'])
-
                 aTimeStamp = timezone.make_aware(aTimeStamp)
 
                 PoseInTrajectoryOfToken.objects.create(longitud=pose['longitud'],latitud=pose['latitud'],\
