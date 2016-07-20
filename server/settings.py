@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'modelsdoc',
     'DataDictionary',
     'silk',
+    'PredictorDTPM',
 )
 
 MIDDLEWARE_CLASSES = (
