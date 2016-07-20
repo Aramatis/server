@@ -170,7 +170,11 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
 
         reponseView = SendPoses()
-        response = reponseView.get(request,testToken,json.dumps(testPoses))
+        request.POST = {}
+        request.POST['pToken'] = testToken
+        request.POST['pTrajectory'] = json.dumps(testPoses)
+        request.method = 'POST'
+        response = reponseView.get(request)
 
         contentResponse = json.loads(response.content)
         self.assertEqual(contentResponse['response'],'Poses were register.')
@@ -186,7 +190,11 @@ class DevicePositionInTimeTest(TestCase):
         request.user = AnonymousUser()
 
         reponseView = SendPoses()
-        response = reponseView.get(request,testToken,json.dumps(testPoses))
+        request.POST = {}
+        request.POST['pToken'] = testToken
+        request.POST['pTrajectory'] = json.dumps(testPoses)
+        request.method = 'POST'
+        response = reponseView.get(request)
 
         contentResponse = json.loads(response.content)
         self.assertEqual(contentResponse['response'],'Token doesn\'t exist.')
@@ -410,21 +418,20 @@ class DevicePositionInTimeTest(TestCase):
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
-        useLatitud = -33.458771
+        userLatitud = -33.458771
         userLongitud = -70.676266
 
         testPoses = {"poses":[
-            {"latitud": useLatitud ,"longitud" : userLongitud , "timeStamp":str(timeStampNow)    ,"inVehicleOrNot":"vehicle"}]}
+            {"latitud": userLatitud, "longitud" : userLongitud, "timeStamp":str(timeStampNow), "inVehicleOrNot":"vehicle"}]}
 
         # first we test the position of the bus without passsangers
         bus = Bus.objects.get(registrationPlate='AA1111', service='507')
 
         busPose = bus.getLocation('PA459',1)
 
-        self.assertEqual( busPose['latitud'], 5)
-        self.assertEqual( busPose['longitud'], 7)
-        self.assertEqual( busPose['passengers'] > 0, False)
-
+        self.assertEqual(busPose['latitud'], 5)
+        self.assertEqual(busPose['longitud'], 7)
+        self.assertEqual(busPose['passengers'] > 0, False)
 
         # add the position of a passanger inside the bus
         request = self.factory.get('/android/requestToken')
@@ -438,20 +445,22 @@ class DevicePositionInTimeTest(TestCase):
 
         request = self.factory.get('/android/sendTrajectoy')
         request.user = AnonymousUser()
-
-        reponseView = SendPoses()#pToken, pTrajectory
-        response = reponseView.get(request,testToken,json.dumps(testPoses))
+        request.POST = {}
+        request.POST['pToken'] = testToken
+        request.POST['pTrajectory'] = json.dumps(testPoses)
+        request.method = 'POST'
+        reponseView = SendPoses()
+        response = reponseView.get(request)
 
         # ask the position of the bus whit a passanger
         bus = Bus.objects.get(registrationPlate='AA1111', service='507')
 
         busPose = bus.getLocation('PA459',1)
 
-        self.assertEqual( busPose['latitud'], useLatitud)
-        self.assertEqual( busPose['longitud'], userLongitud)
-        self.assertEqual( busPose['random'], False)
-        self.assertEqual( busPose['passengers'] > 0, True)
-
+        self.assertEqual(busPose['latitud'], userLatitud)
+        self.assertEqual(busPose['longitud'], userLongitud)
+        self.assertEqual(busPose['random'], False)
+        self.assertEqual(busPose['passengers'] > 0, True)
 
         reponseView = EndRoute()
         response = reponseView.get(request,testToken)

@@ -74,50 +74,47 @@ class GetMapPositionsTest(TestCase):
         request = self.factory.get('/android/requestToken')
         request.user = AnonymousUser()
 
-        for cont in range(5):
+        for cont in range(6):
             reponseView = RequestToken()
             response = reponseView.get(request, self.userId, '503', 'ZZZZ00')
 
-            testToken = json.loads(response.content)
-            testToken = testToken['token']
+            jsonContent = json.loads(response.content)
+            testToken = jsonContent['token']
             testTokens.append(testToken)
 
-        reponseView = RequestToken()
-        response = reponseView.get(request, self.userId, '503', 'ZZZZ00')
-
-        testToken = json.loads(response.content)
-        testToken = testToken['token']
-
-        testTokens.append(testToken)
-        timeOutToken = testToken
+        # save last token
+        timeOutToken = testTokens[-1]
 
         for cont in range(6):
             request = self.factory.get('/android/sendTrajectoy')
             request.user = AnonymousUser()
 
-            reponseView = SendPoses()#pToken, pTrajectory
-            response = reponseView.get(request,testTokens[cont],json.dumps(testPoses))
-
+            reponseView = SendPoses()
+            request.POST = {}
+            request.POST['pToken'] = testTokens[cont]
+            request.POST['pTrajectory'] = json.dumps(testPoses)
+            request.method = 'POST'
+            response = reponseView.get(request)
 
             request = self.factory.get('/android/endRoute/')
             request.user = AnonymousUser()
-
             reponseView = EndRoute()
             response = reponseView.get(request,testTokens[cont])
 
         nonTrajectory = PoseInTrajectoryOfToken.objects.filter(token=timeOutToken)
         for data in nonTrajectory:
-            data.timeStamp = data.timeStamp -timezone.timedelta(minutes=11)
+            data.timeStamp = data.timeStamp - timezone.timedelta(minutes=11)
             data.save()
 
         request = self.factory.get('/map/activetrajectory')
         request.user = AnonymousUser()
 
-        reponseView = GetMapTrajectory()#pToken, pTrajectory
+        reponseView = GetMapTrajectory()
         response = reponseView.get(request)
 
         responseMessage = json.loads(response.content)
 
+        # all tokens given by GetMapTrajectory are different of timeOutToken
         for aMsg in responseMessage:
             self.assertEqual(aMsg['token'] != timeOutToken , True)
 
