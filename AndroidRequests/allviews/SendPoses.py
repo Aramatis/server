@@ -20,7 +20,7 @@ class SendPoses(View):
     def dispatch(self, request, *args, **kwargs):
         return super(SendPoses, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request):
+    def post(self, request):
         response = {}
 
         if request.method == 'POST':

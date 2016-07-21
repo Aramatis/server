@@ -174,7 +174,7 @@ class DevicePositionInTimeTest(TestCase):
         request.POST['pToken'] = testToken
         request.POST['pTrajectory'] = json.dumps(testPoses)
         request.method = 'POST'
-        response = reponseView.get(request)
+        response = reponseView.post(request)
 
         contentResponse = json.loads(response.content)
         self.assertEqual(contentResponse['response'],'Poses were register.')
@@ -194,7 +194,7 @@ class DevicePositionInTimeTest(TestCase):
         request.POST['pToken'] = testToken
         request.POST['pTrajectory'] = json.dumps(testPoses)
         request.method = 'POST'
-        response = reponseView.get(request)
+        response = reponseView.post(request)
 
         contentResponse = json.loads(response.content)
         self.assertEqual(contentResponse['response'],'Token doesn\'t exist.')
@@ -450,7 +450,7 @@ class DevicePositionInTimeTest(TestCase):
         request.POST['pTrajectory'] = json.dumps(testPoses)
         request.method = 'POST'
         reponseView = SendPoses()
-        response = reponseView.get(request)
+        response = reponseView.post(request)
 
         # ask the position of the bus whit a passanger
         bus = Bus.objects.get(registrationPlate='AA1111', service='507')

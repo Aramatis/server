@@ -94,7 +94,7 @@ class GetMapPositionsTest(TestCase):
             request.POST['pToken'] = testTokens[cont]
             request.POST['pTrajectory'] = json.dumps(testPoses)
             request.method = 'POST'
-            response = reponseView.get(request)
+            response = reponseView.post(request)
 
             request = self.factory.get('/android/endRoute/')
             request.user = AnonymousUser()
