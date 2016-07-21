@@ -21,25 +21,19 @@ class Loader:
         self.csv = csv;
         self.log = log;
 
-    @abc.abstractmethod
-    def notSavedMessage(self, data):
-        """Return a message indicating that the data couldn't be saved in the database."""
-        return " couldn't be saved\n"
-
-    @abc.abstractmethod
-    def inDBMessage(self, data):
-        """Return a message indicating that the data is already in the database."""
-        return " is already in the DB\n"
-
     def rowAddedMessage(self, className, rowsNum):
         """Return an String indicating the amount of rows added to the database."""
         return str(rowsNum) + " " + className + " rows added"
 
     @abc.abstractmethod
+    def deleteAllRecords(self):
+        """ Delete all register in database """
+        return
+
+    @abc.abstractmethod
     def load(self):
         """Read the file given and load the data in the database."""
         return
-
 
 class BusStopLoader(Loader):
     """ This class load the bus stop data to the database."""
@@ -50,37 +44,25 @@ class BusStopLoader(Loader):
     def className(self):
         return self._className
 
-    def notSavedMessage(self, data):
-        end = super(BusStopLoader, self).notSavedMessage("")
-        return "the " + self.className + " " + data[0] +  end
-
-    def inDBMessage(self, data):
-        end = super(BusStopLoader, self).inDBMessage("")
-        return "the " + self.className + " " + data[0] +  end
+    def deleteAllRecords(self):
+        BusStop.objects.all().delete()
 
     def load(self):
+        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             data = line.split(";")
+
             if(data.count('\n')>0):
                 continue
-            try:
-                busStop = BusStop.objects.get_or_create(code=data[0], \
-                    defaults={'name': 'default', 'latitud': -100, 'longitud': -100})[0]
-            except Exception, e:
-                self.log.write(self.inDBMessage(data))
-                self.log.write(str(e) + "\n")
-                continue
-            else:
-                busStop.name = data[1]
-                busStop.latitud = data[2]
-                busStop.longitud = data[3]
 
             try:
-                busStop.save()
+                BusStop.objects.create(code=data[0], name = data[1], \
+                        latitud = data[2], longitud = data[3])
             except Exception, e:
-                self.log.write(self.notSavedMessage(data))
                 self.log.write(str(e) + "\n")
+                continue
+
             i+=1
             if(i%self.ticks==0):
                 print super(BusStopLoader, self).rowAddedMessage(self.className, i)
@@ -95,36 +77,25 @@ class ServiceStopDistanceLoader(Loader):
     def className(self):
         return self._className
 
-    def notSavedMessage(self, data):
-        end = super(ServiceStopDistanceLoader, self).notSavedMessage("")
-        return "The distance traveled by the service " + data[1] + " to the busStop "+ data[0] + end
-
-    def inDBMessage(self, data):
-        end = super(ServiceStopDistanceLoader, self).inDBMessage("")
-        return "The distance traveled by the service " + data[1] + " to the busStop "+ data[0] + end
+    def deleteAllRecords(self):
+        ServiceStopDistance.objects.all().delete()
 
     def load(self):
+        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             data = line.split(";")
             if(data.count('\n')>0):
                 continue
-            try:
-                busStop = BusStop.objects.get(code=data[0])
-                route = ServiceStopDistance.objects.get_or_create(busStop = busStop, \
-                    service = data[1], defaults={'distance': 0})[0]
-            except Exception, e:
-                self.log.write(self.inDBMessage(data))
-                self.log.write(str(e) + "\n")
-                continue
-            else:
-                route.distance = int(data[2])
 
             try:
-                route.save()
+                busStop = BusStop.objects.get(code=data[0])
+                route   = ServiceStopDistance.objects.create(busStop = busStop, \
+                    service = data[1], distance = int(data[2]))
             except Exception, e:
-                self.log.write(self.notSavedMessage(data))
                 self.log.write(str(e) + "\n")
+                continue
+
             i+=1
             if(i%self.ticks==0):
                 print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
@@ -139,43 +110,27 @@ class ServiceLoader(Loader):
     def className(self):
         return self._className
 
-    def notSavedMessage(self, data):
-        end = super(ServiceLoader, self).notSavedMessage("")
-        return "The service " + data + end
-
-    def inDBMessage(self, data):
-        end = super(ServiceLoader, self).inDBMessage("")
-        return "The service " + data + end
+    def deleteAllRecords(self):
+        Service.objects.all().delete()
 
     def load(self):
+        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             data = line.split(";")
             if(data.count('\n')>0):
                 continue
-            try:
-                service = Service.objects.get_or_create(service = data[0], \
-                    defaults={'origin': 'origin', 'destiny': 'destiny'})[0]
-            except Exception, e:
-                self.log.write(self.inDBMessage(data[0]))
-                self.log.write(str(e) + "\n")
-                continue
-            else:
-                service.origin = data[1]
-                service.destiny = data[2]
-                service.color = data[3]
-                service.color_id = data[4]
 
             try:
-                service.save()
+                Service.objects.create(service = data[0], origin = data[1], \
+                        destiny = data[2], color = data[3], color_id = data[4])
             except Exception, e:
-                self.log.write(self.notSavedMessage(data[0]))
                 self.log.write(str(e) + "\n")
+                continue
+
             i+=1
             if(i%self.ticks==0):
                 print super(ServiceLoader, self).rowAddedMessage(self.className, i)
-
-
 
 class ServicesByBusStopLoader(Loader):
     """ This class load the data for the ServicesByBusStop table."""
@@ -186,34 +141,29 @@ class ServicesByBusStopLoader(Loader):
     def className(self):
         return self._className
 
-    def notSavedMessage(self, data):
-        end = super(ServicesByBusStopLoader, self).notSavedMessage("")
-        return "The service " + data[1] + " for the busStop "+ data[0] + end
-
-    def inDBMessage(self, data):
-        end = super(ServicesByBusStopLoader, self).inDBMessage("")
-        return "The service " + data[1] + " for the busStop "+ data[0] + end
+    def deleteAllRecords(self):
+        ServicesByBusStop.objects.all().delete()
 
     def load(self):
+        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             data = line.split(";")
             if(data.count('\n')>0):
                 continue
+
             services = data[1].split("-")
             for service in services:
                 service = service.replace("\n", "")
+                serviceWithoutDirection = service[:-1]
                 try:
-                    serviceObj = Service.objects.get(service = service[:-1])
+                    serviceObj = Service.objects.get(service = serviceWithoutDirection)
                     busStop = BusStop.objects.get(code=data[0])
-                    serviceByBusStop = ServicesByBusStop.objects.get_or_create(busStop = busStop, \
-                        service=serviceObj, defaults={'code': '000'})[0]
+                    serviceByBusStop = ServicesByBusStop.objects.create(busStop = busStop, \
+                        service=serviceObj, code = service)
                 except Exception, e:
-                    self.log.write(self.inDBMessage([data[0], service]))
                     self.log.write(str(e) + "\n")
                     continue
-                else:
-                    serviceByBusStop.code = service
 
                 try:
                     serviceByBusStop.save()
@@ -234,91 +184,61 @@ class ServiceLocationLoader(Loader):
     def className(self):
         return self._className
 
-    def notSavedMessage(self, data):
-        end = super(ServiceLocationLoader, self).notSavedMessage("")
-        return "The location of the service " + data[0] + end
-
-    def inDBMessage(self, data):
-        end = super(ServiceLocationLoader, self).inDBMessage("")
-        return "The location of the service " + data[0] + end
+    def deleteAllRecords(self):
+        ServiceLocation.objects.all().delete()
 
     def load(self):
+        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             data = line.split(";")
             if(data.count('\n')>0):
                 continue
-            try:
-                serviceloc = ServiceLocation.objects.get_or_create(service=data[0], \
-                    distance = data[1], defaults={'latitud': -100, 'longitud': -100})[0]
-            except Exception, e:
-                self.log.write(self.inDBMessage(data))
-                self.log.write(str(e) + "\n")
-                continue
-            else:
-                serviceloc.latitud=data[2]
-                serviceloc.longitud=data[3]
 
             try:
-                serviceloc.save()
+                ServiceLocation.objects.create(service=data[0], \
+                    distance = data[1], latitud = data[2], longitud = data[3])
             except Exception, e:
-                self.log.write(self.notSavedMessage(data))
                 self.log.write(str(e) + "\n")
+                continue
+
             i+=1
             if(i%self.ticks==0):
                 print super(ServiceLocationLoader, self).rowAddedMessage(self.className, i)
 
 class EventLoader(Loader):
     """ This class load the events data to the database."""
-
     _className = "Event"
-    ticks = 1000
+    ticks = 1
 
     @property
     def className(self):
         return self._className
 
-    def notSavedMessage(self, data):
-        end = super(EventLoader, self).notSavedMessage("")
-        return "Event code " + data[0] + end
-
-    def inDBMessage(self, data):
-        end = super(EventLoader, self).inDBMessage("")
-        return "Event code " + data[0] + ", update values\n"
+    def deleteAllRecords(self):
+        Event.objects.all().delete()
 
     def load(self):
+        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             data = line.split(";")
             if(data.count('\n')>0):
                 continue
-            event = Event.objects.filter(id=data[0])
 
-            if event.exists():
-                event = Event.objects.get(id=data[0])
-                event.eventType = data[1]
-                event.category = data[2]
-                event.origin = data[3]
-                event.name = data[4]
-                event.description = data[5]
-                event.lifespam = int(data[6])
-
-                self.log.write(self.inDBMessage(data))
-                try:
-                    event.save()
-                except Exception, e:
-                    self.log.write(self.notSavedMessage(data))
-                    self.log.write(str(e) + "\n")
-            else:
+            try:
                 Event.objects.create(id=data[0],eventType=data[1],category=data[2],\
                     origin=data[3],name=data[4],description=data[5],lifespam=data[6])
+            except Exception, e:
+                self.log.write(str(e) + "\n")
+                continue
+
             i+=1
             if(i%self.ticks==0):
                 print super(EventLoader, self).rowAddedMessage(self.className, i)
 
 class RouteLoader(Loader):
     """ This class load service-routes data to the database."""
-
     _className = "Route"
     ticks = 30000
 
@@ -326,36 +246,24 @@ class RouteLoader(Loader):
     def className(self):
         return self._className
 
-    def notSavedMessage(self, data):
-        end = super(RouteLoader, self).notSavedMessage("")
-        return "Service code " + data[0] + end
-
-    def inDBMessage(self, data):
-        end = super(RouteLoader, self).inDBMessage("")
-        return "Service code " + data[0] + ", update values\n"
+    def deleteAllRecords(self):
+        Event.objects.all().delete()
 
     def load(self):
+        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             data = line.split(";")
             if(data.count('\n')>0):
                 continue
-            routePoint = Route.objects.filter(serviceCode=data[0], sequence=data[3])
 
-            if routePoint.exists():
-                routePoint = Route.objects.get(serviceCode=data[0], sequence=data[3])
-                routePoint.latitud = data[1]
-                routePoint.longitud = data[2]
-
-                self.log.write(self.inDBMessage(data))
-                try:
-                    routePoint.save()
-                except Exception, e:
-                    self.log.write(self.notSavedMessage(data))
-                    self.log.write(str(e) + "\n")
-            else:
+            try:
                 Route.objects.create(serviceCode=data[0], latitud=data[1],\
                                         longitud=data[2], sequence=data[3])
+            except Exception, e:
+                self.log.write(str(e) + "\n")
+                continue
+
             i+=1
             if(i%self.ticks==0):
                 print super(RouteLoader, self).rowAddedMessage(self.className, i)
