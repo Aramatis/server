@@ -80,12 +80,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'server.wsgi.application'
 
 # Logging
+def ignore_silk(record):
+    """ return False if exist the word silk in the message """
+    print record.getMessage()
+    if "silk" in record.getMessage():
+        return False
+    return True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
             'level': 'DEBUG',
+            'filters': [ 'ignore_silk' ],
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + "/logs/file.log"
         },
@@ -97,6 +105,12 @@ LOGGING = {
             'propagate': True,
         },
     },
+    'filters': {
+        'ignore_silk': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': ignore_silk,           
+        }
+    }
 }
 
 
