@@ -87,13 +87,20 @@ def ignore_silk(record):
         return False
     return True
 
+def ignore_devicepositionintime(record):
+    """ return False if exist the word devicepositionintime in the message """
+    print record.getMessage()
+    if "devicepositionintime" in record.getMessage():
+        return False
+    return True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
             'level': 'DEBUG',
-            'filters': [ 'ignore_silk' ],
+            'filters': [ 'ignore_silk', 'ignore_devicepositionintime' ],
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + "/logs/file.log"
         },
@@ -109,7 +116,11 @@ LOGGING = {
         'ignore_silk': {
             '()': 'django.utils.log.CallbackFilter',
             'callback': ignore_silk,           
-        }
+        },
+	'ignore_devicepositionintime': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': ignore_devicepositionintime,
+        },
     }
 }
 
