@@ -15,7 +15,7 @@ django.setup()
 ## EX: python loadData.py busstop InitialData/busstops.csv service InitialData/services.csv servicesbybusstop InitialData/servicesbybusstop.csv servicestopdistance InitialData/servicestopdistance.csv ServiceLocation InitialData/servicelocation.csv event InitialData/events.csv
 
 
-log = open('loadDataError.log', 'w')
+log = open('loadDataError.log', 'w+')
 for i in range(1, len(sys.argv), 2):
 	csv = open(sys.argv[i+1], 'r') #path to Bus Stop csv file
 	csv.next()
