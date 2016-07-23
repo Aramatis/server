@@ -82,14 +82,12 @@ WSGI_APPLICATION = 'server.wsgi.application'
 # Logging
 def ignore_silk(record):
     """ return False if exist the word silk in the message """
-    print record.getMessage()
     if "silk" in record.getMessage():
         return False
     return True
 
 def ignore_devicepositionintime(record):
     """ return False if exist the word devicepositionintime in the message """
-    print record.getMessage()
     if "devicepositionintime" in record.getMessage():
         return False
     return True
@@ -97,19 +95,12 @@ def ignore_devicepositionintime(record):
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'filters': [ 'ignore_silk', 'ignore_devicepositionintime' ],
-            'class': 'logging.FileHandler',
-            'filename': os.path.dirname(__file__) + "/logs/file.log"
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+        'simple': {
+            'format': '%(levelname)s %(message)s'
         },
     },
     'filters': {
@@ -121,7 +112,23 @@ LOGGING = {
             '()': 'django.utils.log.CallbackFilter',
             'callback': ignore_devicepositionintime,
         },
-    }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'filters': [ 'ignore_silk', 'ignore_devicepositionintime' ],
+            'class': 'logging.FileHandler',
+            'filename': os.path.dirname(__file__) + "/logs/file.log",
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },	
 }
 
 
