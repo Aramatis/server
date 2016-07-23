@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
-
 import abc
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
 from AndroidRequests.models import *
+
+def deleteEndOfLine(line):
+    """ delete unnecessary characteras
+     \r = CR (Carriage Return) // Used as a new line character in Mac OS before X
+     \n = LF (Line Feed) // Used as a new line character in Unix/Mac OS X
+     \r\n = CR + LF // Used as a new line character in Window
+    """
+    newLine = line.replace("\r", "")
+    newLine = newLine.replace("\n", "")
+    return newLine
 
 class Loader:
     """ Abstract class for data loaders """
@@ -27,7 +36,7 @@ class Loader:
 
     @abc.abstractmethod
     def deleteAllRecords(self):
-        """ Delete all register in database """
+        """ Delete all register in database table """
         return
 
     @abc.abstractmethod
@@ -51,10 +60,11 @@ class BusStopLoader(Loader):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:
-            data = line.split(";")
-
-            if(data.count('\n')>0):
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
                 continue
+
+            data = line.split(";")
 
             try:
                 BusStop.objects.create(code=data[0], name = data[1], \
@@ -84,9 +94,11 @@ class ServiceStopDistanceLoader(Loader):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:
-            data = line.split(";")
-            if(data.count('\n')>0):
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
                 continue
+
+            data = line.split(";")
 
             try:
                 busStop = BusStop.objects.get(code=data[0])
@@ -117,9 +129,11 @@ class ServiceLoader(Loader):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:
-            data = line.split(";")
-            if(data.count('\n')>0):
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
                 continue
+
+            data = line.split(";")
 
             try:
                 Service.objects.create(service = data[0], origin = data[1], \
@@ -148,28 +162,23 @@ class ServicesByBusStopLoader(Loader):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:
-            data = line.split(";")
-            if(data.count('\n')>0):
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
                 continue
+
+            data = line.split(";")
 
             services = data[1].split("-")
             for service in services:
-                service = service.replace("\n", "")
                 serviceWithoutDirection = service[:-1]
                 try:
                     serviceObj = Service.objects.get(service = serviceWithoutDirection)
                     busStop = BusStop.objects.get(code=data[0])
-                    serviceByBusStop = ServicesByBusStop.objects.create(busStop = busStop, \
-                        service=serviceObj, code = service)
+                    ServicesByBusStop.objects.create(busStop = busStop, service=serviceObj, code = service)
                 except Exception, e:
-                    self.log.write(str(e) + "\n")
+                    self.log.write(str(e) + " {} {}".format(service, data[0]) + "\n")
                     continue
 
-                try:
-                    serviceByBusStop.save()
-                except Exception, e:
-                    self.log.write(self.notSavedMessage([data[0], service]))
-                    self.log.write(str(e) + "\n")
                 i+=1
                 if(i%self.ticks==0):
                     print super(ServicesByBusStopLoader, self).rowAddedMessage(self.className, i)
@@ -191,9 +200,11 @@ class ServiceLocationLoader(Loader):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:
-            data = line.split(";")
-            if(data.count('\n')>0):
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
                 continue
+
+            data = line.split(";")
 
             try:
                 ServiceLocation.objects.create(service=data[0], \
@@ -222,9 +233,11 @@ class EventLoader(Loader):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:
-            data = line.split(";")
-            if(data.count('\n')>0):
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
                 continue
+
+            data = line.split(";")
 
             try:
                 Event.objects.create(id=data[0],eventType=data[1],category=data[2],\
@@ -253,9 +266,11 @@ class RouteLoader(Loader):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:
-            data = line.split(";")
-            if(data.count('\n')>0):
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
                 continue
+
+            data = line.split(";")
 
             try:
                 Route.objects.create(serviceCode=data[0], latitud=data[1],\
