@@ -25,14 +25,20 @@ class Loader:
         return
 
     def __init__(self, csv, log):
-        """The constructor, receives a csv file with the data,
-        and a log file to write the errors occurred in the process."""
+        """ The constructor, receives a csv file with the data,
+        and a log file to write the errors occurred in the process. """
         self.csv = csv;
         self.log = log;
 
     def rowAddedMessage(self, className, rowsNum):
-        """Return an String indicating the amount of rows added to the database."""
+        """ Return a String indicating the amount of rows added to the database. """
         return str(rowsNum) + " " + className + " rows added"
+
+    def getErrorMessage(self, className, exception, dataName, dataValue):
+        """ Return a String with a message error and the data produced the error """
+        messageError = "{} -> data({}): {} | Exception: {}\n".\
+                    format(self._className, dataName, dataValue, str(exception))
+	return messageError
 
     @abc.abstractmethod
     def deleteAllRecords(self):
@@ -66,11 +72,19 @@ class BusStopLoader(Loader):
 
             data = line.split(";")
 
+            pCode = data[0]
+            pName = data[1]
+            pLat = data[2]
+            pLon = data[3]
+
             try:
-                BusStop.objects.create(code=data[0], name = data[1], \
-                        latitud = data[2], longitud = data[3])
+                BusStop.objects.create(code = pCode, name = pName, \
+                        latitud = pLat, longitud = pLon)
             except Exception, e:
-                self.log.write(str(e) + "\n")
+                dataName = "code,name,lat,lon"
+                dataValue = "{};{};{};{}".format(pCode, pName, pLat, pLon)
+                errorMessage = super(BusStopLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                self.log.write(errorMessage)
                 continue
 
             i+=1
@@ -100,12 +114,18 @@ class ServiceStopDistanceLoader(Loader):
 
             data = line.split(";")
 
+            pBusStopCode = data[0]
+            pServiceName = data[1]
+            pDistance = data[2]
             try:
-                busStop = BusStop.objects.get(code=data[0])
+                busStop = BusStop.objects.get(code = pBusStopCode)
                 route   = ServiceStopDistance.objects.create(busStop = busStop, \
-                    service = data[1], distance = int(data[2]))
+                    service = pServiceName, distance = int(pDistance))
             except Exception, e:
-                self.log.write(str(e) + "\n")
+                dataName = "busStopCode,serviceName,distance"
+                dataValue = "{};{};{}".format(pBusStopCode, pServiceName, pDistance)
+                errorMessage = super(ServiceStopDistanceLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                self.log.write(errorMessage)
                 continue
 
             i+=1
@@ -135,11 +155,20 @@ class ServiceLoader(Loader):
 
             data = line.split(";")
 
+            pServiceName = data[0]
+            pOrigin = data[1]
+            pDestination = data[2]
+            pColor = data[3]
+            pColorId = data[4]
+
             try:
-                Service.objects.create(service = data[0], origin = data[1], \
-                        destiny = data[2], color = data[3], color_id = data[4])
+                Service.objects.create(service = pServiceName, origin = pOrigin, \
+                        destiny = pDestination, color = pColor, color_id = pColorId)
             except Exception, e:
-                self.log.write(str(e) + "\n")
+                dataName = "serviceName,origin,destination,color,colorId"
+                dataValue = "{};{};{};{};{}".format(pServiceName, pOrigin, pDestination, pColor, pColorId)
+                errorMessage = super(ServiceLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                self.log.write(errorMessage)
                 continue
 
             i+=1
@@ -168,15 +197,19 @@ class ServicesByBusStopLoader(Loader):
 
             data = line.split(";")
 
-            services = data[1].split("-")
-            for service in services:
-                serviceWithoutDirection = service[:-1]
+            pBusStopCode = data[0]
+            pServices = data[1].split("-")
+            for pService in pServices:
+                serviceWithoutDirection = pService[:-1]
                 try:
                     serviceObj = Service.objects.get(service = serviceWithoutDirection)
-                    busStop = BusStop.objects.get(code=data[0])
-                    ServicesByBusStop.objects.create(busStop = busStop, service=serviceObj, code = service)
+                    busStopObj = BusStop.objects.get(code = pBusStopCode)
+                    ServicesByBusStop.objects.create(busStop = busStopObj, service = serviceObj, code = pService)
                 except Exception, e:
-                    self.log.write(str(e) + " {} {}".format(service, data[0]) + "\n")
+                    dataName = "busStopCode,ServiceNameWithDirection"
+                    dataValue = "{};{}".format(pBusStopCode, pService)
+                    errorMessage = super(ServicesByBusStopLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                    self.log.write(errorMessage)
                     continue
 
                 i+=1
@@ -206,11 +239,18 @@ class ServiceLocationLoader(Loader):
 
             data = line.split(";")
 
+            pServiceName = data[0]
+            pDistance = data[1]
+            pLat = data[2]
+            pLon = data[3]
             try:
-                ServiceLocation.objects.create(service=data[0], \
-                    distance = data[1], latitud = data[2], longitud = data[3])
+                ServiceLocation.objects.create(service = pServiceName, \
+                    distance = pDistance, latitud = pLat, longitud = pLon)
             except Exception, e:
-                self.log.write(str(e) + "\n")
+                dataName = "serviceName,distance,latitude,longitude"
+                dataValue = "{};{};{};{}".format(pServiceName, pDistance, pLat, pLon)
+                errorMessage = super(ServiceLocationLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                self.log.write(errorMessage)
                 continue
 
             i+=1
@@ -239,11 +279,21 @@ class EventLoader(Loader):
 
             data = line.split(";")
 
+            pId = data[0]
+            pEventType = data[1]
+            pCategory = data[2]
+            pOrigin = data[3]
+            pName = data[4]
+            pDescription = data[5]
+            pLifespam = data[6]
             try:
-                Event.objects.create(id=data[0],eventType=data[1],category=data[2],\
-                    origin=data[3],name=data[4],description=data[5],lifespam=data[6])
+                Event.objects.create(id = pId, eventType = pEventType, category = pCategory,\
+                    origin = pOrigin, name = pName, description = pDescription, lifespam = pLifespam)
             except Exception, e:
-                self.log.write(str(e) + "\n")
+                dataName = "id,eventType,category,origin,name,description,lifespam"
+                dataValue = "{};{};{};{};{};{};{}".format(pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
+                errorMessage = super(EventLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                self.log.write(errorMessage)
                 continue
 
             i+=1
@@ -272,11 +322,18 @@ class RouteLoader(Loader):
 
             data = line.split(";")
 
+            pServiceCode = data[0]
+            pLat = data[1]
+            pLon = data[2]
+            pSequence = data[3]
             try:
-                Route.objects.create(serviceCode=data[0], latitud=data[1],\
-                                        longitud=data[2], sequence=data[3])
+                Route.objects.create(serviceCode = pServiceCode, latitud = pLat,\
+                                        longitud = pLon, sequence = pSequence)
             except Exception, e:
-                self.log.write(str(e) + "\n")
+                dataName = "serviceCode,latitude,longitude,sequence"
+                dataValue = "{};{};{};{}".format(pServiceCode, pLat, pLon, pSequence)
+                errorMessage = super(RouteLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                self.log.write(errorMessage)
                 continue
 
             i+=1
