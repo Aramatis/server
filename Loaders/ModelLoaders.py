@@ -37,7 +37,7 @@ class Loader:
     def getErrorMessage(self, className, exception, dataName, dataValue):
         """ Return a String with a message error and the data produced the error """
         messageError = "{} -> data({}): {} | Exception: {}\n".\
-                    format(self._className, dataName, dataValue, str(exception))
+                    format(className, dataName, dataValue, str(exception))
 	return messageError
 
     @abc.abstractmethod
@@ -83,7 +83,7 @@ class BusStopLoader(Loader):
             except Exception, e:
                 dataName = "code,name,lat,lon"
                 dataValue = "{};{};{};{}".format(pCode, pName, pLat, pLon)
-                errorMessage = super(BusStopLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                errorMessage = super(BusStopLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
@@ -124,7 +124,7 @@ class ServiceStopDistanceLoader(Loader):
             except Exception, e:
                 dataName = "busStopCode,serviceName,distance"
                 dataValue = "{};{};{}".format(pBusStopCode, pServiceName, pDistance)
-                errorMessage = super(ServiceStopDistanceLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                errorMessage = super(ServiceStopDistanceLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
@@ -167,7 +167,7 @@ class ServiceLoader(Loader):
             except Exception, e:
                 dataName = "serviceName,origin,destination,color,colorId"
                 dataValue = "{};{};{};{};{}".format(pServiceName, pOrigin, pDestination, pColor, pColorId)
-                errorMessage = super(ServiceLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                errorMessage = super(ServiceLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
@@ -208,7 +208,7 @@ class ServicesByBusStopLoader(Loader):
                 except Exception, e:
                     dataName = "busStopCode,ServiceNameWithDirection"
                     dataValue = "{};{}".format(pBusStopCode, pService)
-                    errorMessage = super(ServicesByBusStopLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                    errorMessage = super(ServicesByBusStopLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
                     self.log.write(errorMessage)
                     continue
 
@@ -249,7 +249,7 @@ class ServiceLocationLoader(Loader):
             except Exception, e:
                 dataName = "serviceName,distance,latitude,longitude"
                 dataValue = "{};{};{};{}".format(pServiceName, pDistance, pLat, pLon)
-                errorMessage = super(ServiceLocationLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                errorMessage = super(ServiceLocationLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
@@ -292,7 +292,7 @@ class EventLoader(Loader):
             except Exception, e:
                 dataName = "id,eventType,category,origin,name,description,lifespam"
                 dataValue = "{};{};{};{};{};{};{}".format(pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
-                errorMessage = super(EventLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                errorMessage = super(EventLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
