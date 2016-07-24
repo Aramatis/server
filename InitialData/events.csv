@@ -26,7 +26,7 @@ evn00223;bus;estado físico;i;Timbre en mal estado;Timbre(s) en mal estado;3000
 evn00224;bus;estado físico;i;Sucio;El bus está sucio;3000
 evn00225;bus;estado físico;i;Bus en buen estado;El bus está en buenas condiciones;3000
 evn00230;bus;conductor;i;Conducción brusca;Chofer raliza maniobras bruscas;30
-evn00231;bus;conductor;i;No para en paradero;El bus no paró en el paradero;
+evn00231;bus;conductor;i;No para en paradero;El bus no paró en el paradero;180
 evn00232;bus;conductor;i;Habla por celular;Conductor habla por celular ;5
 evn00233;bus;conductor;i;Buen comportamiento;Conductor maneja bien;5
 evn00240;bus;incidente en la via;i;Taco;El bus está en un taco;5
