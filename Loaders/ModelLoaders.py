@@ -310,7 +310,7 @@ class RouteLoader(Loader):
         return self._className
 
     def deleteAllRecords(self):
-        Event.objects.all().delete()
+        Route.objects.all().delete()
 
     def load(self):
         self.deleteAllRecords()
