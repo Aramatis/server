@@ -172,6 +172,9 @@ class Service(models.Model):
     """ Represent an index for a color array in the app """
     busStops = models.ManyToManyField(BusStop, verbose_name='Bus Stops' ,through=ServicesByBusStop)
 
+class ServiceNotFoundException(Exception):
+    """ error produced when service information does not exist in service table """
+
 class Bus(models.Model):
     """Represent a bus like the unique combination of registration plate and service as one.
     So there can be two buses with the same service and two buses with the same registration plate.
@@ -189,9 +192,8 @@ class Bus(models.Model):
         """ Given a bus stop and the distance from the bus to the bus stop, return the address to which point the bus """
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
-        except:
-            serviceCode = self.service + "I"
-            # default is IDA (I)
+        except ServicesByBusStop.DoesNotExist::
+            raise ServiceNotFoundException
 
         distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
         # bus service distance from route origin
