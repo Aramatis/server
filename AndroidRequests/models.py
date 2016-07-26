@@ -192,7 +192,7 @@ class Bus(models.Model):
         """ Given a bus stop and the distance from the bus to the bus stop, return the address to which point the bus """
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
-        except ServicesByBusStop.DoesNotExist::
+        except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException
 
         try:
