@@ -193,7 +193,7 @@ class Bus(models.Model):
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = pBusStop, service = self.service).code
         except ServicesByBusStop.DoesNotExist:
-            raise ServiceNotFoundException
+            raise ServiceNotFoundException("Service {} is not present in bus stop {}".format(self.service, pBusStop))
 
         try:
             serviceDistance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance
