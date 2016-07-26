@@ -195,7 +195,12 @@ class Bus(models.Model):
         except ServicesByBusStop.DoesNotExist::
             raise ServiceNotFoundException
 
-        distance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance - int(pDistance)
+        try:
+            serviceDistance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance
+        except:
+            serviceDistance = 1000
+
+        distance = serviceDistance - int(pDistance)
         # bus service distance from route origin
         greaters = ServiceLocation.objects.filter(service = serviceCode, distance__gt=distance).order_by('distance')[:1]
         # get 2 locations greater than current location (nearer to the bus stop)
