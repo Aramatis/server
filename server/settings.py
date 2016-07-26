@@ -100,13 +100,13 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '%(levelname)s %(asctime)s %(message)s'
         },
     },
     'filters': {
         'ignore_silk': {
             '()': 'django.utils.log.CallbackFilter',
-            'callback': ignore_silk,           
+            'callback': ignore_silk,
         },
 	'ignore_devicepositionintime': {
             '()': 'django.utils.log.CallbackFilter',
@@ -119,7 +119,7 @@ LOGGING = {
             'filters': [ 'ignore_silk', 'ignore_devicepositionintime' ],
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + "/logs/file.log",
-            'formatter': 'verbose',
+            'formatter': 'simple',
         },
     },
     'loggers': {
@@ -128,7 +128,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-    },	
+    },
 }
 
 
