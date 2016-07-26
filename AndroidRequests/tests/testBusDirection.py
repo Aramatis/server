@@ -25,7 +25,7 @@ class BusDirectionTestCase(TestCase):
 
         # dummy  bus
         self.service = '507'
-        self.serviceCode = '507I'
+        self.serviceCode = '507R'
         self.registrationPlate = 'AA1111'
         self.bus = Bus.objects.create(registrationPlate = self.registrationPlate, service = self.service)
         # dummy bus stop
@@ -33,7 +33,13 @@ class BusDirectionTestCase(TestCase):
         self.busStopName = 'dummy bus stop'
 
         # add dummy service and its path
-        Service.objects.create(service = self.service, origin = 'origin_test', destiny = 'destination_test')
+        service = Service.objects.get_or_create(service = self.service, origin = 'origin_test', destiny = 'destination_test')[0]
+
+        # add dummy bus stop
+        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=-1, latitud=-1)
+
+        ServicesByBusStop.objects.create(busStop = busStop, service= service, code = self.serviceCode)
+        #ServiceStopDistance.objects.create(busStop = busStop, service = serviceCode, distance = 124529)
 
     def test_bus_in_the_upper_right_corner_to_bus_stop(self):
         """
@@ -52,11 +58,14 @@ class BusDirectionTestCase(TestCase):
         |                        |
         --------------------------
         """
-        # create bus stop
-        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=100, latitud=95)
+        # set bus stop
+        busStop = BusStop.objects.get(code=self.busStopCode)
+        busStop.longitud = 100
+        busStop.latitud = 95
+        busStop.save()
 
         # self.serviceCode stops in  self.busStop
-        ServiceStopDistance.objects.create(busStop = busStop,  service = self.serviceCode, distance = 45)
+        ServiceStopDistance.objects.create(busStop = busStop, service = self.serviceCode, distance = 45)
         # to select points uses itouchmap.com/latlong.html
         # this points generate this position scheme
         #
@@ -97,7 +106,10 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=-70.662800, latitud=-33.447467)
+        busStop = BusStop.objects.get(code=self.busStopCode)
+        busStop.longitud=-70.662800
+        busStop.latitud=-33.447467
+        busStop.save()
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(busStop = busStop,  service = self.serviceCode, distance = 45)
@@ -141,7 +153,10 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=-70.662800, latitud=-33.457091)
+        busStop = BusStop.objects.get(code=self.busStopCode)
+        busStop.longitud=-70.662800
+        busStop.latitud=-33.457091
+        busStop.save()
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(busStop = busStop,  service = self.serviceCode, distance = 45)
@@ -184,7 +199,10 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.create(code=self.busStopCode, name=self.busStopName, longitud=140, latitud=-33.457199)
+        busStop = BusStop.objects.get(code=self.busStopCode)
+        busStop.longitud=140
+        busStop.latitud=-33.457199
+        busStop.save()
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(busStop = busStop,  service = self.serviceCode, distance = 45)
