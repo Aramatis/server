@@ -175,6 +175,9 @@ class Service(models.Model):
 class ServiceNotFoundException(Exception):
     """ error produced when service information does not exist in service table """
 
+class ServiceDistanceNotFoundException(Exception):
+    """ error produced when it is not possible to get distance between a service and bus stop """
+
 class Bus(models.Model):
     """Represent a bus like the unique combination of registration plate and service as one.
     So there can be two buses with the same service and two buses with the same registration plate.
@@ -197,8 +200,9 @@ class Bus(models.Model):
 
         try:
             serviceDistance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance
-        except:
-            serviceDistance = 1000
+        except ServiceStopDistance.DoesNotExist:
+            raise ServiceDistanceNotFoundException(\
+                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(pBusStop, serviceCode)):
 
         distance = serviceDistance - int(pDistance)
         # bus service distance from route origin
@@ -282,8 +286,9 @@ class Bus(models.Model):
         '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
-        except:
-            serviceCode = self.service + "I"
+        except ServiceStopDistance.DoesNotExist:
+            raise ServiceDistanceNotFoundException(\
+                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(pBusStop, serviceCode)):
 
         ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 
