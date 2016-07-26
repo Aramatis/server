@@ -108,7 +108,7 @@ LOGGING = {
             '()': 'django.utils.log.CallbackFilter',
             'callback': ignore_silk,
         },
-	'ignore_devicepositionintime': {
+        'ignore_devicepositionintime': {
             '()': 'django.utils.log.CallbackFilter',
             'callback': ignore_devicepositionintime,
         },
