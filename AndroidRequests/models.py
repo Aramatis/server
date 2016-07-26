@@ -202,7 +202,7 @@ class Bus(models.Model):
             serviceDistance = ServiceStopDistance.objects.get(busStop = pBusStop, service = serviceCode).distance
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(\
-                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(pBusStop, serviceCode)):
+                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(pBusStop, serviceCode))
 
         distance = serviceDistance - int(pDistance)
         # bus service distance from route origin
@@ -227,6 +227,13 @@ class Bus(models.Model):
         elif len(lowers) == 0 and len(greaters) == 1:
             lower = greaters[0]
             greater = greaters[0]
+        elif len(lowers) == 0 and len(greaters) == 2:
+            lower = greaters[0]
+            greater = greaters[1]
+        elif len(greaters) == 0 and len(lowers) == 0:
+            # there are not points to detect direction
+            #TODO: add log to register this situations
+            return "left"
 
         epsilon = 0.00008
         x1 = lower.longitud
@@ -267,6 +274,7 @@ class Bus(models.Model):
                     lastDate = lastPose.timeStamp
                     lat = lastPose.latitud
                     lon = lastPose.longitud
+
         if(lat == lon and lat == -500):
             try:
                 return self.__estimatedPosition(busstop, distance, passengers)
@@ -276,6 +284,7 @@ class Bus(models.Model):
                         'longitud': -70.434710 + uniform(0.000000, 0.0005),
                         'passengers': passengers,
                         'random':True}
+
         return {'latitud': lat,
                 'longitud': lon,
                 'passengers': passengers,
@@ -288,7 +297,7 @@ class Bus(models.Model):
             serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(\
-                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(pBusStop, serviceCode)):
+                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(pBusStop, serviceCode))
 
         ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 
