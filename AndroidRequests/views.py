@@ -29,9 +29,8 @@ def nearbyBuses(request, pUserId, pBusStop):
     timeNow = timezone.now()
     theBusStop = BusStop.objects.get(code=pBusStop)
 
-    register = NearByBusesLog(userId = pUserId, busStop = theBusStop, timeStamp = timeNow)
-    register.save()
-    """ register user request """
+    # Register user request
+    NearByBusesLog.objects.create(userId = pUserId, busStop = theBusStop, timeStamp = timeNow)
 
     servicios = []
     getEventsBusStop = EventsByBusStop()
@@ -39,10 +38,14 @@ def nearbyBuses(request, pUserId, pBusStop):
 
     # for dev purpose
     # OBS: there isn't garanty about this url. it is third-party url
+    #url = "http://dev.adderou.cl/transanpbl/busdata.php"
+    #params = {'paradero': pBusStop}
+    #response = requests.get(url=url, params = params)
 
-    url = "http://dev.adderou.cl/transanpbl/busdata.php"
-    params = {'paradero': pBusStop}
-    response = requests.get(url=url, params = params)
+    # DTPM source
+    url = "http://54.94.231.101/dtpm/busStopInfo/"
+    url = "{}{}".format(url, pBusStop)
+    response = requests.get(url=url)
 
     if(response.text==""):
         response = {}
@@ -54,7 +57,6 @@ def nearbyBuses(request, pUserId, pBusStop):
     data = json.loads(response.text)
     data['error'] = None
 
-    # DTPM source
     #ws = WebService(request)
     #data = ws.askForServices(pBusStop)
 
