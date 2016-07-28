@@ -4,11 +4,14 @@ from suds.client import Client
 import os
 import json
 
+# models
+import PredictorDTPM.models.Log
+
 class WebService:
-    """ communicate with TranSantiago predictor service """
+    """ Communicate with TranSantiago predictor service """
 
     class __WebServiceClient:
-        """ singleton for suds client """
+        """ Singleton for suds client """
 
         def __init__(self):
 
@@ -27,7 +30,10 @@ class WebService:
             # used for makerting purposes, ignored by us
             self.resCode = info['resolutionCode']
             # transactionId
-            self.transactionId = 300
+            try:
+                self.transactionId = Log.objects.get().order_by('-webTransId').first().webTransId
+            except:
+                self.transactionId = 3000
 
     clientInstance = None
 
@@ -82,7 +88,7 @@ class WebService:
         #print dtpmInfo
 
         response = {}
-        #response['fechaConsulta'] = dtpmInfo['fechaprediccion']
+        response['fechaConsulta'] = dtpmInfo['fechaprediccion']
         response['horaConsulta'] = dtpmInfo['horaprediccion']
         response['id'] = dtpmInfo['paradero']
         response['descripcion'] = dtpmInfo['nomett']
