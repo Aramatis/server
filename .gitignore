@@ -109,4 +109,4 @@ DataDictionary/templates/dataDic.html
 DataDictionary/templates/dataDic.md
 
 # TranSantiago-data connection
-AndroidRequests/predictorTranSantiago/*.json
+PredictorDTPM/webService/*.json
