@@ -5,7 +5,7 @@ import os
 import json
 
 # models
-import PredictorDTPM.models.Log
+from  PredictorDTPM.models import Log
 
 class WebService:
     """ Communicate with TranSantiago predictor service """
@@ -33,7 +33,7 @@ class WebService:
             try:
                 self.transactionId = Log.objects.get().order_by('-webTransId').first().webTransId
             except:
-                self.transactionId = 3000
+                self.transactionId = 2500
 
     clientInstance = None
 
@@ -67,6 +67,10 @@ class WebService:
                     )
 
         data = self.__parserDTPMData(result)
+
+        # add web trans id to log in database
+        data['webTransId'] = webTransId
+
         return data
 
     def __getUserIP(self, request):

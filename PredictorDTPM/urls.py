@@ -2,5 +2,5 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^nearbyBuses/(?P<pBusStop>\w+)$', views.nearbyBuses),
+    url(r'^busStopInfo/(?P<pBusStop>\w+)$', views.busStopInfo),
 ]
