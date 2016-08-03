@@ -31,9 +31,10 @@ class WebService:
             self.resCode = info['resolutionCode']
             # transactionId
             try:
-                self.transactionId = Log.objects.get().order_by('-webTransId').first().webTransId
+                webTransId = Log.objects.get().order_by('-webTransId').first().webTransId
+                webTransId = int(webTransId.replace(self.prefix, ""))
             except:
-                self.transactionId = 2500
+                self.transactionId = 2600
 
     clientInstance = None
 
