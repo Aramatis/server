@@ -11,7 +11,6 @@ from random import uniform
 from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Bus, Service
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBus import EventsByBus
-from AndroidRequests.predictorTranSantiago.WebService import WebService
 
 def userPosition(request, pUserId, pLat, pLon):
     '''This function stores the pose of an active user'''
@@ -43,7 +42,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     #response = requests.get(url=url, params = params)
 
     # DTPM source
-    url = "http://54.94.231.101/dtpm/busStopInfo/"
+    url = "http://localhost/dtpm/busStopInfo/"
     url = "{}{}".format(url, pBusStop)
     response = requests.get(url=url)
 
@@ -56,9 +55,6 @@ def nearbyBuses(request, pUserId, pBusStop):
 
     data = json.loads(response.text)
     data['error'] = None
-
-    #ws = WebService(request)
-    #data = ws.askForServices(pBusStop)
 
     busStopCode=data['id']
 
