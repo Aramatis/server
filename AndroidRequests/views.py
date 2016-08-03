@@ -42,7 +42,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     #response = requests.get(url=url, params = params)
 
     # DTPM source
-    url = "http://localhost/dtpm/busStopInfo/"
+    url = "http://54.94.231.101/dtpm/busStopInfo/"
     url = "{}{}".format(url, pBusStop)
     response = requests.get(url=url)
 
