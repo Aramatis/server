@@ -1,6 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.db import transaction
+from django.conf import settings
 
 # python stuf
 import json
@@ -45,8 +46,13 @@ class RegisterReportTestCase(TestCase):
         response = self.reponseView.post(request)
         jsonResponse = json.loads(response.content)
 
-        self.assertEqual(jsonResponse['valid'], True)
+        self.assertTrue(jsonResponse['valid'])
         self.assertEqual(Report.objects.all().count(), 1)
+
+        # delete image file saved
+        report = Report.objects.get(userId = self.userId)
+        path = os.path.join(settings.MEDIA_IMAGE, report.imageName)
+        os.remove(path)
 
     def test_send_report_without_text(self):
         request = self.request
@@ -61,7 +67,7 @@ class RegisterReportTestCase(TestCase):
     def test_send_report_without_image(self):
         request = self.request
         request.POST.pop('img')
-        
+
         response = self.reponseView.post(request)
         jsonResponse = json.loads(response.content)
 
@@ -72,7 +78,7 @@ class RegisterReportTestCase(TestCase):
         request = self.request
         request.POST.pop('img')
         request.POST.pop('ext')
-        
+
         response = self.reponseView.post(request)
         jsonResponse = json.loads(response.content)
 
@@ -99,7 +105,6 @@ class RegisterReportTestCase(TestCase):
         self.assertFalse(jsonResponse['valid'])
         self.assertEqual(Report.objects.all().count(), 0)
 
-
     def test_send_report_without_user_id(self):
         request = self.request
         request.POST.pop('userId')
@@ -119,5 +124,10 @@ class RegisterReportTestCase(TestCase):
         jsonResponse = json.loads(response.content)
 
         self.assertTrue(jsonResponse['valid'])
-        self.assertEqual(len(Report.objects.all()), 1)
+        self.assertEqual(Report.objects.all().count(), 1)
+
+        # delete image file saved
+        report = Report.objects.get(userId = self.userId)
+        path = os.path.join(settings.MEDIA_IMAGE, report.imageName)
+        os.remove(path)
 

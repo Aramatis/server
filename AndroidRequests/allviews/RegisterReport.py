@@ -49,35 +49,36 @@ class RegisterReport(View):
                 if pUserId == '':
                     raise EmptyUserIdError
 
-                report = Report(timeStamp=pTimeStamp, userId=pUserId, \
-                                message=text, path="default", reportInfo=aditionalInfo)
-                report.save()
-
-                if stringImage != '':
-                    if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
-                        raise IncorrectExtensionImageError
-
-                    path = os.path.join(settings.MEDIA_ROOT, "report_image", str(report.pk) + "." + extension)
-                    imageFile = open(path, "wb")
-                    imageFile.write(stringImage)
-                    imageFile.close()
-                    report.path = path
-                    report.save()
-
+                report = Report.objects.create(timeStamp=pTimeStamp, userId=pUserId, \
+                                message=text, reportInfo=aditionalInfo, imageName = 'no image')
                 fine = True
-
             except EmptyUserIdError:
                 message = 'Has to exist a user id.'
             except EmptyTextMessageError:
                 message = 'Has to exist a text message.'
             except (IntegrityError, ValueError):
                 message = 'Error to create record.'
-            except IncorrectExtensionImageError:
-                message = 'Extension image is not valid.'
-                report.delete()
-            except:
-                message = 'Error to save image'
-                report.delete()
+            else:
+                try:
+                    if stringImage != '':
+                        if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
+                            raise IncorrectExtensionImageError
+
+                        imageName = str(report.pk) + "_" + str(pTimeStamp)  + "." + extension
+                        path = os.path.join(settings.MEDIA_IMAGE, imageName)
+                        imageFile = open(path, "wb")
+                        imageFile.write(stringImage)
+                        imageFile.close()
+                        report.imageName = imageName
+                        report.save()
+                except IncorrectExtensionImageError:
+                    message = 'Extension image is not valid.'
+                    report.delete()
+                    fine = False
+                except:
+                    message = 'Error to save image'
+                    report.delete()
+                    fine = False
 
         response = {'valid': fine, 'message': message}
         return JsonResponse(response, safe=False)

@@ -260,7 +260,7 @@ class ServiceLocationLoader(Loader):
 class EventLoader(Loader):
     """ This class load the events data to the database."""
     _className = "Event"
-    ticks = 1
+    ticks = 1000
 
     @property
     def className(self):
