@@ -297,7 +297,7 @@ class Bus(models.Model):
             serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(\
-                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(pBusStop, serviceCode))
+                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(busStop, serviceCode))
 
         ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 
