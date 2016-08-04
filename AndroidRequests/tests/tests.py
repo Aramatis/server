@@ -15,6 +15,7 @@ from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.RequestToken import RequestToken
 from AndroidRequests.allviews.SendPoses import SendPoses
 import AndroidRequests.views as views
+import AndroidRequests.constants as Constants
 
 # Create your tests here.
 
@@ -212,6 +213,27 @@ class DevicePositionInTimeTest(TestCase):
         contentResponse = contentResponse['response']
 
         self.assertEqual(contentResponse,'Token doesn\'t exist.')
+
+    def test_EventsByBusWithDummyLicensePlate(self):
+        '''This method test the bus with a dummy license plate '''
+
+        licencePlate = Constants.DUMMY_LICENSE_PLATE
+        busService = '507'
+        eventCode = 'evn00101'
+
+        # submitting one event to the server
+        requestToReportEventBus = self.factory.get('/android/reportEventBus/')
+        requestToReportEventBus.user = AnonymousUser()
+
+        reportEventBusView = RegisterEventBus()
+        responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, \
+                self.userId, busService, licencePlate, eventCode, 'confirm')
+
+        responseToReportEventBus = json.loads(responseToReportEventBus.content)
+
+        self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
+        self.assertEqual(responseToReportEventBus['service'], busService)
+        self.assertEqual(len(responseToReportEventBus['events']), 0)
 
     def test_EventsByBus(self):
         '''This method test two thing, the posibility to report an event and asking
