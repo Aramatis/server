@@ -1,5 +1,5 @@
 {   
-    "wsdl": "http://198.41.36.67:8080/wspatentedos/services/PredictorParaderoServicioWS?WSDL"
+    "wsdl": "http://198.141.36.67:8080/wspatentedos/services/PredictorParaderoServicioWS?WSDL"
     "comment": "this file was created for testing purpose",
     "prefix": "XXXX",
     "clientCode": "00",
