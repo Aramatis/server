@@ -32,7 +32,7 @@ class WebService:
             # transactionId
             try:
                 webTransId = Log.objects.get().order_by('-webTransId').first().webTransId
-                webTransId = int(webTransId.replace(self.prefix, ""))
+                webTransId = int(webTransId.replace(self.prefix, "")) + 1
             except:
                 self.transactionId = 2600
 
