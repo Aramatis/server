@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from random import uniform
 
 # Create your models here.
 # Remembre to add new models to admin.py
@@ -257,7 +258,6 @@ class Bus(models.Model):
 
     def getLocation(self, busstop, distance):
         """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
-        from random import uniform
         tokens = Token.objects.filter(bus=self)
         lastDate = timezone.now()-timezone.timedelta(days=30)
         passengers = 0
