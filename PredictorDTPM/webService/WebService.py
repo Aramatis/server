@@ -56,8 +56,8 @@ class WebService:
                 self.__completeId(WebService.clientInstance.transactionId)
         WebService.clientInstance.transactionId += 1
 
-        print "WebService: \n\tclientCode:{}\n\tresolutionCode:{}\n\tipFinalUser:{},\n\twebTransId:{} "\
-                .format(clientCode, resCode, ipFinalUser, webTransId)
+        #print "WebService: \n\tclientCode:{}\n\tresolutionCode:{}\n\tipFinalUser:{},\n\twebTransId:{} "\
+        #        .format(clientCode, resCode, ipFinalUser, webTransId)
 
         result = client.service.predictorParaderoServicio(
                     paradero = busStop,
@@ -89,9 +89,6 @@ class WebService:
     def __parserDTPMData(self, dtpmInfo):
         """ separate buses. Each one in an array """
 
-        # see the response of transantiago
-        #print dtpmInfo
-
         response = {}
         response['fechaConsulta'] = dtpmInfo['fechaprediccion']
         response['horaConsulta'] = dtpmInfo['horaprediccion']
@@ -105,7 +102,6 @@ class WebService:
 
         # for each service
         for service in dtpmInfo['servicios'][0]:
-            #print service
             bus1 = {}
             bus2 = {}
             # if response is ok
