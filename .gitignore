@@ -108,5 +108,5 @@ atlassian-ide-plugin.xml
 DataDictionary/templates/dataDic.html
 DataDictionary/templates/dataDic.md
 
-# TranSantiago-data connection
-PredictorDTPM/webService/*.json
+# Do not track keys
+server/keys/*

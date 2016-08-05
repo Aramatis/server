@@ -15,7 +15,8 @@ class WebService:
 
         def __init__(self):
 
-            with open(os.path.join(os.path.dirname(__file__), 'DTPMConnectionParams.json')) as data_file:
+            with open(os.path.join(os.path.dirname(__file__), \
+                    '../../server/keys/DTPMConnectionParams.json')) as data_file:
                 info = json.load(data_file)
 
             # WSDL url. it was gotten throught Wireless-IQ

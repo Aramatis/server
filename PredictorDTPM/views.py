@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.utils import timezone
+from django.conf import settings
 
 #python utilities
 import json
@@ -9,8 +10,13 @@ from datetime import datetime
 from PredictorDTPM.webService.WebService import WebService
 from PredictorDTPM.models import Log, BusLog
 
-def busStopInfo(request, pBusStop):
+def busStopInfo(request, pSecretKey, pBusStop):
     """ return dtpm data related to buses of pBusStop """
+
+    if settings.SECRET_KEY != pSecretKey:
+        data = {}
+        data['error'] = "You do not have permission to do this! >:(."
+        return JsonResponse(data, safe=False)
 
     # DTPM source
     ws = WebService(request)

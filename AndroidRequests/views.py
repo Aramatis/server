@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.utils import timezone
+from django.conf import settings
 
 #python utilities
 import requests
@@ -43,7 +44,7 @@ def nearbyBuses(request, pUserId, pBusStop):
 
     # DTPM source
     url = "http://54.94.231.101/dtpm/busStopInfo/"
-    url = "{}{}".format(url, pBusStop)
+    url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
     response = requests.get(url=url)
 
     if(response.text==""):
