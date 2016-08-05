@@ -259,7 +259,7 @@ class Bus(models.Model):
     def getLocation(self, busstop, distance):
         """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
         tokens = Token.objects.filter(bus=self)
-        lastDate = timezone.now()-timezone.timedelta(days=30)
+        lastDate = timezone.now()-timezone.timedelta(minutes=5)
         passengers = 0
         lat = -500
         lon = -500
@@ -277,7 +277,7 @@ class Bus(models.Model):
 
         if(lat == lon and lat == -500):
             try:
-                return self.__estimatedPosition(busstop, distance, passengers)
+                return self.__estimatedPosition(busstop, distance)
 
             except:
                 return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
@@ -291,7 +291,7 @@ class Bus(models.Model):
                 'random': False
                 }
 
-    def __estimatedPosition(self, busstop, distance, passengers):
+    def __estimatedPosition(self, busstop, distance):
         '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
@@ -317,7 +317,7 @@ class Bus(models.Model):
         location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
         return {'latitud': location.latitud,
                 'longitud': location.longitud,
-                'passengers': passengers,
+                'passengers': 0,
                 'random': False
                 }
 
