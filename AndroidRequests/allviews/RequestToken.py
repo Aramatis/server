@@ -27,7 +27,7 @@ class RequestToken(View):
                 service = pBusService)[0]
 
         aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
-                color=self.getRandomColor())
+                color=self.getRandomColor(), direction = None)
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 
         # we store the active token
