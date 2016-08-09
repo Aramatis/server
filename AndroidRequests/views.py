@@ -9,7 +9,7 @@ from random import uniform
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Bus, Service
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Bus, Service, ServicesByBusStop, Token
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBus import EventsByBus
 
@@ -32,71 +32,100 @@ def nearbyBuses(request, pUserId, pBusStop):
     # Register user request
     NearByBusesLog.objects.create(userId = pUserId, busStop = theBusStop, timeStamp = timeNow)
 
-    servicios = []
+    answer = {}
+    """
+    BUS STOP EVENTS
+    """
     getEventsBusStop = EventsByBusStop()
     busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
+    answer["eventos"] = busStopEvent
 
-    # for dev purpose
-    # OBS: there isn't garanty about this url. it is third-party url
-    #url = "http://dev.adderou.cl/transanpbl/busdata.php"
-    #params = {'paradero': pBusStop}
-    #response = requests.get(url=url, params = params)
+    """
+    USER BUSES
+    """
+    servicesToBusStop = ServicesByBusStop.objects.filter(busStop = theBusStop)
+    serviceNames = []
+    serviceDirections = []
+    for s in servicesToBusStop:
+        serviceNames.append(s.service.service)
+        serviceDirections.append(s.code.replace(s.service.service, ""))
+
+    # active user buses that stop in the bus stop
+    activeUserBuses = Token.objects.filter(bus__service__in = serviceNames)
+
+    activeUserBusesToBusStop = []
+    for index, user in activeUserBuses:
+        #TODO: consider bus direction
+        if user.direction == serviceDirections[index] or \
+            user.direction is None:
+            activeUserBusesToBusStop.append(user.bus)
+
+    answer['servicios'] = []
+    for userBus in activeUserBusesToBusStop:
+        bus = {}
+        bus['servicio'] = userBus.service
+        bus['patente'] = userBus.registrationPlate
+        busEvents = EventsByBus().getEventForBus(userBus)
+        bus['eventos'] = busEvents
+        busData = userBus.getLocation()
+        bus['lat'] = busData['latitude']
+        bus['lon'] = busData['longitude']
+        bus['tienePasajeros'] = busData['passengers']
+        bus['sentido'] = userBus.getdirection(pBusStop, 30)
+        service['color'] = Service.objects.get(service=service['servicio']).color_id
+        # assume that bus is 30 meters from bus stop to predict direction
+
+        answer['servicios'].append(bus)
+
+    """
+    DTPM BUSES
+    """
 
     # DTPM source
     url = "http://54.94.231.101/dtpm/busStopInfo/"
     url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
     response = requests.get(url=url)
 
-    if(response.text==""):
-        response = {}
-        response["servicios"] = servicios
-        response["eventos"] = busStopEvent
-        response["error"] = "there is not response."
-        return JsonResponse(response, safe=False)
+    if(response.text != ""):
+        data = json.loads(response.text)
+        data['error'] = None
 
-    data = json.loads(response.text)
-    data['error'] = None
+        busStopCode = data['id']
 
-    busStopCode=data['id']
+        for service in data['servicios']:
+            if(service["valido"]!=1):
+                continue
+            # clean the strings from spaces and unwanted format
+            service['servicio']  = service['servicio'].strip()
+            service['patente']   = service['patente'].replace("-", "")
+            service['patente']   = service['patente'].strip()
+            service['servicio']  = formatServiceName(service['servicio'])
+            distance = service['distancia'].replace(' mts.', '')
 
-    for dato in data['servicios']:
-        if(dato["valido"]!=1):
-            continue
-        # clean the strings from spaces and unwanted format
-        dato['servicio']  = dato['servicio'].strip()
-        dato['patente']   = dato['patente'].replace("-", "")
-        dato['patente']   = dato['patente'].strip()
-        dato['servicio']  = formatServiceName(dato['servicio'])
-        distance = dato['distancia'].replace(' mts.', '')
+            # request the correct bus
+            bus = Bus.objects.get_or_create(registrationPlate = service['patente'], \
+                    service = service['servicio'])[0]
+            busData = bus.getEstimatedLocation(busStopCode, distance)
+            service['tienePasajeros'] = busData['passengers']
+            service['lat'] = busData['latitud']
+            service['lon'] = busData['longitud']
+            #service['random'] = busData['random']
+            #TODO: log unregistered services
+            service['color'] = Service.objects.get(service=service['servicio']).color_id
+            service['sentido'] = bus.getDirection(busStopCode, distance)
 
-        # request the correct bus
-        bus = Bus.objects.get_or_create(registrationPlate = dato['patente'], \
-                service = dato['servicio'])[0]
-        busdata = bus.getLocation(busStopCode, distance)
-        dato['tienePasajeros'] = busdata['passengers']
-        dato['lat'] = busdata['latitud']
-        dato['lon'] = busdata['longitud']
-        dato['random'] = busdata['random']
-        #TODO: log unregistered services
-        dato['color'] = Service.objects.get(service=dato['servicio']).color_id
-        dato['sentido'] = bus.getDirection(busStopCode, distance)
+            getEventBus = EventsByBus()
+            busEvents = getEventBus.getEventForBus(bus)
+            service['eventos'] = busEvents
 
-        getEventBus = EventsByBus()
+            answer['servicios'].append(service)
 
-        busEvents = getEventBus.getEventForBus(bus)
+        if data['error'] != None:
+            answer['DTPMError'] = data['error']
+        else:
+            answer['DTPMError'] = ""
 
-        dato['eventos'] = busEvents
-
-        servicios.append(dato)
-
-    response = {}
-    if data['error'] != None:
-        response['error'] = data['error']
-    else:
-        response['error'] = ""
-    response["servicios"] = servicios
-    response["eventos"] = busStopEvent
-    return JsonResponse(response, safe=False)
+    return JsonResponse(answer, safe=False)
 
 def formatServiceName(serviceName):
     """ apply common format used by transantiago to show service name to user  """

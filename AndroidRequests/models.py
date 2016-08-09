@@ -256,7 +256,7 @@ class Bus(models.Model):
             else:
                 return "right"
 
-    def getLocation(self, busstop, distance):
+    def getLocation(self):
         """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
         tokens = Token.objects.filter(bus=self)
         lastDate = timezone.now()-timezone.timedelta(minutes=5)
@@ -275,23 +275,12 @@ class Bus(models.Model):
                     lat = lastPose.latitud
                     lon = lastPose.longitud
 
-        if(lat == lon and lat == -500):
-            try:
-                return self.__estimatedPosition(busstop, distance)
-
-            except:
-                return {'latitud': -33.427690 + uniform(0.000000, 0.0005),
-                        'longitud': -70.434710 + uniform(0.000000, 0.0005),
-                        'passengers': passengers,
-                        'random':True}
-
-        return {'latitud': lat,
-                'longitud': lon,
-                'passengers': passengers,
-                'random': False
+        return {'latitude': lat,
+                'longitude': lon,
+                'passengers': passengers
                 }
 
-    def __estimatedPosition(self, busstop, distance):
+    def getEstimatedLocation(self, busstop, distance):
         '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
@@ -318,7 +307,6 @@ class Bus(models.Model):
         return {'latitud': location.latitud,
                 'longitud': location.longitud,
                 'passengers': 0,
-                'random': False
                 }
 
     def getDictionary(self):
@@ -357,10 +345,14 @@ class Token(models.Model):
     '''Identifier for an incognito trip'''
     bus = models.ForeignKey(Bus, verbose_name='Bus')
     '''Bus that is making the trip'''
+    direction = models.CharField(max_length = 1, default = None)
+    ''' route direction that the bus is doing. It can be 'R' or 'I' '''
     color = models.CharField("Icon's color", max_length=7, default='#00a0f0')
     '''Color to paint the travel icon'''
     userId = models.UUIDField()
     """ To identify the data owner """
+    def getBusesIn(self, pListOfServices):
+        """ return a list of buses that match with buses given as parameter """
 
 class PoseInTrajectoryOfToken(Location):
     '''This stores all the poses of a trajectory. The trajectory can start on foot and end on foot.'''
