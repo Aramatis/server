@@ -284,9 +284,8 @@ class Bus(models.Model):
         '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
-        except ServiceStopDistance.DoesNotExist:
-            raise ServiceDistanceNotFoundException(\
-                    "The distance is not possible getting for bus stop '{}' and service '{}'".format(busStop, serviceCode))
+        except ServicesByBusStop.DoesNotExist:
+            raise ServiceNotFoundException("Service {} is not present in bus stop {}".format(self.service, BusStop))
 
         ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 
@@ -303,7 +302,9 @@ class Bus(models.Model):
             closest = closest_gt
         else:
             closest = closest_lt
+
         location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
+
         return {'latitud': location.latitud,
                 'longitud': location.longitud,
                 'passengers': 0,
@@ -345,7 +346,7 @@ class Token(models.Model):
     '''Identifier for an incognito trip'''
     bus = models.ForeignKey(Bus, verbose_name='Bus')
     '''Bus that is making the trip'''
-    direction = models.CharField(max_length = 1, default = None)
+    direction = models.CharField(max_length = 1, null = True)
     ''' route direction that the bus is doing. It can be 'R' or 'I' '''
     color = models.CharField("Icon's color", max_length=7, default='#00a0f0')
     '''Color to paint the travel icon'''
