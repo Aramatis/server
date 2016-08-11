@@ -54,9 +54,10 @@ def nearbyBuses(request, pUserId, pBusStop):
     activeUserBuses = Token.objects.filter(bus__service__in = serviceNames)
 
     activeUserBusesToBusStop = []
-    for index, user in activeUserBuses:
+    for user in activeUserBuses:
+        serviceIndex = serviceNames.index(user.bus.service)
         #TODO: consider bus direction
-        if user.direction == serviceDirections[index] or \
+        if user.direction == serviceDirections[serverIndex] or \
             user.direction is None:
             activeUserBusesToBusStop.append(user.bus)
 
