@@ -57,7 +57,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     for user in activeUserBuses:
         serviceIndex = serviceNames.index(user.bus.service)
         #TODO: consider bus direction
-        if user.direction == serviceDirections[serverIndex] or \
+        if user.direction == serviceDirections[serviceIndex] or \
             user.direction is None:
             activeUserBusesToBusStop.append(user.bus)
 
