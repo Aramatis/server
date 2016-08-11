@@ -52,7 +52,7 @@ def nearbyBuses(request, pUserId, pBusStop):
 
     # active user buses that stop in the bus stop
     activeUserBuses = Token.objects.filter(bus__service__in = serviceNames, \
-            activetoken__isnull==False)
+            activetoken__isnull=False)
 
     activeUserBusesToBusStop = []
     for user in activeUserBuses:
