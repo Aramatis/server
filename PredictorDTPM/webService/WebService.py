@@ -35,7 +35,9 @@ class WebService:
                 webTransId = Log.objects.order_by('-webTransId').first().webTransId
                 webTransId = int(webTransId.replace(self.prefix, "")) + 1
             except:
-                self.transactionId = 2600
+                webTransId = 2600
+
+            self.transactionId = webTransId
 
     clientInstance = None
 
