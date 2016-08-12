@@ -263,6 +263,7 @@ class Bus(models.Model):
         passengers = 0
         lat = -500
         lon = -500
+        random = True 
         for token in tokens:
             if(not hasattr(token, 'activetoken')):
                 continue
@@ -274,10 +275,12 @@ class Bus(models.Model):
                     lastDate = lastPose.timeStamp
                     lat = lastPose.latitud
                     lon = lastPose.longitud
+                    random = False
 
         return {'latitude': lat,
                 'longitude': lon,
-                'passengers': passengers
+                'passengers': passengers,
+                'random': random
                 }
 
     def getEstimatedLocation(self, busstop, distance):
