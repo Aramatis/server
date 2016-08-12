@@ -75,7 +75,11 @@ def nearbyBuses(request, pUserId, pBusStop):
         bus['tienePasajeros'] = busData['passengers']
         bus['sentido'] = userBus.getDirection(pBusStop, 30)
         bus['color'] = Service.objects.get(service=bus['servicio']).color_id
-        bus['random'] = False
+        bus['random'] = busData['random']
+        # extras
+        bus['tiempo'] = '---'
+        bus['distancia'] = '1 mts.'
+        bus['valido'] = 1
         # assume that bus is 30 meters from bus stop to predict direction
 
         answer['servicios'].append(bus)

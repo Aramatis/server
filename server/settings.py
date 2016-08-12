@@ -160,7 +160,8 @@ DATABASES = {
 
 LANGUAGE_CODE = 'es-CL'
 
-TIME_ZONE = 'Chile/Continental'
+#TIME_ZONE = 'Chile/Continental'
+TIME_ZONE = 'Cuba'
 
 USE_I18N = True
 
