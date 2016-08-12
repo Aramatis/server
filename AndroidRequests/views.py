@@ -75,6 +75,7 @@ def nearbyBuses(request, pUserId, pBusStop):
         bus['tienePasajeros'] = busData['passengers']
         bus['sentido'] = userBus.getDirection(pBusStop, 30)
         bus['color'] = Service.objects.get(service=bus['servicio']).color_id
+        bus['random'] = False
         # assume that bus is 30 meters from bus stop to predict direction
 
         answer['servicios'].append(bus)
@@ -115,6 +116,7 @@ def nearbyBuses(request, pUserId, pBusStop):
             #TODO: log unregistered services
             service['color'] = Service.objects.get(service=service['servicio']).color_id
             service['sentido'] = bus.getDirection(busStopCode, distance)
+            service['random'] = False
 
             getEventBus = EventsByBus()
             busEvents = getEventBus.getEventForBus(bus)
