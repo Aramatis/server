@@ -108,7 +108,8 @@ class WebService:
             bus1 = {}
             bus2 = {}
             # if response is ok
-            if service['codigorespuesta'] == "00":
+            if service['codigorespuesta'] == "00" or \
+               service['codigorespuesta'] == "01":
                 bus1['valido'] = 1
                 bus2['valido'] = 1
             else:
