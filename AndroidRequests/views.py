@@ -100,7 +100,8 @@ def nearbyBuses(request, pUserId, pBusStop):
         busStopCode = data['id']
 
         for service in data['servicios']:
-            if(service["valido"]!=1):
+            if service['valido']!=1 or service['patente']=None \
+               or service['tiempo']=None or service['distancia']='None mts.':
                 continue
             # clean the strings from spaces and unwanted format
             service['servicio']  = service['servicio'].strip()
