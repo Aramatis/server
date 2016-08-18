@@ -44,7 +44,6 @@ INSTALLED_APPS = (
     'MapLocationOfUsers',
     'modelsdoc',
     'DataDictionary',
-    'silk',
     'PredictorDTPM',
 )
 
@@ -57,7 +56,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'silk.middleware.SilkyMiddleware',
 )
 
 ROOT_URLCONF = 'server.urls'
@@ -160,8 +158,8 @@ DATABASES = {
 
 LANGUAGE_CODE = 'es-CL'
 
-#TIME_ZONE = 'Chile/Continental'
-TIME_ZONE = 'Cuba'
+TIME_ZONE = 'Chile/Continental' # -3
+#TIME_ZONE = 'Cuba' # -4
 
 USE_I18N = True
 
@@ -199,12 +197,4 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
-
-# Silk settings
-
-#SILKY_AUTHENTICATION = True # User must login
-#SILKY_AUTHORISATION = True # User must have permissions (is_staff=true)
-
-#SILKY_META = True # show off the effect Silk  is having on the request/response time.
-#SILKY_INTERCEPT_PERCENT = 50 # log only 50% of requests
 
