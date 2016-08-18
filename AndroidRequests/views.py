@@ -137,7 +137,6 @@ def nearbyBuses(request, pUserId, pBusStop):
         else:
             answer['DTPMError'] = ""
 
-
     """
     MERGE USER BUSES WITH DTPM BUSES
     """
@@ -145,7 +144,6 @@ def nearbyBuses(request, pUserId, pBusStop):
     for userBus in userBuses:
         if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
             answer['servicios'].append(userBus)
-            continue
         else:
             for dtpmBus in dtpmBuses:
                 if dtpmBus['servicio'] == userBus['servicio'] and \
