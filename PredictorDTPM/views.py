@@ -38,8 +38,8 @@ def registerDTPMAnswer(data):
             errorMessage = data['error'])
 
     for bus in data['servicios']:
-        if bus['patente'] = None or bus['servicio'] = None or \
-           bus['tiempo'] = None or bus['valido'] = None:
+        if bus['patente'] is None or bus['servicio'] is None\
+           or bus['tiempo'] is None or bus['valido'] is None:
             continue
         distance = int(bus['distancia'].replace(" mts.", ""))
         BusLog.objects.create(\
