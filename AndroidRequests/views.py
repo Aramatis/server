@@ -12,6 +12,8 @@ from random import uniform
 from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Bus, Service, ServicesByBusStop, Token
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBus import EventsByBus
+# constants
+import AndroidRequests.constants as Constants
 
 def userPosition(request, pUserId, pLat, pLon):
     '''This function stores the pose of an active user'''
@@ -62,7 +64,7 @@ def nearbyBuses(request, pUserId, pBusStop):
             user.direction is None:
             activeUserBusesToBusStop.append(user.bus)
 
-    answer['servicios'] = []
+    userBuses = []
     for userBus in activeUserBusesToBusStop:
         bus = {}
         bus['servicio'] = userBus.service
@@ -77,12 +79,12 @@ def nearbyBuses(request, pUserId, pBusStop):
         bus['color'] = Service.objects.get(service=bus['servicio']).color_id
         bus['random'] = busData['random']
         # extras
-        bus['tiempo'] = '---'
+        bus['tiempo'] = 'transmitiendo'
         bus['distancia'] = '1 mts.'
         bus['valido'] = 1
         # assume that bus is 30 meters from bus stop to predict direction
-
-        answer['servicios'].append(bus)
+        if not bus['random']:
+            userBuses.append(bus)
 
     """
     DTPM BUSES
@@ -93,6 +95,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
     response = requests.get(url=url)
 
+    dtpmBuses = []
     if(response.text != ""):
         data = json.loads(response.text)
         data['error'] = None
@@ -100,8 +103,8 @@ def nearbyBuses(request, pUserId, pBusStop):
         busStopCode = data['id']
 
         for service in data['servicios']:
-            if service['valido']!=1 or service['patente']=None \
-               or service['tiempo']=None or service['distancia']='None mts.':
+            if service['valido']!=1 or service['patente'] is None \
+               or service['tiempo'] is None or service['distancia']=='None mts.':
                 continue
             # clean the strings from spaces and unwanted format
             service['servicio']  = service['servicio'].strip()
@@ -127,12 +130,31 @@ def nearbyBuses(request, pUserId, pBusStop):
             busEvents = getEventBus.getEventForBus(bus)
             service['eventos'] = busEvents
 
-            answer['servicios'].append(service)
+            dtpmBuses.append(service)
 
         if data['error'] != None:
             answer['DTPMError'] = data['error']
         else:
             answer['DTPMError'] = ""
+
+
+    """
+    MERGE USER BUSES WITH DTPM BUSES
+    """
+    answer['servicios'] = []
+    for userBus in userBuses:
+        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
+            answer['servicios'].append(userBus)
+            continue
+        else:
+            for dtpmBus in dtpmBuses:
+                if dtpmBus['servicio'] == userBus['servicio'] and \
+                   dtpmBus['patente'] == userBus['patente']:
+                    answer['servicios'].append(userBus)
+                    dtpmBuses.remove(dtpmBus)
+                    continue
+
+    answer['servicios'].extend(dtpmBuses)
 
     return JsonResponse(answer, safe=False)
 
