@@ -148,6 +148,9 @@ def nearbyBuses(request, pUserId, pBusStop):
             for dtpmBus in dtpmBuses:
                 if dtpmBus['servicio'] == userBus['servicio'] and \
                    dtpmBus['patente'] == userBus['patente']:
+                    userBus['tiempo'] = dtpmBus['tiempo']
+                    userBus['distancia'] = dtpmBus['distancia']
+                    userBus['sentido'] = dtpmBus['sentido']
                     answer['servicios'].append(userBus)
                     dtpmBuses.remove(dtpmBus)
                     continue
