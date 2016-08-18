@@ -28,9 +28,6 @@ def busStopInfo(request, pSecretKey, pBusStop):
 
 def registerDTPMAnswer(data):
     """ register DTPM answer in database """
-    ignoreBuses = False
-    if data['error'] != '':
-        ignoreBuses = True
 
     log = Log.objects.create(\
             busStopCode = data['id'], \
@@ -40,16 +37,18 @@ def registerDTPMAnswer(data):
             webTransId = data['webTransId'], \
             errorMessage = data['error'])
 
-    if not ignoreBuses:
-        for bus in data['servicios']:
-            distance = int(bus['distancia'].replace(" mts.", ""))
-            BusLog.objects.create(\
-                    licensePlate = bus['patente'], \
-                    serviceName = bus['servicio'], \
-                    timeMessage = bus['tiempo'], \
-                    distance = distance, \
-                    valid = bus['valido'], \
-                    log = log)
+    for bus in data['servicios']:
+        if bus['patente'] = None or bus['servicio'] = None or \
+           bus['tiempo'] = None or bus['valido'] = None:
+            continue
+        distance = int(bus['distancia'].replace(" mts.", ""))
+        BusLog.objects.create(\
+                licensePlate = bus['patente'], \
+                serviceName = bus['servicio'], \
+                timeMessage = bus['tiempo'], \
+                distance = distance, \
+                valid = bus['valido'], \
+                log = log)
 
 
 
