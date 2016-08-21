@@ -126,12 +126,12 @@ def nearbyBuses(request, pUserId, pBusStop):
             except Exception as e:
                 logger.error(str(e))
                 busData = {}
-                busData['latitud'] = 500
-                busData['longitud'] = 500
+                busData['latitude'] = 500
+                busData['longitude'] = 500
                 service['random'] = True
             service['tienePasajeros'] = 0
-            service['lat'] = busData['latitud']
-            service['lon'] = busData['longitud']
+            service['lat'] = busData['latitude']
+            service['lon'] = busData['longitude']
             service['color'] = Service.objects.get(service=service['servicio']).color_id
             try:
                 service['sentido'] = bus.getDirection(busStopCode, distance)

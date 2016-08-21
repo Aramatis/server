@@ -312,8 +312,8 @@ class Bus(models.Model):
 
         location = ServiceLocation.objects.filter(service = serviceCode, distance = closest)[0]
 
-        return {'latitud': location.latitud,
-                'longitud': location.longitud,
+        return {'latitude': location.latitud,
+                'longitude': location.longitud,
                 }
 
     def getDictionary(self):

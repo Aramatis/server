@@ -424,8 +424,8 @@ class DevicePositionInTimeTest(TestCase):
 
         jsonResponse = json.loads(response.content)
 
-        if (jsonResponse['error'] != ""):
-            self.assertEqual(jsonResponse['error'], \
+        if (jsonResponse['DTPMError'] != ""):
+            self.assertEqual(jsonResponse['DTPMError'], \
                     "Usted no cuenta con los permisos necesarios para realizar esta consulta.")
         else:
             self.assertEqual('servicios' in jsonResponse, True)
@@ -460,12 +460,12 @@ class DevicePositionInTimeTest(TestCase):
         # first we test the position of the bus without passsangers
         bus = Bus.objects.get(registrationPlate='AA1111', service='507')
 
-        busPose = bus.getLocation('PA459',1)
+        busPose = bus.getLocation()
 
-        self.assertEqual(busPose['random'], True)
-        # self.assertEqual(busPose['latitud'], 5)
-        # self.assertEqual(busPose['longitud'], 7)
-        self.assertEqual(busPose['passengers'] > 0, False)
+        self.assertTrue(busPose['random'])
+        self.assertEqual(busPose['latitude'], -500)
+        self.assertEqual(busPose['longitude'], -500)
+        self.assertEqual(busPose['passengers'], 0)
 
         # add the position of a passanger inside the bus
         request = self.factory.get('/android/requestToken')
@@ -492,10 +492,10 @@ class DevicePositionInTimeTest(TestCase):
         # ask the position of the bus whit a passanger
         bus = Bus.objects.get(registrationPlate='AA1111', service='507')
 
-        busPose = bus.getLocation('PA459',1)
+        busPose = bus.getLocation()
 
-        self.assertEqual(busPose['latitud'], userLatitud)
-        self.assertEqual(busPose['longitud'], userLongitud)
+        self.assertEqual(busPose['latitude'], userLatitud)
+        self.assertEqual(busPose['longitude'], userLongitud)
         self.assertEqual(busPose['random'], False)
         self.assertEqual(busPose['passengers'] > 0, True)
 
