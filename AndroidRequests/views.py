@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.conf import settings
 
+import logging
+
 #python utilities
 import requests
 import json
@@ -27,6 +29,8 @@ def userPosition(request, pUserId, pLat, pLon):
 
 def nearbyBuses(request, pUserId, pBusStop):
     """ return all information about bus stop: events and buses """
+
+    logger = logging.getLogger(__name__)
 
     timeNow = timezone.now()
     theBusStop = BusStop.objects.get(code=pBusStop)
@@ -116,15 +120,24 @@ def nearbyBuses(request, pUserId, pBusStop):
             # request the correct bus
             bus = Bus.objects.get_or_create(registrationPlate = service['patente'], \
                     service = service['servicio'])[0]
-            busData = bus.getEstimatedLocation(busStopCode, distance)
-            service['tienePasajeros'] = busData['passengers']
+            service['random'] = False
+            try:
+                busData = bus.getEstimatedLocation(busStopCode, distance)
+            except Exception as e:
+                logger.error(str(e))
+                busData = {}
+                busData['latitud'] = 500
+                busData['longitud'] = 500
+                service['random'] = True
+            service['tienePasajeros'] = 0
             service['lat'] = busData['latitud']
             service['lon'] = busData['longitud']
-            #service['random'] = busData['random']
-            #TODO: log unregistered services
             service['color'] = Service.objects.get(service=service['servicio']).color_id
-            service['sentido'] = bus.getDirection(busStopCode, distance)
-            service['random'] = False
+            try:
+                service['sentido'] = bus.getDirection(busStopCode, distance)
+            except Exception as e:
+                logger.error(str(e))
+                service['sentido'] = "left"
 
             getEventBus = EventsByBus()
             busEvents = getEventBus.getEventForBus(bus)

@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from random import uniform
 
+import logging
+
 # Create your models here.
 # Remembre to add new models to admin.py
 
@@ -234,6 +236,8 @@ class Bus(models.Model):
         elif len(greaters) == 0 and len(lowers) == 0:
             # there are not points to detect direction
             #TODO: add log to register this situations
+            logger = logging.getLogger(__name__)
+            logger.info("There is not position to detect bus direction")
             return "left"
 
         epsilon = 0.00008
@@ -263,7 +267,7 @@ class Bus(models.Model):
         passengers = 0
         lat = -500
         lon = -500
-        random = True 
+        random = True
         for token in tokens:
             if(not hasattr(token, 'activetoken')):
                 continue
@@ -310,7 +314,6 @@ class Bus(models.Model):
 
         return {'latitud': location.latitud,
                 'longitud': location.longitud,
-                'passengers': 0,
                 }
 
     def getDictionary(self):
