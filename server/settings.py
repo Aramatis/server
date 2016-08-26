@@ -128,6 +128,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'AndroidRequests': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     },
 }
 
