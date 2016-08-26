@@ -35,8 +35,14 @@ def nearbyBuses(request, pUserId, pBusStop):
     timeNow = timezone.now()
     theBusStop = BusStop.objects.get(code=pBusStop)
 
-    # Register user request
-    NearByBusesLog.objects.create(userId = pUserId, busStop = theBusStop, timeStamp = timeNow)
+    """
+    This is temporal, it has to be deleted in the future
+    """
+    if pUserId != 'null':
+        # Register user request
+        NearByBusesLog.objects.create(userId = pUserId, busStop = theBusStop, timeStamp = timeNow)
+    else:
+        logger.error('null user')
 
     answer = {}
     """
