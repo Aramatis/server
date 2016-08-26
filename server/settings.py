@@ -181,7 +181,7 @@ MEDIA_IMAGE = os.path.join(MEDIA_ROOT, "reported_images/")
 
 CRONJOBS = [
     #the job is executed every day at 24
-    ('0 0 * * *', 'AndroidRequests.cronTasks.clearnEventsThatHaveBeenDecline'),
+    ('0 0 * * *', 'AndroidRequests.cronTasks.clearEventsThatHaveBeenDecline'),
     ('* */1 * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
 ]
 
