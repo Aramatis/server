@@ -16,13 +16,19 @@ class EventsByBus(View):
     def get(self, request, pRegistrationPlate,pBusService):
         """It's important to give the registrarion plate and the bus
         service, because one plate could have two services."""
-        response = {}
-        bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
-        response['registrationPlate'] = pRegistrationPlate
-        response['service'] = bus.service
+        # remove hyphen and convert to uppercase
+        pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
 
-        # ask for the events in this bus
-        events = self.getEventForBus(bus)
+        response = {}
+        response['registrationPlate'] = pRegistrationPlate
+        response['service'] = pBusService
+
+        try:
+            bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
+            # ask for the events in this bus
+            events = self.getEventForBus(bus)
+        except:
+            events = {}
 
         response['events'] = events
 

@@ -14,6 +14,10 @@ class RegisterEventBus(View):
         # here we request all the info needed to proceed
         aTimeStamp = timezone.now()
         theEvent = Event.objects.get(id=pEventID)
+
+        # remove hyphen and convert to uppercase
+        pBusPlate = pBusPlate.replace('-', '').upper()
+
         theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
 
         # estimate the oldest time where the reported event can be usefull

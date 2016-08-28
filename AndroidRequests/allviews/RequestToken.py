@@ -23,6 +23,9 @@ class RequestToken(View):
         salt = os.urandom(20)
         hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
 
+        # remove hyphen and convert to uppercase
+        pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
+
         bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
                 service = pBusService)[0]
 
