@@ -4,90 +4,89 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.utils import timezone
 
-# models 
+# models
 from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, Token
 
 # Create your views here.
 
 class MapHandler(View):
-	'''This class manages the map where the markers from the devices using the
-	application are shown'''
-	
-	def __init__(self):
-		"""the contructor, context are the parameter given to the html template"""
-		self.context={}	
+    '''This class manages the map where the markers from the devices using the
+    application are shown'''
 
-	def get(self, request):
-		template = "map.html"
+    def __init__(self):
+        """the contructor, context are the parameter given to the html template"""
+	self.context={}
 
-		return render(request, template, self.context)
+    def get(self, request):
+        template = "map.html"
+
+	return render(request, template, self.context)
 
 class GetMapPositions(View):
-	'''This class requests to the database the values of the actives users'''
-	
-	def __init__(self):
-		"""the contructor, context are the parameter given to the html template"""
-		self.context={}	
+    '''This class requests to the database the values of the actives users'''
 
-	def get(self, request):
+    def __init__(self):
+        """the contructor, context are the parameter given to the html template"""
+	self.context={}
 
-		now = timezone.now()
-		earlier = now - timezone.timedelta(minutes=10)
+    def get(self, request):
 
-		# the position of interest are the ones ocurred in the last 10 minutes
-		postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))\
-			.order_by('-timeStamp')
-		
-		# TODO: get unique users from query and not fiter here
-		response = []
-		users = []
-		for aPosition in postions:
-			if not (aPosition.userId in users):
-				response.append({'latitud': aPosition.latitud, 'longitud': aPosition.longitud})
-				users.append(aPosition.userId)
+	now = timezone.now()
+	earlier = now - timezone.timedelta(minutes=5)
 
-		return JsonResponse(response, safe=False)
+	# the position of interest are the ones ocurred in the last 10 minutes
+	postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))\
+		.order_by('-timeStamp')
+
+	# TODO: get unique users from query and not fiter here
+	response = []
+	users = []
+	for aPosition in postions:
+	    if not (aPosition.userId in users):
+		response.append({'latitud': aPosition.latitud, 'longitud': aPosition.longitud})
+		users.append(aPosition.userId)
+
+	return JsonResponse(response, safe=False)
 
 class GetMapTrajectory(View):
-	"""This class handles the requests for getting the Trajectory of some tokens that where
-	updated in the last 10 minutes"""
+    """This class handles the requests for getting the Trajectory of some tokens that where
+    updated in the last 10 minutes"""
 
-	def __init__(self):
-		"""the contructor, context are the parameter given to the html template"""
-		self.context={}	
+    def __init__(self):
+	"""the contructor, context are the parameter given to the html template"""
+	self.context={}
 
-	def get(self, request):
-		
-		tokens = self.getTokenUsedIn10LastMinutes()
-		response = []
+    def get(self, request):
 
-		for aToken in tokens:
-			tokenResponse = {}
-			trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, inVehicleOrNot="vehicle").order_by('-timeStamp')
-		
-			aPose = trajectory[0]
+	tokens = self.getTokenUsedIn10LastMinutes()
+	response = []
 
-			tokenResponse['lastPose'] = (aPose.latitud, aPose.longitud)
-			tokenResponse['token'] = aToken.token
-			tokenResponse['myColor'] = aToken.color
-			response.append(tokenResponse)
+	for aToken in tokens:
+	    tokenResponse = {}
+	    trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, inVehicleOrNot="vehicle").order_by('-timeStamp')
 
-		return JsonResponse(response, safe=False)
+	    aPose = trajectory[0]
 
-			
-	def getTokenUsedIn10LastMinutes(self):
-		'''return the tokens that have the latest entry at least 10 minutes ago'''
-		now = timezone.now()
+	    tokenResponse['lastPose'] = (aPose.latitud, aPose.longitud)
+	    tokenResponse['token'] = aToken.token
+	    tokenResponse['myColor'] = aToken.color
+	    response.append(tokenResponse)
 
-		earlier = now - timezone.timedelta(minutes=10)
-		allPoses = PoseInTrajectoryOfToken.objects.filter(timeStamp__range=(earlier,now))
+	return JsonResponse(response, safe=False)
 
-		tokens = []
+    def getTokenUsedIn10LastMinutes(self):
+        '''return the tokens that have the latest entry at least 10 minutes ago'''
+	now = timezone.now()
 
-		for aPose in allPoses:
-			if not aPose.token in tokens:
-				tokens.append(aPose.token)
+	earlier = now - timezone.timedelta(minutes=10)
+	allPoses = PoseInTrajectoryOfToken.objects.filter(timeStamp__range=(earlier,now))
 
-		return tokens
+	tokens = []
+
+	for aPose in allPoses:
+	    if not aPose.token in tokens:
+	        tokens.append(aPose.token)
+
+	return tokens
 
 
