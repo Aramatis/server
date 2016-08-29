@@ -42,7 +42,7 @@ def nearbyBuses(request, pUserId, pBusStop):
         # Register user request
         NearByBusesLog.objects.create(userId = pUserId, busStop = theBusStop, timeStamp = timeNow)
     else:
-        logger.error('null user')
+        logger.error('nearbybuses: null user')
 
     answer = {}
     """
