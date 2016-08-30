@@ -173,6 +173,8 @@ def nearbyBuses(request, pUserId, pBusStop):
                     answer['servicios'].append(userBus)
                     dtpmBuses.remove(dtpmBus)
                     continue
+                else:
+                    answer['servicios'].append(userBus)
 
     answer['servicios'].extend(dtpmBuses)
 
