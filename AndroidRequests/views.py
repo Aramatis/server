@@ -8,6 +8,7 @@ import logging
 import requests
 import json
 from random import uniform
+import re
 
 # my stuff
 # import DB's models
@@ -122,6 +123,9 @@ def nearbyBuses(request, pUserId, pBusStop):
             service['patente']   = service['patente'].strip()
             service['servicio']  = formatServiceName(service['servicio'])
             distance = service['distancia'].replace(' mts.', '')
+            service['distanciaMts'] = distance
+            service['distancia'] = formatDistance(distance)
+            service['tiempo'] = formatTime(service['tiempo'], distance)
 
             # request the correct bus
             bus = Bus.objects.get_or_create(registrationPlate = service['patente'], \
@@ -185,3 +189,36 @@ def formatServiceName(serviceName):
     if not serviceName[-1:] == 'N':
         serviceName = "{}{}".format(serviceName[0],serviceName[1:].lower())
     return serviceName
+
+def formatDistance(distance):
+    """ format distance to show final user """
+    distance = int(distance)
+    if distance >= 1000:
+        distance = round(float(distance) / 1000, 2)
+        if distance.is_integer():
+            return "{}Km".format(int(distance))
+        else:
+            return "{}Km".format(distance)
+    else:
+        return "{}m".format(distance)
+
+def formatTime(time, distance):
+    """ return a message related the time when a bus arrives to bus stop """
+    menosd = re.match("Menos de (\d+) min.", time)
+    if menosd:
+        return "0 a {} min".format(menosd.group(1))
+
+    entre = re.match("Entre (\d+) Y (\d+) min.", time)
+    if entre is not None:
+        return "{} a {} min".format(entre.group(1), entre.group(2))
+
+    enmenosd =re.match("En menos de (\d+) min.", time)
+    if enmenosd:
+        return "0 a {} min".format(enmenosd.group(1))
+
+    masd = re.match("Mas de (\d+) min.", time)
+    if masd is not None:
+        return "+ de {} min".format(masd.group(1))
+
+    return time
+
