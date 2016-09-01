@@ -124,8 +124,8 @@ def nearbyBuses(request, pUserId, pBusStop):
             service['servicio']  = formatServiceName(service['servicio'])
             distance = service['distancia'].replace(' mts.', '')
             service['distanciaMts'] = distance
-            service['distancia'] = formatDistance(distance)
-            service['tiempo'] = formatTime(service['tiempo'], distance)
+            service['distanciaV2'] = formatDistance(distance)
+            service['tiempoV2'] = formatTime(service['tiempo'], distance)
 
             # request the correct bus
             bus = Bus.objects.get_or_create(registrationPlate = service['patente'], \
@@ -181,7 +181,7 @@ def nearbyBuses(request, pUserId, pBusStop):
                     answer['servicios'].append(userBus)
 
     answer['servicios'].extend(dtpmBuses)
-
+    
     return JsonResponse(answer, safe=False)
 
 def formatServiceName(serviceName):
@@ -206,7 +206,10 @@ def formatTime(time, distance):
     """ return a message related the time when a bus arrives to bus stop """
     menosd = re.match("Menos de (\d+) min.", time)
     if menosd:
-        return "0 a {} min".format(menosd.group(1))
+        if 0 <= distance and distance <=100 :
+            return "Llegando"
+        else:
+            return "0 a {} min".format(menosd.group(1))
 
     entre = re.match("Entre (\d+) Y (\d+) min.", time)
     if entre is not None:
