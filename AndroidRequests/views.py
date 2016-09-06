@@ -210,7 +210,10 @@ def formatTime(time, distance):
 
     enmenosd =re.match("En menos de (\d+) min.", time)
     if enmenosd:
-        return "0 a {} min".format(enmenosd.group(1))
+        if 0 <= distance and distance <=100 :
+            return "Llegando"
+        else:
+            return "0 a {} min".format(enmenosd.group(1))
 
     masd = re.match("Mas de (\d+) min.", time)
     if masd is not None:
