@@ -67,35 +67,31 @@ def nearbyBuses(request, pUserId, pBusStop):
     activeUserBuses = Token.objects.filter(bus__service__in = serviceNames, \
             activetoken__isnull=False)
 
-    activeUserBusesToBusStop = []
+    userBuses = []
     for user in activeUserBuses:
         serviceIndex = serviceNames.index(user.bus.service)
         #TODO: consider bus direction
         if user.direction == serviceDirections[serviceIndex] or \
             user.direction is None:
-            activeUserBusesToBusStop.append(user.bus)
-
-    userBuses = []
-    for userBus in activeUserBusesToBusStop:
-        bus = {}
-        bus['servicio'] = userBus.service
-        bus['patente'] = userBus.registrationPlate
-        busEvents = EventsByBus().getEventForBus(userBus)
-        bus['eventos'] = busEvents
-        busData = userBus.getLocation()
-        bus['lat'] = busData['latitude']
-        bus['lon'] = busData['longitude']
-        bus['tienePasajeros'] = busData['passengers']
-        bus['sentido'] = userBus.getDirection(pBusStop, 30)
-        bus['color'] = Service.objects.get(service=bus['servicio']).color_id
-        bus['random'] = busData['random']
-        # extras
-        bus['tiempo'] = 'transmitiendo'
-        bus['distancia'] = '1 mts.'
-        bus['valido'] = 1
-        # assume that bus is 30 meters from bus stop to predict direction
-        if not bus['random']:
-            userBuses.append(bus)
+            bus = {}
+            bus['servicio'] = userBus.service
+            bus['patente'] = userBus.registrationPlate
+            busEvents = EventsByBus().getEventForBus(userBus)
+            bus['eventos'] = busEvents
+            busData = userBus.getLocation()
+            bus['lat'] = busData['latitude']
+            bus['lon'] = busData['longitude']
+            bus['tienePasajeros'] = busData['passengers']
+            bus['sentido'] = userBus.getDirection(pBusStop, 30)
+            bus['color'] = Service.objects.get(service=bus['servicio']).color_id
+            bus['random'] = busData['random']
+            # extras
+            bus['tiempo'] = 'viajando'
+            bus['distancia'] = '1 mts.'
+            bus['valido'] = 1
+            # assume that bus is 30 meters from bus stop to predict direction
+            if not bus['random']:
+                userBuses.append(bus)
 
     """
     DTPM BUSES
@@ -118,11 +114,9 @@ def nearbyBuses(request, pUserId, pBusStop):
                or service['tiempo'] is None or service['distancia']=='None mts.':
                 continue
             # clean the strings from spaces and unwanted format
-            service['servicio']  = service['servicio'].strip()
-            service['patente']   = service['patente'].replace("-", "")
-            service['patente']   = service['patente'].strip()
-            service['servicio']  = formatServiceName(service['servicio'])
-            distance = service['distancia'].replace(' mts.', '')
+            service['servicio']  = formatServiceName(service['servicio'].strip())
+            service['patente']   = service['patente'].replace("-", "").strip().upper()
+            distance = int(service['distancia'].replace(' mts.', ''))
             service['distanciaMts'] = distance
             service['distanciaV2'] = formatDistance(distance)
             service['tiempoV2'] = formatTime(service['tiempo'], distance)
@@ -176,12 +170,11 @@ def nearbyBuses(request, pUserId, pBusStop):
                     userBus['sentido'] = dtpmBus['sentido']
                     answer['servicios'].append(userBus)
                     dtpmBuses.remove(dtpmBus)
-                    continue
                 else:
                     answer['servicios'].append(userBus)
 
     answer['servicios'].extend(dtpmBuses)
-    
+
     return JsonResponse(answer, safe=False)
 
 def formatServiceName(serviceName):
