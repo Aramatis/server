@@ -7,7 +7,7 @@ from AndroidRequests.models import ActiveToken, Event, EventForBusStop, EventFor
 from django.utils import timezone
 
 # for cleanActiveTokenTable method
-MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 30
+MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 2
 
 # for clearEventsThatHaveBeenDecline method
 MINIMUM_NUMBER_OF_DECLINES = 30
