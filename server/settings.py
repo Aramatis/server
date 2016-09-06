@@ -25,9 +25,9 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as fil
     #'cbwz-*ri$u=_v@xa5m(3)qujt8yur&id*j%ps3src9^l+doxx4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['200.9.100.91']
 
 
 # Application definition
@@ -187,7 +187,7 @@ MEDIA_IMAGE = os.path.join(MEDIA_ROOT, "reported_images/")
 CRONJOBS = [
     #the job is executed every day at 24
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearEventsThatHaveBeenDecline'),
-    ('* */1 * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
+    ('*/1 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
 ]
 
 MODELSDOC_APPS = ('AndroidRequests',)
