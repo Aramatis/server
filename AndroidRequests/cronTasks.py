@@ -6,6 +6,8 @@ django.setup()
 from AndroidRequests.models import ActiveToken, Event, EventForBusStop, EventForBus
 from django.utils import timezone
 
+import logging
+
 # for cleanActiveTokenTable method
 MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 2
 
@@ -16,13 +18,14 @@ PORCENTAGE_OF_DECLINE_OVER_CONFIRM = 60.0
 def cleanActiveTokenTable():
     """It cleans the active tokens table on the DB. This checks that the last time a
     token was granted with new position doesn't exceed a big amount of time."""
+    logger = logging.getLogger(__name__)
 
     activeTokens = ActiveToken.objects.all()
     currentTimeMinusXMinutes = timezone.now() - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
     for aToken in activeTokens:
         if aToken.timeStamp < currentTimeMinusXMinutes:
             aToken.delete()
-            print "{} deleted for clenaActiveTokenTable method".format(aToken.token)
+            logger.info("{} deleted for clenaActiveTokenTable method".format(aToken.token))
 
 def clearEventsThatHaveBeenDecline():
     '''This clears the events that have lost credibility'''
