@@ -9,7 +9,7 @@ from django.utils import timezone
 import logging
 
 # for cleanActiveTokenTable method
-MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 2
+MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
 
 # for clearEventsThatHaveBeenDecline method
 MINIMUM_NUMBER_OF_DECLINES = 30
