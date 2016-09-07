@@ -25,7 +25,7 @@ def cleanActiveTokenTable():
     for aToken in activeTokens:
         if aToken.timeStamp < currentTimeMinusXMinutes:
             aToken.delete()
-            logger.info("{} deleted for clenaActiveTokenTable method".format(aToken.token))
+            logger.info("{} deleted by clenaActiveTokenTable method".format(aToken.token.token))
 
 def clearEventsThatHaveBeenDecline():
     '''This clears the events that have lost credibility'''
