@@ -66,7 +66,8 @@ def nearbyBuses(request, pUserId, pBusStop):
     # active user buses that stop in the bus stop
     activeUserBuses = Token.objects.filter(bus__service__in = serviceNames, \
             activetoken__isnull=False)
-
+    #print "usuarios activos: " + str(len(activeUserBuses))
+    
     userBuses = []
     for user in activeUserBuses:
         serviceIndex = serviceNames.index(user.bus.service)
@@ -74,21 +75,26 @@ def nearbyBuses(request, pUserId, pBusStop):
         if user.direction == serviceDirections[serviceIndex] or \
             user.direction is None:
             bus = {}
-            bus['servicio'] = userBus.service
-            bus['patente'] = userBus.registrationPlate
-            busEvents = EventsByBus().getEventForBus(userBus)
+            bus['servicio'] = user.bus.service
+            bus['patente'] = user.bus.registrationPlate
+            busEvents = EventsByBus().getEventForBus(user.bus)
             bus['eventos'] = busEvents
-            busData = userBus.getLocation()
+            busData = user.bus.getLocation()
             bus['lat'] = busData['latitude']
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
-            bus['sentido'] = userBus.getDirection(pBusStop, 30)
+            bus['sentido'] = user.bus.getDirection(pBusStop, 30)
             bus['color'] = Service.objects.get(service=bus['servicio']).color_id
             bus['random'] = busData['random']
-            # extras
-            bus['tiempo'] = 'viajando'
-            bus['distancia'] = '1 mts.'
             bus['valido'] = 1
+            # extras
+            # old version, 1.2.17 and previous
+            bus['tiempo'] = 'Viajando'
+            bus['distancia'] = '1 mts.'
+            # new version, 1.4.23 and upper
+            bus['tiempoV2'] = 'Viajando'
+            bus['distanciaV2'] = 'Usuario'
+            bus['distanciaMts'] = 1
             # assume that bus is 30 meters from bus stop to predict direction
             if not bus['random']:
                 userBuses.append(bus)
@@ -96,7 +102,6 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     DTPM BUSES
     """
-
     # DTPM source
     url = "http://54.94.231.101/dtpm/busStopInfo/"
     url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
@@ -159,19 +164,29 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     answer['servicios'] = []
     for userBus in userBuses:
+        #print "reviso un bus " + str(userBus['patente'])
         if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
+            #print "agrego dummy bus a la lista"
             answer['servicios'].append(userBus)
         else:
             for dtpmBus in dtpmBuses:
+                #print "comparo {}=={} Y {}=={}".format(dtpmBus['servicio'], userBus['servicio'], dtpmBus['patente'], userBus['patente'])
                 if dtpmBus['servicio'] == userBus['servicio'] and \
                    dtpmBus['patente'].upper() == userBus['patente'].upper():
                     userBus['tiempo'] = dtpmBus['tiempo']
+                    userBus['tiempoV2'] = dtpmBus['tiempo']
                     userBus['distancia'] = dtpmBus['distancia']
+                    userBus['distanciaV2'] = dtpmBus['distanciaV2']
+                    userBus['distanciaMts'] = dtpmBus['distanciaMts']
                     userBus['sentido'] = dtpmBus['sentido']
                     answer['servicios'].append(userBus)
                     dtpmBuses.remove(dtpmBus)
+                    #print "son iguales"
+                    #print str(userBus)
                 else:
-                    answer['servicios'].append(userBus)
+                    pass
+                    #print "no son iguales"
+                    #answer['servicios'].append(userBus)
 
     answer['servicios'].extend(dtpmBuses)
 
