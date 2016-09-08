@@ -292,7 +292,7 @@ class Bus(models.Model):
         try:
             serviceCode = ServicesByBusStop.objects.get(busStop = busstop, service = self.service).code
         except ServicesByBusStop.DoesNotExist:
-            raise ServiceNotFoundException("Service {} is not present in bus stop {}".format(self.service, BusStop))
+            raise ServiceNotFoundException("Service {} is not present in bus stop {}".format(self.service, busstop))
 
         ssd = ServiceStopDistance.objects.get(busStop = busstop, service = serviceCode).distance - int(distance)
 
