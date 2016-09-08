@@ -27,7 +27,12 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as fil
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['200.9.100.91', '172.17.77.240']
+"""
+'54.94.231.101' => public prod server ip
+'200.9.100.91'  => public dev server ip
+'172.17.77.240' => private dev server ip
+"""
+ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240']
 
 
 # Application definition
