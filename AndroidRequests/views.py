@@ -83,7 +83,11 @@ def nearbyBuses(request, pUserId, pBusStop):
             bus['lat'] = busData['latitude']
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
-            bus['sentido'] = user.bus.getDirection(pBusStop, 30)
+            try:
+                bus['sentido'] = user.bus.getDirection(pBusStop, 30)
+            except Exception as e:
+                logger.error(str(e))
+                bus['sentido'] = "left"
             bus['color'] = Service.objects.get(service=bus['servicio']).color_id
             bus['random'] = busData['random']
             bus['valido'] = 1
