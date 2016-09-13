@@ -7,3 +7,4 @@ wheel==0.24.0
 django-modelsdoc==0.1.4
 coveralls==1.1
 suds==0.4
+googlemaps==2.4.4
