@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,6 +24,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as file:
     SECRET_KEY = file.read().strip()
     #'cbwz-*ri$u=_v@xa5m(3)qujt8yur&id*j%ps3src9^l+doxx4'
+
+# Google key to ask for google services
+with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as file:
+    GOOGLE_KEY = json.load(file)['private_key_id']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
