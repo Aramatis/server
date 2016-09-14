@@ -27,10 +27,10 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as fil
 
 # Google key to ask for google services
 with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as file:
-    GOOGLE_KEY = json.load(file)['private_key_id']
+    GOOGLE_KEY = json.load(file)['key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 """
 '54.94.231.101' => public prod server ip
@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'modelsdoc',
     'DataDictionary',
     'PredictorDTPM',
+    'routeplanner',
 )
 
 MIDDLEWARE_CLASSES = (
