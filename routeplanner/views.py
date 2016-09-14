@@ -5,6 +5,7 @@ from django.views.generic import View
 
 # python utilities
 import requests
+import logging
 
 # third-party libraries
 import googlemaps
@@ -14,11 +15,11 @@ import googlemaps
 class RoutePlanner(View):
     """
     Manage the interaction between google and TranSapp users, let them
-    calculate a route to move one location to another.
+    calculate a route to move from one location to another.
     """
 
     def __init__(self):
-        self.context={}
+        self.context = {}
 
     def get(self, request):
         """
@@ -53,7 +54,30 @@ class RoutePlanner(View):
             - in this option it can define a "departure_time", default is "now"
         """
 
-        avoid = ""
+        transitMode = ["bus", "rail"]
+        """
+        Specifies one or more preferred modes of transit. This parameter may only be
+        specified for requests where the mode is transit. Valid values are:
+        "bus", "subway", "train", "tram", "rail"
+        "rail" is equivalent to ["train, "tram", "subway"]
+        """
+
+        transitRoutingPreference = "less_walking"
+        """
+        Specifies preferences for transit requests. Valid values are "less_walking" or
+        "fewer_transfers"
+        """
+
+        #departureTime =
+        """ Specifies the desired time of departure. Default: Now """
+
+        #arrivalTime =
+        """
+        Specifies the desired time of arrival for transit directions.
+        Note: you can't specify both departure_time and arrival_time
+        """
+
+        avoid = []
         """
         places that route has to avoid:
         - tolls
@@ -79,12 +103,19 @@ class RoutePlanner(View):
         it says that google can return multiples trajectories
         """
 
-        routes = googleClient.directions(origin, destination,
-                                         mode = mode,
-                                         avoid = avoid,
-                                         units = units,
-                                         region = region,
-                                         alternatives = alternatives,
-                                         language = language)
+        try:
+            routes = googleClient.directions(origin, destination,
+                                             mode = mode,
+                                             transit_mode = transitMode,
+                                             transit_routing_preference = transitRoutingPreference,
+                                             avoid = avoid,
+                                             units = units,
+                                             region = region,
+                                             alternatives = alternatives,
+                                             language = language)
+        except e:
+            logger = logging.getLogger(__name__)
+            logger.error(str(e))
+            routes = []
 
         return JsonResponse(routes, safe = False)
