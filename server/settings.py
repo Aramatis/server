@@ -143,6 +143,11 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'routeplanner': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
         }
     },
 }
