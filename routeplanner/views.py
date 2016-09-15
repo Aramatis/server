@@ -21,24 +21,12 @@ class RoutePlanner(View):
     def __init__(self):
         self.context = {}
 
-    def get(self, request):
+    def get(self, request, origin, destination, language = "es"):
         """
         Method to calculate a route between two locations
         You can learn more about this here ->
         https://developers.google.com/maps/documentation/directions/intro#TravelModes
         """
-
-        # GET PARAMETERS
-
-        origin = request.GET.get('origin', '')
-        destination = request.GET.get('destination', '')
-        language = request.GET.get('lang', 'es')
-        #language of message given by direction API, whatever thing differect to
-        # correct language, direction API return user message in english
-
-        if origin == '' or destination == '':
-            return JsonResponse([], safe = False)
-        # verify that parameter exists
 
         googleClient = googlemaps.Client(settings.GOOGLE_KEY)
 
@@ -113,7 +101,7 @@ class RoutePlanner(View):
                                              region = region,
                                              alternatives = alternatives,
                                              language = language)
-        except e:
+        except Exception as e:
             logger = logging.getLogger(__name__)
             logger.error(str(e))
             routes = []
