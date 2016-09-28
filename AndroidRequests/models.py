@@ -361,6 +361,8 @@ class Token(models.Model):
     '''Color to paint the travel icon'''
     userId = models.UUIDField()
     """ To identify the data owner """
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    ''' UUID to identify a dummy bus'''
     def getBusesIn(self, pListOfServices):
         """ return a list of buses that match with buses given as parameter """
 
