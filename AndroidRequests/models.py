@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils import timezone
 from random import uniform
@@ -189,6 +190,8 @@ class Bus(models.Model):
     """ It's the registration plate for the bus, without hyphen """
     service = models.CharField(max_length=5, null=False, blank=False)
     """ It indicates the service performed by the bus """
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    """ Unique ID to primarily identify Buses created without registrationPlate """
     events = models.ManyToManyField(Event,  verbose_name='the event' ,through=EventForBus)
 
     class Meta:
