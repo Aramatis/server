@@ -22,8 +22,10 @@ urlpatterns = [
     url(r'^sendTrajectory$', SendPoses.as_view()),
     # reportEventBus with location
     url(r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$', RegisterEventBus.as_view()),
+    url(r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)/(?P<pUuid>[0-9a-z-]+)$' , RegisterEventBus.as_view()),
     # reportEventBus without location
     url(r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBus.as_view()),
+    url(r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)/(?P<pUuid>[0-9a-z-]+)$', RegisterEventBus.as_view()),
     url(r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$', RegisterEventBusStop.as_view()),
     url(r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$', RegisterEventBusStop.as_view()),
     # List of events that depend of parameter pWhich={stopstop,stopbus, busbus}

@@ -34,13 +34,16 @@ class RequestToken(View):
 
             bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
                 service = pBusService, uuid = puuid)[0]
+            aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
+                color=self.getRandomColor(), direction = None, uuid=puuid)
             response['uuid'] = puuid
         else:
             bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
                 service = pBusService)[0]
-
-        aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
+            aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
                 color=self.getRandomColor(), direction = None)
+
+        
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 
         # we store the active token
