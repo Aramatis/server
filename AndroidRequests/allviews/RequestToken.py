@@ -6,6 +6,8 @@ from django.utils import timezone
 import hashlib
 import os
 from random import random
+import uuid
+import AndroidRequests.constants as Constants
 
 # my stuff
 # import DB's models
@@ -25,8 +27,16 @@ class RequestToken(View):
 
         # remove hyphen and convert to uppercase
         pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
+        response = {}
+        if pRegistrationPlate == Constants.DUMMY_LICENSE_PLATE :
 
-        bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
+            puuid = uuid.uuid4()
+
+            bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
+                service = pBusService, uuid = puuid)[0]
+            response['uuid'] = puuid
+        else:
+            bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
                 service = pBusService)[0]
 
         aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
@@ -34,7 +44,7 @@ class RequestToken(View):
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 
         # we store the active token
-        response = {}
+        
         response['token'] = hashToken
 
         return JsonResponse(response, safe=False)
