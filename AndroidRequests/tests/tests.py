@@ -234,7 +234,7 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToReportEventBus['service'], busService)
-        self.assertEqual(len(responseToReportEventBus['events']), 1)
+        self.assertEqual(len(responseToReportEventBus['events']), 0)
 
     def test_EventsByBus(self):
         '''This method test two thing, the posibility to report an event and asking

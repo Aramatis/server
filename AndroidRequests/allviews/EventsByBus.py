@@ -26,10 +26,13 @@ class EventsByBus(View):
         try:
             if puuid != 0:
                 bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService, uuid=puuid)
+                events = self.getEventForBus(bus)
+            elif puuid == 0 and pRegistrationPlate != Constants.DUMMY_LICENSE_PLATE:
+                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
+                events = self.getEventForBus(bus)
             else:
                 bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
-            # ask for the events in this bus
-            events = self.getEventForBus(bus)
+                events = {}
         except:
             events = {}
 
@@ -52,7 +55,6 @@ class EventsByBus(View):
             eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
 
             registry = EventForBus.objects.filter(bus = pBus, event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
-            # print(registry)
 
             #checks if the event is active
             if registry.exists():

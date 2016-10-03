@@ -11,20 +11,18 @@ class RegisterEventBus(View):
     '''This class handles requests that report events of a bus.'''
 
     def get(self, request, pUserId, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500, puuid=0):
-        # print(pBusService)
-        # print(pBusPlate)
-        # print(pEventID)
-        # print(puuid)
         # here we request all the info needed to proceed
         aTimeStamp = timezone.now()
         theEvent = Event.objects.get(id=pEventID)
-        # print(theEvent.id)
 
         # remove hyphen and convert to uppercase
         pBusPlate = pBusPlate.replace('-', '').upper()
 
         if puuid != 0:
-            theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate, uuid=puuid)[0]
+            try:
+                theBus = Bus.objects.get(service=pBusService, registrationPlate=pBusPlate, uuid=puuid)[0]
+            except:
+                theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
         else:
             theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
 
@@ -68,9 +66,7 @@ class RegisterEventBus(View):
 
         # Returns updated event list for a bus
         eventsByBus = EventsByBus()
-        # print(eventsByBus.get(request, pBusPlate, pBusService))
         if puuid != 0:
-            # print(eventsByBus.get(request, pBusPlate, pBusService, puuid))
             return eventsByBus.get(request, pBusPlate, pBusService, puuid) 
         else:
             return eventsByBus.get(request, pBusPlate, pBusService)

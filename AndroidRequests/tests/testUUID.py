@@ -25,6 +25,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.factory = RequestFactory()
 
         self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.userId2 = "4f20c8f4-ddea-4c6c-87bb-c7bd3d435a51"
 
         #loads the events
         import os, sys
@@ -79,6 +80,8 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
         #the created token has the uuid for the dummybus
         self.assertEqual(Token.objects.filter(uuid=testUUID).exists(), True)
+        #a ghost bus is created with the same uuid that was recieved in the token
+        self.assertEqual(Bus.objects.filter(uuid=testUUID).exists(), True)
 
         request = self.factory.get('/android/endRoute/' + testToken)
         request.user = AnonymousUser()
@@ -96,7 +99,27 @@ class DummyLicensePlateUUIDTest(TestCase):
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         busService = '507'
         eventCode = 'evn00101'
-        puuid=uuid.uuid4()
+
+        request = self.factory.get('/android/requestToken')
+        request.user = AnonymousUser()
+
+        reponseView = RequestToken()
+        response = reponseView.get(request, self.userId, busService, licencePlate)
+
+        self.assertEqual(response.status_code, 200)
+
+        testToken = json.loads(response.content)
+        puuid = testToken['uuid']
+        testToken = testToken['token']
+
+        # the created token is an active token
+        self.assertEqual(ActiveToken.objects.filter(token=testToken).exists(), True)
+        # the created token exist in the table of token
+        self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
+        #the created token has the uuid for the dummybus
+        self.assertEqual(Token.objects.filter(uuid=puuid).exists(), True)
+        #a ghost bus is created with the same uuid that was recieved in the token
+        self.assertEqual(Bus.objects.filter(uuid=puuid).exists(), True)
 
         # submitting one event to the server
         requestToReportEventBus = self.factory.get('/android/reportEventBus/')
@@ -187,29 +210,3 @@ class DummyLicensePlateUUIDTest(TestCase):
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
         self.assertEqual(len(responseToRequestEventForBus['events']),0)
-        
-    
-
-    # def test_EventsByBusWithDummyLicensePlateUUID(self):
-    #     ''' This method will test the dummy license plate bus with UUID '''
-
-    #     licencePlate = Constants.DUMMY_LICENSE_PLATE
-    #     busService = '507'
-    #     eventCode = 'evn00101'
-    #     busUUID = '159fc6b7-7a20-477e-b5c7-af421e1e0e16'
-
-    #     # submitting one event to the server
-    #     requestToReportEventBus = self.factory.get('/android/reportEventBus/')
-    #     requestToReportEventBus.user = AnonymousUser()
-
-    #     reportEventBusView = RegisterEventBus()
-    #     responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, \
-    #             self.userId, busService, licencePlate, eventCode, 'confirm', pBusUUID = busUUID)
-
-    #     responseToReportEventBus = json.loads(responseToReportEventBus.content)
-
-    #     self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
-    #     self.assertEqual(responseToReportEventBus['service'], busService)
-    #     self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
-    #     self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 1)
-    #     self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
