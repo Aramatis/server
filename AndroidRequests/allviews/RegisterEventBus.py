@@ -11,14 +11,22 @@ class RegisterEventBus(View):
     '''This class handles requests that report events of a bus.'''
 
     def get(self, request, pUserId, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500, puuid=0):
+        # print(pBusService)
+        # print(pBusPlate)
+        # print(pEventID)
+        # print(puuid)
         # here we request all the info needed to proceed
         aTimeStamp = timezone.now()
         theEvent = Event.objects.get(id=pEventID)
+        # print(theEvent.id)
 
         # remove hyphen and convert to uppercase
         pBusPlate = pBusPlate.replace('-', '').upper()
 
-        theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
+        if puuid != 0:
+            theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate, uuid=puuid)[0]
+        else:
+            theBus = Bus.objects.get_or_create(service=pBusService, registrationPlate=pBusPlate)[0]
 
         # estimate the oldest time where the reported event can be usefull
         # if there is no event here a new one is created
@@ -60,7 +68,12 @@ class RegisterEventBus(View):
 
         # Returns updated event list for a bus
         eventsByBus = EventsByBus()
-        return eventsByBus.get(request, pBusPlate, pBusService)
+        # print(eventsByBus.get(request, pBusPlate, pBusService))
+        if puuid != 0:
+            # print(eventsByBus.get(request, pBusPlate, pBusService, puuid))
+            return eventsByBus.get(request, pBusPlate, pBusService, puuid) 
+        else:
+            return eventsByBus.get(request, pBusPlate, pBusService)
 
     def getLastEvent(self, querySet):
         """if the query has two responses, return the latest one"""

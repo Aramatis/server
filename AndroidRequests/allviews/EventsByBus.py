@@ -13,7 +13,7 @@ class EventsByBus(View):
     def __init__(self):
         self.context={}
 
-    def get(self, request, pRegistrationPlate,pBusService):
+    def get(self, request, pRegistrationPlate,pBusService, puuid=0):
         """It's important to give the registrarion plate and the bus
         service, because one plate could have two services."""
         # remove hyphen and convert to uppercase
@@ -24,7 +24,10 @@ class EventsByBus(View):
         response['service'] = pBusService
 
         try:
-            bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
+            if puuid != 0:
+                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService, uuid=puuid)
+            else:
+                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
             # ask for the events in this bus
             events = self.getEventForBus(bus)
         except:
@@ -39,8 +42,9 @@ class EventsByBus(View):
         since the last time there were reported"""
         events = []
 
-        if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
-            return events
+        # if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE :
+            
+        #     return events
 
         eventsToAsk = Event.objects.filter(eventType='bus')
 
@@ -48,6 +52,7 @@ class EventsByBus(View):
             eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
 
             registry = EventForBus.objects.filter(bus = pBus, event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
+            # print(registry)
 
             #checks if the event is active
             if registry.exists():

@@ -89,7 +89,7 @@ class DevicePositionInTimeTest(TestCase):
         log.close()
 
         # add dummy  bus
-        Bus.objects.create(registrationPlate = 'AA1111', service = '507')
+        Bus.objects.create(registrationPlate = 'AA1111', service = '507', uuid = '159fc6b7-7a20-477e-b5c7-af421e1e0e16')
         # add dummy bus stop
         busStop = BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
 
@@ -226,6 +226,7 @@ class DevicePositionInTimeTest(TestCase):
         requestToReportEventBus.user = AnonymousUser()
 
         reportEventBusView = RegisterEventBus()
+
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, \
                 self.userId, busService, licencePlate, eventCode, 'confirm')
 
@@ -233,7 +234,7 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToReportEventBus['service'], busService)
-        self.assertEqual(len(responseToReportEventBus['events']), 0)
+        self.assertEqual(len(responseToReportEventBus['events']), 1)
 
     def test_EventsByBus(self):
         '''This method test two thing, the posibility to report an event and asking

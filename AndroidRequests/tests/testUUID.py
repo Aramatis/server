@@ -104,7 +104,7 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         reportEventBusView = RegisterEventBus()
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, \
-                self.userId, busService, licencePlate, eventCode, 'confirm', pUuid=puuid)
+                self.userId, busService, licencePlate, eventCode, 'confirm', puuid=puuid)
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
@@ -122,7 +122,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         # verify the previous event reported
         requestEventForBusView = EventsByBus()
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus, \
-                licencePlate, busService, pUuid=puuid)
+                licencePlate, busService, puuid=puuid)
 
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
@@ -135,7 +135,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         # ===================================================================================
         # do event +1 to the event
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, self.userId,\
-                busService, licencePlate, eventCode, 'confirm', pUuid=puuid)
+                busService, licencePlate, eventCode, 'confirm', puuid=puuid)
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
@@ -145,7 +145,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
 
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
-                licencePlate, busService, pUuid=puuid)
+                licencePlate, busService, puuid=puuid)
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
         self.assertEqual(responseToRequestEventForBus['registrationPlate'],licencePlate)
@@ -155,7 +155,7 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         # do event -1 to the event
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, self.userId, \
-                busService, licencePlate, eventCode, 'decline', pUuid=puuid)
+                busService, licencePlate, eventCode, 'decline', puuid=puuid)
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
@@ -165,7 +165,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
 
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
-                licencePlate,busService, pUuid=puuid)
+                licencePlate,busService, puuid=puuid)
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
         self.assertEqual(responseToRequestEventForBus['registrationPlate'], licencePlate)
@@ -174,7 +174,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventcode'], eventCode)
 
         # change manually the timeStamp to simulate an event that has expired
-        bus= Bus.objects.get(registrationPlate=licencePlate, service=busService, pUuid=puuid)
+        bus= Bus.objects.get(registrationPlate=licencePlate, service=busService, uuid=puuid)
         event = Event.objects.get(id=eventCode)
         anEvent = EventForBus.objects.get(bus=bus,event=event)
 
@@ -183,7 +183,7 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         # ask for events and the answer should be none
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
-                licencePlate,busService, pUuid=puuid)
+                licencePlate,busService, puuid=puuid)
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
         self.assertEqual(len(responseToRequestEventForBus['events']),0)
