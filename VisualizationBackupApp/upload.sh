@@ -1,16 +1,31 @@
 #!/bin/bash
 
+APP_DIR="$1"
+if [ -z "$APP_DIR" ]; then
+	echo "This script must be called with the parameter APP_DIR"
+	exit 1
+fi
+if [ ! -d "$APP_DIR" ]; then
+	echo "APP_DIR folder does not exists: $APP_DIR"
+	exit 1
+fi
+if [ "$USER" != "root" ]; then
+	echo "This script must be called by root. Current user: $USER"
+	exit 1
+fi
+
+
 KEY=/home/server/.ssh/id_rsa
 HOST=server@172.17.57.188
 
-THIS_FOLDER=/home/server/Documents/server/VisualizationBackupApp
+THIS_FOLDER="$APP_DIR"
 TEMPLATE="$THIS_FOLDER"/template.txt
 COMMANDS="$THIS_FOLDER"/commands.txt
 
 TMP_FOLDER=/tmp/backup_viz
 mkdir -p "$TMP_FOLDER"
 
-cd /home/server/Documents/server
+cd "$THIS_FOLDER/.."
 python manage.py archive
 
 FILE=`find $TMP_FOLDER -type f -name 'backup_*.tar.bz2' -printf "%f\n"`
