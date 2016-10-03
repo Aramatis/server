@@ -56,6 +56,8 @@ INSTALLED_APPS = (
     'DataDictionary',
     'PredictorDTPM',
     'routeplanner',
+    'django_archive',
+    'CronApp',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -203,8 +205,11 @@ MEDIA_IMAGE = os.path.join(MEDIA_ROOT, "reported_images/")
 CRONJOBS = [
     #the job is executed every day at 24
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearEventsThatHaveBeenDecline'),
-    ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable')
+    ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
+    ('*/1 * * * *', 'VisualizationBackupApp.cron.my_scheduled_job', '>> /tmp/backup_cron.txt')
 ]
+
+CRONTAB_LOCK_JOBS = True
 
 MODELSDOC_APPS = ('AndroidRequests',)
 
@@ -219,3 +224,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
 
+
+# django_archive
+ARCHIVE_DIRECTORY = "/tmp/backup_viz"
+ARCHIVE_FILENAME  = "backup_" + "%Y-%m-%d--%H-%M-%S"
