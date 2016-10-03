@@ -10,7 +10,7 @@ from EventsByBus import EventsByBus
 class RegisterEventBus(View):
     '''This class handles requests that report events of a bus.'''
 
-    def get(self, request, pUserId, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500):
+    def get(self, request, pUserId, pBusService, pBusPlate, pEventID, pConfirmDecline, pLatitud=500, pLongitud=500, pBusUUID = None):
         # here we request all the info needed to proceed
         aTimeStamp = timezone.now()
         theEvent = Event.objects.get(id=pEventID)
