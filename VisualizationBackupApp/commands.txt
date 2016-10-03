@@ -1,3 +1,0 @@
-cd ftp_incomming
-
-put /tmp/backup_viz/backup_2016-10-03--10-13-02.tar.bz2

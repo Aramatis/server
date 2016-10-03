@@ -9,10 +9,14 @@ if [ ! -d "$APP_DIR" ]; then
 	echo "APP_DIR folder does not exists: $APP_DIR"
 	exit 1
 fi
-if [ "$USER" != "root" ]; then
-	echo "This script must be called by root. Current user: $USER"
+if ! [ $(id -u) = 0 ] ; then
+	echo "This script must be called by root."
 	exit 1
 fi
+
+echo "---------------------------------------------------------------"
+echo "upload.sh init" $(date)
+echo "---------------------------------------------------------------"
 
 
 KEY=/home/server/.ssh/id_rsa
@@ -22,40 +26,54 @@ THIS_FOLDER="$APP_DIR"
 TEMPLATE="$THIS_FOLDER"/template.txt
 COMMANDS="$THIS_FOLDER"/commands.txt
 
+echo "- preparing environment ..."
 TMP_FOLDER=/tmp/backup_viz
 mkdir -p "$TMP_FOLDER"
-
 cd "$THIS_FOLDER/.."
+
+echo "- creating backup ..."
 python manage.py archive
 
+echo "- looking for backup results ..."
 FILE=`find $TMP_FOLDER -type f -name 'backup_*.tar.bz2' -printf "%f\n"`
 THE_FILE="$TMP_FOLDER/$FILE"
-echo "THE_FILE = $THE_FILE"
-echo "FILE = $FILE"
+echo "found FILE = $FILE"
+echo "found THE_FILE = $THE_FILE"
 
 if [ ! -z "$FILE" ]; then
 	
-	echo "Found $THE_FILE"
+	echo "- found $THE_FILE"
 
-	echo "Generating FTP batch file: $COMMANDS"
+	echo "- generating FTP batch file: $COMMANDS"
 	## generate ftp command file
 	rm -rf "$COMMANDS"
 	cp "$TEMPLATE" "$COMMANDS"
 	echo "put $THE_FILE" >> "$COMMANDS"
 
-	echo "Sending file"
+	echo "- sending file"
 	## send
 	# TODO: check sended file
 	sftp -p -i "$KEY" -b "$COMMANDS" "$HOST"
 
 	# ## delete
-	echo "Deleting stuffffffff"
+	echo "- deleting stuff"
 	if [ -d "$TMP_FOLDER" ]; then
 		if [ -e "$THE_FILE" ]; then
 			cd "$TMP_FOLDER"
 			rm -rf "$THE_FILE"
+		else
+			echo "UPS! backup file not found ... delete aborted"
 		fi
+	else
+		echo "UPS! $TMP_FOLDER not found.. delete aborted"
 	fi
+
+	#echo "- here load the data  ..."
+
 else
-	echo "The backup file was not found. Probably, the 'python manage.py archive' command failed"
+	echo "UPS!.. The backup file was not found. Probably, the 'python manage.py archive' command failed"
 fi
+
+echo "-------------------------------------------------------------------"
+echo "upload.sh end"
+echo "-------------------------------------------------------------------"
