@@ -57,7 +57,7 @@ INSTALLED_APPS = (
     'PredictorDTPM',
     'routeplanner',
     'django_archive',
-    'CronApp',
+    'VisualizationBackupApp',
 )
 
 MIDDLEWARE_CLASSES = (
