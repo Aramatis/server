@@ -99,6 +99,8 @@ def nearbyBuses(request, pUserId, pBusStop):
             bus['tiempoV2'] = 'Viajando'
             bus['distanciaV2'] = 'Usuario'
             bus['distanciaMts'] = 1
+            # add new param 'uuid'
+            bus['busId'] = user.bus.uuid
             # assume that bus is 30 meters from bus stop to predict direction
             if not bus['random']:
                 userBuses.append(bus)
