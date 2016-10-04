@@ -13,7 +13,7 @@ class EventsByBus(View):
     def __init__(self):
         self.context={}
 
-    def get(self, request, pRegistrationPlate,pBusService, puuid=0):
+    def get(self, request, pRegistrationPlate,pBusService):
         """It's important to give the registrarion plate and the bus
         service, because one plate could have two services."""
         # remove hyphen and convert to uppercase
@@ -24,15 +24,8 @@ class EventsByBus(View):
         response['service'] = pBusService
 
         try:
-            if puuid != 0:
-                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService, uuid=puuid)
-                events = self.getEventForBus(bus)
-            elif puuid == 0 and pRegistrationPlate != Constants.DUMMY_LICENSE_PLATE:
-                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
-                events = self.getEventForBus(bus)
-            else:
-                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
-                events = {}
+            bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
+            events = self.getEventForBus(bus)
         except:
             events = {}
 
@@ -45,9 +38,8 @@ class EventsByBus(View):
         since the last time there were reported"""
         events = []
 
-        # if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE :
-            
-        #     return events
+        if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE :
+            return events
 
         eventsToAsk = Event.objects.filter(eventType='bus')
 

@@ -27,27 +27,16 @@ class RequestToken(View):
 
         # remove hyphen and convert to uppercase
         pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
-        response = {}
-        if pRegistrationPlate == Constants.DUMMY_LICENSE_PLATE :
-
-            puuid = uuid.uuid4()
-
-            bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
-                service = pBusService, uuid = puuid)[0]
-            aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
-                color=self.getRandomColor(), direction = None, uuid=puuid)
-            response['uuid'] = puuid
-        else:
-            bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
+        
+        bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
                 service = pBusService)[0]
-            aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
+        aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
                 color=self.getRandomColor(), direction = None)
-
         
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 
         # we store the active token
-        
+        response = {}
         response['token'] = hashToken
 
         return JsonResponse(response, safe=False)
