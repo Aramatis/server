@@ -13,31 +13,30 @@ class EventsByBusV2(View):
     def __init__(self):
         self.context={}
 
-    def get(self, request, pRegistrationPlate,pBusService, puuid=0):
+    def get(self, request, pUuid, pBusService):
         """It's important to give the registrarion plate and the bus
         service, because one plate could have two services."""
         # remove hyphen and convert to uppercase
-        pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
+        #pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
 
         response = {}
-        response['registrationPlate'] = pRegistrationPlate
+        #response['registrationPlate'] = pRegistrationPlate
         response['service'] = pBusService
+        response['uuid'] = pUuid
 
         try:
-            if puuid != 0:
-                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService, uuid=puuid)
-                events = self.getEventForBus(bus)
-            elif puuid == 0 and pRegistrationPlate != Constants.DUMMY_LICENSE_PLATE:
-                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
-                events = self.getEventForBus(bus)
-            else:
-                bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
-                events = {}
+            
+            bus = Bus.objects.get(service=pBusService, uuid=pUuid)
+            events = self.getEventForBus(bus) 
+            pRegistrationPlate = bus.registrationPlate            
+            
         except:
             events = {}
+            pRegistrationPlate = ''
 
+        response['registrationPlate'] = pRegistrationPlate
         response['events'] = events
-
+        
         return JsonResponse(response, safe=False)
 
     def getEventForBus(self,pBus):

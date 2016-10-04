@@ -17,11 +17,12 @@ class RegisterEventBusV2(View):
 
         # remove hyphen and convert to uppercase
         # pBusPlate = pBusPlate.replace('-', '').upper()
+        theBus = {}
         try:
-            theBus = Bus.objects.get(service=pBusService, uuid=pUuid)[0]
+            theBus = Bus.objects.get(service=pBusService, uuid=pUuid)
         except:
-            print('lol')
-
+            return {}
+        #theBus = Bus.objects.get(service=pBusService, uuid=pUuid)
         # estimate the oldest time where the reported event can be usefull
         # if there is no event here a new one is created
         oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
@@ -62,11 +63,9 @@ class RegisterEventBusV2(View):
 
         # Returns updated event list for a bus
         eventsByBus = EventsByBusV2()
-        if puuid != 0:
-            return eventsByBus.get(request, pBusPlate, pBusService, puuid) 
-        else:
-            return eventsByBus.get(request, pBusPlate, pBusService)
 
+        return eventsByBus.get(request, pUuid, pBusService) 
+        
     def getLastEvent(self, querySet):
         """if the query has two responses, return the latest one"""
         toReturn = querySet[0]

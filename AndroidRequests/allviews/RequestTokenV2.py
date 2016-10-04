@@ -47,10 +47,6 @@ class RequestTokenV2(View):
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 
         # we store the active token
-        print("bus creado uuid")
-        print(bus.uuid)
-        print(puuid)
-        
         response['token'] = hashToken
 
         return JsonResponse(response, safe=False)

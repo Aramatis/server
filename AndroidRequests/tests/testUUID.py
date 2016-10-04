@@ -71,7 +71,6 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         testToken = json.loads(response.content)
-        print(testToken)
         testUUID = testToken['uuid']
         testToken = testToken['token']
 
@@ -111,8 +110,6 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         testToken = json.loads(response.content)
         puuid = testToken['uuid']
-        print("uuid que viene en el token")
-        print(puuid)
         testToken = testToken['token']
 
         # the created token is an active token
@@ -208,7 +205,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         # change manually the timeStamp to simulate an event that has expired
         bus= Bus.objects.get(service=busService, uuid=puuid)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBusV2.objects.get(bus=bus,event=event)
+        anEvent = EventForBus.objects.get(bus=bus,event=event)
 
         anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
