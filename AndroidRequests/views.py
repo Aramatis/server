@@ -157,6 +157,8 @@ def nearbyBuses(request, pUserId, pBusStop):
             getEventBus = EventsByBus()
             busEvents = getEventBus.getEventForBus(bus)
             service['eventos'] = busEvents
+            #add uuid parameter
+            service['busId'] = bus.uuid
 
             dtpmBuses.append(service)
 
@@ -191,6 +193,7 @@ def nearbyBuses(request, pUserId, pBusStop):
                     #print str(userBus)
                 else:
                     pass
+                    #pass
                     #print "no son iguales"
                     #answer['servicios'].append(userBus)
 
