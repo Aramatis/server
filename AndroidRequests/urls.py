@@ -15,6 +15,7 @@ from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.BusStopsByService import BusStopsByService
 from AndroidRequests.allviews.RegisterReport import RegisterReport
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
+from AndroidRequests.allviews.SetDirection import SetDirection
 
 urlpatterns = [
     url(r'^nearbyBuses/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStop>\w+)$', views.nearbyBuses),
@@ -42,4 +43,5 @@ urlpatterns = [
     # List of bus stop of a service
     url(r'^requestBusStopsForService/(?P<pBusService>[\w,0-9]*)$', BusStopsByService.as_view()),
     url(r'^requestRouteForService/(?P<pBusService>[\w,0-9]*)/(?P<pLat1>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLon1>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLat2>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLon2>[\-+]?[0-9]*\.?[0-9]*)$', ServiceRoute.as_view()),
+    url(r'^setDirection$', SetDirection.as_view()),
 ]
