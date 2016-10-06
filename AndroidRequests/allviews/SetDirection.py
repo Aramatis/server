@@ -18,7 +18,7 @@ class SetDirection(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(SendPoses, self).dispatch(request, *args, **kwargs)
+        return super(SetDirection, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
         response = {}
@@ -32,8 +32,10 @@ class SetDirection(View):
                 aToken.direction = pDirection
                 aToken.save()
 
-                response['response'] = 'User bus direction updated.'
+                response['message'] = 'User bus direction updated.'
+                response['valid'] = True
             else:#if the token was not found alert
-                response['response'] = 'Token doesn\'t exist.'
+                response['message'] = 'Token doesn\'t exist.'
+                response['valid'] = False
 
         return JsonResponse(response, safe=False)
