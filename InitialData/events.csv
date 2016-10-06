@@ -10,7 +10,7 @@ evn00021;busStop;ambiente;o;Ebrio;Personas ebrias en el paradero;5
 evn00022;busStop;ambiente;o;Paradero lleno;Paradero esta lleno de personas;5
 evn00100;bus;desde paradero;o;Bus en transito;El bus  pasó en tránsito;3000
 evn00101;bus;desde paradero;o;Bus vacio no se detuvo;Bus con pocos pasajeros y no pará;3000
-evn00102;bus;desde parader0;o;Bus lleno no se detuvo;Bus con muchos pasajeros y no paró;3000
+evn00102;bus;desde paradero;o;Bus lleno no se detuvo;Bus con muchos pasajeros y no paró;3000
 evn00200;bus;ambiente;i;Imposible moverse;No se puede transitar por el bus;5
 evn00201;bus;ambiente;i;Se camina con dificultad;Es difícil transitar por el bus;5
 evn00202;bus;ambiente;i;No hay asientos disponibles;No hay asientos disponibles;5
@@ -25,7 +25,7 @@ evn00222;bus;estado físico;i;Ventana en mal estado;Ventana(s) en mal estado;300
 evn00223;bus;estado físico;i;Timbre en mal estado;Timbre(s) en mal estado;3000
 evn00224;bus;estado físico;i;Sucio;El bus está sucio;3000
 evn00225;bus;estado físico;i;Bus en buen estado;El bus está en buenas condiciones;3000
-evn00230;bus;conductor;i;Conducción brusca;Chofer raliza maniobras bruscas;30
+evn00230;bus;conductor;i;Conducción brusca;Chofer realiza maniobras bruscas;30
 evn00231;bus;conductor;i;No para en paradero;El bus no paró en el paradero;180
 evn00232;bus;conductor;i;Habla por celular;Conductor habla por celular ;5
 evn00233;bus;conductor;i;Buen comportamiento;Conductor maneja bien;5
