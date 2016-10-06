@@ -50,7 +50,7 @@ class RoutePlanner(View):
         "rail" is equivalent to ["train, "tram", "subway"]
         """
 
-        transitRoutingPreference = "less_walking"
+        #transitRoutingPreference = "less_walking"
         """
         Specifies preferences for transit requests. Valid values are "less_walking" or
         "fewer_transfers"
@@ -95,7 +95,7 @@ class RoutePlanner(View):
             routes = googleClient.directions(origin, destination,
                                              mode = mode,
                                              transit_mode = transitMode,
-                                             transit_routing_preference = transitRoutingPreference,
+                                             #transit_routing_preference = transitRoutingPreference,
                                              avoid = avoid,
                                              units = units,
                                              region = region,
