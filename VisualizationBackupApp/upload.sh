@@ -1,5 +1,5 @@
 #!/bin/bash
-
+ 	
 APP_DIR="$1"
 if [ -z "$APP_DIR" ]; then
 	echo "This script must be called with the parameter APP_DIR"
@@ -32,11 +32,12 @@ mkdir -p "$TMP_FOLDER"
 cd "$THIS_FOLDER/.."
 
 echo "creating reports image backups"
-cd ../media
+cd media
 IMAGE_BACKUP=reported_images
+sudo rm -f "$IMAGE_BACKUP".zip 
 sudo zip -r "$IMAGE_BACKUP"{.zip,}
-sudo cp "$IMAGE_BACKUP".zip /tmp/backup_viz
-cd "$THIS_FOLDER"
+sudo mv "$IMAGE_BACKUP".zip /tmp/backup_viz/"$IMAGE_BACKUP".zip
+cd "$THIS_FOLDER/.."
 
 echo "- creating backup ..."
 python manage.py archive
@@ -56,7 +57,7 @@ if [ ! -z "$FILE" ]; then
 	rm -rf "$COMMANDS"
 	cp "$TEMPLATE" "$COMMANDS"
 	echo "put $THE_FILE" >> "$COMMANDS"
-	echo "put $IMAGE_BACKUP.zip" >> "$COMMANDS"
+	echo "put $TMP_FOLDER/$IMAGE_BACKUP.zip" >> "$COMMANDS"
 
 	echo "- sending file"
 	## send
