@@ -31,6 +31,13 @@ TMP_FOLDER=/tmp/backup_viz
 mkdir -p "$TMP_FOLDER"
 cd "$THIS_FOLDER/.."
 
+echo "creating reports image backups"
+cd ../media
+IMAGE_BACKUP=reported_images
+sudo zip -r "$IMAGE_BACKUP"{.zip,}
+sudo cp "$IMAGE_BACKUP".zip /tmp/backup_viz
+cd "$THIS_FOLDER"
+
 echo "- creating backup ..."
 python manage.py archive
 
@@ -49,6 +56,7 @@ if [ ! -z "$FILE" ]; then
 	rm -rf "$COMMANDS"
 	cp "$TEMPLATE" "$COMMANDS"
 	echo "put $THE_FILE" >> "$COMMANDS"
+	echo "put $IMAGE_BACKUP.zip" >> "$COMMANDS"
 
 	echo "- sending file"
 	## send
@@ -63,6 +71,12 @@ if [ ! -z "$FILE" ]; then
 			rm -rf "$THE_FILE"
 		else
 			echo "UPS! backup file not found ... delete aborted"
+		fi
+		if [ -e "$IMAGE_BACKUP".zip ]; then
+			cd "$TMP_FOLDER"
+			rm -rf "$IMAGE_BACKUP".zip
+		else
+			echo "UPS! backup images file not found ... delete aborted"
 		fi
 	else
 		echo "UPS! $TMP_FOLDER not found.. delete aborted"
