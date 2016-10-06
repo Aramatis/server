@@ -9,7 +9,7 @@ evn00020;busStop;ambiente;o;Robos o desordenes;Se precencia robos o disturbios;5
 evn00021;busStop;ambiente;o;Ebrio;Personas ebrias en el paradero;5
 evn00022;busStop;ambiente;o;Paradero lleno;Paradero esta lleno de personas;5
 evn00100;bus;desde paradero;o;Bus en transito;El bus  pasó en tránsito;3000
-evn00101;bus;desde paradero;o;Bus vacio no se detuvo;Bus con pocos pasajeros y no pará;3000
+evn00101;bus;desde paradero;o;Bus vacio no se detuvo;Bus con pocos pasajeros y no para;3000
 evn00102;bus;desde paradero;o;Bus lleno no se detuvo;Bus con muchos pasajeros y no paró;3000
 evn00200;bus;ambiente;i;Imposible moverse;No se puede transitar por el bus;5
 evn00201;bus;ambiente;i;Se camina con dificultad;Es difícil transitar por el bus;5
