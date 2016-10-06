@@ -317,6 +317,7 @@ class Bus(models.Model):
 
         return {'latitude': location.latitud,
                 'longitude': location.longitud,
+                'direction': serviceCode[-1]
                 }
 
     def getDictionary(self):
