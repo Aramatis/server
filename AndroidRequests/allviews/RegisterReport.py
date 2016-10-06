@@ -39,7 +39,7 @@ class RegisterReport(View):
             if stringImage is not None:
                 stringImage = stringImage.decode('base64')
             extension = request.POST.get('ext', '')
-            aditionalInfo = request.POST.get('report_info', '')
+            aditionalInfo = request.POST.get('reportInfo', '')
             pUserId = request.POST.get('userId', '')
             pTimeStamp = timezone.now()
 

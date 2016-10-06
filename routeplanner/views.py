@@ -9,6 +9,7 @@ import logging
 
 # third-party libraries
 import googlemaps
+from routeplanner.models import Log
 
 # Create your views here.
 
@@ -21,13 +22,16 @@ class RoutePlanner(View):
     def __init__(self):
         self.context = {}
 
-    def get(self, request, origin, destination, language = "es"):
+    def get(self, request, pUserId, pOrigin, pDestination, language = "es"):
         """
         Method to calculate a route between two locations
         You can learn more about this here ->
         https://developers.google.com/maps/documentation/directions/intro#TravelModes
         """
 
+	# Log 
+        Log.objects.create(userId = pUserId, origin = pOrigin, destination = pDestination)
+ 	
         googleClient = googlemaps.Client(settings.GOOGLE_KEY)
 
         # DIRECTION API PARAMETERS
@@ -50,7 +54,7 @@ class RoutePlanner(View):
         "rail" is equivalent to ["train, "tram", "subway"]
         """
 
-        transitRoutingPreference = "less_walking"
+        #transitRoutingPreference = "less_walking"
         """
         Specifies preferences for transit requests. Valid values are "less_walking" or
         "fewer_transfers"
@@ -92,10 +96,10 @@ class RoutePlanner(View):
         """
 
         try:
-            routes = googleClient.directions(origin, destination,
+            routes = googleClient.directions(pOrigin, pDestination,
                                              mode = mode,
                                              transit_mode = transitMode,
-                                             transit_routing_preference = transitRoutingPreference,
+                                             #transit_routing_preference = transitRoutingPreference,
                                              avoid = avoid,
                                              units = units,
                                              region = region,
