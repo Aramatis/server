@@ -20,34 +20,23 @@ class RequestTokenV2(View):
     def __init__(self):
         self.context={}
 
-    def get(self, request, pUserId, pBusService, pRegistrationPlate, data=timezone.now()):
+    def get(self, request, pUserId, pBusService, pUUID, data=timezone.now()):
         """ the token is primary a hash of the time stamp plus a random salt """
         salt = os.urandom(20)
         hashToken = hashlib.sha512( str(data) + salt ).hexdigest()
 
         # remove hyphen and convert to uppercase
-        pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
         response = {}
-        if pRegistrationPlate == Constants.DUMMY_LICENSE_PLATE :
-
-            puuid = uuid.uuid4()
-
-            bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
-                service = pBusService, uuid = puuid)[0]
-            aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
-                color=self.getRandomColor(), direction = None, uuid=puuid)
+        
+        bus = Bus.objects.get(uuid = pUUID)[0]
+        bus.service = pBusService
+        bus.save()
+        aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
+                color=self.getRandomColor(), direction = None, uuid=pUUID)
             
-        else:
-            bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
-                service = pBusService)[0]
-            aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
-                color=self.getRandomColor(), direction = None)
-        
-        
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 
         # we store the active token
-        response['uuid'] = bus.uuid
         response['token'] = hashToken
 
         return JsonResponse(response, safe=False)
