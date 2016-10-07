@@ -1,2 +1,0 @@
-cd ftp_incomming
-

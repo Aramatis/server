@@ -205,7 +205,7 @@ CRONJOBS = [
     #the job is executed every day at 24
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearEventsThatHaveBeenDecline'),
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
-    ('*/1 * * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/backup_cron.txt')
+    ('*/1 * * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
 ]
 CRONTAB_LOCK_JOBS = True
 
@@ -226,4 +226,5 @@ os.environ['wsgi.url_scheme'] = 'https'
 
 # django_archive
 ARCHIVE_DIRECTORY = "/tmp/backup_viz"
-ARCHIVE_FILENAME  = "backup_" + "%Y-%m-%d--%H-%M-%S"
+ARCHIVE_FILENAME  = "database"
+ARCHIVE_FORMAT    = "gz"
