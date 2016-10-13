@@ -20,13 +20,13 @@ class RequestUUID(View):
         # remove hyphen and convert to uppercase
         pLicensePlate = pLicensePlate.replace('-', '').upper()
         response = {}
-        if pLicensePlate == Constants.DUMMY_LICENSE_PLATE :
+        if pLicensePlate == Constants.DUMMY_LICENSE_PLATE:
 
             puuid = uuid.uuid4()
 
             # we will update service when the bus asks for a token
-            bus = Bus.objects.create(registrationPlate = pLicesePlate, \
-                service = '', uuid = puuid)[0]
+            bus = Bus.objects.create(registrationPlate = pLicensePlate, \
+                service = '', uuid = puuid)
             
         else:
             bus = Bus.objects.get_or_create(registrationPlate = pLicensePlate)[0]

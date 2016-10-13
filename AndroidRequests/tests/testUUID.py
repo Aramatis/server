@@ -2,6 +2,7 @@ from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 import json
+import re
 
 from AndroidRequests.models import *
 
@@ -14,6 +15,7 @@ from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.allviews.SendPoses import SendPoses
+from AndroidRequests.allviews.RequestUUID import RequestUUID
 import AndroidRequests.views as views
 import AndroidRequests.constants as Constants
 
@@ -216,3 +218,62 @@ class DummyLicensePlateUUIDTest(TestCase):
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
         self.assertEqual(len(responseToRequestEventForBus['events']),0)
+
+
+    def test_RequestUUIDBasedOnLicensePlate(self):
+        """ test the method to request an uuid based on license plate """
+        licencePlates = ["AFJG21", "aFAf21", "AF-SD23", "FG-DF-45"]
+
+        request = self.factory.get('/android/getUUID/')
+        request.user = AnonymousUser()
+
+        reponseView = RequestUUID()
+
+        # it is a valid uuid
+        pattern = re.compile("^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+
+        for licensePlate in licensePlates:
+            response = reponseView.get(request, licencePlate)
+
+            self.assertEqual(response.status_code, 200)
+
+            testUUID = json.loads(response.content)
+            uuid = testUUID['uuid']
+        
+            self.assertTrue(pattern.match(uuid))
+
+        """ if request a second uuid with an old license plate, i must to get the same uuid """
+        response2 = reponseView.get(request, licencePlates[3])
+        testUUID2 = json.loads(response.content)
+        uuid2 = testUUID2['uuid']
+
+        self.assertTrue(pattern.match(uuid2))
+        self.assertNotEqual(uuid, uuid2)
+
+    def test_RequestUUIDBasedOnDummyLicensePlate(self):
+        """ test the method to request an uuid based on dummy license plate """
+        licencePlate = Constants.DUMMY_LICENSE_PLATE
+
+        request = self.factory.get('/android/getUUID/')
+        request.user = AnonymousUser()
+
+        reponseView = RequestUUID()
+        response = reponseView.get(request, licencePlate)
+
+        self.assertEqual(response.status_code, 200)
+
+        testUUID = json.loads(response.content)
+        uuid = testUUID['uuid']
+        
+        # it is a valid uuid
+        pattern = re.compile("^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+        self.assertTrue(pattern.match(uuid))
+
+        """ if request a second uuid wiht dummy license plate, i must to get a new uuid """
+        response2 = reponseView.get(request, licencePlate)
+        testUUID2 = json.loads(response.content)
+        uuid2 = testUUID2['uuid']
+
+        self.assertTrue(pattern.match(uuid2))
+        self.assertNotEqual(uuid, uuid2)
+
