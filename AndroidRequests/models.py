@@ -77,7 +77,7 @@ class StadisticDataFromRegistration(Location):
 
 class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus event """
-    reportOfEvent = models.ForeignKey('EventForBus', verbose_name='Bus Event')
+    reportOfEvent = models.ForeignKey('EventForBusv2', verbose_name='Bus Event')
 
 class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus stop event """

@@ -30,7 +30,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as fi
     GOOGLE_KEY = json.load(file)['key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 """
 '54.94.231.101' => public prod server ip

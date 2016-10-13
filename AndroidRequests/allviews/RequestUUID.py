@@ -7,7 +7,7 @@ import AndroidRequests.constants as Constants
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import Bus
+from AndroidRequests.models import Busv2
 
 class RequestUUID(View):
     """This class get or create an UUID for bus object based on license plate. """
@@ -25,13 +25,13 @@ class RequestUUID(View):
             puuid = uuid.uuid4()
 
             # we will update service when the bus asks for a token
-            bus = Bus.objects.create(registrationPlate = pLicesePlate, \
-                service = '', uuid = puuid)[0]
+            busv2 = Busv2.objects.create(registrationPlate = pLicensePlate, \
+                uuid = puuid)
             
         else:
-            bus = Bus.objects.get_or_create(registrationPlate = pLicensePlate)[0]
+            busv2 = Busv2.objects.get_or_create(registrationPlate = pLicensePlate)[0]
 
         # we store the active token
-        response['uuid'] = bus.uuid
+        response['uuid'] = busv2.uuid
 
         return JsonResponse(response, safe=False)

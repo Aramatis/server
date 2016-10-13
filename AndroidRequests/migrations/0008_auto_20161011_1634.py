@@ -38,7 +38,12 @@ def fill_tables(apps, schema_editor):
             event = eventforbus.event,
             ).save()
 
-
+    tokens = apps.get_model('AndroidRequests', 'token')
+    for token in tokens.objects.all():
+        busv2 = busesv2.objects.get(uuid = buses.objects.get(id = token.bus_id).uuid)
+        token.busassignment = busesassignments.objects.get(uuid = busv2)
+        token.save()
+    
 
 
 class Migration(migrations.Migration):
@@ -82,7 +87,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='token',
             name='busassignment',
-            field=models.ForeignKey(default=1, verbose_name=b'Bus', to='AndroidRequests.Busassignment'),
+            field=models.ForeignKey(verbose_name=b'Bus', to='AndroidRequests.Busassignment', null = True),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -106,5 +111,10 @@ class Migration(migrations.Migration):
             model_name='token',
             name='uuid',
         ),        
-        
+        migrations.AlterField(
+            model_name='token',
+            name='busassignment',
+            field=models.ForeignKey(verbose_name=b'Bus', to='AndroidRequests.Busassignment', null = False),
+            preserve_default=False,
+        ),
     ]
