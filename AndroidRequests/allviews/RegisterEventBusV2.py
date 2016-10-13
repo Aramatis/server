@@ -3,7 +3,7 @@ from django.utils import timezone
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import Event, Bus, EventForBus, StadisticDataFromRegistrationBus
+from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment
 
 from EventsByBusV2 import EventsByBusV2
 
@@ -18,8 +18,10 @@ class RegisterEventBusV2(View):
         # remove hyphen and convert to uppercase
         # pBusPlate = pBusPlate.replace('-', '').upper()
         theBus = {}
+        theAsignment = {}
         try:
-            theBus = Bus.objects.get(service=pBusService, uuid=pUuid)
+            theBus = Busv2.objects.get(uuid=pUuid)
+            theAsignment = Busassignment.objects.get(uuid = theBus, service = pBusService)
         except:
             return {}
         #theBus = Bus.objects.get(service=pBusService, uuid=pUuid)
@@ -28,9 +30,11 @@ class RegisterEventBusV2(View):
         oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
 
         # check if there is an event
-        if EventForBus.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent).exists():
+        if EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, \
+            busassignment=theAsignment, event=theEvent).exists():
             # get the event
-            eventsReport = EventForBus.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent)
+            eventsReport = EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime,\
+                busassignment=theAsignment, event=theEvent)
             eventReport = self.getLastEvent(eventsReport)
 
             # updates to the event reported
@@ -48,7 +52,7 @@ class RegisterEventBusV2(View):
              reportOfEvent=eventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
         else:
             # if an event was not found, create a new one
-            aEventReport = EventForBus.objects.create(userId=pUserId, bus=theBus, event=theEvent, timeStamp=aTimeStamp,\
+            aEventReport = EventForBusv2.objects.create(userId=pUserId, busassignment=theAsignment, event=theEvent, timeStamp=aTimeStamp,\
                                 timeCreation=aTimeStamp)
 
             # set the initial values for this fields

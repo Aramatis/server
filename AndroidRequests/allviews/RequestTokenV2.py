@@ -11,7 +11,7 @@ import AndroidRequests.constants as Constants
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import Bus, Token, ActiveToken
+from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken
 
 class RequestTokenV2(View):
     """This class handles the start of the tracking, assigning a token
@@ -28,11 +28,10 @@ class RequestTokenV2(View):
         # remove hyphen and convert to uppercase
         response = {}
         
-        bus = Bus.objects.get(uuid = pUUID)[0]
-        bus.service = pBusService
-        bus.save()
-        aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
-                color=self.getRandomColor(), direction = None, uuid=pUUID)
+        busv2 = Busv2.objects.get(uuid = pUUID)
+        busassignment = Busassignment.objects.get_or_create(uuid = busv2, service = pBusService)[0]
+        aToken = Token.objects.create(userId=pUserId, token=hashToken, busassignment = busassignment, \
+                color=self.getRandomColor(), direction = None)
             
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 

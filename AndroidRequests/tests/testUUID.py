@@ -14,6 +14,7 @@ from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
+from AndroidRequests.allviews.RequestUUID import RequestUUID
 from AndroidRequests.allviews.SendPoses import SendPoses
 from AndroidRequests.allviews.RequestUUID import RequestUUID
 import AndroidRequests.views as views
@@ -64,16 +65,29 @@ class DummyLicensePlateUUIDTest(TestCase):
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         busService = '507'
 
+        getUUID = self.factory.get('/android/getUUID/')
+        #getUUID.user = AnonymousUser()
+        getUUIDView = RequestUUID()
+        responseGetUUID = getUUIDView.get(getUUID,licencePlate)
+
+        self.assertEqual(responseGetUUID.status_code, 200)
+        
+        testGet = json.loads(responseGetUUID.content)
+        testGetUUID = testGet['uuid']
+
+        #a ghost bus is created with the same uuid that was recieved
+        self.assertEqual(Busv2.objects.filter(uuid=testGetUUID).exists(), True)
+
         request = self.factory.get('/android/requestToken/v2/')
         request.user = AnonymousUser()
 
         reponseView = RequestTokenV2()
-        response = reponseView.get(request, self.userId, busService, licencePlate)
+        response = reponseView.get(request, self.userId, busService, testGetUUID)
 
         self.assertEqual(response.status_code, 200)
 
         testToken = json.loads(response.content)
-        testUUID = testToken['uuid']
+        #testUUID = testToken['uuid']
         testToken = testToken['token']
 
         # the created token is an active token
@@ -81,10 +95,8 @@ class DummyLicensePlateUUIDTest(TestCase):
         # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
         #the created token has the uuid for the dummybus
-        self.assertEqual(Token.objects.filter(uuid=testUUID).exists(), True)
-        #a ghost bus is created with the same uuid that was recieved in the token
-        self.assertEqual(Bus.objects.filter(uuid=testUUID).exists(), True)
-
+        #self.assertEqual(Token.objects.filter(uuid=testGetUUID).exists(), True)
+        
         request = self.factory.get('/android/endRoute/' + testToken)
         request.user = AnonymousUser()
 
@@ -97,21 +109,35 @@ class DummyLicensePlateUUIDTest(TestCase):
     def test_EventsByBusWithDummyLicensePlateUUID(self):
         '''This method test two thing, the posibility to report an event and asking
         the events for the specific dummy bus'''
+        
 
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         busService = '507'
         eventCode = 'evn00101'
 
+        getUUID = self.factory.get('/android/getUUID/')
+        #getUUID.user = AnonymousUser()
+        getUUIDView = RequestUUID()
+        responseGetUUID = getUUIDView.get(getUUID,licencePlate)
+
+        self.assertEqual(responseGetUUID.status_code, 200)
+        
+        testGet = json.loads(responseGetUUID.content)
+        testGetUUID = testGet['uuid']
+
+        #a ghost bus is created with the same uuid that was recieved
+        self.assertEqual(Busv2.objects.filter(uuid=testGetUUID).exists(), True)
+
         request = self.factory.get('/android/requestToken/v2/')
         request.user = AnonymousUser()
 
         reponseView = RequestTokenV2()
-        response = reponseView.get(request, self.userId, busService, licencePlate)
+        response = reponseView.get(request, self.userId, busService, testGetUUID)
 
         self.assertEqual(response.status_code, 200)
 
         testToken = json.loads(response.content)
-        puuid = testToken['uuid']
+        #puuid = testToken['uuid']
         testToken = testToken['token']
 
         # the created token is an active token
@@ -119,21 +145,19 @@ class DummyLicensePlateUUIDTest(TestCase):
         # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
         #the created token has the uuid for the dummybus
-        self.assertEqual(Token.objects.filter(uuid=puuid).exists(), True)
-        #a ghost bus is created with the same uuid that was recieved in the token
-        self.assertEqual(Bus.objects.filter(uuid=puuid).exists(), True)
-
+        #self.assertEqual(Token.objects.filter(uuid=puuid).exists(), True)
+        
         # submitting one event to the server
         requestToReportEventBus = self.factory.get('/android/reportEventBus/v2/')
         requestToReportEventBus.user = AnonymousUser()
 
         reportEventBusView = RegisterEventBusV2()
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, \
-                self.userId, puuid, busService, eventCode, 'confirm')
+                self.userId, testGetUUID, busService, eventCode, 'confirm')
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
-        self.assertEqual(responseToReportEventBus['uuid'], puuid)
+        self.assertEqual(responseToReportEventBus['uuid'], testGetUUID)
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
@@ -148,11 +172,11 @@ class DummyLicensePlateUUIDTest(TestCase):
         # verify the previous event reported
         requestEventForBusView = EventsByBusV2()
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus, \
-                puuid, busService)
+                testGetUUID, busService)
 
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
-        self.assertEqual(responseToRequestEventForBus['uuid'], puuid)
+        self.assertEqual(responseToRequestEventForBus['uuid'], testGetUUID)
         self.assertEqual(responseToRequestEventForBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToRequestEventForBus['service'], busService)
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventDecline'], 0)
@@ -162,10 +186,10 @@ class DummyLicensePlateUUIDTest(TestCase):
         # ===================================================================================
         # do event +1 to the event
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, self.userId,\
-                puuid, busService, eventCode, 'confirm')
+                testGetUUID, busService, eventCode, 'confirm')
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
-        self.assertEqual(responseToReportEventBus['uuid'], puuid)
+        self.assertEqual(responseToReportEventBus['uuid'], testGetUUID)
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
@@ -173,10 +197,10 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
 
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
-                puuid, busService)
+                testGetUUID, busService)
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
-        self.assertEqual(responseToRequestEventForBus['uuid'], puuid)
+        self.assertEqual(responseToRequestEventForBus['uuid'], testGetUUID)
         self.assertEqual(responseToRequestEventForBus['registrationPlate'],licencePlate)
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventDecline'],0)
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventConfirm'],2)
@@ -184,10 +208,10 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         # do event -1 to the event
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, self.userId, \
-                puuid, busService, eventCode, 'decline')
+                testGetUUID, busService, eventCode, 'decline')
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
-        self.assertEqual(responseToReportEventBus['uuid'], puuid)
+        self.assertEqual(responseToReportEventBus['uuid'], testGetUUID)
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 1)
@@ -195,26 +219,27 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
 
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
-                puuid, busService)
+                testGetUUID, busService)
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
-        self.assertEqual(responseToRequestEventForBus['uuid'], puuid)
+        self.assertEqual(responseToRequestEventForBus['uuid'], testGetUUID)
         self.assertEqual(responseToRequestEventForBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventDecline'], 1)
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventConfirm'], 2)
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventcode'], eventCode)
 
         # change manually the timeStamp to simulate an event that has expired
-        bus= Bus.objects.get(service=busService, uuid=puuid)
+        bus= Busv2.objects.get(uuid=testGetUUID)
+        assignment= Busassignment.objects.get(service=busService, uuid=bus)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBus.objects.get(bus=bus,event=event)
+        anEvent = EventForBusv2.objects.get(busassignment=assignment,event=event)
 
         anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
 
         # ask for events and the answer should be none
         responseToRequestEventForBus = requestEventForBusView.get(requestToRequestEventForBus,\
-                puuid,busService)
+                testGetUUID,busService)
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
         self.assertEqual(len(responseToRequestEventForBus['events']),0)

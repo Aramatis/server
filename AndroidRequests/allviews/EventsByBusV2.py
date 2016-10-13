@@ -4,7 +4,7 @@ from django.utils import timezone
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import Bus, Event, EventForBus
+from AndroidRequests.models import Busv2, Event, EventForBusv2, Busassignment
 # constants
 import AndroidRequests.constants as Constants
 
@@ -14,8 +14,8 @@ class EventsByBusV2(View):
         self.context={}
 
     def get(self, request, pUuid, pBusService):
-        """It's important to give the registrarion plate and the bus
-        service, because one plate could have two services."""
+        """The UUID field can identify the bus, adn the service can identify
+        the bus assignment"""
         # remove hyphen and convert to uppercase
         #pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
 
@@ -26,10 +26,11 @@ class EventsByBusV2(View):
 
         try:
             
-            bus = Bus.objects.get(service=pBusService, uuid=pUuid)
-            events = self.getEventForBus(bus) 
+            bus = Busv2.objects.get(uuid=pUuid)
+            assignment = Busassignment.objects.get(service=pBusService, uuid=bus)
+            events = self.getEventForBus(assignment) 
             pRegistrationPlate = bus.registrationPlate            
-            
+                
         except:
             events = {}
             pRegistrationPlate = ''
@@ -39,7 +40,7 @@ class EventsByBusV2(View):
         
         return JsonResponse(response, safe=False)
 
-    def getEventForBus(self,pBus):
+    def getEventForBus(self,pBusassignment):
         """this method look for the active events of a bus, those whose lifespan hasn't expired
         since the last time there were reported"""
         events = []
@@ -53,7 +54,7 @@ class EventsByBusV2(View):
         for event in eventsToAsk:
             eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
 
-            registry = EventForBus.objects.filter(bus = pBus, event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
+            registry = EventForBusv2.objects.filter(busassignment = pBusassignment, event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
 
             #checks if the event is active
             if registry.exists():

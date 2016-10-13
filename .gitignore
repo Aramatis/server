@@ -99,7 +99,7 @@ atlassian-ide-plugin.xml
 *.sqlite3
 
 # migrate files
-*/migrations/*
+#*/migrations/*
 
 # media files, images from the free report
 *media/*
