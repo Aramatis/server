@@ -25,18 +25,13 @@ class EventsByBusV2(View):
         response['uuid'] = pUuid
 
         try:
-            print("Buscando bus en EventByBusv2")
+            
             bus = Busv2.objects.get(uuid=pUuid)
-            print("bus encontrado")
             assignment = Busassignment.objects.get(service=pBusService, uuid=bus)
-            print("assignment encontrado")
             events = self.getEventForBus(assignment) 
-            print("eventos encontrados")
             pRegistrationPlate = bus.registrationPlate            
-            print("license plate asignado")
                 
         except:
-            print("ERROR")
             events = {}
             pRegistrationPlate = ''
 

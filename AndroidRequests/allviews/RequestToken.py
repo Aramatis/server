@@ -11,7 +11,7 @@ import AndroidRequests.constants as Constants
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import Bus, Token, ActiveToken
+from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken
 
 class RequestToken(View):
     """This class handles the start of the tracking, assigning a token
@@ -28,11 +28,20 @@ class RequestToken(View):
         # remove hyphen and convert to uppercase
         pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
         
-        bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
-                service = pBusService)[0]
-        aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
-                color=self.getRandomColor(), direction = None)
-        
+        #bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
+        #        service = pBusService)[0]
+        #aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
+        #        color=self.getRandomColor(), direction = None)
+        if pRegistrationPlate == Constants.DUMMY_LICENSE_PLATE:
+            puuid = uuid.uuid4()
+            bus = Busv2.objects.create(registrationPlate = pRegistrationPlate, uuid = puuid)
+            assignment = Busassignment.objects.create(uuid=bus, service = pBusService)
+        else:
+            bus = Busv2.objects.get_or_create(registrationPlate = pRegistrationPlate)[0]
+            assignment = Busassignment.objects.get_or_create(uuid = bus, service = pBusService)[0]
+
+        aToken = Token.objects.create(userId=pUserId, token=hashToken, busassignment=assignment, \
+            color=self.getRandomColor(), direction = None)
         ActiveToken.objects.create(timeStamp=data,token=aToken)
 
         # we store the active token
