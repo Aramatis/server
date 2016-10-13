@@ -26,7 +26,7 @@ function exit_usage()
 	echo " - BACKUP_DB    : database.tar.gz"
 	echo " - BACKUP_IMGS  : images.tar.gz"
 	echo " - MANAGE_PY    : visualization/manage.py"
-	echo " - DEST_IMG_FLDR: visualization/media/reported_images.py"
+	echo " - DEST_IMG_FLDR: visualization/media/reported_images"
 	exit 1
 }
 
@@ -51,11 +51,11 @@ fi
 
 # imgs backup DB
 if [   -z "$BACKUP_DB" ]; then exit_usage; fi
-BACKUP_DB="$BACKUP_FOLDER/$BACKUP_DB"
+#BACKUP_DB="$BACKUP_FOLDER/$BACKUP_DB"
 
 # imgs backup images
 if [   -z "$BACKUP_IMGS" ]; then exit_usage; fi
-BACKUP_IMGS="$BACKUP_FOLDER/$BACKUP_IMGS"
+#BACKUP_IMGS="$BACKUP_FOLDER/$BACKUP_IMGS"
 
 # manage.py
 if [   -z "$MANAGE_PY" ]; then exit_usage; fi
@@ -77,47 +77,47 @@ fi
 cd "$BACKUP_FOLDER"
 
 # create tmp folder for stuff
-echo " - [ON REMOTE VIZ]: creating tmp folder for extraction: $BACKUP_FOLDER/tmp"
+echo " - [ON REMOTE VIZ]: creating tmp folder for extraction: $BACKUP_FOLDER/tmp" 
 rm -rf tmp
 mkdir tmp
 cd tmp
 
-
 # extract 
-echo " - [ON REMOTE VIZ]: extracting files to: $BACKUP_FOLDER/tmp"
+echo " - [ON REMOTE VIZ]: extracting files to: $BACKUP_FOLDER/tmp" 
 tar -zxf "$BACKUP_FILE"
 
 if [ ! -e "$BACKUP_DB" ]; then
-	echo "Backup file not found: $BACKUP_DB"
+	echo "Backup file not found: $BACKUP_DB" 
 	exit 1
 fi
 if [ ! -e "$BACKUP_IMGS" ]; then
-	echo "Backup file for images not found: $BACKUP_IMGS"
+	echo "Backup file for images not found: $BACKUP_IMGS" 
 	exit 1
 fi
 tar -zxf "$BACKUP_DB"
 mkdir imgs
 cd imgs
-tar -zxf "$BACKUP_IMGS"
+tar -zxf ../"$BACKUP_IMGS"
 cd ..
 
 # check tar.gz files
 if [ ! -e data.json ]; then
-	echo "data.json not found.. File extraction failed"
+	echo "data.json not found.. File extraction failed" 
 	exit 1
 fi
 
-echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY"
-python "$MANAGE_PY" loaddata data.json
+echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY" 
+#python "$MANAGE_PY" loaddata data.json
 
 # load
-echo " - [ON REMOTE VIZ]: copying images from $BACKUP_FOLDER/tmp/imgs to $DEST_IMG_FLDR"
+echo " - [ON REMOTE VIZ]: copying images from $BACKUP_FOLDER/tmp/imgs to $DEST_IMG_FLDR" 
 cp -arn imgs/* "$DEST_IMG_FLDR"
 
 
 # delete stuff
-echo " - [ON REMOTE VIZ]: removing tmp folder"
+echo " - [ON REMOTE VIZ]: removing tmp folder" 
 cd "$BACKUP_FOLDER"
 rm -rf tmp
 
-echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------"
+echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------" 
+	

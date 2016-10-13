@@ -5,12 +5,12 @@
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
 ## visualization server data
-REMOTE_USER="server"
-REMOTE_HOST="172.17.57.188"
+REMOTE_USER="mpavez"
+REMOTE_HOST="172.17.57.241"
 # REMOTE_USER="transapp"
 # REMOTE_HOST="104.236.183.105"
-REMOTE_VIZ_MANAGE_PY="visualization/manage.py"
-REMOTE_IMG_FLDR="visualization/media/reported_images"
+REMOTE_VIZ_MANAGE_PY="workspaces/visualization/manage.py"
+REMOTE_IMG_FLDR="workspaces/visualization/media/reported_images"
 
 # where to put backup data on the visualization server
 # e.g: ftp_incoming --> /home/$USER/ftp_incoming
@@ -106,7 +106,7 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 echo "- creating reports image backups"
 cd "$IMGS_FLDR"
-tar -zcvf "$TMP_BKP_IMGS_FULL" ./*
+tar -zcvf "$TMP_BKP_IMGS_FULL" *
 if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
 	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
 	exit 1
@@ -117,7 +117,8 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 echo "- creating backup ..."
 cd "$TMP_BKP_FLDR"
-python "$SERVER_FLDR"/manage.py archive
+#python "$SERVER_FLDR"/manage.py archive
+cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL"
 
 # check db backup
 echo "- looking for db backup results ..."
@@ -131,7 +132,7 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 cd "$TMP_BKP_FLDR"
-tar -zcvf "$TMP_BKP_FILE" "$TMP_BKP_DB_FULL" "$TMP_BKP_IMGS_FULL"
+tar -zcvf "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP"
 if [ ! -e "$TMP_BKP_FILE" ]; then
 	echo "UPS!.. The backup file was not found. Something went wrong while compressing the files"
 	exit 1
@@ -163,7 +164,7 @@ echo "put $TMP_BKP_FILE_FULL" >> "$SFTP_COMMANDS"
 ## send
 echo "- sending file"
 sftp -p -i "$PRIVATE_KEY" -b "$SFTP_COMMANDS" "$REMOTE_USERHOST"
-
+#ftp -p -i "$PRIVATE_KEY" -b "$SFTP_COMMANDS" "$REMOTE_USERHOST"
 
 #### delete backups on this server
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -193,7 +194,7 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 cd "$VIZ_APP_FLDR"
-ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < script_post.sh "$REMOTE_VIZ_INCOMING_FLDR" "TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP" "$REMOTE_VIZ_MANAGE_PY" "$REMOTE_IMG_FLDR"
+ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < script_post.sh "$REMOTE_VIZ_INCOMING_FLDR" "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP" "$REMOTE_VIZ_MANAGE_PY" "$REMOTE_IMG_FLDR"
 
 
 echo "-------------------------------------------------------------------"
