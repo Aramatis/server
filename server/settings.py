@@ -228,3 +228,16 @@ os.environ['wsgi.url_scheme'] = 'https'
 ARCHIVE_DIRECTORY = "/tmp/backup_viz"
 ARCHIVE_FILENAME  = "database"
 ARCHIVE_FORMAT    = "gz"
+ARCHIVE_EXCLUDE   = (
+    'PredictorDTPM.buslog',
+    'PredictorDTPM.log',
+    'contenttypes.contenttype',
+    'auth.group',
+    'auth.permission',
+    'auth.user',
+    'admin.logentry',
+    'sessions.session',
+    'auth.group_permissions',
+    'auth.user_groups',
+    'auth.user_user_permissions'
+)

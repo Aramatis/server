@@ -19,7 +19,7 @@ DEST_IMG_FLDR="$6"
 
 function exit_usage()
 {
-	echo "Usage: $ bash script_post.sh <BACKUP_FOLDER> <BACKUP_FILE> <MANAGE_PY>"
+	echo "Usage: $ bash script_post.sh <BACKUP_FOLDER> <BACKUP_FILE> <BACKUP_DB> <BACKUP_IMGS> <MANAGE_PY> <DEST_IMG_FLDR"
 	echo "e.g:"
 	echo " - BACKUP_FOLDER: ftp_incomming"
 	echo " - BACKUP_FILE  : backup_2016-10-03__12_22_02.tar.gz"
@@ -73,11 +73,11 @@ if [ ! -d "$DEST_IMG_FLDR" ]; then
 	exit_usage
 fi
 
-## WORK	
+## WORK
 cd "$BACKUP_FOLDER"
 
 # create tmp folder for stuff
-echo " - [ON REMOTE VIZ]: creating tmp folder for extraction: $BACKUP_FOLDER/tmp" 
+echo " - [ON REMOTE VIZ]: creating tmp folder for extraction: $BACKUP_FOLDER/tmp"
 rm -rf tmp
 mkdir tmp
 cd tmp
@@ -107,7 +107,7 @@ if [ ! -e data.json ]; then
 fi
 
 echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY" 
-#python "$MANAGE_PY" loaddata data.json
+python "$MANAGE_PY" loaddata data.json
 
 # load
 echo " - [ON REMOTE VIZ]: copying images from $BACKUP_FOLDER/tmp/imgs to $DEST_IMG_FLDR" 
@@ -119,5 +119,5 @@ echo " - [ON REMOTE VIZ]: removing tmp folder"
 cd "$BACKUP_FOLDER"
 rm -rf tmp
 
-echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------" 
-	
+echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------"
+

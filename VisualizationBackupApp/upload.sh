@@ -117,8 +117,8 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 echo "- creating backup ..."
 cd "$TMP_BKP_FLDR"
-#python "$SERVER_FLDR"/manage.py archive
-cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL"
+python "$SERVER_FLDR"/manage.py archive                #   comment for testing
+#cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL" # uncomment for testing
 
 # check db backup
 echo "- looking for db backup results ..."
@@ -164,7 +164,7 @@ echo "put $TMP_BKP_FILE_FULL" >> "$SFTP_COMMANDS"
 ## send
 echo "- sending file"
 sftp -p -i "$PRIVATE_KEY" -b "$SFTP_COMMANDS" "$REMOTE_USERHOST"
-#ftp -p -i "$PRIVATE_KEY" -b "$SFTP_COMMANDS" "$REMOTE_USERHOST"
+
 
 #### delete backups on this server
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
