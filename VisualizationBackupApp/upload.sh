@@ -200,3 +200,5 @@ ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < script_post.sh "$REMOTE_
 echo "-------------------------------------------------------------------"
 echo "upload.sh end"
 echo "-------------------------------------------------------------------"
+
+exit 0

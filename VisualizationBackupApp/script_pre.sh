@@ -33,3 +33,4 @@ if [ -d "$FTP_FLDR" ]; then
 fi
 
 echo " - [ON REMOTE VIZ]: -------- PRE LOAD INIT --------"
+exit 0

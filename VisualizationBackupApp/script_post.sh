@@ -120,4 +120,4 @@ cd "$BACKUP_FOLDER"
 rm -rf tmp
 
 echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------"
-
+exit 0
