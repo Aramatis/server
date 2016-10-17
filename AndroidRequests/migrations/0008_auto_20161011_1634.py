@@ -13,11 +13,16 @@ def fill_tables(apps, schema_editor):
     buses = apps.get_model('AndroidRequests', 'bus')
     busesv2 = apps.get_model('AndroidRequests', 'busv2')
     busesassignments = apps.get_model('AndroidRequests', 'busassignment')
+    uuidsArray = {}
     for bus in buses.objects.all():
-        busesv2(
-            registrationPlate = bus.registrationPlate,
-            uuid = bus.uuid
-            ).save()
+        if bus.registrationPlate in uuidsArray:
+            pass
+        else:
+            uuidsArray[bus.registrationPlate]=bus.uuid
+            busesv2(
+                registrationPlate = bus.registrationPlate,
+                uuid = bus.uuid
+                ).save()
 
         busesassignments(
             service = bus.service,
@@ -29,6 +34,7 @@ def fill_tables(apps, schema_editor):
     for eventforbus in eventsforbuses.objects.all():
         busv2 = busesv2.objects.get(uuid = buses.objects.get(id = eventforbus.bus_id).uuid)
         eventsforbusesv2(
+            id = eventforbus.id,
             timeStamp = eventforbus.timeStamp,
             timeCreation = eventforbus.timeCreation,
             eventConfirm = eventforbus.eventConfirm,
@@ -98,7 +104,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='busassignment',
             name='uuid',
-            field=models.ForeignKey(verbose_name=b'Thebusv2', to='AndroidRequests.Busv2'),
+            field=models.ForeignKey(verbose_name=b'Thebusv2', to='AndroidRequests.Busv2', to_field=uuid),
         ),
         #run  function to fill the new tables
         migrations.RunPython(fill_tables, reverse_code=migrations.RunPython.noop),

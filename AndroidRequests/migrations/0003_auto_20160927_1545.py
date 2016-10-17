@@ -6,8 +6,14 @@ import uuid
 
 def gen_uuid(apps, schema_editor):
     MyModel = apps.get_model('AndroidRequests', 'bus')
+    uuidsArray = {}
     for row in MyModel.objects.all():
-        row.uuid = uuid.uuid4()
+        if row.registrationPlate in uuidsArray:
+            row.uuid = uuidsArray[row.registrationPlate]
+        else:
+            puuid = uuid.uuid4()
+            row.uuid = puuid
+            uuidsArray[row.registrationPlate] = puuid
         row.save()
 
 class Migration(migrations.Migration):
