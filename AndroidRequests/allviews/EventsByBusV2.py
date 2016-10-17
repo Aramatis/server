@@ -14,7 +14,7 @@ class EventsByBusV2(View):
         self.context={}
 
     def get(self, request, pUuid, pBusService):
-        """The UUID field can identify the bus, adn the service can identify
+        """The UUID field can identify the bus, and the service can identify
         the bus assignment"""
         # remove hyphen and convert to uppercase
         #pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
@@ -25,18 +25,19 @@ class EventsByBusV2(View):
         response['uuid'] = pUuid
 
         try:
-            
             bus = Busv2.objects.get(uuid=pUuid)
             assignment = Busassignment.objects.get(service=pBusService, uuid=bus)
             events = self.getEventForBus(assignment) 
             pRegistrationPlate = bus.registrationPlate            
                 
         except:
+            print("ERROR")
             events = {}
             pRegistrationPlate = ''
 
         response['registrationPlate'] = pRegistrationPlate
         response['events'] = events
+
         
         return JsonResponse(response, safe=False)
 
