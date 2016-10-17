@@ -21,6 +21,7 @@ class RegisterEventBus(View):
         pBusPlate = pBusPlate.replace('-', '').upper()
 
         if pBusPlate == Constants.DUMMY_LICENSE_PLATE:
+            pass
             #TODO
             #Problem: there is no way to identify THE dummy bus without the uuid.
         else:
@@ -33,7 +34,7 @@ class RegisterEventBus(View):
         # check if there is an event
         if EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent).exists():
             # get the event
-            eventsReport = EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent)
+            eventsReport = EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, busassignment=theAssignment, event=theEvent)
             eventReport = self.getLastEvent(eventsReport)
 
             # updates to the event reported
