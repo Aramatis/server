@@ -31,7 +31,6 @@ class EventsByBusV2(View):
             pRegistrationPlate = bus.registrationPlate            
                 
         except:
-            print("ERROR")
             events = {}
             pRegistrationPlate = ''
 
