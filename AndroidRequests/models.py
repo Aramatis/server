@@ -430,7 +430,7 @@ class Busassignment(models.Model):
 
     def getLocation(self):
         """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
-        tokens = Token.objects.filter(busasignment=self)
+        tokens = Token.objects.filter(busassignment=self)
         lastDate = timezone.now()-timezone.timedelta(minutes=5)
         passengers = 0
         lat = -500

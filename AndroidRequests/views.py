@@ -12,9 +12,9 @@ import re
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Bus, Service, ServicesByBusStop, Token
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, ServicesByBusStop, Token
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 # constants
 import AndroidRequests.constants as Constants
 
@@ -64,27 +64,27 @@ def nearbyBuses(request, pUserId, pBusStop):
         serviceDirections.append(s.code.replace(s.service.service, ""))
 
     # active user buses that stop in the bus stop
-    activeUserBuses = Token.objects.filter(bus__service__in = serviceNames, \
+    activeUserBuses = Token.objects.filter(busassignment__service__in = serviceNames, \
             activetoken__isnull=False)
     #print "usuarios activos: " + str(len(activeUserBuses))
     
     userBuses = []
     for user in activeUserBuses:
-        serviceIndex = serviceNames.index(user.bus.service)
+        serviceIndex = serviceNames.index(user.busassignment.service)
         #TODO: consider bus direction
         if user.direction == serviceDirections[serviceIndex] or \
             user.direction is None:
             bus = {}
-            bus['servicio'] = user.bus.service
-            bus['patente'] = user.bus.registrationPlate
-            busEvents = EventsByBus().getEventForBus(user.bus)
+            bus['servicio'] = user.busassignment.service
+            bus['patente'] = user.busassignment.uuid.registrationPlate
+            busEvents = EventsByBusV2().getEventForBus(user.busassignment)
             bus['eventos'] = busEvents
-            busData = user.bus.getLocation()
+            busData = user.busassignment.getLocation()
             bus['lat'] = busData['latitude']
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
             try:
-                bus['sentido'] = user.bus.getDirection(pBusStop, 30)
+                bus['sentido'] = user.busassignment.getDirection(pBusStop, 30)
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
@@ -134,11 +134,12 @@ def nearbyBuses(request, pUserId, pBusStop):
             service['tiempoV2'] = formatTime(service['tiempo'], distance)
 
             # request the correct bus
-            bus = Bus.objects.get_or_create(registrationPlate = service['patente'], \
-                    service = service['servicio'])[0]
+            bus = Busv2.objects.get_or_create(registrationPlate = service['patente'])[0]
+            busassignment = Busassignment.objects.get_or_create(service = service['servicio'], \
+                uuid=bus)[0]
             service['random'] = False
             try:
-                busData = bus.getEstimatedLocation(busStopCode, distance)
+                busData = busassignment.getEstimatedLocation(busStopCode, distance)
             except Exception as e:
                 logger.error(str(e))
                 busData = {}
@@ -152,13 +153,13 @@ def nearbyBuses(request, pUserId, pBusStop):
             service['direction'] = busData['direction']
             service['color'] = Service.objects.get(service=service['servicio']).color_id
             try:
-                service['sentido'] = bus.getDirection(busStopCode, distance)
+                service['sentido'] = busassignment.getDirection(busStopCode, distance)
             except Exception as e:
                 logger.error(str(e))
                 service['sentido'] = "left"
 
-            getEventBus = EventsByBus()
-            busEvents = getEventBus.getEventForBus(bus)
+            getEventBus = EventsByBusV2()
+            busEvents = getEventBus.getEventForBus(busassignment)
             service['eventos'] = busEvents
             #add uuid parameter
             service['busId'] = bus.uuid

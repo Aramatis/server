@@ -1,13 +1,15 @@
+from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
+from datetime import datetime
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import Event, Busv2, Busassignment, EventForBusv2, StadisticDataFromRegistrationBus
+from AndroidRequests.models import Event, Busv2, Busassignment, EventForBusv2, EventRegistration,  StadisticDataFromRegistrationBus
 
 import AndroidRequests.constants as Constants
 
-from EventsByBus import EventsByBus
+from EventsByBusV2 import EventsByBusV2
 
 class RegisterEventBus(View):
     '''This class handles requests that report events of a bus.'''
@@ -21,8 +23,29 @@ class RegisterEventBus(View):
         pBusPlate = pBusPlate.replace('-', '').upper()
 
         if pBusPlate == Constants.DUMMY_LICENSE_PLATE:
+            response = {}
+            events = []
+            dictionary = {}
+
+            response['registrationPlate'] = pBusPlate
+            response['service'] = pBusService
+
+            dictionary['eventConfirm'] = 1
+            dictionary['eventDecline'] = 0
+            creation = timezone.localtime(timezone.now())
+            stamp = timezone.localtime(timezone.now())
+            dictionary['timeCreation'] = creation.strftime("%d-%m-%Y %H:%M:%S")
+            dictionary['timeStamp'] = stamp.strftime("%d-%m-%Y %H:%M:%S")
+            eventDictionary = theEvent.getDictionary()
+            dictionary.update(eventDictionary)
+
+            events.append(dictionary)
+            #events[0].
+            response['events'] = events
+            return JsonResponse(response, safe=False)
             #TODO
             #Problem: there is no way to identify THE dummy bus without the uuid.
+            #Return the same event.
         else:
             theBus = Busv2.objects.get_or_create(registrationPlate=pBusPlate)[0]
             theAssignment = Busassignment.objects.get_or_create(service=pBusService, uuid=theBus)[0]
@@ -31,9 +54,9 @@ class RegisterEventBus(View):
         oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
 
         # check if there is an event
-        if EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent).exists():
+        if EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, busassignment=theAssignment, event=theEvent).exists():
             # get the event
-            eventsReport = EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, bus=theBus, event=theEvent)
+            eventsReport = EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, busassignment=theAssignment, event=theEvent)
             eventReport = self.getLastEvent(eventsReport)
 
             # updates to the event reported
@@ -51,7 +74,7 @@ class RegisterEventBus(View):
              reportOfEvent=eventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
         else:
             # if an event was not found, create a new one
-            aEventReport = EventForBusv2.objects.create(userId=pUserId, bus=theBus, event=theEvent, timeStamp=aTimeStamp,\
+            aEventReport = EventForBusv2.objects.create(userId=pUserId, busassignment=theAssignment, event=theEvent, timeStamp=aTimeStamp,\
                                 timeCreation=aTimeStamp)
 
             # set the initial values for this fields
@@ -65,9 +88,9 @@ class RegisterEventBus(View):
                 reportOfEvent=aEventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
 
         # Returns updated event list for a bus
-        eventsByBus = EventsByBus()
+        eventsByBus = EventsByBusV2()
         
-        return eventsByBus.get(request, pBusPlate, pBusService)
+        return eventsByBus.get(request, theBus.uuid, pBusService)
 
     def getLastEvent(self, querySet):
         """if the query has two responses, return the latest one"""

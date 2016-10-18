@@ -3,7 +3,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
 
-from AndroidRequests.models import ActiveToken, Event, EventForBusStop, EventForBus
+from AndroidRequests.models import ActiveToken, Event, EventForBusStop, EventForBusv2
 from django.utils import timezone
 
 import logging
@@ -58,7 +58,7 @@ def clearEventsThatHaveBeenDecline():
 
         for event in eventsToAsk:
             eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
-            registry = EventForBus.objects.\
+            registry = EventForBusv2.objects.\
                     filter(event=event, timeStamp__gt=eventTime).\
                     order_by('-timeStamp')
 

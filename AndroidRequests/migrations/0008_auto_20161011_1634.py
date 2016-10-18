@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import uuid
+import AndroidRequests.constants as Constants
 
 def fill_tables(apps, schema_editor):
     # tokens = apps.get_model('AndroidRequests', 'token')
@@ -13,35 +14,58 @@ def fill_tables(apps, schema_editor):
     buses = apps.get_model('AndroidRequests', 'bus')
     busesv2 = apps.get_model('AndroidRequests', 'busv2')
     busesassignments = apps.get_model('AndroidRequests', 'busassignment')
+    uuidsArray = {}
+    
     for bus in buses.objects.all():
-        busesv2(
-            registrationPlate = bus.registrationPlate,
-            uuid = bus.uuid
-            ).save()
-
+        pUUID = None
+        if bus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+            busesv2(
+                registrationPlate = bus.registrationPlate,
+                uuid = bus.uuid
+                ).save()
+            pUUID = bus.uuid
+        elif bus.registrationPlate in uuidsArray:
+            pUUID = uuidsArray[bus.registrationPlate]
+        else:
+            uuidsArray[bus.registrationPlate]=bus.uuid
+            busesv2(
+                registrationPlate = bus.registrationPlate,
+                uuid = bus.uuid
+                ).save()
+            pUUID = uuidsArray[bus.registrationPlate]     
         busesassignments(
             service = bus.service,
-            uuid = busesv2.objects.get(uuid = bus.uuid)
+            uuid = busesv2.objects.get(uuid = pUUID)
             ).save()
     #migrate data from Event4Bus to E4Bv2
     eventsforbuses = apps.get_model('AndroidRequests','eventforbus')
     eventsforbusesv2 =  apps.get_model('AndroidRequests','eventforbusv2')
     for eventforbus in eventsforbuses.objects.all():
-        busv2 = busesv2.objects.get(uuid = buses.objects.get(id = eventforbus.bus_id).uuid)
+        busv2 = None
+        if eventforbus.bus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+            busv2 = busesv2.objects.get(uuid = eventforbus.bus.uuid)
+        else:
+            busv2 = busesv2.objects.get(registrationPlate = buses.objects.filter(id = eventforbus.bus_id).first().registrationPlate)
         eventsforbusesv2(
+            id = eventforbus.id,
             timeStamp = eventforbus.timeStamp,
             timeCreation = eventforbus.timeCreation,
             eventConfirm = eventforbus.eventConfirm,
             eventDecline = eventforbus.eventDecline,
             userId = eventforbus.userId,
-            busassignment = busesassignments.objects.get(uuid = busv2),
+            busassignment = busesassignments.objects.get(uuid = busv2, service = eventforbus.bus.service),
             event = eventforbus.event,
             ).save()
 
     tokens = apps.get_model('AndroidRequests', 'token')
     for token in tokens.objects.all():
-        busv2 = busesv2.objects.get(uuid = buses.objects.get(id = token.bus_id).uuid)
-        token.busassignment = busesassignments.objects.get(uuid = busv2)
+        bus = buses.objects.get(id = token.bus_id)
+        busv2 = None
+        if bus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+            busv2 = busesv2.objects.get(uuid = bus.uuid)            
+        else:
+            busv2 = busesv2.objects.get(registrationPlate = bus.registrationPlate)
+        token.busassignment = busesassignments.objects.get(uuid = busv2, service = token.bus.service)
         token.save()
     
 
@@ -65,7 +89,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('registrationPlate', models.CharField(max_length=8)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, unique=True, editable=False)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
         ),
         migrations.CreateModel(

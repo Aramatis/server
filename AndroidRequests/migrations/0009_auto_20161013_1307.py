@@ -16,10 +16,11 @@ def fill_table(apps, schema_editor):
     busesv2 = apps.get_model('AndroidRequests', 'Busv2')
     assignments = apps.get_model('AndroidRequests', 'Busassignment')
     for stadistic in stadistics.objects.all():
-        bus = stadistic.reportOfEvent.bus
-        assignment = assignments.objects.get(uuid = busesv2.objects.get(uuid=bus.uuid))
-        eventForBusv2 = eventsForBusv2.objects.get(busassignment = assignment)
-        stadistic.reportOfEventv2 = eventForBusv2
+        stadistic.reportOfEventv2_id = stadistic.reportOfEvent_id
+        # bus = stadistic.reportOfEvent.bus
+        # assignment = assignments.objects.get(uuid = busesv2.objects.get(uuid=bus.uuid))
+        # eventForBusv2 = eventsForBusv2.objects.filter(busassignment = assignment)
+        # stadistic.reportOfEventv2 = eventForBusv2
         stadistic.save()
 
 
