@@ -47,7 +47,7 @@ def fill_tables(apps, schema_editor):
         else:
             busv2 = busesv2.objects.get(registrationPlate = buses.objects.filter(id = eventforbus.bus_id).first().registrationPlate)
         eventsforbusesv2(
-            id = eventforbus.id,
+            ex_id = eventforbus.id,
             timeStamp = eventforbus.timeStamp,
             timeCreation = eventforbus.timeCreation,
             eventConfirm = eventforbus.eventConfirm,
@@ -103,6 +103,7 @@ class Migration(migrations.Migration):
                 ('userId', models.UUIDField()),
                 ('busassignment', models.ForeignKey(verbose_name=b'the bus', to='AndroidRequests.Busassignment')),
                 ('event', models.ForeignKey(verbose_name=b'The event information', to='AndroidRequests.Event')),
+                ('ex_id', models.IntegerField(default=0, verbose_name=b'old eventforbus id', unique=True)),
             ],
             options={
                 'abstract': False,

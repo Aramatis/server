@@ -16,7 +16,7 @@ def fill_table(apps, schema_editor):
     busesv2 = apps.get_model('AndroidRequests', 'Busv2')
     assignments = apps.get_model('AndroidRequests', 'Busassignment')
     for stadistic in stadistics.objects.all():
-        stadistic.reportOfEventv2_id = stadistic.reportOfEvent_id
+        stadistic.reportOfEventv2 = eventsForBusv2.objects.get(ex_id = stadistic.reportOfEvent_id)
         # bus = stadistic.reportOfEvent.bus
         # assignment = assignments.objects.get(uuid = busesv2.objects.get(uuid=bus.uuid))
         # eventForBusv2 = eventsForBusv2.objects.filter(busassignment = assignment)
@@ -37,4 +37,9 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(verbose_name=b'Bus Event', to='AndroidRequests.EventForBusv2', null=True),
         ),
         migrations.RunPython(fill_table, reverse_code=migrations.RunPython.noop),
+
+        migrations.RemoveField(
+            model_name='eventForBusv2',
+            name='ex_id',
+        ),
     ]
