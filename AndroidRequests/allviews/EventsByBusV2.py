@@ -31,7 +31,7 @@ class EventsByBusV2(View):
             pRegistrationPlate = bus.registrationPlate            
                 
         except:
-            events = {}
+            events = []
             pRegistrationPlate = ''
 
         response['registrationPlate'] = pRegistrationPlate
