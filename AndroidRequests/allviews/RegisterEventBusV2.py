@@ -1,5 +1,6 @@
 from django.views.generic import View
 from django.utils import timezone
+from django.http import JsonResponse
 
 # my stuff
 # import DB's models
@@ -23,7 +24,7 @@ class RegisterEventBusV2(View):
             theBus = Busv2.objects.get(uuid=pUuid)
             theAsignment = Busassignment.objects.get(uuid = theBus, service = pBusService)
         except:
-            return {}
+            return JsonResponse({}, safe=False)
         #theBus = Bus.objects.get(service=pBusService, uuid=pUuid)
         # estimate the oldest time where the reported event can be usefull
         # if there is no event here a new one is created
