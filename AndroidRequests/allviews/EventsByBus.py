@@ -29,7 +29,7 @@ class EventsByBus(View):
             busassignment = Busassignment.objects.get(uuid=bus, service=pBusService)
             events = self.getEventForBus(busassignment)
         except:
-            events = {}
+            events = []
 
         response['events'] = events
 
