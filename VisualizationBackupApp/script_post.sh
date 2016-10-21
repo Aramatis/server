@@ -106,12 +106,18 @@ if [ ! -e data.json ]; then
 	exit 1
 fi
 
-echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY" 
-python "$MANAGE_PY" loaddata data.json
+echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY"
+touch working.lock 
+nohup python "$MANAGE_PY" loaddata data.json && rm working.lock &  
 
 # load
 echo " - [ON REMOTE VIZ]: copying images from $BACKUP_FOLDER/tmp/imgs to $DEST_IMG_FLDR" 
 cp -arn imgs/* "$DEST_IMG_FLDR"
+INIT="$(date +%H:%M:%S)"
+while [  -e working.lock ]; do
+	echo "waiting ... $INIT / $(date +%H:%M:%S)  P1-P2-P3=$PARAM1-$PARAM2-$PARAM3"
+	sleep 5
+done
 
 
 # delete stuff

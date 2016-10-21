@@ -6,7 +6,7 @@
 
 ## visualization server data
 REMOTE_USER="mpavez"
-REMOTE_HOST="172.17.57.241"
+REMOTE_HOST="172.17.57.179"
 # REMOTE_USER="transapp"
 # REMOTE_HOST="104.236.183.105"
 REMOTE_VIZ_MANAGE_PY="workspaces/visualization/manage.py"
