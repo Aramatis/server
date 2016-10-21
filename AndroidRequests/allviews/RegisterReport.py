@@ -64,7 +64,7 @@ class RegisterReport(View):
                         if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
                             raise IncorrectExtensionImageError
 
-                        imageName = str(report.pk) + "_" + str(pTimeStamp)  + "." + extension
+                        imageName = str(report.pk) + "_" + pTimeStamp.strftime('%X_%x')  + "." + extension
                         path = os.path.join(settings.MEDIA_IMAGE, imageName)
                         imageFile = open(path, "wb")
                         imageFile.write(stringImage)
