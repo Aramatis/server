@@ -68,6 +68,7 @@ fi
 # imgs backup images
 if [   -z "$DEST_IMG_FLDR" ]; then exit_usage; fi
 DEST_IMG_FLDR="/home/$USER/$DEST_IMG_FLDR"
+mkdir -p "$DEST_IMG_FLDR"
 if [ ! -d "$DEST_IMG_FLDR" ]; then
 	echo "Destination folder for images backup not found: $DEST_IMG_FLDR"
 	exit_usage
