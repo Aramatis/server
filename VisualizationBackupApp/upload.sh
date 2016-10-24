@@ -5,12 +5,15 @@
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
 ## visualization server data
-REMOTE_USER="mpavez"
-REMOTE_HOST="172.17.57.179"
-# REMOTE_USER="transapp"
-# REMOTE_HOST="104.236.183.105"
-REMOTE_VIZ_MANAGE_PY="workspaces/visualization/manage.py"
-REMOTE_IMG_FLDR="workspaces/visualization/media/reported_images"
+# REMOTE_USER="mpavez"
+# REMOTE_HOST="172.17.57.179"
+# REMOTE_VIZ_MANAGE_PY="workspaces/visualization/manage.py"
+# REMOTE_IMG_FLDR="workspaces/visualization/media/reported_images"
+
+REMOTE_USER="transapp"
+REMOTE_HOST="104.236.183.105"
+REMOTE_VIZ_MANAGE_PY="visualization/manage.py"
+REMOTE_IMG_FLDR="visualization/media/reported_images"
 
 # where to put backup data on the visualization server
 # e.g: ftp_incoming --> /home/$USER/ftp_incoming
@@ -91,6 +94,10 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 echo "- preparing environment ..."
 rm -rf "$TMP_BKP_FLDR"
+if [ -d "$TMP_BKP_FLDR" ]; then
+	echo " - you dont have the required permissions to work on this server"
+	exit 1
+fi
 mkdir -p "$TMP_BKP_FLDR"
 if [ ! -d "$TMP_BKP_FLDR" ]; then
 	echo " - failed to create the tmp folder: $TMP_BKP_FLDR"
@@ -148,6 +155,12 @@ fi
 
 cd "$VIZ_APP_FLDR"
 ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < script_pre.sh "$REMOTE_VIZ_INCOMING_FLDR"
+if [ $? -ne 0 ]; then
+	echo "ssh exited with status not 0"
+	exit 1
+fi
+
+
 
 #### upload
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -195,7 +208,10 @@ fi
 
 cd "$VIZ_APP_FLDR"
 ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < script_post.sh "$REMOTE_VIZ_INCOMING_FLDR" "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP" "$REMOTE_VIZ_MANAGE_PY" "$REMOTE_IMG_FLDR"
-
+if [ $? -ne 0 ]; then
+	echo "ssh exited with status not 0"
+	exit 1
+fi
 
 echo "-------------------------------------------------------------------"
 echo "upload.sh end"
