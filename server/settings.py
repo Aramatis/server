@@ -204,9 +204,15 @@ MEDIA_IMAGE = os.path.join(MEDIA_ROOT, "reported_images/")
 CRONJOBS = [
     #the job is executed every day at 24
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearEventsThatHaveBeenDecline'),
+
+    # every 2 minutes
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
-    ('*/1 * * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
+    
+    # every 1 hour
+    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
 ]
+#('*/1 * * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
+
 CRONTAB_LOCK_JOBS = True
 
 
@@ -240,23 +246,23 @@ ARCHIVE_EXCLUDE   = (
     'auth.group_permissions',
     'auth.user_groups',
     'auth.user_user_permissions',
-    'AndroidRequests.DevicePositionInTime',
-    'AndroidRequests.Event',
-    'AndroidRequests.StadisticDataFromRegistrationBus',
-    'AndroidRequests.StadisticDataFromRegistrationBusStop',
-    'AndroidRequests.EventForBusStop',
-    'AndroidRequests.EventForBus',
-    'AndroidRequests.ServicesByBusStop',
-    'AndroidRequests.BusStop',
-    'AndroidRequests.Service',
-    'AndroidRequests.Bus',
-    'AndroidRequests.ServiceLocation',
-    'AndroidRequests.ServiceStopDistance',
-    'AndroidRequests.Token',
-    'AndroidRequests.PoseInTrajectoryOfToken',
-    'AndroidRequests.ActiveToken',
-    'AndroidRequests.NearByBusesLog',
-    'AndroidRequests.Route',
-    #'AndroidRequests.Report',
+    # 'AndroidRequests.DevicePositionInTime',
+    # 'AndroidRequests.Event',
+    # 'AndroidRequests.StadisticDataFromRegistrationBus',
+    # 'AndroidRequests.StadisticDataFromRegistrationBusStop',
+    # 'AndroidRequests.EventForBusStop',
+    # 'AndroidRequests.EventForBus',
+    # 'AndroidRequests.ServicesByBusStop',
+    # 'AndroidRequests.BusStop',
+    # 'AndroidRequests.Service',
+    # 'AndroidRequests.Bus',
+    # 'AndroidRequests.ServiceLocation',
+    # 'AndroidRequests.ServiceStopDistance',
+    # 'AndroidRequests.Token',
+    # 'AndroidRequests.PoseInTrajectoryOfToken',
+    # 'AndroidRequests.ActiveToken',
+    # 'AndroidRequests.NearByBusesLog',
+    # 'AndroidRequests.Route',
+    # 'AndroidRequests.Report',
 )
 
