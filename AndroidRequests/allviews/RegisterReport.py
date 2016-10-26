@@ -6,6 +6,8 @@ from django.utils.decorators import method_decorator
 from django.db import IntegrityError
 from django.utils import timezone
 
+import logging
+
 import os
 # import DB's models
 from AndroidRequests.models import Report
@@ -30,6 +32,9 @@ class RegisterReport(View):
 
     def post(self, request):
         """ It receives the data for the free report """
+
+        logger = logging.getLogger(__name__)
+
         fine = False
         message = 'Report saved.'
 
@@ -50,36 +55,41 @@ class RegisterReport(View):
                     raise EmptyUserIdError
 
                 report = Report.objects.create(timeStamp=pTimeStamp, userId=pUserId, \
-                                message=text, reportInfo=aditionalInfo, imageName = 'no image')
+                                message=text, reportInfo=aditionalInfo, imageName = None)
                 fine = True
-            except EmptyUserIdError:
+            except EmptyUserIdError as e:
                 message = 'Has to exist a user id.'
-            except EmptyTextMessageError:
+                logger.error(str(e))
+            except EmptyTextMessageError as e:
                 message = 'Has to exist a text message.'
-            except (IntegrityError, ValueError):
+                logger.error(str(e))
+            except (IntegrityError, ValueError) as e:
                 message = 'Error to create record.'
+                logger.error(str(e))
             else:
                 try:
                     if stringImage != '':
                         if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
                             raise IncorrectExtensionImageError
 
-                        imageName = str(report.pk) + "_" + pTimeStamp.strftime('%X_%x')  + "." + extension
+                        imageName = str(report.pk) + "_" + pTimeStamp.strftime('%X_%Y-%m-%d')  + "." + extension
                         path = os.path.join(settings.MEDIA_IMAGE, imageName)
                         imageFile = open(path, "wb")
                         imageFile.write(stringImage)
                         imageFile.close()
                         report.imageName = imageName
                         report.save()
-                except IncorrectExtensionImageError:
+                except IncorrectExtensionImageError as e:
+                    logger.error(str(e))
                     message = 'Extension image is not valid.'
                     report.delete()
                     fine = False
-                except:
+                except Exception as e:
+                    logger.error(str(e))
                     message = 'Error to save image'
                     report.delete()
                     fine = False
-
+        
         response = {'valid': fine, 'message': message}
         return JsonResponse(response, safe=False)
 

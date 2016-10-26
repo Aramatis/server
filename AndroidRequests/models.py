@@ -555,7 +555,7 @@ class Report(models.Model):
     """ Specific date time when the server received a pose in the trajectory """
     message = models.TextField()
     """ Text reported by the user """
-    imageName = models.CharField(max_length=100, default="no image")
+    imageName = models.CharField(max_length=100, default=None, null=True)
     """ image name that was saved """
     reportInfo = models.TextField()
     """ Aditinal information regarding the report. For example the user location."""
