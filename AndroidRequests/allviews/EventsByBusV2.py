@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
 
+import logging
 # my stuff
 # import DB's models
 from AndroidRequests.models import Busv2, Event, EventForBusv2, Busassignment
@@ -13,51 +14,49 @@ class EventsByBusV2(View):
     def __init__(self):
         self.context={}
 
-    def get(self, request, pUuid, pBusService):
+    def get(self, request, pUuid):
         """The UUID field can identify the bus, and the service can identify
         the bus assignment"""
-        # remove hyphen and convert to uppercase
-        #pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
+        logger = logging.getLogger(__name__)
 
         response = {}
         #response['registrationPlate'] = pRegistrationPlate
-        response['service'] = pBusService
         response['uuid'] = pUuid
 
         try:
             bus = Busv2.objects.get(uuid=pUuid)
-            assignment = Busassignment.objects.get(service=pBusService, uuid=bus)
-            events = self.getEventForBus(assignment) 
             pRegistrationPlate = bus.registrationPlate            
-                
-        except:
+            assignments = Busassignment.objects.filter(uuid=bus)
+            events = self.getEventsForBus(assignments)
+        except Exception as e:
+            logger.error(str(e))
             events = []
             pRegistrationPlate = ''
 
         response['registrationPlate'] = pRegistrationPlate
         response['events'] = events
 
-        
         return JsonResponse(response, safe=False)
 
-    def getEventForBus(self,pBusassignment):
+    def getEventsForBus(self, pBusassignments):
         """this method look for the active events of a bus, those whose lifespan hasn't expired
         since the last time there were reported"""
         events = []
 
-        # if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE :
-            
-        #     return events
-
         eventsToAsk = Event.objects.filter(eventType='bus')
-
+      
         for event in eventsToAsk:
             eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
 
-            registry = EventForBusv2.objects.filter(busassignment = pBusassignment, event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
+            registry = EventForBusv2.objects.filter(busassignment__in = pBusassignments, \
+                             event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
 
             #checks if the event is active
             if registry.exists():
-                registry = registry[0]
-                events.append(registry.getDictionary())
+                newEvent = registry[0].getDictionary()
+                for it in registry[1:]:
+                    otherEvent = it.getDictionary()
+                    newEvent['eventConfirm'] = newEvent['eventConfirm'] + otherEvent['eventConfirm']
+                    newEvent['eventDecline'] = newEvent['eventDecline'] + otherEvent['eventDecline']
+                events.append(newEvent)
         return events

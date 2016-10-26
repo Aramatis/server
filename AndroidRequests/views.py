@@ -159,7 +159,7 @@ def nearbyBuses(request, pUserId, pBusStop):
                 service['sentido'] = "left"
 
             getEventBus = EventsByBusV2()
-            busEvents = getEventBus.getEventForBus(busassignment)
+            busEvents = getEventBus.getEventsForBus([busassignment])
             service['eventos'] = busEvents
             #add uuid parameter
             service['busId'] = bus.uuid

@@ -38,7 +38,7 @@ urlpatterns = [
     url(r'^requestEventsToNotified/(?P<pWhich>[\w,0-9]*)$', RequestEventsToNotified.as_view()),
     # List of bus events
     url(r'^requestEventsForBus/(?P<pRegistrationPlate>[\w,0-9,-]{6,8})/(?P<pBusService>[\w,0-9]*)$', EventsByBus.as_view()),
-    url(r'^requestEventsForBus/v2/(?P<pUuid>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)$', EventsByBusV2.as_view()),
+    url(r'^requestEventsForBus/v2/(?P<pUuid>[0-9a-z-]+)$', EventsByBusV2.as_view()),
     # List of bus stop events
     url(r'^requestEventsForBusStop/(?P<pBusStopCode>[\w,0-9]*)$', EventsByBusStop.as_view()),
     # List of bus stop of a service

@@ -90,7 +90,7 @@ class RegisterEventBus(View):
         # Returns updated event list for a bus
         eventsByBus = EventsByBusV2()
         
-        return eventsByBus.get(request, theBus.uuid, pBusService)
+        return eventsByBus.get(request, theBus.uuid)
 
     def getLastEvent(self, querySet):
         """if the query has two responses, return the latest one"""

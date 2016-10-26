@@ -260,7 +260,6 @@ class DevicePositionInTimeTest(TestCase):
 
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
-        self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
         self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 1)
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
@@ -292,7 +291,6 @@ class DevicePositionInTimeTest(TestCase):
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
-        self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
         self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 2)
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
@@ -312,7 +310,6 @@ class DevicePositionInTimeTest(TestCase):
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
-        self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 1)
         self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 2)
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
