@@ -77,7 +77,7 @@ def nearbyBuses(request, pUserId, pBusStop):
             bus = {}
             bus['servicio'] = user.busassignment.service
             bus['patente'] = user.busassignment.uuid.registrationPlate
-            busEvents = EventsByBusV2().getEventForBus(user.busassignment)
+            busEvents = EventsByBusV2().getEventsForBus([user.busassignment])
             bus['eventos'] = busEvents
             busData = user.busassignment.getLocation()
             bus['lat'] = busData['latitude']
