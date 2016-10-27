@@ -18,9 +18,9 @@ def fill_tables(apps, schema_editor):
     service_plate_array = []
     for bus in buses.objects.all():
         pUUID = None
-        if bus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+        if bus.registrationPlate.upper() == Constants.DUMMY_LICENSE_PLATE:
             busesv2(
-                registrationPlate = bus.registrationPlate,
+                registrationPlate = bus.registrationPlate.upper(),
                 uuid = bus.uuid
                 ).save()
             pUUID = bus.uuid
@@ -33,23 +33,24 @@ def fill_tables(apps, schema_editor):
                 uuid = bus.uuid
                 ).save()
             pUUID = uuidsArray[bus.registrationPlate.upper()]  
-        if bus.registrationPlate == Constants.DUMMY_LICENSE_PLATE or not ([bus.registrationPlate.upper(), bus.service] in service_plate_array): 
+        if (bus.registrationPlate.upper() == Constants.DUMMY_LICENSE_PLATE) or \
+                ([bus.registrationPlate.upper(), bus.service] not in service_plate_array): 
             busesassignments(
                 service = bus.service,
                 uuid = busesv2.objects.get(uuid = pUUID)
                 ).save()
-            if bus.registrationPlate != Constants.DUMMY_LICENSE_PLATE:
+            if bus.registrationPlate.upper() != Constants.DUMMY_LICENSE_PLATE:
                 service_plate_array.append([bus.registrationPlate.upper(), bus.service])
     #migrate data from Event4Bus to E4Bv2
     eventsforbuses = apps.get_model('AndroidRequests','eventforbus')
     eventsforbusesv2 =  apps.get_model('AndroidRequests','eventforbusv2')
     for eventforbus in eventsforbuses.objects.all():
         busv2 = None
-        if eventforbus.bus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+        if eventforbus.bus.registrationPlate.upper() == Constants.DUMMY_LICENSE_PLATE:
             busv2 = busesv2.objects.get(uuid = eventforbus.bus.uuid)
         else:
-            busv2 = busesv2.objects.get(registrationPlate = buses.objects.filter(id = eventforbus.bus_id).first().registrationPlate.upper())
-        eventsforbusesv2(
+            busv2 = busesv2.objects.get(registrationPlate = buses.objects.get(id = eventforbus.bus_id).registrationPlate.upper())
+        eventsforbusesv2(  
             ex_id = eventforbus.id,
             timeStamp = eventforbus.timeStamp,
             timeCreation = eventforbus.timeCreation,
@@ -64,7 +65,7 @@ def fill_tables(apps, schema_editor):
     for token in tokens.objects.all():
         bus = buses.objects.get(id = token.bus_id)
         busv2 = None
-        if bus.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+        if bus.registrationPlate.upper() == Constants.DUMMY_LICENSE_PLATE:
             busv2 = busesv2.objects.get(uuid = bus.uuid)            
         else:
             busv2 = busesv2.objects.get(registrationPlate = bus.registrationPlate.upper() )

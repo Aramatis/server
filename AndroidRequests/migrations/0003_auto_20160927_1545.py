@@ -9,7 +9,7 @@ def gen_uuid(apps, schema_editor):
     MyModel = apps.get_model('AndroidRequests', 'bus')
     uuidsArray = {}
     for row in MyModel.objects.all():
-        if row.registrationPlate == Constants.DUMMY_LICENSE_PLATE:
+        if row.registrationPlate.upper() == Constants.DUMMY_LICENSE_PLATE:
             puuid = uuid.uuid4()
             row.uuid = puuid
         elif row.registrationPlate in uuidsArray:
