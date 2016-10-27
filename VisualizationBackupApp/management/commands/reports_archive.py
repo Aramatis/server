@@ -26,11 +26,11 @@ class Command(BaseCommand):
         reports = self.get_reports_query()
 
         print "writing images list"
-        with open("report_images.txt", 'w') as file:
+        with open("/tmp/report_images.txt", 'w') as file:
             for report in reports:
                 file.write(report.imageName + "\n")
 
-        self.to_JSON(reports, "reports.json")
+        self.to_JSON(reports, "/tmp/reports.json")
 
 
     # ----------------------------------------------------------------------------
