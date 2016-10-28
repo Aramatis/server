@@ -132,6 +132,8 @@ def formatTime(time, distance):
 def getUserBuses(theBusStop):
     """ get active user buses """
 
+    logger = logging.getLogger(__name__)
+
     servicesToBusStop = ServicesByBusStop.objects.filter(busStop = theBusStop)
     serviceNames = []
     serviceDirections = []
@@ -186,6 +188,9 @@ def getUserBuses(theBusStop):
 
 def getAuthorityBuses(data):
     """ apply json format to authority info """
+
+    logger = logging.getLogger(__name__)
+
     dtpmBuses = []
     busStopCode = data['id']
     for service in data['servicios']:
