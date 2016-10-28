@@ -56,6 +56,82 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     USER BUSES
     """
+    userBuses = getUserBuses(theBusStop)
+
+    """
+    DTPM BUSES
+    """
+    # DTPM source
+    url = "http://54.94.231.101/dtpm/busStopInfo/"
+    url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
+    response = requests.get(url=url)
+
+    dtpmBuses = []
+    if(response.text != ""):
+        data = json.loads(response.text)
+        data['error'] = None
+
+        dtpmBuses = getAuthorityBuses(data)
+
+        if data['error'] != None:
+            answer['DTPMError'] = data['error']
+        else:
+            answer['DTPMError'] = ""
+
+    """
+    MERGE USER BUSES WITH DTPM BUSES
+    """
+    answer['servicios'] = mergeBuses(userBuses, dtpmBuses)
+
+    return JsonResponse(answer, safe=False)
+
+def formatServiceName(serviceName):
+    """ apply common format used by transantiago to show service name to user  """
+    if not serviceName[-1:] == 'N':
+        serviceName = "{}{}".format(serviceName[0],serviceName[1:].lower())
+    return serviceName
+
+def formatDistance(distance):
+    """ format distance to show final user """
+    distance = int(distance)
+    if distance >= 1000:
+        distance = round(float(distance) / 1000, 2)
+        if distance.is_integer():
+            return "{}Km".format(int(distance))
+        else:
+            return "{}Km".format(distance)
+    else:
+        return "{}m".format(distance)
+
+def formatTime(time, distance):
+    """ return a message related the time when a bus arrives to bus stop """
+    menosd = re.match("Menos de (\d+) min.", time)
+    if menosd:
+        if 0 <= distance and distance <=100 :
+            return "Llegando"
+        else:
+            return "0 a {} min".format(menosd.group(1))
+
+    entre = re.match("Entre (\d+) Y (\d+) min.", time)
+    if entre is not None:
+        return "{} a {} min".format(entre.group(1), entre.group(2))
+
+    enmenosd =re.match("En menos de (\d+) min.", time)
+    if enmenosd:
+        if 0 <= distance and distance <=100 :
+            return "Llegando"
+        else:
+            return "0 a {} min".format(enmenosd.group(1))
+
+    masd = re.match("Mas de (\d+) min.", time)
+    if masd is not None:
+        return "+ de {} min".format(masd.group(1))
+
+    return time
+
+def getUserBuses(theBusStop):
+    """ get active user buses """
+
     servicesToBusStop = ServicesByBusStop.objects.filter(busStop = theBusStop)
     serviceNames = []
     serviceDirections = []
@@ -106,93 +182,84 @@ def nearbyBuses(request, pUserId, pBusStop):
             if not bus['random']:
                 userBuses.append(bus)
 
-    """
-    DTPM BUSES
-    """
-    # DTPM source
-    url = "http://54.94.231.101/dtpm/busStopInfo/"
-    url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
-    response = requests.get(url=url)
+    return userBuses
 
+def getAuthorityBuses(data):
+    """ apply json format to authority info """
     dtpmBuses = []
-    if(response.text != ""):
-        data = json.loads(response.text)
-        data['error'] = None
+    busStopCode = data['id']
+    for service in data['servicios']:
+        if service['valido']!=1 or service['patente'] is None \
+           or service['tiempo'] is None or service['distancia']=='None mts.':
+            continue
+        # clean the strings from spaces and unwanted format
+        service['servicio']  = formatServiceName(service['servicio'].strip())
+        service['patente']   = service['patente'].replace("-", "").strip().upper()
+        distance = int(service['distancia'].replace(' mts.', ''))
+        service['distanciaMts'] = distance
+        service['distanciaV2'] = formatDistance(distance)
+        service['tiempoV2'] = formatTime(service['tiempo'], distance)
 
-        busStopCode = data['id']
+        # request the correct bus
+        bus = Busv2.objects.get_or_create(registrationPlate = service['patente'])[0]
+        busassignment = Busassignment.objects.get_or_create(service = service['servicio'], \
+            uuid=bus)[0]
+        service['random'] = False
 
-        for service in data['servicios']:
-            if service['valido']!=1 or service['patente'] is None \
-               or service['tiempo'] is None or service['distancia']=='None mts.':
-                continue
-            # clean the strings from spaces and unwanted format
-            service['servicio']  = formatServiceName(service['servicio'].strip())
-            service['patente']   = service['patente'].replace("-", "").strip().upper()
-            distance = int(service['distancia'].replace(' mts.', ''))
-            service['distanciaMts'] = distance
-            service['distanciaV2'] = formatDistance(distance)
-            service['tiempoV2'] = formatTime(service['tiempo'], distance)
+        try:
+            busData = busassignment.getEstimatedLocation(busStopCode, distance)
+        except Exception as e:
+            logger.error(str(e))
+            busData = {}
+            busData['latitude'] = 500
+            busData['longitude'] = 500
+            busData['direction'] = 'I'
+            service['random'] = True
 
-            # request the correct bus
-            bus = Busv2.objects.get_or_create(registrationPlate = service['patente'])[0]
-            busassignment = Busassignment.objects.get_or_create(service = service['servicio'], \
-                uuid=bus)[0]
-            service['random'] = False
-            try:
-                busData = busassignment.getEstimatedLocation(busStopCode, distance)
-            except Exception as e:
-                logger.error(str(e))
-                busData = {}
-                busData['latitude'] = 500
-                busData['longitude'] = 500
-                busData['direction'] = 'I'
-                service['random'] = True
-            service['tienePasajeros'] = 0
-            service['lat'] = busData['latitude']
-            service['lon'] = busData['longitude']
-            service['direction'] = busData['direction']
-            service['color'] = Service.objects.get(service=service['servicio']).color_id
-            try:
-                service['sentido'] = busassignment.getDirection(busStopCode, distance)
-            except Exception as e:
-                logger.error(str(e))
-                service['sentido'] = "left"
+        service['tienePasajeros'] = 0
+        service['lat'] = busData['latitude']
+        service['lon'] = busData['longitude']
+        service['direction'] = busData['direction']
+        service['color'] = Service.objects.get(service=service['servicio']).color_id
 
-            getEventBus = EventsByBusV2()
-            busEvents = getEventBus.getEventsForBus([busassignment])
-            service['eventos'] = busEvents
-            #add uuid parameter
-            service['busId'] = bus.uuid
+        try:
+            service['sentido'] = busassignment.getDirection(busStopCode, distance)
+        except Exception as e:
+            logger.error(str(e))
+            service['sentido'] = "left"
 
-            dtpmBuses.append(service)
+        getEventBus = EventsByBusV2()
+        busEvents = getEventBus.getEventsForBus([busassignment])
+        service['eventos'] = busEvents
+        #add uuid parameter
+        service['busId'] = bus.uuid
 
-        if data['error'] != None:
-            answer['DTPMError'] = data['error']
-        else:
-            answer['DTPMError'] = ""
+        dtpmBuses.append(service)
 
-    """
-    MERGE USER BUSES WITH DTPM BUSES
-    """
-    answer['servicios'] = []
+    return dtpmBuses
+
+def mergeBuses(userBuses, authorityBuses):
+    """ Join the list of user buses with authority buses """
+    buses = []
+
     for userBus in userBuses:
-        #print "reviso un bus " + str(userBus['patente'])
+        #print "user bus: " + str(userBus['patente'])
         if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
-            #print "agrego dummy bus a la lista"
-            answer['servicios'].append(userBus)
+            #print "added dummy bus to list"
+            buses.append(userBus)
         else:
-            for dtpmBus in dtpmBuses:
-                #print "comparo {}=={} Y {}=={}".format(dtpmBus['servicio'], userBus['servicio'], dtpmBus['patente'], userBus['patente'])
-                if dtpmBus['servicio'] == userBus['servicio'] and \
-                   dtpmBus['patente'].upper() == userBus['patente'].upper():
-                    userBus['tiempo'] = dtpmBus['tiempo']
-                    userBus['tiempoV2'] = dtpmBus['tiempo']
-                    userBus['distancia'] = dtpmBus['distancia']
-                    userBus['distanciaV2'] = dtpmBus['distanciaV2']
-                    userBus['distanciaMts'] = dtpmBus['distanciaMts']
-                    userBus['sentido'] = dtpmBus['sentido']
+            for authBus in authorityBuses:
+                #print "compare {}=={} and {}=={}".format(dtpmBus['servicio'], userBus['servicio'], dtpmBus['patente'], userBus['patente'])
+                if authBus['servicio'] == userBus['servicio'] and \
+                   authBus['patente'].upper() == userBus['patente'].upper():
+                    userBus['tiempo'] = authBus['tiempo']
+                    userBus['tiempoV2'] = authBus['tiempo']
+                    userBus['distancia'] = authBus['distancia']
+                    userBus['distanciaV2'] = authBus['distanciaV2']
+                    userBus['distanciaMts'] = authBus['distanciaMts']
+                    userBus['sentido'] = authBus['sentido']
                     answer['servicios'].append(userBus)
-                    dtpmBuses.remove(dtpmBus)
+                    authorityBuses.remove(authBus)
                     #print "son iguales"
                     #print str(userBus)
                 else:
@@ -201,51 +268,7 @@ def nearbyBuses(request, pUserId, pBusStop):
                     #print "no son iguales"
                     #answer['servicios'].append(userBus)
 
-    answer['servicios'].extend(dtpmBuses)
+    buses.extend(authorityBuses)
 
-    return JsonResponse(answer, safe=False)
-
-def formatServiceName(serviceName):
-    """ apply common format used by transantiago to show service name to user  """
-    if not serviceName[-1:] == 'N':
-        serviceName = "{}{}".format(serviceName[0],serviceName[1:].lower())
-    return serviceName
-
-def formatDistance(distance):
-    """ format distance to show final user """
-    distance = int(distance)
-    if distance >= 1000:
-        distance = round(float(distance) / 1000, 2)
-        if distance.is_integer():
-            return "{}Km".format(int(distance))
-        else:
-            return "{}Km".format(distance)
-    else:
-        return "{}m".format(distance)
-
-def formatTime(time, distance):
-    """ return a message related the time when a bus arrives to bus stop """
-    menosd = re.match("Menos de (\d+) min.", time)
-    if menosd:
-        if 0 <= distance and distance <=100 :
-            return "Llegando"
-        else:
-            return "0 a {} min".format(menosd.group(1))
-
-    entre = re.match("Entre (\d+) Y (\d+) min.", time)
-    if entre is not None:
-        return "{} a {} min".format(entre.group(1), entre.group(2))
-
-    enmenosd =re.match("En menos de (\d+) min.", time)
-    if enmenosd:
-        if 0 <= distance and distance <=100 :
-            return "Llegando"
-        else:
-            return "0 a {} min".format(enmenosd.group(1))
-
-    masd = re.match("Mas de (\d+) min.", time)
-    if masd is not None:
-        return "+ de {} min".format(masd.group(1))
-
-    return time
+    return buses
 
