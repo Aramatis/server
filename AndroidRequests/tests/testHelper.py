@@ -27,8 +27,9 @@ from Loaders.LoaderFactory import LoaderFactory
 class TestHelper():
     """ methods that help to create test cases """
 
-    def __init__(self):
+    def __init__(self, testInstance):
         self.factory = RequestFactory()
+        self.test = testInstance
 
     def insertEventsOnDatabase(self):
          #loads the events
@@ -43,7 +44,7 @@ class TestHelper():
         csv.close()
         log.close()
 
-    def askForMachineId(self, testInstance, pLicencePlate):
+    def askForMachineId(self, pLicencePlate):
         """ simulate a request to get machine id based on its licence plate """
         URL = '/android/getUUID/'
         request = self.factory.get(URL)
@@ -51,14 +52,14 @@ class TestHelper():
         view = RequestUUID()
         response = view.get(request, pLicencePlate)
 
-        testInstance.assertEqual(response.status_code, 200)
+        self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
         machineId = jsonResponse['uuid']
  
         return machineId
 
-    def getInBusWithLicencePlate(self, testInstance, userId, service, licencePlate):
+    def getInBusWithLicencePlate(self, userId, service, licencePlate):
         """ create a user on bus in database """
         machineId = self.askForMachineId(licencePlate)
 
@@ -69,14 +70,14 @@ class TestHelper():
         view = RequestTokenV2()
         response = view.get(request, self.userId, busService, machineId)
 
-        testInstance.assertEqual(response.status_code, 200)
+        self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
         token = jsonResponse['token']
  
         return token
 
-    def getInBusWithMachineId(self, testInstance, userId, service, machineId):
+    def getInBusWithMachineId(self, userId, service, machineId):
         """ create a user on bus in database """
 
         URL = '/android/requestToken/v2/'
@@ -86,20 +87,20 @@ class TestHelper():
         view = RequestTokenV2()
         response = view.get(request, userId, service, machineId)
 
-        testInstance.assertEqual(response.status_code, 200)
+        self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
         token = jsonResponse['token']
  
         return token
 
-    def reportEvent(self, testInstance, userId, service, licencePlate, eventCode):
+    def reportEvent(self, userId, service, licencePlate, eventCode):
         pass
 
-    def confirmOrDeclineEvent(self, testInstance, userId, machineId, service, eventCode, confirmOrDecline):
+    def confirmOrDeclineEvent(self, userId, machineId, service, eventCode, confirmOrDecline):
         pass
 
-    def reportEventV2(self, testInstance, userId, machineId, service, eventCode):
+    def reportEventV2(self, userId, machineId, service, eventCode):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2/'
         request = self.factory.get(URL)
@@ -108,13 +109,13 @@ class TestHelper():
         view = RegisterEventBusV2()
         response = view.get(request, userId, machineId, service, eventCode, 'confirm')
 
-        testInstance.assertEqual(response.status_code, 200)
+        self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
    
-    def confirmOrDeclineEventV2(self, testInstance, userId, machineId, service, eventCode, confirmOrDecline):
+    def confirmOrDeclineEventV2(self, userId, machineId, service, eventCode, confirmOrDecline):
         """ confirm or decline an event with the new version  """
         URL = '/android/reportEventBus/v2/'
         request = self.factory.get(URL)
@@ -123,13 +124,13 @@ class TestHelper():
         view = RegisterEventBusV2()
         response = view.get(request, userId, machineId, service, eventCode, confirmOrDecline)
 
-        testInstance.assertEqual(response.status_code, 200)
+        self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
  
-    def endRoute(self, testInstance, token):
+    def endRoute(self, token):
         """ revoke token used to identify a trip """
         URL = '/android/endRoute/'
         request = self.factory.get(URL)
@@ -138,13 +139,13 @@ class TestHelper():
         reponseView = EndRoute()
         response = reponseView.get(request, token)
 
-        testInstance.assertEqual(response.status_code, 200)
+        self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
 
-    def requestEventsForBusV2(self, testInstance, machineId):
+    def requestEventsForBusV2(self, machineId):
         """ ask for events related to machine id """
         URL = '/android/requestEventsForBus/v2/'
         request = self.factory.get(URL)
@@ -153,7 +154,7 @@ class TestHelper():
         reponseView = EventsByBusV2()
         response = reponseView.get(request, machineId)
 
-        testInstance.assertEqual(response.status_code, 200)
+        self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 

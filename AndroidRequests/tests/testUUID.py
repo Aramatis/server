@@ -33,7 +33,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.userId2 = "4f20c8f4-ddea-4c6c-87bb-c7bd3d435a51"
 
         #loads the events
-        self.helper = TestHelper()
+        self.helper = TestHelper(self)
         self.helper.insertEventsOnDatabase()
 
         # add dummy  bus
@@ -60,19 +60,19 @@ class DummyLicensePlateUUIDTest(TestCase):
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         busService = '507'
 
-        machineId = self.helper.askForMachineId(self, licencePlate)
+        machineId = self.helper.askForMachineId(licencePlate)
 
         #a ghost bus is created with the same uuid that was recieved
         self.assertEqual(Busv2.objects.filter(uuid=machineId).exists(), True)
 
-        testToken = self.helper.getInBusWithMachineId(self, self.userId, busService, machineId)
+        testToken = self.helper.getInBusWithMachineId(self.userId, busService, machineId)
 
         # the created token is an active token
         self.assertEqual(ActiveToken.objects.filter(token=testToken).exists(), True)
         # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
  
-        jsonResponse = self.helper.endRoute(self, testToken)       
+        jsonResponse = self.helper.endRoute(testToken)
         
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
@@ -82,19 +82,19 @@ class DummyLicensePlateUUIDTest(TestCase):
         licencePlate = 'AA1111'
         busService = '507'
 
-        machineId = self.helper.askForMachineId(self, licencePlate)
+        machineId = self.helper.askForMachineId(licencePlate)
 
         #a ghost bus is created with the same uuid that was recieved
         self.assertEqual(Busv2.objects.filter(uuid=machineId).exists(), True)
 
-        testToken = self.helper.getInBusWithMachineId(self, self.userId, busService, machineId)
+        testToken = self.helper.getInBusWithMachineId(self.userId, busService, machineId)
 
         # the created token is an active token
         self.assertEqual(ActiveToken.objects.filter(token=testToken).exists(), True)
         # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
         
-        jsonResponse = self.helper.endRoute(self, testToken)       
+        jsonResponse = self.helper.endRoute(testToken)       
 
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
@@ -106,12 +106,12 @@ class DummyLicensePlateUUIDTest(TestCase):
         busService = '507'
         eventCode = 'evn00101'
 
-        machineId = self.helper.askForMachineId(self, licencePlate)
+        machineId = self.helper.askForMachineId(licencePlate)
 
         #a ghost bus is created with the same uuid that was recieved
         self.assertEqual(Busv2.objects.filter(uuid=machineId).exists(), True)
 
-        testToken = self.helper.getInBusWithMachineId(self, self.userId, busService, machineId)
+        testToken = self.helper.getInBusWithMachineId(self.userId, busService, machineId)
 
         # the created token is an active token
         self.assertEqual(ActiveToken.objects.filter(token=testToken).exists(), True)
@@ -121,7 +121,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         #self.assertEqual(Token.objects.filter(uuid=puuid).exists(), True)
         
         # submitting one event to the server
-        jsonResponse = self.helper.reportEventV2(self, self.userId, machineId, busService, eventCode)
+        jsonResponse = self.helper.reportEventV2(self.userId, machineId, busService, eventCode)
 
         self.assertEqual(jsonResponse['uuid'], machineId)
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
@@ -131,7 +131,7 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         # ===================================================================================
         # getting events for a specific bus
-        jsonResponse = self.helper.requestEventsForBusV2(self, machineId)
+        jsonResponse = self.helper.requestEventsForBusV2(machineId)
 
         # verify the previous event reported
         self.assertEqual(jsonResponse['uuid'], machineId)
@@ -142,7 +142,7 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         # ===================================================================================
         # do event +1 to the event
-        jsonResponse = self.helper.confirmOrDeclineEventV2(self, self.userId, machineId, busService, \
+        jsonResponse = self.helper.confirmOrDeclineEventV2(self.userId, machineId, busService, \
                        eventCode, 'confirm')
         
         self.assertEqual(jsonResponse['uuid'], machineId)
@@ -153,7 +153,7 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         # ===================================================================================
         # getting events for a specific bus
-        jsonResponse = self.helper.requestEventsForBusV2(self, machineId)
+        jsonResponse = self.helper.requestEventsForBusV2(machineId)
 
         # verify the previous event reported
         self.assertEqual(jsonResponse['uuid'], machineId)
@@ -163,7 +163,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
         # do event -1 to the event
-        jsonResponse = self.helper.confirmOrDeclineEventV2(self, self.userId, machineId, busService, \
+        jsonResponse = self.helper.confirmOrDeclineEventV2(self.userId, machineId, busService, \
                        eventCode, 'decline')
 
         self.assertEqual(jsonResponse['uuid'], machineId)
@@ -174,7 +174,7 @@ class DummyLicensePlateUUIDTest(TestCase):
 
         # ===================================================================================
         # getting events for a specific bus
-        jsonResponse = self.helper.requestEventsForBusV2(self, machineId)
+        jsonResponse = self.helper.requestEventsForBusV2( machineId)
 
         # verify the previous event reported
         self.assertEqual(jsonResponse['uuid'], machineId)
@@ -193,7 +193,7 @@ class DummyLicensePlateUUIDTest(TestCase):
         anEvent.save()
 
         # ask for events and the answer should be none
-        jsonResponse = self.helper.requestEventsForBusV2(self, machineId)
+        jsonResponse = self.helper.requestEventsForBusV2(machineId)
 
         self.assertEqual(len(jsonResponse['events']),0)
 
