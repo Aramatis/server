@@ -22,7 +22,7 @@ import AndroidRequests.views as views
 import AndroidRequests.constants as Constants
 
 import os, sys
-from Loaders.LoaderFactory import LoaderFactory
+from Loaders.TestLoaderFactory import TestLoaderFactory
 
 class TestHelper():
     """ methods that help to create test cases """
@@ -32,17 +32,57 @@ class TestHelper():
         self.test = testInstance
 
     def insertEventsOnDatabase(self):
-         #loads the events
+        """ loads events """
 
         log = open('loadDataErrorTest.log', 'w')
 
         csv = open('InitialData/events.csv', 'r') #path to Bus Stop csv file
         csv.next()
-        factory = LoaderFactory()
+        factory = TestLoaderFactory()
         loader = factory.getModelLoader('event')(csv, log)
         loader.load()
         csv.close()
         log.close()
+
+    def insertServicesOnDatabase(self, serviceList):
+        """ load services """
+
+        log = open('loadDataErrorTest.log', 'w')
+
+        csv = open('InitialData/services.csv', 'r') #path to Bus Stop csv file
+        csv.next()
+        factory = TestLoaderFactory()
+        loader = factory.getModelLoader('service')(csv, log)
+        loader.load(serviceList)
+        csv.close()
+        log.close()
+
+    def insertBusstopsOnDatabase(self, busStopList):
+        """ load bus stops """
+
+        log = open('loadDataErrorTest.log', 'w')
+
+        csv = open('InitialData/busstop.csv', 'r') #path to Bus Stop csv file
+        csv.next()
+        factory = TestLoaderFactory()
+        loader = factory.getModelLoader('busstop')(csv, log)
+        loader.load(busStopList)
+        csv.close()
+        log.close()
+
+    def insertServicesByBusstopsOnDatabase(self, busStopList):
+        """ load services by bus stops """
+
+        log = open('loadDataErrorTest.log', 'w')
+
+        csv = open('InitialData/servicesbybusstop.csv', 'r') #path to Bus Stop csv file
+        csv.next()
+        factory = TestLoaderFactory()
+        loader = factory.getModelLoader('servicesbybusstop')(csv, log)
+        loader.load(busStopList)
+        csv.close()
+        log.close()
+
 
     def askForMachineId(self, pLicencePlate):
         """ simulate a request to get machine id based on its licence plate """
@@ -58,6 +98,10 @@ class TestHelper():
         machineId = jsonResponse['uuid']
  
         return machineId
+
+    def createBusAndAssignmentOnDatabase(self, userId, service, licencePlate):
+        """ create a bus object and assignment object """
+        self.getInBusWithLicencePlate(userId, service, licencePlate)
 
     def getInBusWithLicencePlate(self, userId, service, licencePlate):
         """ create a user on bus in database """
