@@ -438,23 +438,6 @@ class DevicePositionInTimeTest(TestCase):
             self.assertEqual('servicios' in jsonResponse, True)
             self.assertEqual('eventos' in jsonResponse, True)
 
-    def test_formatServiceName(self):
-        serviceName1 = "506E"
-        serviceName2 = "506N"
-        serviceName3 = "D03N"
-        serviceName4 = "D03E"
-        serviceName5 = "D03"
-        serviceName6 = "N50"
-        serviceName7 = "506"
-
-        self.assertEqual(views.formatServiceName(serviceName1), "506e")
-        self.assertEqual(views.formatServiceName(serviceName2), "506N")
-        self.assertEqual(views.formatServiceName(serviceName3), "D03N")
-        self.assertEqual(views.formatServiceName(serviceName4), "D03e")
-        self.assertEqual(views.formatServiceName(serviceName5), "D03")
-        self.assertEqual(views.formatServiceName(serviceName6), "N50")
-        self.assertEqual(views.formatServiceName(serviceName7), "506")
-
     def test_preferPositionOfPersonInsideABus(self):
 
         #Bus.objects.create(registrationPlate = 'AA1111', service = '507')
