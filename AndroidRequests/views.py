@@ -66,12 +66,12 @@ def nearbyBuses(request, pUserId, pBusStop):
     url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
     response = requests.get(url=url)
 
-    dtpmBuses = []
+    authBuses = []
     if(response.text != ""):
         data = json.loads(response.text)
         data['error'] = None
 
-        dtpmBuses = getAuthorityBuses(data)
+        authBuses = getAuthorityBuses(data)
 
         if data['error'] != None:
             answer['DTPMError'] = data['error']
@@ -81,7 +81,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     MERGE USER BUSES WITH DTPM BUSES
     """
-    answer['servicios'] = mergeBuses(userBuses, dtpmBuses)
+    answer['servicios'] = mergeBuses(userBuses, authBuses)
 
     return JsonResponse(answer, safe=False)
 
@@ -147,11 +147,14 @@ def getUserBuses(theBusStop):
     #print "usuarios activos: " + str(len(activeUserBuses))
     
     userBuses = []
+    uuids = []
     for user in activeUserBuses:
         serviceIndex = serviceNames.index(user.busassignment.service)
+        uuid = user.busassignment.uuid.uuid
         #TODO: consider bus direction
-        if user.direction == serviceDirections[serviceIndex] or \
-            user.direction is None:
+        if (user.direction == serviceDirections[serviceIndex] or \
+            user.direction is None) and (not uuid in uuids):
+            uuids.append(uuid)
             bus = {}
             bus['servicio'] = user.busassignment.service
             bus['patente'] = user.busassignment.uuid.registrationPlate
@@ -178,7 +181,7 @@ def getUserBuses(theBusStop):
             bus['distanciaV2'] = 'Usuario'
             bus['distanciaMts'] = 1
             # add new param 'uuid'
-            bus['busId'] = user.bus.uuid
+            bus['busId'] = uuid
             bus['direccion'] = user.direction
             # assume that bus is 30 meters from bus stop to predict direction
             if not bus['random']:
@@ -191,7 +194,7 @@ def getAuthorityBuses(data):
 
     logger = logging.getLogger(__name__)
 
-    dtpmBuses = []
+    authBuses = []
     busStopCode = data['id']
     for service in data['servicios']:
         if service['valido']!=1 or service['patente'] is None \
@@ -239,9 +242,9 @@ def getAuthorityBuses(data):
         #add uuid parameter
         service['busId'] = bus.uuid
 
-        dtpmBuses.append(service)
+        authBuses.append(service)
 
-    return dtpmBuses
+    return authBuses
 
 def mergeBuses(userBuses, authorityBuses):
     """ Join the list of user buses with authority buses """
@@ -254,16 +257,16 @@ def mergeBuses(userBuses, authorityBuses):
             buses.append(userBus)
         else:
             for authBus in authorityBuses:
-                #print "compare {}=={} and {}=={}".format(dtpmBus['servicio'], userBus['servicio'], dtpmBus['patente'], userBus['patente'])
+                #print "compare {}=={} and {}=={}".format(authBus['servicio'], userBus['servicio'], authBus['patente'], userBus['patente'])
                 if authBus['servicio'] == userBus['servicio'] and \
                    authBus['patente'].upper() == userBus['patente'].upper():
                     userBus['tiempo'] = authBus['tiempo']
-                    userBus['tiempoV2'] = authBus['tiempo']
+                    userBus['tiempoV2'] = authBus['tiempoV2']
                     userBus['distancia'] = authBus['distancia']
                     userBus['distanciaV2'] = authBus['distanciaV2']
                     userBus['distanciaMts'] = authBus['distanciaMts']
                     userBus['sentido'] = authBus['sentido']
-                    answer['servicios'].append(userBus)
+                    buses.append(userBus)
                     authorityBuses.remove(authBus)
                     #print "son iguales"
                     #print str(userBus)
