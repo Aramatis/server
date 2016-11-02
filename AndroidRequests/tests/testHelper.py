@@ -1,6 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
+from django.utils import timezone
 import json
 
 # my stuff
@@ -112,7 +113,7 @@ class TestHelper():
         request.user = AnonymousUser()
 
         view = RequestTokenV2()
-        response = view.get(request, self.userId, busService, machineId)
+        response = view.get(request, userId, service, machineId)
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -137,6 +138,53 @@ class TestHelper():
         token = jsonResponse['token']
  
         return token
+
+    def sendFakeTrajectoryOfToken(self, travelToken):
+        """ send fake positions for user travel """
+
+        URL = '/android/sendTrajectory'
+        request = self.factory.post(URL)
+        request.user = AnonymousUser()
+
+        now = timezone.now()
+        times = [now,\
+                 now - timezone.timedelta(0, 5),\
+                 now - timezone.timedelta(0, 10),\
+                 now - timezone.timedelta(0, 15),\
+                 now - timezone.timedelta(0, 20),\
+                 now - timezone.timedelta(0, 25),\
+                 now - timezone.timedelta(0, 30),\
+                 now - timezone.timedelta(0, 35),\
+                 now - timezone.timedelta(0, 40)]
+        fTimes = []
+        for time in times:
+            fTimes.append(time.strftime("%Y-%m-%dT%X"))
+
+        Poses = {"poses":[\
+                {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp": fTimes[0], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp": fTimes[1], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp": fTimes[2], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458646,"longitud" : -70.673799, "timeStamp": fTimes[3], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.458413,"longitud" : -70.671631, "timeStamp": fTimes[4], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457983,"longitud" : -70.669035, "timeStamp": fTimes[5], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457518,"longitud" : -70.666718, "timeStamp": fTimes[6], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp": fTimes[7], "inVehicleOrNot":"vehicle"},\
+                {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot":"vehicle"}]}
+
+
+        view = SendPoses()
+        request.POST = {}
+        request.POST['pToken'] = travelToken
+        request.POST['pTrajectory'] = json.dumps(Poses)
+        request.method = 'POST'
+        response = view.post(request)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        self.test.assertEqual(jsonResponse['response'],'Poses were register.')
+        
 
     def reportEvent(self, userId, service, licencePlate, eventCode):
         pass
