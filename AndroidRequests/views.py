@@ -152,8 +152,7 @@ def getUserBuses(theBusStop):
         serviceIndex = serviceNames.index(user.busassignment.service)
         uuid = user.busassignment.uuid.uuid
         #TODO: consider bus direction
-        if (user.direction == serviceDirections[serviceIndex] or \
-            user.direction is None) and (not uuid in uuids):
+        if user.direction == serviceDirections[serviceIndex] and (not uuid in uuids):
             uuids.append(uuid)
             bus = {}
             bus['servicio'] = user.busassignment.service
