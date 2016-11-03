@@ -165,7 +165,7 @@ def getUserBuses(theBusStop):
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
             try:
-                bus['sentido'] = user.busassignment.getDirection(pBusStop, 30)
+                bus['sentido'] = user.busassignment.getDirection(theBusStop.code, 30)
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"

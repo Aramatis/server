@@ -29,9 +29,9 @@ class RoutePlanner(View):
         https://developers.google.com/maps/documentation/directions/intro#TravelModes
         """
 
-	# Log 
+        # Log 
         Log.objects.create(userId = pUserId, origin = pOrigin, destination = pDestination)
- 	
+     
         googleClient = googlemaps.Client(settings.GOOGLE_KEY)
 
         # DIRECTION API PARAMETERS
