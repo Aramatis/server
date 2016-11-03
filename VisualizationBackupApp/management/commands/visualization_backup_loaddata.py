@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     from AndroidRequests.models import Report
     def reports_cb(self, deserialized_object):
-        #deserialized_object.save()
+        # deserialized_object.save()
         if not deserialized_object.object.imageName == "no image":
             print deserialized_object.object.imageName
         #print deserialized_object.object
