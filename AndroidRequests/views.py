@@ -181,7 +181,7 @@ def getUserBuses(theBusStop):
             bus['distanciaMts'] = 1
             # add new param 'uuid'
             bus['busId'] = uuid
-            bus['direccion'] = user.direction
+            bus['direction'] = user.direction
             # assume that bus is 30 meters from bus stop to predict direction
             if not bus['random']:
                 userBuses.append(bus)
