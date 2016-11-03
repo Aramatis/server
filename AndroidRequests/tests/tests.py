@@ -9,6 +9,7 @@ from AndroidRequests.models import *
 from AndroidRequests.allviews.BusStopsByService import BusStopsByService
 from AndroidRequests.allviews.EndRoute import EndRoute
 from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
@@ -89,7 +90,7 @@ class DevicePositionInTimeTest(TestCase):
         log.close()
 
         # add dummy  bus
-        Bus.objects.create(registrationPlate = 'AA1111', service = '507')
+        Bus.objects.create(registrationPlate = 'AA1111', service = '507', uuid = '159fc6b7-7a20-477e-b5c7-af421e1e0e16')
         # add dummy bus stop
         busStop = BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
 
@@ -226,6 +227,7 @@ class DevicePositionInTimeTest(TestCase):
         requestToReportEventBus.user = AnonymousUser()
 
         reportEventBusView = RegisterEventBus()
+
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus, \
                 self.userId, busService, licencePlate, eventCode, 'confirm')
 
@@ -233,7 +235,10 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToReportEventBus['service'], busService)
-        self.assertEqual(len(responseToReportEventBus['events']), 0)
+        self.assertEqual(len(responseToReportEventBus['events']), 1)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 1)
+        self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
 
     def test_EventsByBus(self):
         '''This method test two thing, the posibility to report an event and asking
@@ -253,8 +258,8 @@ class DevicePositionInTimeTest(TestCase):
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
+
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
-        self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
         self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 1)
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
@@ -271,6 +276,8 @@ class DevicePositionInTimeTest(TestCase):
 
         responseToRequestEventForBus = json.loads(responseToRequestEventForBus.content)
 
+
+
         self.assertEqual(responseToRequestEventForBus['registrationPlate'], licencePlate)
         self.assertEqual(responseToRequestEventForBus['service'], busService)
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventDecline'], 0)
@@ -284,7 +291,6 @@ class DevicePositionInTimeTest(TestCase):
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
-        self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 0)
         self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 2)
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
@@ -304,7 +310,6 @@ class DevicePositionInTimeTest(TestCase):
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
         self.assertEqual(responseToReportEventBus['registrationPlate'], licencePlate)
-        self.assertEqual(responseToReportEventBus['service'], busService)
         self.assertEqual(responseToReportEventBus['events'][0]['eventDecline'], 1)
         self.assertEqual(responseToReportEventBus['events'][0]['eventConfirm'], 2)
         self.assertEqual(responseToReportEventBus['events'][0]['eventcode'], eventCode)
@@ -319,9 +324,11 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual(responseToRequestEventForBus['events'][0]['eventcode'], eventCode)
 
         # change manually the timeStamp to simulate an event that has expired
-        bus= Bus.objects.get(registrationPlate=licencePlate, service=busService)
+        #bus= Bus.objects.get(registrationPlate=licencePlate, service=busService)
+        bus = Busv2.objects.get(registrationPlate=licencePlate)
+        busassignment = Busassignment.objects.get(uuid=bus, service=busService)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBus.objects.get(bus=bus,event=event)
+        anEvent = EventForBusv2.objects.get(busassignment=busassignment,event=event)
 
         anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
@@ -431,26 +438,11 @@ class DevicePositionInTimeTest(TestCase):
             self.assertEqual('servicios' in jsonResponse, True)
             self.assertEqual('eventos' in jsonResponse, True)
 
-    def test_formatServiceName(self):
-        serviceName1 = "506E"
-        serviceName2 = "506N"
-        serviceName3 = "D03N"
-        serviceName4 = "D03E"
-        serviceName5 = "D03"
-        serviceName6 = "N50"
-        serviceName7 = "506"
-
-        self.assertEqual(views.formatServiceName(serviceName1), "506e")
-        self.assertEqual(views.formatServiceName(serviceName2), "506N")
-        self.assertEqual(views.formatServiceName(serviceName3), "D03N")
-        self.assertEqual(views.formatServiceName(serviceName4), "D03e")
-        self.assertEqual(views.formatServiceName(serviceName5), "D03")
-        self.assertEqual(views.formatServiceName(serviceName6), "N50")
-        self.assertEqual(views.formatServiceName(serviceName7), "506")
-
     def test_preferPositionOfPersonInsideABus(self):
 
         #Bus.objects.create(registrationPlate = 'AA1111', service = '507')
+        thebus = Busv2.objects.create(registrationPlate = 'AA1111')
+        Busassignment.objects.create(service = '507', uuid=thebus)
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
@@ -458,9 +450,11 @@ class DevicePositionInTimeTest(TestCase):
         userLongitud = -70.676266
 
         # first we test the position of the bus without passsangers
-        bus = Bus.objects.get(registrationPlate='AA1111', service='507')
+        #bus = Bus.objects.get(registrationPlate='AA1111', service='507')
+        bus = Busv2.objects.get(registrationPlate='AA1111')
+        busassignment = Busassignment.objects.get(service='507', uuid=bus)
 
-        busPose = bus.getLocation()
+        busPose = busassignment.getLocation()
 
         self.assertTrue(busPose['random'])
         self.assertEqual(busPose['latitude'], -500)
@@ -490,9 +484,10 @@ class DevicePositionInTimeTest(TestCase):
         response = reponseView.post(request)
 
         # ask the position of the bus whit a passanger
-        bus = Bus.objects.get(registrationPlate='AA1111', service='507')
+        bus = Busv2.objects.get(registrationPlate='AA1111')
+        busassignment = Busassignment.objects.get(uuid = bus, service='507')
 
-        busPose = bus.getLocation()
+        busPose = busassignment.getLocation()
 
         self.assertEqual(busPose['latitude'], userLatitud)
         self.assertEqual(busPose['longitude'], userLongitud)

@@ -12,9 +12,9 @@ import re
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Bus, Service, ServicesByBusStop, Token
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, ServicesByBusStop, Token
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 # constants
 import AndroidRequests.constants as Constants
 
@@ -56,52 +56,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     USER BUSES
     """
-    servicesToBusStop = ServicesByBusStop.objects.filter(busStop = theBusStop)
-    serviceNames = []
-    serviceDirections = []
-    for s in servicesToBusStop:
-        serviceNames.append(s.service.service)
-        serviceDirections.append(s.code.replace(s.service.service, ""))
-
-    # active user buses that stop in the bus stop
-    activeUserBuses = Token.objects.filter(bus__service__in = serviceNames, \
-            activetoken__isnull=False)
-    #print "usuarios activos: " + str(len(activeUserBuses))
-    
-    userBuses = []
-    for user in activeUserBuses:
-        serviceIndex = serviceNames.index(user.bus.service)
-        #TODO: consider bus direction
-        if user.direction == serviceDirections[serviceIndex] or \
-            user.direction is None:
-            bus = {}
-            bus['servicio'] = user.bus.service
-            bus['patente'] = user.bus.registrationPlate
-            busEvents = EventsByBus().getEventForBus(user.bus)
-            bus['eventos'] = busEvents
-            busData = user.bus.getLocation()
-            bus['lat'] = busData['latitude']
-            bus['lon'] = busData['longitude']
-            bus['tienePasajeros'] = busData['passengers']
-            try:
-                bus['sentido'] = user.bus.getDirection(pBusStop, 30)
-            except Exception as e:
-                logger.error(str(e))
-                bus['sentido'] = "left"
-            bus['color'] = Service.objects.get(service=bus['servicio']).color_id
-            bus['random'] = busData['random']
-            bus['valido'] = 1
-            # extras
-            # old version, 1.2.17 and previous
-            bus['tiempo'] = 'Viajando'
-            bus['distancia'] = '1 mts.'
-            # new version, 1.4.23 and upper
-            bus['tiempoV2'] = 'Viajando'
-            bus['distanciaV2'] = 'Usuario'
-            bus['distanciaMts'] = 1
-            # assume that bus is 30 meters from bus stop to predict direction
-            if not bus['random']:
-                userBuses.append(bus)
+    userBuses = getUserBuses(theBusStop)
 
     """
     DTPM BUSES
@@ -111,52 +66,12 @@ def nearbyBuses(request, pUserId, pBusStop):
     url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
     response = requests.get(url=url)
 
-    dtpmBuses = []
+    authBuses = []
     if(response.text != ""):
         data = json.loads(response.text)
         data['error'] = None
 
-        busStopCode = data['id']
-
-        for service in data['servicios']:
-            if service['valido']!=1 or service['patente'] is None \
-               or service['tiempo'] is None or service['distancia']=='None mts.':
-                continue
-            # clean the strings from spaces and unwanted format
-            service['servicio']  = formatServiceName(service['servicio'].strip())
-            service['patente']   = service['patente'].replace("-", "").strip().upper()
-            distance = int(service['distancia'].replace(' mts.', ''))
-            service['distanciaMts'] = distance
-            service['distanciaV2'] = formatDistance(distance)
-            service['tiempoV2'] = formatTime(service['tiempo'], distance)
-
-            # request the correct bus
-            bus = Bus.objects.get_or_create(registrationPlate = service['patente'], \
-                    service = service['servicio'])[0]
-            service['random'] = False
-            try:
-                busData = bus.getEstimatedLocation(busStopCode, distance)
-            except Exception as e:
-                logger.error(str(e))
-                busData = {}
-                busData['latitude'] = 500
-                busData['longitude'] = 500
-                service['random'] = True
-            service['tienePasajeros'] = 0
-            service['lat'] = busData['latitude']
-            service['lon'] = busData['longitude']
-            service['color'] = Service.objects.get(service=service['servicio']).color_id
-            try:
-                service['sentido'] = bus.getDirection(busStopCode, distance)
-            except Exception as e:
-                logger.error(str(e))
-                service['sentido'] = "left"
-
-            getEventBus = EventsByBus()
-            busEvents = getEventBus.getEventForBus(bus)
-            service['eventos'] = busEvents
-
-            dtpmBuses.append(service)
+        authBuses = getAuthorityBuses(data)
 
         if data['error'] != None:
             answer['DTPMError'] = data['error']
@@ -166,33 +81,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     MERGE USER BUSES WITH DTPM BUSES
     """
-    answer['servicios'] = []
-    for userBus in userBuses:
-        #print "reviso un bus " + str(userBus['patente'])
-        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
-            #print "agrego dummy bus a la lista"
-            answer['servicios'].append(userBus)
-        else:
-            for dtpmBus in dtpmBuses:
-                #print "comparo {}=={} Y {}=={}".format(dtpmBus['servicio'], userBus['servicio'], dtpmBus['patente'], userBus['patente'])
-                if dtpmBus['servicio'] == userBus['servicio'] and \
-                   dtpmBus['patente'].upper() == userBus['patente'].upper():
-                    userBus['tiempo'] = dtpmBus['tiempo']
-                    userBus['tiempoV2'] = dtpmBus['tiempo']
-                    userBus['distancia'] = dtpmBus['distancia']
-                    userBus['distanciaV2'] = dtpmBus['distanciaV2']
-                    userBus['distanciaMts'] = dtpmBus['distanciaMts']
-                    userBus['sentido'] = dtpmBus['sentido']
-                    answer['servicios'].append(userBus)
-                    dtpmBuses.remove(dtpmBus)
-                    #print "son iguales"
-                    #print str(userBus)
-                else:
-                    pass
-                    #print "no son iguales"
-                    #answer['servicios'].append(userBus)
-
-    answer['servicios'].extend(dtpmBuses)
+    answer['servicios'] = mergeBuses(userBuses, authBuses)
 
     return JsonResponse(answer, safe=False)
 
@@ -239,4 +128,155 @@ def formatTime(time, distance):
         return "+ de {} min".format(masd.group(1))
 
     return time
+
+def getUserBuses(theBusStop):
+    """ get active user buses """
+
+    logger = logging.getLogger(__name__)
+
+    servicesToBusStop = ServicesByBusStop.objects.filter(busStop = theBusStop)
+    serviceNames = []
+    serviceDirections = []
+    for s in servicesToBusStop:
+        serviceNames.append(s.service.service)
+        serviceDirections.append(s.code.replace(s.service.service, ""))
+
+    # active user buses that stop in the bus stop
+    activeUserBuses = Token.objects.filter(busassignment__service__in = serviceNames, \
+            activetoken__isnull=False)
+    #print "usuarios activos: " + str(len(activeUserBuses))
+    
+    userBuses = []
+    uuids = []
+    for user in activeUserBuses:
+        serviceIndex = serviceNames.index(user.busassignment.service)
+        uuid = user.busassignment.uuid.uuid
+        #TODO: consider bus direction
+        if (user.direction == serviceDirections[serviceIndex] or \
+            user.direction is None) and (not uuid in uuids):
+            uuids.append(uuid)
+            bus = {}
+            bus['servicio'] = user.busassignment.service
+            bus['patente'] = user.busassignment.uuid.registrationPlate
+            busEvents = EventsByBusV2().getEventsForBus([user.busassignment])
+            bus['eventos'] = busEvents
+            busData = user.busassignment.getLocation()
+            bus['lat'] = busData['latitude']
+            bus['lon'] = busData['longitude']
+            bus['tienePasajeros'] = busData['passengers']
+            try:
+                bus['sentido'] = user.busassignment.getDirection(pBusStop, 30)
+            except Exception as e:
+                logger.error(str(e))
+                bus['sentido'] = "left"
+            bus['color'] = Service.objects.get(service=bus['servicio']).color_id
+            bus['random'] = busData['random']
+            bus['valido'] = 1
+            # extras
+            # old version, 1.2.17 and previous
+            bus['tiempo'] = 'Viajando'
+            bus['distancia'] = '1 mts.'
+            # new version, 1.4.23 and upper
+            bus['tiempoV2'] = 'Viajando'
+            bus['distanciaV2'] = 'Usuario'
+            bus['distanciaMts'] = 1
+            # add new param 'uuid'
+            bus['busId'] = uuid
+            bus['direccion'] = user.direction
+            # assume that bus is 30 meters from bus stop to predict direction
+            if not bus['random']:
+                userBuses.append(bus)
+
+    return userBuses
+
+def getAuthorityBuses(data):
+    """ apply json format to authority info """
+
+    logger = logging.getLogger(__name__)
+
+    authBuses = []
+    busStopCode = data['id']
+    for service in data['servicios']:
+        if service['valido']!=1 or service['patente'] is None \
+           or service['tiempo'] is None or service['distancia']=='None mts.':
+            continue
+        # clean the strings from spaces and unwanted format
+        service['servicio']  = formatServiceName(service['servicio'].strip())
+        service['patente']   = service['patente'].replace("-", "").strip().upper()
+        distance = int(service['distancia'].replace(' mts.', ''))
+        service['distanciaMts'] = distance
+        service['distanciaV2'] = formatDistance(distance)
+        service['tiempoV2'] = formatTime(service['tiempo'], distance)
+
+        # request the correct bus
+        bus = Busv2.objects.get_or_create(registrationPlate = service['patente'])[0]
+        busassignment = Busassignment.objects.get_or_create(service = service['servicio'], \
+            uuid=bus)[0]
+        service['random'] = False
+
+        try:
+            busData = busassignment.getEstimatedLocation(busStopCode, distance)
+        except Exception as e:
+            logger.error(str(e))
+            busData = {}
+            busData['latitude'] = 500
+            busData['longitude'] = 500
+            busData['direction'] = 'I'
+            service['random'] = True
+
+        service['tienePasajeros'] = 0
+        service['lat'] = busData['latitude']
+        service['lon'] = busData['longitude']
+        service['direction'] = busData['direction']
+        service['color'] = Service.objects.get(service=service['servicio']).color_id
+
+        try:
+            service['sentido'] = busassignment.getDirection(busStopCode, distance)
+        except Exception as e:
+            logger.error(str(e))
+            service['sentido'] = "left"
+
+        getEventBus = EventsByBusV2()
+        busEvents = getEventBus.getEventsForBus([busassignment])
+        service['eventos'] = busEvents
+        #add uuid parameter
+        service['busId'] = bus.uuid
+
+        authBuses.append(service)
+
+    return authBuses
+
+def mergeBuses(userBuses, authorityBuses):
+    """ Join the list of user buses with authority buses """
+    buses = []
+
+    for userBus in userBuses:
+        #print "user bus: " + str(userBus['patente'])
+        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
+            #print "added dummy bus to list"
+            buses.append(userBus)
+        else:
+            for authBus in authorityBuses:
+                #print "compare {}=={} and {}=={}".format(authBus['servicio'], userBus['servicio'], authBus['patente'], userBus['patente'])
+                if authBus['servicio'] == userBus['servicio'] and \
+                   authBus['patente'].upper() == userBus['patente'].upper():
+                    userBus['tiempo'] = authBus['tiempo']
+                    userBus['tiempoV2'] = authBus['tiempoV2']
+                    userBus['distancia'] = authBus['distancia']
+                    userBus['distanciaV2'] = authBus['distanciaV2']
+                    userBus['distanciaMts'] = authBus['distanciaMts']
+                    userBus['sentido'] = authBus['sentido']
+                    buses.append(userBus)
+                    authorityBuses.remove(authBus)
+                    #print "son iguales"
+                    #print str(userBus)
+                else:
+                    pass
+                    #pass
+                    #print "no son iguales"
+                    #answer['servicios'].append(userBus)
+
+    buses.extend(authorityBuses)
+
+    return buses
 
