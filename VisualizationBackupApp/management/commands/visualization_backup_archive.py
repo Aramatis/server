@@ -23,6 +23,7 @@ class Command(BaseCommand):
         self.delta_seconds = 0
 
 
+
     # ----------------------------------------------------------------------------
     # COMMAND
     # ----------------------------------------------------------------------------    
@@ -30,6 +31,7 @@ class Command(BaseCommand):
         self.archive_reports()
         self.archive_events_for_bus()
         self.archive_events_for_busstop()
+
 
 
     # ----------------------------------------------------------------------------
@@ -47,17 +49,46 @@ class Command(BaseCommand):
                     file.write(report.imageName + "\n")
         self.to_JSON(query, "reports.json")
 
+
+
     def archive_events_for_bus(self):
         query = self.get_events_for_bus_query()
         self.to_JSON(query, "events_for_bus.json")
- 	
-        #query = self.get_statistic_data_from_registration_busstop_query()
-        #self.to_JSON(query, "statistic_data_from_registration_busstop.json")
+
+        # new primary keys
+        required_ids = []
+        for event in query:
+            required_ids.append(event.id)
         
+        # related rows
+        final_query = []
+        query_statistic = self.get_statistic_data_from_registration_busstop_query()
+        for stat in query_statistic:
+            if stat.reportOfEvent_id in required_ids:
+                final_query.append(stat)
+
+        self.to_JSON(final_query, "statistic_data_from_registration_busstop.json")
+
+
 
     def archive_events_for_busstop(self):
         query = self.get_events_for_busstop_query()
         self.to_JSON(query, "events_for_busstop.json")
+
+        # new primary keys
+        required_ids = []
+        for event in query:
+            required_ids.append(event.id)
+
+        # related rows
+        final_query = []
+        query_statistic = self.get_statistic_data_from_registration_bus_query()
+        for stat in query_statistic:
+            if stat.reportOfEvent_id in required_ids:
+                final_query.append(stat)
+
+        self.to_JSON(final_query, "statistic_data_from_registration_bus.json")
+
 
 
     # ----------------------------------------------------------------------------
@@ -74,7 +105,15 @@ class Command(BaseCommand):
     def get_events_for_busstop_query(self):
         from AndroidRequests.models import EventForBusStop
         return EventForBusStop.objects.filter(timeStamp__gt = self.get_past_date())
-  
+
+    def get_statistic_data_from_registration_busstop_query(self):
+        from AndroidRequests.models import StadisticDataFromRegistrationBusStop
+        return StadisticDataFromRegistrationBusStop.objects.filter(timeStamp__gt = self.get_past_date())
+
+    def get_statistic_data_from_registration_bus_query(self):
+        from AndroidRequests.models import StadisticDataFromRegistrationBus
+        return StadisticDataFromRegistrationBus.objects.filter(timeStamp__gt = self.get_past_date())
+        
 
 
     # ----------------------------------------------------------------------------
@@ -87,6 +126,7 @@ class Command(BaseCommand):
         with open(filename, 'w') as file:
             json_serializer.serialize(query, stream=file)
 
+
     def get_past_date(self):
         return (
             timezone.now() - 
@@ -96,3 +136,4 @@ class Command(BaseCommand):
                 minutes=self.delta_minutes
             )
         )
+
