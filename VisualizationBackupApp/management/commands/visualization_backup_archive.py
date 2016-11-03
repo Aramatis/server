@@ -29,7 +29,7 @@ class Command(BaseCommand):
     # ----------------------------------------------------------------------------    
     def handle(self, *args, **options):
         self.archive_reports()
-        self.archive_events_for_bus()
+        self.archive_events_for_busv2()
         self.archive_events_for_busstop()
 
 
@@ -51,23 +51,50 @@ class Command(BaseCommand):
 
 
 
-    def archive_events_for_bus(self):
-        query = self.get_events_for_bus_query()
-        self.to_JSON(query, "events_for_bus.json")
+    def archive_events_for_busv2(self):
+        query = self.get_events_for_busv2_query()
 
         # new primary keys
-        required_ids = []
+        event_ids = []
+        busassignment_ids = []
         for event in query:
-            required_ids.append(event.id)
-        
-        # related rows
-        final_query = []
+            event_ids.append(event.id)
+            busassignment_ids.append(event.busassignment_id)
+        self.to_JSON(query, "events_for_busv2.json")
+        del query
+
+
+        # related stats
+        final_stats = []
         query_statistic = self.get_statistic_data_from_registration_busstop_query()
         for stat in query_statistic:
-            if stat.reportOfEvent_id in required_ids:
-                final_query.append(stat)
+            if stat.reportOfEvent_id in event_ids:
+                final_stats.append(stat)
+        self.to_JSON(final_stats, "statistic_data_from_registration_busstop.json")
+        del final_stats
+        del query_statistic
 
-        self.to_JSON(final_query, "statistic_data_from_registration_busstop.json")
+        # related assignments
+        required_bus_uuids = []
+        final_assignments = []
+        query_assignments = self.get_busassignment_query()
+        for assignment in query_assignments:
+            if assignment.id in busassignment_ids:
+                required_bus_uuids.append(assignment.uuid_id)
+                final_assignments.append(assignment)
+        self.to_JSON(final_assignments, "busassignment.json")
+        del query_assignments
+        del final_assignments
+
+        # related buses
+        final_buses = []
+        query_buses = self.get_busv2_query()
+        for bus in query_buses:
+            if bus.id in required_bus_uuids:
+                final_buses.append(bus)
+        self.to_JSON(final_buses, "busv2.json")
+        del final_buses
+        del query_buses
 
 
 
@@ -98,9 +125,17 @@ class Command(BaseCommand):
         from AndroidRequests.models import Report
         return Report.objects.filter(timeStamp__gt = self.get_past_date())
 
-    def get_events_for_bus_query(self):
-        from AndroidRequests.models import EventForBus
-        return EventForBus.objects.filter(timeStamp__gt = self.get_past_date())
+    def get_events_for_busv2_query(self):
+        from AndroidRequests.models import EventForBusv2
+        return EventForBusv2.objects.filter(timeStamp__gt = self.get_past_date())
+
+    def get_busv2_query(self):
+        from AndroidRequests.models import Busv2
+        return Busv2.objects.all()
+
+    def get_busassignment_query(self):
+        from AndroidRequests.models import Busassignment
+        return Busassignment.objects.all()
 
     def get_events_for_busstop_query(self):
         from AndroidRequests.models import EventForBusStop
