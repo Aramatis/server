@@ -19,6 +19,7 @@ from AndroidRequests.allviews.RequestToken import RequestToken
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.allviews.SendPoses import SendPoses
 from AndroidRequests.allviews.RequestUUID import RequestUUID
+from AndroidRequests.allviews.SetDirection import SetDirection
 import AndroidRequests.views as views
 import AndroidRequests.constants as Constants
 
@@ -252,3 +253,23 @@ class TestHelper():
 
         return jsonResponse
 
+    def setDirection(self, travelKey, direction):
+        """ set direction of trip """
+        URL = '/android/setDirection/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
+
+        request.POST = {}
+        request.POST['pToken'] = travelKey
+        request.POST['pDirection'] = direction
+        request.method = 'POST'
+
+        view = SetDirection()
+        response = view.post(request)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+ 
