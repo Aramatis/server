@@ -201,20 +201,6 @@ class DevicePositionInTimeTest(TestCase):
         contentResponse = json.loads(response.content)
         self.assertEqual(contentResponse['response'],'Token doesn\'t exist.')
 
-    def test_EndRoute(self):
-        '''this method test the EndRoute request when it fails.'''
-        request = self.factory.get('/android/endRoute/')
-        request.user = AnonymousUser()
-
-        reponseView = EndRoute()
-        response = reponseView.get(request,'01234567890123456789012345678901234567890\
-                123456789012345678901234567890123456789012345678901234567890123456789012345678901234567')
-
-        contentResponse = json.loads(response.content)
-        contentResponse = contentResponse['response']
-
-        self.assertEqual(contentResponse,'Token doesn\'t exist.')
-
     def test_EventsByBusWithDummyLicensePlate(self):
         '''This method test the bus with a dummy license plate '''
 
@@ -410,33 +396,6 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual(response.status_code,200)
 
         self.assertEqual(DevicePositionInTime.objects.filter(longitud=lon, latitud=lat).exists(), True)
-
-
-    def test_nearbyBuses(self):
-        request = self.factory.get('/android/nearbyBuses')
-        request.user = AnonymousUser()
-
-        busStopCodeThis = 'PA459'
-
-        busStop = BusStop.objects.get(code = busStopCodeThis)
-        service = Service.objects.get(service = '507')
-        serviceCode = '507R'
-
-        ServicesByBusStop.objects.create(busStop = busStop, service= service, code = serviceCode)
-        ServiceStopDistance.objects.create(busStop = busStop, service = serviceCode, distance = 124529)
-
-        response = views.nearbyBuses(request, self.userId, busStopCodeThis)
-
-        self.assertEqual(response.status_code,200)
-
-        jsonResponse = json.loads(response.content)
-
-        if (jsonResponse['DTPMError'] != ""):
-            self.assertEqual(jsonResponse['DTPMError'], \
-                    "Usted no cuenta con los permisos necesarios para realizar esta consulta.")
-        else:
-            self.assertEqual('servicios' in jsonResponse, True)
-            self.assertEqual('eventos' in jsonResponse, True)
 
     def test_preferPositionOfPersonInsideABus(self):
 
