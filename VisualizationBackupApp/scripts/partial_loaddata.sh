@@ -30,6 +30,15 @@ function exit_usage()
 	exit 1
 }
 
+function check_json_files()
+{
+	file="$1"
+	if [ ! -e "$file" ]; then
+		echo "json file  $file not found.. File extraction failed" 
+		exit 1
+	fi
+}
+
 echo " - [ON REMOTE VIZ]: -------- POST LOAD INIT --------"
 
 ## CHECKS
@@ -103,10 +112,13 @@ tar -zxf "$BACKUP_DB"
 #cd ..
 
 # check json files
-if [ ! -e reports.json ]; then
-	echo "json file not found.. File extraction failed" 
-	exit 1
-fi
+check_json_files report.json
+check_json_files events_for_busstop.json
+check_json_files statistic_data_from_registration_busstop.json
+check_json_files events_for_busv2.json
+check_json_files statistic_data_from_registration_bus.json
+check_json_files busassignment.json
+check_json_files busv2.json
 
 # load queries
 python "$MANAGE_PY" visualization_backup_loaddata #matias pc
