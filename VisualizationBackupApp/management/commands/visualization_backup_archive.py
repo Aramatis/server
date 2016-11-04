@@ -29,8 +29,8 @@ class Command(BaseCommand):
     # ----------------------------------------------------------------------------    
     def handle(self, *args, **options):
         self.archive_reports()
-        self.archive_events_for_busv2()
         self.archive_events_for_busstop()
+        self.archive_events_for_busv2()
 
 
 
@@ -66,11 +66,11 @@ class Command(BaseCommand):
 
         # related stats
         final_stats = []
-        query_statistic = self.get_statistic_data_from_registration_busstop_query()
+        query_statistic = self.get_statistic_data_from_registration_bus_query()
         for stat in query_statistic:
             if stat.reportOfEvent_id in event_ids:
                 final_stats.append(stat)
-        self.to_JSON(final_stats, "statistic_data_from_registration_busstop.json")
+        self.to_JSON(final_stats, "statistic_data_from_registration_bus.json")
         del final_stats
         del query_statistic
 
@@ -99,7 +99,7 @@ class Command(BaseCommand):
 
 
     def archive_events_for_busstop(self):
-        query = self.get_events_for_busstop_query()
+        query = self.get_event_for_busstop_query()
         self.to_JSON(query, "events_for_busstop.json")
 
         # new primary keys
@@ -109,12 +109,12 @@ class Command(BaseCommand):
 
         # related rows
         final_query = []
-        query_statistic = self.get_statistic_data_from_registration_bus_query()
+        query_statistic = self.get_statistic_data_from_registration_busstop_query()
         for stat in query_statistic:
             if stat.reportOfEvent_id in required_ids:
                 final_query.append(stat)
 
-        self.to_JSON(final_query, "statistic_data_from_registration_bus.json")
+        self.to_JSON(final_query, "statistic_data_from_registration_busstop.json")
 
 
 
@@ -137,7 +137,7 @@ class Command(BaseCommand):
         from AndroidRequests.models import Busassignment
         return Busassignment.objects.all()
 
-    def get_events_for_busstop_query(self):
+    def get_event_for_busstop_query(self):
         from AndroidRequests.models import EventForBusStop
         return EventForBusStop.objects.filter(timeStamp__gt = self.get_past_date())
 
