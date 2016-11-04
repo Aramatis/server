@@ -130,7 +130,7 @@ cd "$TMP_BKP_FLDR"
 python "$SERVER_FLDR"/manage.py reports_archive        #   comment for testing
 #cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL" # uncomment for testing
 cp /tmp/reports.json "$TMP_BKP_FLDR"/reports.json
-tar -zcvf "$TMP_DB_BACKUP" reports.json
+tar -zcvf "$TMP_DB_BACKUP" *.json
 
 # check db backup
 echo "- looking for db backup results ..."

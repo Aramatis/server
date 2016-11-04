@@ -75,19 +75,19 @@ if [ ! -d "$DEST_IMG_FLDR" ]; then
 fi
 
 # check manage works well
-cd "$BACKUP_FOLDER"
-/home/transapp/visualization/venv/bin/python "$MANAGE_PY" 2>/dev/null 1>/dev/null
-if [ $? -ne 0 ]; then
-	echo "manage.py failed run.. maybe some dependencies are missing"
-	exit 1
-fi
-echo "[]" > dummy.json
-/home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata dummy.json 2>/dev/null 1>/dev/null
-if [ $? -ne 0 ]; then
-	echo "manage.py loadata failed run.. maybe some dependencies are missing"
-	rm dummy.json
-	exit 1
-fi
+#cd "$BACKUP_FOLDER"
+#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" 2>/dev/null 1>/dev/null
+#if [ $? -ne 0 ]; then
+#	echo "manage.py failed run.. maybe some dependencies are missing"
+#	exit 1
+#fi
+#echo "[]" > dummy.json
+#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata dummy.json 2>/dev/null 1>/dev/null
+#if [ $? -ne 0 ]; then
+#	echo "manage.py loadata failed run.. maybe some dependencies are missing"
+#	rm dummy.json
+# 	exit 1
+#fi
 
 ## WORK
 cd "$BACKUP_FOLDER"
@@ -117,8 +117,8 @@ tar -zxf ../"$BACKUP_IMGS"
 cd ..
 
 # check tar.gz files
-if [ ! -e data.json ]; then
-	echo "data.json not found.. File extraction failed" 
+if [ ! -e database.sql ]; then
+	echo "database.sql not found.. File extraction failed" 
 	exit 1
 fi
 
@@ -128,8 +128,11 @@ cp -arn imgs/* "$DEST_IMG_FLDR"
 
 # load data
 echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY"
-touch working.lock 
-nohup /home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata data.json && rm working.lock &  
+touch working.lock
+sudo -u postgres psql dropdb ghostinspector
+sudo -u postgres psql createdb -T template0 ghostinspector
+nohup sudo -u postgres psql ghostinspector < database.sql && rm working.lock & 
+#nohup /home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata data.json && rm working.lock &  
 
 # wait
 INIT="$(date +%H:%M:%S)"

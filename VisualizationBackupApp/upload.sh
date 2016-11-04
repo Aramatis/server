@@ -5,15 +5,15 @@
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
 ## visualization server data
-# REMOTE_USER="mpavez"
-# REMOTE_HOST="172.17.57.179"
-# REMOTE_VIZ_MANAGE_PY="workspaces/visualization/manage.py"
-# REMOTE_IMG_FLDR="workspaces/visualization/media/reported_images"
+REMOTE_USER="mpavez"
+REMOTE_HOST="172.17.57.17"
+REMOTE_VIZ_MANAGE_PY="workspaces/visualization/manage.py"
+REMOTE_IMG_FLDR="workspaces/visualization/media/reported_images"
 
-REMOTE_USER="transapp"
-REMOTE_HOST="104.236.183.105"
-REMOTE_VIZ_MANAGE_PY="visualization/manage.py"
-REMOTE_IMG_FLDR="visualization/media/reported_images"
+# REMOTE_USER="transapp"
+# REMOTE_HOST="104.236.183.105"
+# REMOTE_VIZ_MANAGE_PY="visualization/manage.py"
+# REMOTE_IMG_FLDR="visualization/media/reported_images"
 
 # where to put backup data on the visualization server
 # e.g: ftp_incoming --> /home/$USER/ftp_incoming
@@ -124,7 +124,10 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 echo "- creating backup ..."
 cd "$TMP_BKP_FLDR"
-python "$SERVER_FLDR"/manage.py archive                #   comment for testing
+sudo -u postgres pg_dump ghostinspector > "$TMP_BKP_FLDR"/database.sql
+tar -zcvf "$TMP_DB_BACKUP" database.sql
+
+#python "$SERVER_FLDR"/manage.py archive                #   comment for testing
 #cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL" # uncomment for testing
 
 # check db backup
@@ -161,7 +164,6 @@ if [ $? -ne 0 ]; then
 fi
 
 
-
 #### upload
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -185,6 +187,11 @@ sftp -p -i "$PRIVATE_KEY" -b "$SFTP_COMMANDS" "$REMOTE_USERHOST"
 echo "- deleting stuff"
 if [ -d "$TMP_BKP_FLDR" ]; then
 	cd "$TMP_BKP_FLDR"
+
+	# delete sql dump
+	if [ -e database.sql ]; then	
+		rm -f database.sql
+	fi
 
 	# delete db_backup
 	if [ -e "$TMP_BKP_DB_FULL" ]; then	
