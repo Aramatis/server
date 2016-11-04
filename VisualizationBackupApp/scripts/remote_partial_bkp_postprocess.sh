@@ -74,21 +74,6 @@ if [ ! -d "$DEST_IMG_FLDR" ]; then
 	exit_usage
 fi
 
-# check manage works well
-#cd "$BACKUP_FOLDER"
-#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" 2>/dev/null 1>/dev/null
-#if [ $? -ne 0 ]; then
-#	echo "manage.py failed run.. maybe some dependencies are missing"
-#	exit 1
-#fi
-#echo "[]" > dummy.json
-#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata dummy.json 2>/dev/null 1>/dev/null
-#if [ $? -ne 0 ]; then
-#	echo "manage.py loadata failed run.. maybe some dependencies are missing"
-#	rm dummy.json
-# 	exit 1
-#fi
-
 ## WORK
 cd "$BACKUP_FOLDER"
 
@@ -106,6 +91,7 @@ if [ ! -e "$BACKUP_DB" ]; then
 	echo "Backup file not found: $BACKUP_DB" 
 	exit 1
 fi
+
 #if [ ! -e "$BACKUP_IMGS" ]; then
 #	echo "Backup file for images not found: $BACKUP_IMGS" 
 #	exit 1
@@ -116,30 +102,19 @@ tar -zxf "$BACKUP_DB"
 #tar -zxf ../"$BACKUP_IMGS"
 #cd ..
 
-# check tar.gz files
+# check json files
 if [ ! -e reports.json ]; then
 	echo "json file not found.. File extraction failed" 
 	exit 1
 fi
 
+# load queries
+python "$MANAGE_PY" visualization_backup_loaddata #matias pc
+#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" visualization_backup_loaddata #transapp viz
+
 # copy images
 #echo " - [ON REMOTE VIZ]: copying images from $BACKUP_FOLDER/tmp/imgs to $DEST_IMG_FLDR" 
 #cp -arn imgs/* "$DEST_IMG_FLDR"
-
-# load data
-#echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY"
-#touch working.lock
-#sudo -u postgres dropdb ghostinspector
-#sudo -u postgres createdb -T template0 ghostinspector
-#nohup sudo -u postgres psql ghostinspector < database.sql && rm working.lock & 
-#nohup /home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata data.json && rm working.lock &  
-
-# wait
-#INIT="$(date +%H:%M:%S)"
-#while [  -e working.lock ]; do
-#	echo "waiting ... $INIT / $(date +%H:%M:%S)  P1-P2-P3=$PARAM1-$PARAM2-$PARAM3"
-#	sleep 5
-#done
 
 
 # delete stuff
