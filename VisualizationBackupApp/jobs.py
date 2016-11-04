@@ -1,6 +1,8 @@
 import subprocess
 import os
 
+
+
 def _run_script(filename):
 	app_path = os.path.dirname(os.path.realpath(__file__))
 	command = "bash " + app_path  + "/scripts/" + filename
