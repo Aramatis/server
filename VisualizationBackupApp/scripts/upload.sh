@@ -28,10 +28,10 @@ PRIVATE_KEY=/home/server/.ssh/id_rsa
 
 # at some point, this folder will be completely deleted, so ensure
 # this is not something important!, like '/home' or '/'.
-TMP_BKP_FLDR=/tmp/partial_backup_viz
-TMP_IMG_BACKUP=partial_images.tar.gz
-TMP_DB_BACKUP=partial_database.tar.gz
-TMP_BKP_FILE="partial_backup_$(date +%Y-%m-%d__%H_%M_%S).tar.gz"
+TMP_BKP_FLDR=/tmp/backup_viz
+TMP_IMG_BACKUP=images.tar.gz
+TMP_DB_BACKUP=database.tar.gz
+TMP_BKP_FILE="backup_$(date +%Y-%m-%d__%H_%M_%S).tar.gz"
 
 echo "---------------------------------------------------------------"
 echo "upload.sh init $(date)"
@@ -111,31 +111,29 @@ fi
 
 #### create image backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
-#echo "- creating reports image backups"
-#cd "$IMGS_FLDR"
-#tar -zcvf "$TMP_BKP_IMGS_FULL" *
-#if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
-#	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
-#	exit 1
-#fi
+echo "- creating reports image backups"
+cd "$IMGS_FLDR"
+tar -zcvf "$TMP_BKP_IMGS_FULL" *
+if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
+	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
+	exit 1
+fi
 
 
 #### create database backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
-echo "- creating reports backup ..."
+echo "- creating backup ..."
 cd "$TMP_BKP_FLDR"
-#sudo -u postgres pg_dump ghostinspector > "$TMP_BKP_FLDR"/database.sql
-#tar -zcvf "$TMP_DB_BACKUP" database.sql
+sudo -u postgres pg_dump ghostinspector > "$TMP_BKP_FLDR"/database.sql
+tar -zcvf "$TMP_DB_BACKUP" database.sql
 
-python "$SERVER_FLDR"/manage.py reports_archive        #   comment for testing
+#python "$SERVER_FLDR"/manage.py archive                #   comment for testing
 #cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL" # uncomment for testing
-cp /tmp/reports.json "$TMP_BKP_FLDR"/reports.json
-tar -zcvf "$TMP_DB_BACKUP" *.json
 
 # check db backup
 echo "- looking for db backup results ..."
 if [ ! -e "$TMP_BKP_DB_FULL" ]; then
-	echo "UPS!.. The db backup file was not found. Probably, the 'python manage.py reports_archive' command failed"
+	echo "UPS!.. The db backup file was not found. Probably, the 'python manage.py archive' command failed"
 	echo "Required file: $TMP_BKP_DB_FULL"
 	exit 1
 fi
@@ -144,7 +142,7 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 cd "$TMP_BKP_FLDR"
-tar -zcvf "$TMP_BKP_FILE" "$TMP_DB_BACKUP" #"$TMP_IMG_BACKUP"
+tar -zcvf "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP"
 if [ ! -e "$TMP_BKP_FILE" ]; then
 	echo "UPS!.. The backup file was not found. Something went wrong while compressing the files"
 	exit 1
@@ -159,12 +157,11 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 cd "$VIZ_APP_FLDR"
-ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < script_pre.sh "$REMOTE_VIZ_INCOMING_FLDR"
+ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < scripts/remote_prepare.sh "$REMOTE_VIZ_INCOMING_FLDR"
 if [ $? -ne 0 ]; then
 	echo "ssh exited with status not 0"
 	exit 1
 fi
-
 
 
 #### upload
@@ -193,7 +190,7 @@ if [ -d "$TMP_BKP_FLDR" ]; then
 
 	# delete sql dump
 	if [ -e database.sql ]; then	
-		rm -f reports.json
+		rm -f database.sql
 	fi
 
 	# delete db_backup
@@ -202,9 +199,9 @@ if [ -d "$TMP_BKP_FLDR" ]; then
 	fi
 
 	# delete img backup
-	#if [ -e "$TMP_BKP_IMGS_FULL" ]; then
-	#	rm -f "$TMP_BKP_IMGS_FULL"
-	#fi
+	if [ -e "$TMP_BKP_IMGS_FULL" ]; then
+		rm -f "$TMP_BKP_IMGS_FULL"
+	fi
 
 	# delete full backup
 	if [ -e "$TMP_BKP_FILE_FULL" ]; then
@@ -217,7 +214,7 @@ fi
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 cd "$VIZ_APP_FLDR"
-ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < script_post_partial.sh "$REMOTE_VIZ_INCOMING_FLDR" "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP" "$REMOTE_VIZ_MANAGE_PY" "$REMOTE_IMG_FLDR"
+ssh -i "$PRIVATE_KEY" "$REMOTE_USERHOST" "bash -s" -- < scripts/remote_full_bkp_postprocess.sh "$REMOTE_VIZ_INCOMING_FLDR" "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP" "$REMOTE_VIZ_MANAGE_PY" "$REMOTE_IMG_FLDR"
 if [ $? -ne 0 ]; then
 	echo "ssh exited with status not 0"
 	exit 1
