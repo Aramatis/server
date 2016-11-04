@@ -140,6 +140,21 @@ class TestHelper():
  
         return token
 
+    def endRoute(self, token):
+        """ revoke token used to identify a trip """
+        URL = '/android/endRoute/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
+
+        reponseView = EndRoute()
+        response = reponseView.get(request, token)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
     def sendFakeTrajectoryOfToken(self, travelToken):
         """ send fake positions for user travel """
 
@@ -185,13 +200,59 @@ class TestHelper():
         jsonResponse = json.loads(response.content)
 
         self.test.assertEqual(jsonResponse['response'],'Poses were register.')
+ 
+    def setDirection(self, travelKey, direction):
+        """ set direction of trip """
+        URL = '/android/setDirection/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
+
+        request.POST = {}
+        request.POST['pToken'] = travelKey
+        request.POST['pDirection'] = direction
+        request.method = 'POST'
+
+        view = SetDirection()
+        response = view.post(request)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
         
-
+    """
+       BUS METHODS
+    """
     def reportEvent(self, userId, service, licencePlate, eventCode):
-        pass
+        """ report an event with the old version  """
+        URL = '/android/reportEventBus/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
 
-    def confirmOrDeclineEvent(self, userId, machineId, service, eventCode, confirmOrDecline):
-        pass
+        view = RegisterEventBus()
+        response = view.get(request, userId, service, licencePlate, eventCode, 'confirm')
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+    def confirmOrDeclineEvent(self, userId, service, licencePlate, eventCode, confirmOrDecline):
+        """ report an event with the old version  """
+        URL = '/android/reportEventBus/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
+
+        view = RegisterEventBus()
+        response = view.get(request, userId, service, licencePlate, eventCode, confirmOrDecline)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
 
     def reportEventV2(self, userId, machineId, service, eventCode):
         """ report an event with the new version  """
@@ -222,21 +283,6 @@ class TestHelper():
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
- 
-    def endRoute(self, token):
-        """ revoke token used to identify a trip """
-        URL = '/android/endRoute/'
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        reponseView = EndRoute()
-        response = reponseView.get(request, token)
-
-        self.test.assertEqual(response.status_code, 200)
-
-        jsonResponse = json.loads(response.content)
-
-        return jsonResponse
 
     def requestEventsForBusV2(self, machineId):
         """ ask for events related to machine id """
@@ -253,23 +299,37 @@ class TestHelper():
 
         return jsonResponse
 
-    def setDirection(self, travelKey, direction):
-        """ set direction of trip """
-        URL = '/android/setDirection/'
+    """
+        STOP METHODS
+    """
+    def reportStopEvent(self, userId, stopCode, eventCode):
+        """ report an event for stop """
+        URL = '/android/reportEventBusStop/'
         request = self.factory.get(URL)
         request.user = AnonymousUser()
 
-        request.POST = {}
-        request.POST['pToken'] = travelKey
-        request.POST['pDirection'] = direction
-        request.method = 'POST'
-
-        view = SetDirection()
-        response = view.post(request)
-
+        view = RegisterEventBusStop()
+        response = view.get(request, userId, stopCode, eventCode, 'confirm')
+ 
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
+
+    def confirmOrDeclineStopEvent(self, userId, stopCode, eventCode, confirmOrDecline):
+        """ confirm or decline an event for stop """
+        URL = '/android/reportEventBusStop/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
+
+        view = RegisterEventBusStop()
+        response = view.get(request, userId, stopCode, eventCode, confirmOrDecline)
  
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+
