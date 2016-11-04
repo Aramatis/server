@@ -208,8 +208,9 @@ CRONJOBS = [
     # every 2 minutes
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
     
-    # every 1 hour
-    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
+    # daily and partial backups to remote server
+    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt')
+    #('0 */1 * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
 ]
 CRONTAB_LOCK_JOBS = True
 

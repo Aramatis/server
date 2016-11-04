@@ -14,12 +14,15 @@ INSTALLED_APPS = (
 
 CRONJOBS = [
 	
-	# ONLY ON BACKUP SOURCE
-    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
-    ('0 */1 * * *', 'VisualizationBackupApp.jobs.partial_backup',  '>> /tmp/log_backup_cron.txt')
+	# ONLY ON SOURCE SERVER
+	# daily and partial backups to remote server
+    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt')
+    ('0 */1 * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
 
     # ONLY ON REMOTE SERVER
-    # TODO
+    # daily and partial loaddata jobs on remote server
+    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt')
+    ('0 */1 * * *', 'VisualizationBackupApp.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt')
 ]
 
 # is this really required??
