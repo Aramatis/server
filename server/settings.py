@@ -199,7 +199,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_IMAGE = os.path.join(MEDIA_ROOT, "reported_images/")
 
-#Cron settings
+
+# cron settings
 CRONJOBS = [
     #the job is executed every day at 24
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearEventsThatHaveBeenDecline'),
@@ -210,8 +211,6 @@ CRONJOBS = [
     # every 1 hour
     ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
 ]
-#('*/1 * * * *', 'VisualizationBackupApp.jobs.complete_backup', '>> /tmp/log_backup_cron.txt')
-
 CRONTAB_LOCK_JOBS = True
 
 
