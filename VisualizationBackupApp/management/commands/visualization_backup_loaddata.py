@@ -6,7 +6,14 @@ from AndroidRequests.models import Report
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        list_json = ['report.json']
+        list_json = ['report.json',
+                     'events_for_busstop.json',
+                     'statistic_data_from_registration_busstop.json',
+                     'events_for_busv2.json',
+                     'statistic_data_from_registration_bus.json',
+                     'busassignment.json',
+                     'busv2.json']
+
         self.from_JSON(self.reports_cb,list_json)
         #self.from_JSON(self.polls_cb, "choices.json")
         
