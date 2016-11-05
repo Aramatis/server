@@ -85,7 +85,6 @@ class TestHelper():
         csv.close()
         log.close()
 
-
     def askForMachineId(self, pLicencePlate):
         """ simulate a request to get machine id based on its licence plate """
         URL = '/android/getUUID/'
@@ -222,7 +221,7 @@ class TestHelper():
         return jsonResponse
         
     """
-       BUS METHODS
+       BUS EVENT METHODS V1
     """
     def reportEvent(self, userId, service, licencePlate, eventCode):
         """ report an event with the old version  """
@@ -254,6 +253,24 @@ class TestHelper():
 
         return jsonResponse
 
+    def requestEventsForBus(self, service, licencePlate):
+        """ ask for events related to machine id """
+        URL = '/android/requestEventsForBus/v2/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
+
+        reponseView = EventsByBus()
+        response = reponseView.get(request, service, licencePlate)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+    """
+       BUS EVENT METHODS V2
+    """
     def reportEventV2(self, userId, machineId, service, eventCode):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2/'
@@ -326,6 +343,21 @@ class TestHelper():
         view = RegisterEventBusStop()
         response = view.get(request, userId, stopCode, eventCode, confirmOrDecline)
  
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+    def requestEventsForBusStop(self, code):
+        """ ask for events related to bus stop """
+        URL = '/android/requestEventsForBusStop/'
+        request = self.factory.get(URL)
+        request.user = AnonymousUser()
+
+        reponseView = EventsByBusStop()
+        response = reponseView.get(request, code)
+
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
