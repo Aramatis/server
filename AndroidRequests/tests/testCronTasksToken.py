@@ -8,7 +8,8 @@ import json
 # model
 from AndroidRequests.models import ActiveToken, Event
 # view
-from AndroidRequests.allviews.RequestToken import RequestToken
+from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
+from AndroidRequests.tests.testHelper import TestHelper
 # functions to test
 import AndroidRequests.cronTasks as cronTasks
 
@@ -19,13 +20,7 @@ class CronTasksTestCase(TestCase):
         self.busService = '506'
         self.registrationPlate = 'XXYY25'
 
-        factory = RequestFactory()
-
-        urlBase = '/android/requestToken'
-
-        self.request = factory.get(urlBase)
-        self.request.user = AnonymousUser()
-        self.responseView = RequestToken()
+        self.helper = TestHelper(self)
 
     def test_clean_expired_active_token(self):
 
@@ -33,11 +28,9 @@ class CronTasksTestCase(TestCase):
         # defined in MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS ago
         delta = cronTasks.MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS*2
         timeStamp = timezone.now()-timezone.timedelta(minutes=delta)
-        response = self.responseView.get(self.request, self.userId, self.busService, self.registrationPlate, timeStamp)
-        jsonResponse = json.loads(response.content)
-        token = jsonResponse['token']
 
-        self.assertEqual(response.status_code, 200)
+        token = self.helper.getInBusWithLicencePlate(self.userId, self.busService, self.registrationPlate, timeStamp)
+
         self.assertEqual(ActiveToken.objects.count(), 1)
         self.assertEqual(ActiveToken.objects.all().first().token_id, token)
 
@@ -47,11 +40,9 @@ class CronTasksTestCase(TestCase):
 
     def test_keep_active_token(self):
         timeStamp = timezone.now()
-        response = self.responseView.get(self.request, self.userId, self.busService, self.registrationPlate, timeStamp)
-        jsonResponse = json.loads(response.content)
-        token = jsonResponse['token']
 
-        self.assertEqual(response.status_code, 200)
+        token = self.helper.getInBusWithLicencePlate(self.userId, self.busService, self.registrationPlate, timeStamp)
+
         self.assertEqual(ActiveToken.objects.count(), 1)
         self.assertEqual(ActiveToken.objects.all().first().token_id, token)
 

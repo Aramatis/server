@@ -104,7 +104,7 @@ class TestHelper():
         """ create a bus object and assignment object """
         self.getInBusWithLicencePlate(userId, service, licencePlate)
 
-    def getInBusWithLicencePlate(self, userId, service, licencePlate):
+    def getInBusWithLicencePlate(self, userId, service, licencePlate, time = timezone.now()):
         """ create a user on bus in database """
         machineId = self.askForMachineId(licencePlate)
 
@@ -113,7 +113,7 @@ class TestHelper():
         request.user = AnonymousUser()
 
         view = RequestTokenV2()
-        response = view.get(request, userId, service, machineId)
+        response = view.get(request, userId, service, machineId, time)
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -154,7 +154,7 @@ class TestHelper():
 
         return jsonResponse
 
-    def sendFakeTrajectoryOfToken(self, travelToken):
+    def sendFakeTrajectoryOfToken(self, travelToken, poses = None):
         """ send fake positions for user travel """
 
         URL = '/android/sendTrajectory'
@@ -175,7 +175,8 @@ class TestHelper():
         for time in times:
             fTimes.append(time.strftime("%Y-%m-%dT%X"))
 
-        Poses = {"poses":[\
+        if poses is None:
+            poses = {"poses":[\
                 {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp": fTimes[0], "inVehicleOrNot":"vehicle"},\
                 {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp": fTimes[1], "inVehicleOrNot":"vehicle"},\
                 {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp": fTimes[2], "inVehicleOrNot":"vehicle"},\
@@ -186,11 +187,10 @@ class TestHelper():
                 {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp": fTimes[7], "inVehicleOrNot":"vehicle"},\
                 {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot":"vehicle"}]}
 
-
         view = SendPoses()
         request.POST = {}
         request.POST['pToken'] = travelToken
-        request.POST['pTrajectory'] = json.dumps(Poses)
+        request.POST['pTrajectory'] = json.dumps(poses)
         request.method = 'POST'
         response = view.post(request)
 
@@ -198,7 +198,7 @@ class TestHelper():
 
         jsonResponse = json.loads(response.content)
 
-        self.test.assertEqual(jsonResponse['response'],'Poses were register.')
+        return jsonResponse
  
     def setDirection(self, travelKey, direction):
         """ set direction of trip """

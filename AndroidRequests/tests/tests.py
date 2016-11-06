@@ -130,60 +130,20 @@ class DevicePositionInTimeTest(TestCase):
     def test_consistencyModelPoseInTrajectoryOfToken(self):
         '''this method test the PoseInTrajectoryOfToken'''
 
-        testPoses = {"poses":[\
-                {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp":"2015-10-01T18:10:00", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp":"2015-10-01T18:10:10", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp":"2015-10-01T18:10:15", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458646,"longitud" : -70.673799, "timeStamp":"2015-10-01T18:10:20", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458413,"longitud" : -70.671631, "timeStamp":"2015-10-01T18:10:24", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457983,"longitud" : -70.669035, "timeStamp":"2015-10-01T18:10:30", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457518,"longitud" : -70.666718, "timeStamp":"2015-10-01T18:10:35", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp":"2015-10-01T18:10:40", "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp":"2015-10-01T18:10:50", "inVehicleOrNot":"vehicle"}]}
+        service = '503'
+        licencePlate = 'ZZZZ00'
+        testToken = self.test.getInBusWithLicencePlate(self.userId, service, licencePlate)
 
-        request = self.factory.get('/android/requestToken')
-        request.user = AnonymousUser()
+        jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken)
 
-        reponseView = RequestToken()
-        response = reponseView.get(request, self.userId, '503','ZZZZ00')
-
-        self.assertEqual(response.status_code, 200)
-
-        testToken = json.loads(response.content)
-        testToken = testToken['token']
-
-        request = self.factory.get('/android/sendTrajectoy')
-        request.user = AnonymousUser()
-
-        reponseView = SendPoses()
-        request.POST = {}
-        request.POST['pToken'] = testToken
-        request.POST['pTrajectory'] = json.dumps(testPoses)
-        request.method = 'POST'
-        response = reponseView.post(request)
-
-        contentResponse = json.loads(response.content)
-        self.assertEqual(contentResponse['response'],'Poses were register.')
+        self.assertEqual(jsonResponse['response'], 'Poses were register.')
 
         # remove the token
-        request = self.factory.get('/android/endRoute/' + testToken)
-        request.user = AnonymousUser()
+        self.test.endRoute(testToken)
 
-        reponseView = EndRoute()
-        response = reponseView.get(request,testToken)
+        jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken)
 
-        request = self.factory.get('/android/sendTrajectoy')
-        request.user = AnonymousUser()
-
-        reponseView = SendPoses()
-        request.POST = {}
-        request.POST['pToken'] = testToken
-        request.POST['pTrajectory'] = json.dumps(testPoses)
-        request.method = 'POST'
-        response = reponseView.post(request)
-
-        contentResponse = json.loads(response.content)
-        self.assertEqual(contentResponse['response'],'Token doesn\'t exist.')
+        self.assertEqual(jsonResponse['response'], 'Token doesn\'t exist.')
 
     def test_EventsByBusStop(self):
         '''This method test two thing, the posibility to report an event and asking
@@ -265,30 +225,18 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual(busPose['passengers'], 0)
 
         # add the position of a passanger inside the bus
-        request = self.factory.get('/android/requestToken')
-        request.user = AnonymousUser()
-
-        reponseView = RequestToken()
-        response = reponseView.get(request, self.userId, '507','AA1111')
-
-        testToken = json.loads(response.content)
-        testToken = testToken['token']
+        service = '507'
+        licencePlate = 'AA1111'
+        testToken = self.test.getInBusWithLicencePlate(self.userId, service, licencePlate)
 
         testPoses = {"poses":[
             {"latitud": userLatitud, "longitud" : userLongitud, "timeStamp":str(timeStampNow), "inVehicleOrNot":"vehicle"}]}
 
-        request = self.factory.get('/android/sendTrajectoy')
-        request.user = AnonymousUser()
-        request.POST = {}
-        request.POST['pToken'] = testToken
-        request.POST['pTrajectory'] = json.dumps(testPoses)
-        request.method = 'POST'
-        reponseView = SendPoses()
-        response = reponseView.post(request)
+        jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken, testPoses)
 
         # ask the position of the bus whit a passanger
-        bus = Busv2.objects.get(registrationPlate='AA1111')
-        busassignment = Busassignment.objects.get(uuid = bus, service='507')
+        bus = Busv2.objects.get(registrationPlate= licencePlate)
+        busassignment = Busassignment.objects.get(uuid = bus, service= service)
 
         busPose = busassignment.getLocation()
 
@@ -297,7 +245,5 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual(busPose['random'], False)
         self.assertEqual(busPose['passengers'] > 0, True)
 
-        reponseView = EndRoute()
-        response = reponseView.get(request,testToken)
-
+        self.test.endRoute(testToken)
 
