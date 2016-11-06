@@ -56,7 +56,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     USER BUSES
     """
-    userBuses = getUserBuses(theBusStop)
+    userBuses = getUserBuses(theBusStop, pUserId)
 
     """
     DTPM BUSES
@@ -129,7 +129,7 @@ def formatTime(time, distance):
 
     return time
 
-def getUserBuses(theBusStop):
+def getUserBuses(theBusStop, questioner):
     """ get active user buses """
 
     logger = logging.getLogger(__name__)
@@ -182,6 +182,7 @@ def getUserBuses(theBusStop):
             # add new param 'uuid'
             bus['busId'] = uuid
             bus['direction'] = user.direction
+            bus['isTheSameUser'] = True if str(user.userId) == questioner else False
             # assume that bus is 30 meters from bus stop to predict direction
             if not bus['random']:
                 userBuses.append(bus)
@@ -251,7 +252,7 @@ def mergeBuses(userBuses, authorityBuses):
 
     for userBus in userBuses:
         #print "user bus: " + str(userBus['patente'])
-        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
+        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE and not userBus['isTheSameUser']:
             #print "added dummy bus to list"
             buses.append(userBus)
         else:
@@ -264,8 +265,9 @@ def mergeBuses(userBuses, authorityBuses):
                     userBus['distancia'] = authBus['distancia']
                     userBus['distanciaV2'] = authBus['distanciaV2']
                     userBus['distanciaMts'] = authBus['distanciaMts']
-                    userBus['sentido'] = authBus['sentido']
-                    buses.append(userBus)
+                    userBus['sentido'] = authBus['sentido']                    
+                    if not userBus['isTheSameUser']:
+                        buses.append(userBus)
                     authorityBuses.remove(authBus)
                     #print "son iguales"
                     #print str(userBus)
