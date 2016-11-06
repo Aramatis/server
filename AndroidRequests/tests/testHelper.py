@@ -255,12 +255,12 @@ class TestHelper():
 
     def requestEventsForBus(self, service, licencePlate):
         """ ask for events related to machine id """
-        URL = '/android/requestEventsForBus/v2/'
+        URL = '/android/requestEventsForBus/'
         request = self.factory.get(URL)
         request.user = AnonymousUser()
 
         reponseView = EventsByBus()
-        response = reponseView.get(request, service, licencePlate)
+        response = reponseView.get(request, licencePlate, service)
 
         self.test.assertEqual(response.status_code, 200)
 

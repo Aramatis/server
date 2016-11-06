@@ -99,6 +99,14 @@ class BusEventTest(TestCase):
         self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 2)
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
+        # ask for events
+        jsonResponse = self.test.requestEventsForBus(self.service, licencePlate)
+        
+        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
+        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
+        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 2)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
+
         # change manually the timeStamp to simulate an event that has expired
         bus = Busv2.objects.get(registrationPlate=licencePlate)
         busassignment = Busassignment.objects.get(uuid=bus, service=self.service)
