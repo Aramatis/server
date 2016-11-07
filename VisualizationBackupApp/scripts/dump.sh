@@ -40,7 +40,7 @@ REMOTE_BKP_FLDR="$4"
 if [ -z "$REMOTE_BKP_FLDR" ]; then
 	echo "This script must be called with the REMOTE_BKP_FLDR parameter"
 	echo "REMOTE_BKP_FLDR is the path to the folder where backups are stored"
-	echo "on the remote machine. e.g: ftp_incoming"
+	echo "on the remote machine. e.g: bkps/complete or bkps/partial"
 	echo "Any file oder than 15 days on this folder will be deleted!!"
 	exit 1
 fi
@@ -52,7 +52,7 @@ if [ -z "$PRIVATE_KEY" ]; then
 	echo "to connect to the remote host. e.g: /home/server/.ssh/id_rsa"
 	exit 1
 fi
-if [ ! -d "$PRIVATE_KEY" ]; then
+if [ ! -e "$PRIVATE_KEY" ]; then
 	echo "The PRIVATE_KEY key file does not exists: $PRIVATE_KEY"
 	exit 1
 fi
@@ -61,7 +61,7 @@ TMP_BKP_FLDR="$6"
 if [ -z "$TMP_BKP_FLDR" ]; then
 	echo "This script must be called with the TMP_BKP_FLDR parameter"
 	echo "TMP_BKP_FLDR is the path to the folder where backups are built"
-	echo "on this server. e.g: /tmp/backup_viz"
+	echo "on this server. e.g: /tmp/backup_viz_complete or /tmp/backup_viz_partial"
 	echo "at some point, this folder will be completely deleted, so ensure"
 	echo "this is not something important!, like '/home' or '/'."
 	exit 1
@@ -82,6 +82,16 @@ if [ -z "$DATABASE_NAME" ]; then
 	exit 1
 fi
 
+$BKP_TYPE="$9"
+if [ -z "$BKP_TYPE" ]; then
+	echo "This script must be called with the BKP_TYPE parameter"
+	echo "BKP_TYPE represents the backup type: 'complete' or 'partial'"
+	exit 1
+fi
+if [ "$BKP_TYPE" != "complete" ] && [ "$BKP_TYPE" != "partial" ] ; then
+	echo "INVALID TYPE: BKP_TYPE should be 'complete' or 'partial'"
+	exit 1
+fi
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### GENERATED PARAMETERS
@@ -145,38 +155,9 @@ fi
 #### BACKUP CREATION
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
-#### create image backup
-#### ----- ----- ----- ----- ----- ----- ----- ----- -----
-echo "- creating reports images backup"
-cd "$IMGS_FLDR"
-tar -zcvf "$TMP_BKP_IMGS_FULL" ./*
-if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
-	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
-	exit 1
-fi
+cd "$VIZ_APP_FLDR"
+source scripts/"$BKP_TYPE"_dump.sh
 
-
-#### create database backup
-#### ----- ----- ----- ----- ----- ----- ----- ----- -----
-
-## dump
-echo "- creating complete backup ..."
-cd "$TMP_BKP_FLDR"
-sudo -u postgres pg_dump "$DATABASE_NAME" > "$TMP_DB_DUMP_FULL"
-if [ ! -e "$TMP_DB_DUMP_FULL" ]; then
-	echo "UPS!.. The db dump file was not found. Maybe, the pg_dump command failed!."
-	echo "Required file: $TMP_DB_DUMP_FULL"
-	exit 1
-fi
-
-## compress
-tar -zcvf "$TMP_DB_BACKUP" "$TMP_DB_DUMP"
-echo "- looking for db backup results ..."
-if [ ! -e "$TMP_BKP_DB_FULL" ]; then
-	echo "UPS!.. The db backup file was not found."
-	echo "Required file: $TMP_BKP_DB_FULL"
-	exit 1
-fi
 
 #### create single backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
