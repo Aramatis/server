@@ -1,3 +1,4 @@
+# encoding=utf-8
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.conf import settings
@@ -34,7 +35,7 @@ class RoutePlanner(View):
             return "{} {}".format(location, CITY_SUFFIX)
 
         return location
-        
+
     def get(self, request, pUserId, pOrigin, pDestination, language = "es"):
         """
         Method to calculate a route between two locations
