@@ -10,7 +10,7 @@
 ## compress all images
 echo "- creating reports images backup"
 cd "$IMGS_FLDR"
-tar -zcf "$TMP_BKP_IMGS_FULL" ./*
+tar -zcf "$TMP_BKP_IMGS_FULL" *
 if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
 	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
 	exit 1

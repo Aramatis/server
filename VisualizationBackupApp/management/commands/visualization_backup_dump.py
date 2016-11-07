@@ -17,7 +17,7 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
     
         # configuration
-        self.delta_days    = 0
+        self.delta_days    = 1000
         self.delta_hours   = 0
         self.delta_minutes = 5
         self.delta_seconds = 0
