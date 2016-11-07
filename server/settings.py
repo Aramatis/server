@@ -227,3 +227,14 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
+
+
+
+# VIZ_BACKUP_APP
+VIZ_BKP_APP_DATABASE        = "ghostinspector"
+VIZ_BKP_APP_REMOTE_USER     = "transapp"
+VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
+VIZ_BKP_APP_REMOTE_BKP_FLDR = "ftp_incoming"
+VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
+VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
+VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"

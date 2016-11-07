@@ -9,7 +9,7 @@ echo "---------------------------------------------------------------"
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 VIZ_APP_FLDR="$1"
 if [ -z "$VIZ_APP_FLDR" ]; then
-	echo "This script must be called with the parameter VIZ_APP_FLDR"
+	echo "This script must be called with the VIZ_APP_FLDR parameter"
 	echo "VIZ_APP_FLDR represents the full path to the VisualizationBackupApp."
 	exit 1
 fi
@@ -24,21 +24,21 @@ fi
 
 REMOTE_USER="$2"
 if [ -z "$REMOTE_USER" ]; then
-	echo "This script must be called with the parameter REMOTE_USER"
+	echo "This script must be called with the REMOTE_USER parameter"
 	echo "REMOTE_USER is the user name of the remote machine. e.g: transapp"
 	exit 1
 fi
 
 REMOTE_HOST="$3"
 if [ -z "$REMOTE_HOST" ]; then
-	echo "This script must be called with the parameter REMOTE_HOST"
+	echo "This script must be called with the REMOTE_HOST parameter"
 	echo "REMOTE_HOST is the name remote machine. e.g: 104.236.183.105"
 	exit 1
 fi
 
 REMOTE_BKP_FLDR="$4"
 if [ -z "$REMOTE_BKP_FLDR" ]; then
-	echo "This script must be called with the parameter REMOTE_BKP_FLDR"
+	echo "This script must be called with the REMOTE_BKP_FLDR parameter"
 	echo "REMOTE_BKP_FLDR is the path to the folder where backups are stored"
 	echo "on the remote machine. e.g: ftp_incoming"
 	echo "Any file oder than 15 days on this folder will be deleted!!"
@@ -47,7 +47,7 @@ fi
 
 PRIVATE_KEY="$5"
 if [ -z "$PRIVATE_KEY" ]; then
-	echo "This script must be called with the parameter PRIVATE_KEY"
+	echo "This script must be called with the PRIVATE_KEY parameter"
 	echo "PRIVATE_KEY is the file with this server private key, used"
 	echo "to connect to the remote host. e.g: /home/server/.ssh/id_rsa"
 	exit 1
@@ -59,7 +59,7 @@ fi
 
 TMP_BKP_FLDR="$6"
 if [ -z "$TMP_BKP_FLDR" ]; then
-	echo "This script must be called with the parameter TMP_BKP_FLDR"
+	echo "This script must be called with the TMP_BKP_FLDR parameter"
 	echo "TMP_BKP_FLDR is the path to the folder where backups are built"
 	echo "on this server. e.g: /tmp/backup_viz"
 	echo "at some point, this folder will be completely deleted, so ensure"
@@ -67,6 +67,20 @@ if [ -z "$TMP_BKP_FLDR" ]; then
 	exit 1
 fi
  
+IMGS_FLDR="$7"
+if [ -z "$IMGS_FLDR" ]; then
+	echo "This script must be called with the IMGS_FLDR parameter"
+	echo "IMGS_FLDR represents the relative path the folder where images are stored."
+	echo "e.g: media/reported_images"
+	exit 1
+fi
+
+DATABASE_NAME="$8"
+if [ -z "$DATABASE_NAME" ]; then
+	echo "This script must be called with the DATABASE_NAME parameter"
+	echo "DATABASE_NAME represents the database name, duh."
+	exit 1
+fi
 
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
@@ -74,6 +88,7 @@ fi
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
 ## bakcup files
+TMP_DB_DUMP=database.sql
 TMP_IMG_BACKUP=images.tar.gz
 TMP_DB_BACKUP=database.tar.gz
 TMP_BKP_FILE="backup_$(date +%Y-%m-%d__%H_%M_%S).tar.gz"
@@ -86,9 +101,10 @@ SFTP_COMMANDS="$TMP_BKP_FLDR"/sftp_commands.txt
 
 # django
 SERVER_FLDR=$(dirname "$VIZ_APP_FLDR")
-IMGS_FLDR="$SERVER_FLDR"/media/reported_images
+IMGS_FLDR="$SERVER_FLDR"/"$IMGS_FLDR"
 
 # tmp
+TMP_DB_DUMP_FULL="$TMP_BKP_FLDR"/"$TMP_DB_DUMP"
 TMP_BKP_DB_FULL="$TMP_BKP_FLDR"/"$TMP_DB_BACKUP"
 TMP_BKP_IMGS_FULL="$TMP_BKP_FLDR"/"$TMP_IMG_BACKUP"
 TMP_BKP_FILE_FULL="$TMP_BKP_FLDR/$TMP_BKP_FILE"
@@ -105,7 +121,6 @@ if [ ! -d "$IMGS_FLDR" ]; then
 	echo " - server images not found at: $IMGS_FLDR"
 	exit 1
 fi
-
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### PREPARATION
@@ -143,18 +158,22 @@ fi
 
 #### create database backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+## dump
 echo "- creating complete backup ..."
 cd "$TMP_BKP_FLDR"
-sudo -u postgres pg_dump ghostinspector > "$TMP_BKP_FLDR"/database.sql
-tar -zcvf "$TMP_DB_BACKUP" database.sql
+sudo -u postgres pg_dump "$DATABASE_NAME" > "$TMP_DB_DUMP_FULL"
+if [ ! -e "$TMP_DB_DUMP_FULL" ]; then
+	echo "UPS!.. The db dump file was not found. Maybe, the pg_dump command failed!."
+	echo "Required file: $TMP_DB_DUMP_FULL"
+	exit 1
+fi
 
-#python "$SERVER_FLDR"/manage.py archive                #   comment for testing
-#cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL" # uncomment for testing
-
-# check db backup
+## compress
+tar -zcvf "$TMP_DB_BACKUP" "$TMP_DB_DUMP"
 echo "- looking for db backup results ..."
 if [ ! -e "$TMP_BKP_DB_FULL" ]; then
-	echo "UPS!.. The db backup file was not found. Probably, the 'python manage.py archive' command failed"
+	echo "UPS!.. The db backup file was not found."
 	echo "Required file: $TMP_BKP_DB_FULL"
 	exit 1
 fi
@@ -210,8 +229,8 @@ if [ -d "$TMP_BKP_FLDR" ]; then
 	cd "$TMP_BKP_FLDR"
 
 	# delete sql dump
-	if [ -e database.sql ]; then	
-		rm -f database.sql
+	if [ -e "$TMP_DB_DUMP" ]; then	
+		rm -f "$TMP_DB_DUMP"
 	fi
 
 	# delete db_backup
