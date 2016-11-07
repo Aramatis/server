@@ -32,7 +32,7 @@ class RoutePlanner(View):
         answer = re.match(pattern, location)
 
         if not answer:
-            return "{} {}".format(location, CITY_SUFFIX)
+            return location + " " + CITY_SUFFIX
 
         return location
 
