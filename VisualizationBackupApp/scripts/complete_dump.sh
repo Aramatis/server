@@ -6,9 +6,11 @@
 
 #### create image backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+## compress all images
 echo "- creating reports images backup"
 cd "$IMGS_FLDR"
-tar -zcvf "$TMP_BKP_IMGS_FULL" ./*
+tar -zcf "$TMP_BKP_IMGS_FULL" ./*
 if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
 	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
 	exit 1
@@ -18,7 +20,7 @@ fi
 #### create database backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-## dump
+## dump to sql
 echo "- creating complete backup ..."
 cd "$TMP_BKP_FLDR"
 sudo -u postgres pg_dump "$DATABASE_NAME" > "$TMP_DB_DUMP_FULL"
@@ -28,8 +30,8 @@ if [ ! -e "$TMP_DB_DUMP_FULL" ]; then
 	exit 1
 fi
 
-## compress
-tar -zcvf "$TMP_DB_BACKUP" "$TMP_DB_DUMP"
+## compress sql to tar.gz
+tar -zcf "$TMP_DB_BACKUP" "$TMP_DB_DUMP"
 echo "- looking for db backup results ..."
 if [ ! -e "$TMP_BKP_DB_FULL" ]; then
 	echo "UPS!.. The db backup file was not found."

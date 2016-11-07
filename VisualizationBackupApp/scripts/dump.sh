@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "---------------------------------------------------------------"
-echo "upload.sh init $(date)"
+echo "dump.sh init $(date)"
 echo "---------------------------------------------------------------"
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
@@ -82,7 +82,7 @@ if [ -z "$DATABASE_NAME" ]; then
 	exit 1
 fi
 
-$BKP_TYPE="$9"
+BKP_TYPE="$9"
 if [ -z "$BKP_TYPE" ]; then
 	echo "This script must be called with the BKP_TYPE parameter"
 	echo "BKP_TYPE represents the backup type: 'complete' or 'partial'"
@@ -96,6 +96,9 @@ fi
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### GENERATED PARAMETERS
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+TMP_BKP_FLDR="$TMP_BKP_FLDR"/"$BKP_TYPE"
+REMOTE_BKP_FLDR="$REMOTE_BKP_FLDR"/"$BKP_TYPE"
 
 ## bakcup files
 TMP_DB_DUMP=database.sql
@@ -163,7 +166,7 @@ source scripts/"$BKP_TYPE"_dump.sh
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 cd "$TMP_BKP_FLDR"
-tar -zcvf "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP"
+tar -zcf "$TMP_BKP_FILE" "$TMP_DB_BACKUP" "$TMP_IMG_BACKUP"
 if [ ! -e "$TMP_BKP_FILE" ]; then
 	echo "UPS!.. The backup file was not found. Something went wrong while compressing the files"
 	exit 1
@@ -231,7 +234,7 @@ if [ -d "$TMP_BKP_FLDR" ]; then
 fi
 
 echo "-------------------------------------------------------------------"
-echo "upload.sh end"
+echo "dump.sh end"
 echo "-------------------------------------------------------------------"
 
 exit 0
