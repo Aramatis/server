@@ -17,16 +17,17 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
     
         # configuration
-        self.delta_days    = 100
+        self.delta_days    = 0
         self.delta_hours   = 0
         self.delta_minutes = 5
         self.delta_seconds = 0
+        self.report_images_filename = "dump_report_images.txt"
 
 
 
     # ----------------------------------------------------------------------------
     # COMMAND
-    # ----------------------------------------------------------------------------    
+    # ----------------------------------------------------------------------------
     def handle(self, *args, **options):
         self.archive_reports()
         self.archive_events_for_busstop()
@@ -38,21 +39,21 @@ class Command(BaseCommand):
     # PROCESSING
     # ----------------------------------------------------------------------------
     def archive_reports(self):
-        query = self.get_reports_query()
+        [query, modelname] = self.get_reports_query()
         print "writing images list"
-        with open("report_images.txt", 'w') as file:
+        with open(self.report_images_filename, 'w+') as file:
             for report in query:
                 # meanwhile!: check for string length
                 # this should be removed when imageName changes to null 
                 # in the app
                 if report.imageName is not None and len(report.imageName) > 10:
                     file.write(report.imageName + "\n")
-        self.to_JSON(query, "reports.json")
+        self.to_JSON(query, modelname)
 
 
 
     def archive_events_for_busv2(self):
-        query = self.get_events_for_busv2_query()
+        [query, events_busv2_modelname] = self.get_events_for_busv2_query()
 
         # new primary keys
         event_ids = []
@@ -60,47 +61,47 @@ class Command(BaseCommand):
         for event in query:
             event_ids.append(event.id)
             busassignment_ids.append(event.busassignment_id)
-        self.to_JSON(query, "events_for_busv2.json")
+        self.to_JSON(query, events_busv2_modelname)
         del query
 
 
         # related stats
         final_stats = []
-        query_statistic = self.get_statistic_data_from_registration_bus_query()
+        [query_statistic, sdfrb_modelname] = self.get_statistic_data_from_registration_bus_query()
         for stat in query_statistic:
             if stat.reportOfEvent_id in event_ids:
                 final_stats.append(stat)
-        self.to_JSON(final_stats, "statistic_data_from_registration_bus.json")
+        self.to_JSON(final_stats, sdfrb_modelname)
         del final_stats
         del query_statistic
 
         # related assignments
         required_bus_uuids = []
         final_assignments = []
-        query_assignments = self.get_busassignment_query()
+        [query_assignments, busassignment_modelname] = self.get_busassignment_query()
         for assignment in query_assignments:
             if assignment.id in busassignment_ids:
                 required_bus_uuids.append(assignment.uuid_id)
                 final_assignments.append(assignment)
-        self.to_JSON(final_assignments, "busassignment.json")
+        self.to_JSON(final_assignments, busassignment_modelname)
         del query_assignments
         del final_assignments
 
         # related buses
         final_buses = []
-        query_buses = self.get_busv2_query()
+        [query_buses, busv2_modelname] = self.get_busv2_query()
         for bus in query_buses:
             if bus.id in required_bus_uuids:
                 final_buses.append(bus)
-        self.to_JSON(final_buses, "busv2.json")
+        self.to_JSON(final_buses, busv2_modelname)
         del final_buses
         del query_buses
 
 
 
     def archive_events_for_busstop(self):
-        query = self.get_event_for_busstop_query()
-        self.to_JSON(query, "events_for_busstop.json")
+        [query, busstop_modelname] = self.get_event_for_busstop_query()
+        self.to_JSON(query, busstop_modelname)
 
         # new primary keys
         required_ids = []
@@ -109,12 +110,12 @@ class Command(BaseCommand):
 
         # related rows
         final_query = []
-        query_statistic = self.get_statistic_data_from_registration_busstop_query()
+        [query_statistic, sdfrbs_modelname] = self.get_statistic_data_from_registration_busstop_query()
         for stat in query_statistic:
             if stat.reportOfEvent_id in required_ids:
                 final_query.append(stat)
 
-        self.to_JSON(final_query, "statistic_data_from_registration_busstop.json")
+        self.to_JSON(final_query, sdfrbs_modelname)
 
 
 
@@ -123,42 +124,44 @@ class Command(BaseCommand):
     # ----------------------------------------------------------------------------
     def get_reports_query(self):
         from AndroidRequests.models import Report
-        return Report.objects.filter(timeStamp__gt = self.get_past_date())
+        return [Report.objects.filter(timeStamp__gt = self.get_past_date()), Report.__name__]
 
     def get_events_for_busv2_query(self):
         from AndroidRequests.models import EventForBusv2
-        return EventForBusv2.objects.filter(timeStamp__gt = self.get_past_date())
+        return [EventForBusv2.objects.filter(timeStamp__gt = self.get_past_date()), EventForBusv2.__name__]
 
     def get_busv2_query(self):
         from AndroidRequests.models import Busv2
-        return Busv2.objects.all()
+        return [Busv2.objects.all(), Busv2.__name__]
 
     def get_busassignment_query(self):
         from AndroidRequests.models import Busassignment
-        return Busassignment.objects.all()
+        return [Busassignment.objects.all(), Busassignment.__name__]
 
     def get_event_for_busstop_query(self):
         from AndroidRequests.models import EventForBusStop
-        return EventForBusStop.objects.filter(timeStamp__gt = self.get_past_date())
+        return [EventForBusStop.objects.filter(timeStamp__gt = self.get_past_date()), EventForBusStop.__name__]
 
     def get_statistic_data_from_registration_busstop_query(self):
         from AndroidRequests.models import StadisticDataFromRegistrationBusStop
-        return StadisticDataFromRegistrationBusStop.objects.filter(timeStamp__gt = self.get_past_date())
+        return [StadisticDataFromRegistrationBusStop.objects.filter(timeStamp__gt = self.get_past_date()), StadisticDataFromRegistrationBusStop.__name__]
 
     def get_statistic_data_from_registration_bus_query(self):
         from AndroidRequests.models import StadisticDataFromRegistrationBus
-        return StadisticDataFromRegistrationBus.objects.filter(timeStamp__gt = self.get_past_date())
+        return [StadisticDataFromRegistrationBus.objects.filter(timeStamp__gt = self.get_past_date()), StadisticDataFromRegistrationBus.__name__]
         
 
 
     # ----------------------------------------------------------------------------
     # MISC
-    # ----------------------------------------------------------------------------        
-    def to_JSON(self, query, filename):
-        print "writing json file: " + filename
+    # ----------------------------------------------------------------------------
+    
+    def to_JSON(self, query, modelname):
+    	filename = "dump_" + modelname + ".json"
+        print "writing %d '%s' objects to json file %s" % (len(query), modelname, filename)
         JSONSerializer = serializers.get_serializer("json")
         json_serializer = JSONSerializer()
-        with open(filename, 'w') as file:
+        with open(filename, 'w+') as file:
             json_serializer.serialize(query, stream=file)
 
 

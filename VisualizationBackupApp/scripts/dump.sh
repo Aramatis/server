@@ -132,9 +132,9 @@ fi
 
 #### create image backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
-echo "- creating reports image backups"
+echo "- creating reports images backup"
 cd "$IMGS_FLDR"
-tar -zcvf "$TMP_BKP_IMGS_FULL" *
+tar -zcvf "$TMP_BKP_IMGS_FULL" ./*
 if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
 	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
 	exit 1
@@ -143,7 +143,7 @@ fi
 
 #### create database backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
-echo "- creating backup ..."
+echo "- creating complete backup ..."
 cd "$TMP_BKP_FLDR"
 sudo -u postgres pg_dump ghostinspector > "$TMP_BKP_FLDR"/database.sql
 tar -zcvf "$TMP_DB_BACKUP" database.sql

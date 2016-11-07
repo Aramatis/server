@@ -73,6 +73,7 @@ TMP_BKP_DB_FULL="$TMP_BKP_FLDR"/"$TMP_DB_BACKUP"
 TMP_BKP_IMGS_FULL="$TMP_BKP_FLDR"/"$TMP_IMG_BACKUP"
 TMP_BKP_FILE_FULL="$TMP_BKP_FLDR/$TMP_BKP_FILE"
 
+
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### CHECKS
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
@@ -111,25 +112,31 @@ fi
 
 #### create image backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
-#echo "- creating reports image backups"
-#cd "$IMGS_FLDR"
-#tar -zcvf "$TMP_BKP_IMGS_FULL" *
-#if [ ! -e "$TMP_BKP_IMGS_FULL" ]; then
-#	echo " - image backup file not found, but it should exists!: $TMP_BKP_IMGS_FULL"
-#	exit 1
-#fi
+
+
+
+
+
+
+
 
 
 #### create database backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 echo "- creating reports backup ..."
 cd "$TMP_BKP_FLDR"
-#sudo -u postgres pg_dump ghostinspector > "$TMP_BKP_FLDR"/database.sql
-#tar -zcvf "$TMP_DB_BACKUP" database.sql
-
-python "$SERVER_FLDR"/manage.py reports_archive        #   comment for testing
-#cp /home/sebastian/database.tar.gz "$TMP_BKP_DB_FULL" # uncomment for testing
+mkdir -p "bkp" && cd "bkp"
+python "$SERVER_FLDR"/manage.py visualization_backup_dump
 cp /tmp/reports.json "$TMP_BKP_FLDR"/reports.json
+
+# check_json_files report.json
+# check_json_files events_for_busstop.json
+# check_json_files statistic_data_from_registration_busstop.json
+# check_json_files events_for_busv2.json
+# check_json_files statistic_data_from_registration_bus.json
+# check_json_files busassignment.json
+# check_json_files busv2.json
+
 tar -zcvf "$TMP_DB_BACKUP" *.json
 
 # check db backup
