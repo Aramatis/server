@@ -10,8 +10,11 @@ import logging
 # third-party libraries
 import googlemaps
 from routeplanner.models import Log
+import re
 
 # Create your views here.
+
+CITY_SUFFIX = 'rm'
 
 class RoutePlanner(View):
     """
@@ -22,16 +25,34 @@ class RoutePlanner(View):
     def __init__(self):
         self.context = {}
 
+    def addCitySuffix(self, location):
+        """ add sufix to location if it is not a lat,long string """
+        pattern = "^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$"
+        answer = re.match(pattern, location)
+
+        if not answer:
+            return "{} {}".format(location, CITY_SUFFIX)
+
+        return location
+        
     def get(self, request, pUserId, pOrigin, pDestination, language = "es"):
         """
         Method to calculate a route between two locations
         You can learn more about this here ->
         https://developers.google.com/maps/documentation/directions/intro#TravelModes
         """
+        logger = logging.getLogger(__name__)
 
-	# Log 
-        Log.objects.create(userId = pUserId, origin = pOrigin, destination = pDestination)
- 	
+        # Log 
+        if pUserId != 'null':
+            Log.objects.create(userId = pUserId, origin = pOrigin, destination = pDestination)
+        else:
+            logger.error('reouteplanner: null user')
+
+        # add suffix
+        pOrigin = self.addCitySuffix(pOrigin)
+        pDestination = self.addCitySuffix(pDestination)
+     
         googleClient = googlemaps.Client(settings.GOOGLE_KEY)
 
         # DIRECTION API PARAMETERS

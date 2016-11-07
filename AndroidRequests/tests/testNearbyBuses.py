@@ -22,18 +22,13 @@ import AndroidRequests.constants as Constants
 class NearbyBusTest(TestCase):
     """ test for DevicePositionInTime model """
 
-    """
-    - solicitar buses
-    - subir a dos usuarios a un bus, debe venir un solo bus que los representa, con la cantidad de usuarios = 2
-    - subir usuario a bus y hacer reporte, debe venir el bus con reporte
-    """
-
     def setUp(self):
         """ this method will automatically call for every single test """
         # for testing requests inside the project
         self.factory = RequestFactory()
 
         self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.userId2 = "971087e3-b64c-4c22-88c2-2e1300ffd855"
 
         self.helper = TestHelper(self)
 
@@ -81,7 +76,7 @@ class NearbyBusTest(TestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
       
-        userBuses = views.getUserBuses(busStopCode)
+        userBuses = views.getUserBuses(busStopCode, self.userId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
       
         buses = views.mergeBuses(userBuses, authBuses)
@@ -101,6 +96,7 @@ class NearbyBusTest(TestCase):
     def test_nearbyBusesWithFakeAuthorityInfoWithOneUserBus(self):
         """ test methods that uses nearbyBuses url. case: authority buses with one user bus"""
 
+        direction = "I"
         busStopCode = 'PA433'
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
@@ -108,18 +104,20 @@ class NearbyBusTest(TestCase):
         
         travelKey = self.helper.getInBusWithLicencePlate(self.userId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
+        self.helper.setDirection(travelKey, direction)
 
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
       
-        userBuses = views.getUserBuses(busStopCode)
+        userBuses = views.getUserBuses(busStopCode, self.userId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
         
         self.assertEqual(len(buses), 9+1)
         self.assertEqual(buses[0]['patente'], Constants.DUMMY_LICENSE_PLATE)
         self.assertEqual(buses[0]['servicio'], self.service)
+        self.assertEqual(buses[0]['direction'], direction)
         self.assertEqual(buses[1]['patente'], fakeJsonAuthorityAnswer['servicios'][0]['patente'])
         self.assertEqual(buses[2]['patente'], fakeJsonAuthorityAnswer['servicios'][1]['patente'])
         self.assertEqual(buses[3]['patente'], fakeJsonAuthorityAnswer['servicios'][2]['patente'])
@@ -139,26 +137,32 @@ class NearbyBusTest(TestCase):
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
         
         # first user
+        direction1 = "I"
         travelKey1 = self.helper.getInBusWithLicencePlate(self.userId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey1)
+        self.helper.setDirection(travelKey1, direction1)
         # second user
         userId2 = 'ce102dcd-0670-4086-a543-b3e6e58e8f58'
+        direction2 = "I"
         travelKey2 = self.helper.getInBusWithLicencePlate(userId2, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey2)
+        self.helper.setDirection(travelKey2, direction2)
          
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
       
-        userBuses = views.getUserBuses(busStopCode)
+        userBuses = views.getUserBuses(busStopCode, self.userId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
         
         self.assertEqual(len(buses), 9+1+1)
         self.assertEqual(buses[0]['patente'], Constants.DUMMY_LICENSE_PLATE)
         self.assertEqual(buses[0]['servicio'], self.service)
+        self.assertEqual(buses[0]['direction'], direction1)
         self.assertEqual(buses[1]['patente'], Constants.DUMMY_LICENSE_PLATE)
         self.assertEqual(buses[1]['servicio'], self.service)
+        self.assertEqual(buses[1]['direction'], direction2)
         self.assertEqual(buses[2]['patente'], fakeJsonAuthorityAnswer['servicios'][0]['patente'])
         self.assertEqual(buses[3]['patente'], fakeJsonAuthorityAnswer['servicios'][1]['patente'])
         self.assertEqual(buses[4]['patente'], fakeJsonAuthorityAnswer['servicios'][2]['patente'])
@@ -172,6 +176,8 @@ class NearbyBusTest(TestCase):
     def test_nearbyBusesWithFakeAuthorityInfoWithTwoUserInTheSameBus(self):
         """ test methods that uses nearbyBuses url. case: authority buses with two user in the same bus"""
 
+        direction1 = "I"
+        direction2 = "I"
         busStopCode = 'PA433'
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
@@ -182,15 +188,17 @@ class NearbyBusTest(TestCase):
         # first user
         travelKey1 = self.helper.getInBusWithLicencePlate(self.userId, service, licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey1)
+        self.helper.setDirection(travelKey1, direction1)
         # second user
         userId2 = 'ce102dcd-0670-4086-a543-b3e6e58e8f58'
         travelKey2 = self.helper.getInBusWithLicencePlate(userId2, service, licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey2)
+        self.helper.setDirection(travelKey2, direction2)
          
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
-        userBuses = views.getUserBuses(busStopCode)
+        userBuses = views.getUserBuses(busStopCode, self.userId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
         self.assertEqual(len(buses), 9)
@@ -200,6 +208,7 @@ class NearbyBusTest(TestCase):
         self.assertEqual(buses[0]['distanciaMts'], 1691)
         self.assertEqual(buses[0]['tiempoV2'], "0 a 5 min")
         self.assertEqual(buses[0]['distanciaV2'], "1.69Km")
+        self.assertEqual(buses[0]['direction'], "I")
         self.assertEqual(buses[1]['patente'], fakeJsonAuthorityAnswer['servicios'][1]['patente'])
         self.assertEqual(buses[2]['patente'], fakeJsonAuthorityAnswer['servicios'][2]['patente'])
         self.assertEqual(buses[3]['patente'], fakeJsonAuthorityAnswer['servicios'][4]['patente'])
@@ -218,16 +227,18 @@ class NearbyBusTest(TestCase):
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
         
+        direction = "I"
         licencePlate = 'bjFb28'
         service = '506'
         travelKey = self.helper.getInBusWithLicencePlate(self.userId, service, licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
+        self.helper.setDirection(travelKey, direction)
          
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
       
-        userBuses = views.getUserBuses(busStopCode)
+        userBuses = views.getUserBuses(busStopCode, self.userId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
         
@@ -235,6 +246,7 @@ class NearbyBusTest(TestCase):
         self.assertEqual(buses[0]['patente'], licencePlate.upper())
         self.assertEqual(buses[0]['servicio'], service)
         self.assertEqual(buses[0]['tienePasajeros'], 1)
+        self.assertEqual(buses[0]['direction'], direction)
         self.assertEqual(buses[1]['patente'], fakeJsonAuthorityAnswer['servicios'][1]['patente'])
         self.assertEqual(buses[2]['patente'], fakeJsonAuthorityAnswer['servicios'][2]['patente'])
         self.assertEqual(buses[3]['patente'], fakeJsonAuthorityAnswer['servicios'][4]['patente'])
@@ -243,6 +255,107 @@ class NearbyBusTest(TestCase):
         self.assertEqual(buses[6]['patente'], fakeJsonAuthorityAnswer['servicios'][7]['patente'])
         self.assertEqual(buses[7]['patente'], fakeJsonAuthorityAnswer['servicios'][8]['patente'])
         self.assertEqual(buses[8]['patente'], fakeJsonAuthorityAnswer['servicios'][9]['patente'])
+
+    def test_nearbyBusesWithFakeAuthorityInfoWithUserBusWithoutDirection(self):
+        """ test methods that uses nearbyBuses url. case: authority buses with user bus without direction, so the user bus should not see in the list of buses """
+
+        busStopCode = 'PA433'
+        self.helper.insertBusstopsOnDatabase([busStopCode])
+        self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
+        self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        
+        licencePlate = 'bjFb28'
+        service = '506'
+        travelKey = self.helper.getInBusWithLicencePlate(self.userId, service, Constants.DUMMY_LICENSE_PLATE)
+        self.helper.sendFakeTrajectoryOfToken(travelKey)
+        #self.helper.setDirection(travelKey, direction)
+         
+        fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
+
+        fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
+      
+        userBuses = views.getUserBuses(busStopCode, self.userId2)
+        authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
+        buses = views.mergeBuses(userBuses, authBuses)
+        
+        self.assertEqual(len(buses), 9)
+        self.assertEqual(buses[0]['patente'], fakeJsonAuthorityAnswer['servicios'][0]['patente'])
+        self.assertEqual(buses[1]['patente'], fakeJsonAuthorityAnswer['servicios'][1]['patente'])
+        self.assertEqual(buses[2]['patente'], fakeJsonAuthorityAnswer['servicios'][2]['patente'])
+        self.assertEqual(buses[3]['patente'], fakeJsonAuthorityAnswer['servicios'][4]['patente'])
+        self.assertEqual(buses[4]['patente'], fakeJsonAuthorityAnswer['servicios'][5]['patente'])
+        self.assertEqual(buses[5]['patente'], fakeJsonAuthorityAnswer['servicios'][6]['patente'])
+        self.assertEqual(buses[6]['patente'], fakeJsonAuthorityAnswer['servicios'][7]['patente'])
+        self.assertEqual(buses[7]['patente'], fakeJsonAuthorityAnswer['servicios'][8]['patente'])
+        self.assertEqual(buses[8]['patente'], fakeJsonAuthorityAnswer['servicios'][9]['patente'])
+
+    def test_nearbyBusesWhenUserIsOnTheBus(self):
+        """ test methods that uses nearbyBuses url. 
+        case: ask for buses when the user is in one of bus that goes to the bus stop asked """
+
+        busStopCode = 'PA433'
+        self.helper.insertBusstopsOnDatabase([busStopCode])
+        self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
+        self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        
+        direction = "I"
+        licencePlate = 'bjFb28'
+        service = '506'
+        travelKey = self.helper.getInBusWithLicencePlate(self.userId, service, licencePlate)
+        self.helper.sendFakeTrajectoryOfToken(travelKey)
+        self.helper.setDirection(travelKey, direction)
+         
+        fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
+
+        fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
+      
+        userBuses = views.getUserBuses(busStopCode, self.userId)
+        authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
+        buses = views.mergeBuses(userBuses, authBuses)
+        
+        self.assertEqual(len(buses), 8)
+        self.assertEqual(buses[0]['patente'], fakeJsonAuthorityAnswer['servicios'][1]['patente'])
+        self.assertEqual(buses[1]['patente'], fakeJsonAuthorityAnswer['servicios'][2]['patente'])
+        self.assertEqual(buses[2]['patente'], fakeJsonAuthorityAnswer['servicios'][4]['patente'])
+        self.assertEqual(buses[3]['patente'], fakeJsonAuthorityAnswer['servicios'][5]['patente'])
+        self.assertEqual(buses[4]['patente'], fakeJsonAuthorityAnswer['servicios'][6]['patente'])
+        self.assertEqual(buses[5]['patente'], fakeJsonAuthorityAnswer['servicios'][7]['patente'])
+        self.assertEqual(buses[6]['patente'], fakeJsonAuthorityAnswer['servicios'][8]['patente'])
+        self.assertEqual(buses[7]['patente'], fakeJsonAuthorityAnswer['servicios'][9]['patente'])
+
+    def test_nearbyBusesWhenUserIsOnTheDummyBus(self):
+        """ test methods that uses nearbyBuses url. 
+        case: ask for buses when the user is in one of bus that stops in the bus stop asked """
+
+        busStopCode = 'PA433'
+        self.helper.insertBusstopsOnDatabase([busStopCode])
+        self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
+        self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        
+        direction = "I"
+        licencePlate = 'bjFb28'
+        service = '506'
+        travelKey = self.helper.getInBusWithLicencePlate(self.userId, service, Constants.DUMMY_LICENSE_PLATE)
+        self.helper.sendFakeTrajectoryOfToken(travelKey)
+        self.helper.setDirection(travelKey, direction)
+         
+        fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
+
+        fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
+      
+        userBuses = views.getUserBuses(busStopCode, self.userId)
+        authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
+        buses = views.mergeBuses(userBuses, authBuses)
+        
+        self.assertEqual(len(buses), 9)
+        self.assertEqual(buses[0]['patente'], fakeJsonAuthorityAnswer['servicios'][0]['patente'])
+        self.assertEqual(buses[1]['patente'], fakeJsonAuthorityAnswer['servicios'][1]['patente'])
+        self.assertEqual(buses[2]['patente'], fakeJsonAuthorityAnswer['servicios'][2]['patente'])
+        self.assertEqual(buses[3]['patente'], fakeJsonAuthorityAnswer['servicios'][4]['patente'])
+        self.assertEqual(buses[4]['patente'], fakeJsonAuthorityAnswer['servicios'][5]['patente'])
+        self.assertEqual(buses[5]['patente'], fakeJsonAuthorityAnswer['servicios'][6]['patente'])
+        self.assertEqual(buses[6]['patente'], fakeJsonAuthorityAnswer['servicios'][7]['patente'])
+        self.assertEqual(buses[7]['patente'], fakeJsonAuthorityAnswer['servicios'][8]['patente'])
 
     def test_nearbyBusesFormatDistance(self):
         """ test method that apply distance format  """

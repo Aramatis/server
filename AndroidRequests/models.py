@@ -142,7 +142,7 @@ class ServicesByBusStop(models.Model):
     """This model helps to determine the direction of the bus service I or R.
     All of this is tied to the bus stop code and the service provided by it.
     It's useful to have the direction of the service to be able to determine position of the bus."""
-    code = models.CharField(max_length=6, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
+    code = models.CharField(max_length=11, null=False, blank=False) # EX: 506I or 506R, R and I indicate "Ida" and "Retorno"
     """ Service code where the last character indicates the direction of this """
     busStop = models.ForeignKey('BusStop', verbose_name='the busStop')
     """ Bus stops where the service is stopped """
@@ -169,7 +169,7 @@ class BusStop(Location):
 
 class Service(models.Model):
     """ Represent a Service like '506' and save his data """
-    service = models.CharField('Service', max_length=5, primary_key = True)
+    service = models.CharField('Service', max_length=11, primary_key = True)
     """ Represent the service, like '506c' without direction """
     origin = models.CharField(max_length=100, null=False, blank=False)
     """ Indicates the place where the service start his travel """
@@ -194,7 +194,7 @@ class Bus(models.Model):
     The last thing means that one fisical bus can work in two different services."""
     registrationPlate = models.CharField(max_length=8)
     """ It's the registration plate for the bus, without hyphen """
-    service = models.CharField(max_length=5, null=False, blank=False)
+    service = models.CharField(max_length=11, null=False, blank=False)
     """ It indicates the service performed by the bus """
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     """ Unique ID to primarily identify Buses created without registrationPlate """
@@ -353,7 +353,7 @@ class Busassignment(models.Model):
     The last thing means that one fisical bus can work in two different services."""
     #registrationPlate = models.CharField(max_length=8)
     """ It's the registration plate for the bus, without hyphen """
-    service = models.CharField(max_length=5, null=False, blank=False)
+    service = models.CharField(max_length=11, null=False, blank=False)
     """ It indicates the service performed by the bus """
     uuid = models.ForeignKey(Busv2, verbose_name='Thebusv2')
     """ Unique ID to primarily identify Buses created without registrationPlate """
@@ -497,7 +497,7 @@ class Busassignment(models.Model):
 class ServiceLocation(Location):
     '''This models stores the position along the route of every bus at 20 meters apart.
     You can give the distance from the start of the travel and it return the position at that distance.'''
-    service = models.CharField('Service Code', max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
+    service = models.CharField('Service Code', max_length=11, null=False, blank=False) #Service code i.e. 506I or 506R
     """ Service code where the last character indicates its direction """
     distance = models.IntegerField('Route Distance')
     """ Distance traveled by the service since its origin """
@@ -510,7 +510,7 @@ class ServiceStopDistance(models.Model):
     Given a bus direction code xxxI or xxxR or something alike.'''
     busStop = models.ForeignKey(BusStop, verbose_name='Bus Stop')
     """ Bus stops where the service is stopped """
-    service = models.CharField('Service Code', max_length=6, null=False, blank=False) #Service code i.e. 506I or 506R
+    service = models.CharField('Service Code', max_length=11, null=False, blank=False) #Service code i.e. 506I or 506R
     """ It represents the Service code, ex: '506I' """
     distance = models.IntegerField('Distance Traveled')
     """ Distance traveled by the service when it reaches the bus stop """

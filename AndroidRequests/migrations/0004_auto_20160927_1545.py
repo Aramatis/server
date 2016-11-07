@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-    	migrations.AlterField(
+        migrations.AlterField(
             model_name='bus',
             name='uuid',
             field=models.UUIDField(default=uuid.uuid4, editable=False),

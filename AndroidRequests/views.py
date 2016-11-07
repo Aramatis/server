@@ -56,7 +56,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     USER BUSES
     """
-    userBuses = getUserBuses(theBusStop)
+    userBuses = getUserBuses(theBusStop, pUserId)
 
     """
     DTPM BUSES
@@ -129,7 +129,7 @@ def formatTime(time, distance):
 
     return time
 
-def getUserBuses(theBusStop):
+def getUserBuses(theBusStop, questioner):
     """ get active user buses """
 
     logger = logging.getLogger(__name__)
@@ -152,8 +152,7 @@ def getUserBuses(theBusStop):
         serviceIndex = serviceNames.index(user.busassignment.service)
         uuid = user.busassignment.uuid.uuid
         #TODO: consider bus direction
-        if (user.direction == serviceDirections[serviceIndex] or \
-            user.direction is None) and (not uuid in uuids):
+        if user.direction == serviceDirections[serviceIndex] and (not uuid in uuids):
             uuids.append(uuid)
             bus = {}
             bus['servicio'] = user.busassignment.service
@@ -165,7 +164,7 @@ def getUserBuses(theBusStop):
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
             try:
-                bus['sentido'] = user.busassignment.getDirection(pBusStop, 30)
+                bus['sentido'] = user.busassignment.getDirection(theBusStop.code, 30)
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
@@ -182,7 +181,8 @@ def getUserBuses(theBusStop):
             bus['distanciaMts'] = 1
             # add new param 'uuid'
             bus['busId'] = uuid
-            bus['direccion'] = user.direction
+            bus['direction'] = user.direction
+            bus['isTheSameUser'] = True if str(user.userId) == questioner else False
             # assume that bus is 30 meters from bus stop to predict direction
             if not bus['random']:
                 userBuses.append(bus)
@@ -252,7 +252,7 @@ def mergeBuses(userBuses, authorityBuses):
 
     for userBus in userBuses:
         #print "user bus: " + str(userBus['patente'])
-        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE:
+        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE and not userBus['isTheSameUser']:
             #print "added dummy bus to list"
             buses.append(userBus)
         else:
@@ -265,8 +265,9 @@ def mergeBuses(userBuses, authorityBuses):
                     userBus['distancia'] = authBus['distancia']
                     userBus['distanciaV2'] = authBus['distanciaV2']
                     userBus['distanciaMts'] = authBus['distanciaMts']
-                    userBus['sentido'] = authBus['sentido']
-                    buses.append(userBus)
+                    userBus['sentido'] = authBus['sentido']                    
+                    if not userBus['isTheSameUser']:
+                        buses.append(userBus)
                     authorityBuses.remove(authBus)
                     #print "son iguales"
                     #print str(userBus)
