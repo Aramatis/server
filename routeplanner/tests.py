@@ -1,3 +1,4 @@
+# encoding=utf-8
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
@@ -30,6 +31,21 @@ class RoutePlannerTest(TestCase):
 
         self.assertEqual(origin, newOrigin)
         self.assertEqual(destination + " " + views.CITY_SUFFIX, newDestination)
+
+    def test_getCitySuffixWithAccentWord(self):
+        """   """
+
+        origin = "-33.456769,-70.652883"
+        destination = "Universidad del pacífico"
+
+        view = RoutePlanner()
+
+        newOrigin = view.addCitySuffix(origin)
+        newDestination = view.addCitySuffix(destination)
+
+        self.assertEqual(origin, newOrigin)
+        self.assertEqual(destination + " " + views.CITY_SUFFIX, newDestination)
+
 
 """
         jsonResponse = self.calculateTrip(self.userIf, pOrigin, pDestination)
