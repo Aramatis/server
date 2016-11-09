@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.core import serializers
 from django.utils import timezone
 from datetime import timedelta
-
+import time
 
 class Command(BaseCommand):
 
@@ -17,10 +17,9 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
     
         # configuration
-        self.delta_days    = 1000
+        self.delta_days    = 0
         self.delta_hours   = 0
-        self.delta_minutes = 5
-        self.delta_seconds = 0
+        self.delta_minutes = 0
         self.report_images_filename = "dump_report_images.txt"
 
 
@@ -28,10 +27,33 @@ class Command(BaseCommand):
     # ----------------------------------------------------------------------------
     # COMMAND
     # ----------------------------------------------------------------------------
+    def add_arguments(self, parser):
+        parser.add_argument('minutes', type=int)
+        parser.add_argument('hours', type=int)
+        parser.add_argument('days', type=int)
+
     def handle(self, *args, **options):
+        if options['minutes']:
+            self.delta_minutes = options['minutes']
+        if options['hours']:
+            self.delta_hours = options['hours']
+        if options['days']:
+            self.delta_days = options['days']
+
+
+        print("Partial dump for newest data - (%d min, %d hr, %d days)" % (self.delta_minutes, self.delta_hours, self.delta_days))
+
+        start_time = time.time()
+        start_time_str = time.strftime("%b %d %Y %H:%M:%S", time.localtime(start_time))
+        print("... started ... at: %s" % start_time_str)
+        time.sleep(1)
         self.archive_reports()
         self.archive_events_for_busstop()
         self.archive_events_for_busv2()
+        finish_time = time.time()
+        elapsed_time = finish_time - start_time
+        finish_time_str = time.strftime("%b %d %Y %H:%M:%S", time.localtime(finish_time))
+        print("... finished ... at %s ... elapsed: %d [s]" % (finish_time_str, elapsed_time))
 
 
 
@@ -40,7 +62,7 @@ class Command(BaseCommand):
     # ----------------------------------------------------------------------------
     def archive_reports(self):
         [query, modelname] = self.get_reports_query()
-        print "writing images list"
+        print("writing images list")
         with open(self.report_images_filename, 'w+') as file:
             for report in query:
                 # meanwhile!: check for string length
@@ -124,11 +146,11 @@ class Command(BaseCommand):
     # ----------------------------------------------------------------------------
     def get_reports_query(self):
         from AndroidRequests.models import Report
-        return [Report.objects.filter(timeStamp__gt = self.get_past_date()), Report.__name__]
+        return [Report.objects.filter(timeStamp__gt=self.get_past_date()), Report.__name__]
 
     def get_events_for_busv2_query(self):
         from AndroidRequests.models import EventForBusv2
-        return [EventForBusv2.objects.filter(timeStamp__gt = self.get_past_date()), EventForBusv2.__name__]
+        return [EventForBusv2.objects.filter(timeStamp__gt=self.get_past_date()), EventForBusv2.__name__]
 
     def get_busv2_query(self):
         from AndroidRequests.models import Busv2
@@ -140,25 +162,24 @@ class Command(BaseCommand):
 
     def get_event_for_busstop_query(self):
         from AndroidRequests.models import EventForBusStop
-        return [EventForBusStop.objects.filter(timeStamp__gt = self.get_past_date()), EventForBusStop.__name__]
+        return [EventForBusStop.objects.filter(timeStamp__gt=self.get_past_date()), EventForBusStop.__name__]
 
     def get_statistic_data_from_registration_busstop_query(self):
         from AndroidRequests.models import StadisticDataFromRegistrationBusStop
-        return [StadisticDataFromRegistrationBusStop.objects.filter(timeStamp__gt = self.get_past_date()), StadisticDataFromRegistrationBusStop.__name__]
+        return [StadisticDataFromRegistrationBusStop.objects.filter(timeStamp__gt=self.get_past_date()), StadisticDataFromRegistrationBusStop.__name__]
 
     def get_statistic_data_from_registration_bus_query(self):
         from AndroidRequests.models import StadisticDataFromRegistrationBus
-        return [StadisticDataFromRegistrationBus.objects.filter(timeStamp__gt = self.get_past_date()), StadisticDataFromRegistrationBus.__name__]
-        
-
+        return [StadisticDataFromRegistrationBus.objects.filter(timeStamp__gt=self.get_past_date()), StadisticDataFromRegistrationBus.__name__]
+    
 
     # ----------------------------------------------------------------------------
     # MISC
     # ----------------------------------------------------------------------------
     
     def to_JSON(self, query, modelname):
-    	filename = "dump_" + modelname + ".json"
-        print "writing %d '%s' objects to json file %s" % (len(query), modelname, filename)
+        filename = "dump_" + modelname + ".json"
+        print("writing %d '%s' objects to json file %s" % (len(query), modelname, filename))
         JSONSerializer = serializers.get_serializer("json")
         json_serializer = JSONSerializer()
         with open(filename, 'w+') as file:

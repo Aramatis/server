@@ -62,7 +62,7 @@ if [ -z "$TMP_BKP_FLDR" ]; then
 	echo "This script must be called with the TMP_BKP_FLDR parameter"
 	echo "TMP_BKP_FLDR is the path to the folder where backups are built"
 	echo "on this server. e.g: /tmp/backup_viz_complete or /tmp/backup_viz_partial"
-	echo "at some point, this folder will be completely deleted, so ensure"
+	echo "at some point, this folder can be completely deleted, so ensure"
 	echo "this is not something important!, like '/home' or '/'."
 	exit 1
 fi
@@ -93,6 +93,17 @@ if [ "$BKP_TYPE" != "complete" ] && [ "$BKP_TYPE" != "partial" ] ; then
 	exit 1
 fi
 
+PARTIAL_BKP_TIME="$10"
+if [ "$BKP_TYPE" = "partial" ] && [ -z "$PARTIAL_BKP_TIME" ] ; then
+	echo "This script must be called with the PARTIAL_BKP_TIME parameter"
+	echo "PARTIAL_BKP_TIME represents the amount of time used to lookup for"
+	echo "database updates. Format is 'minutes hours days'"
+	echo "e.g1: '5 0 0' for a 5 minutes lookup"
+	echo "e.g2: '12 2 0' for the past 2 and a half days"
+	exit 1
+fi
+
+
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### GENERATED PARAMETERS
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
@@ -117,10 +128,10 @@ SERVER_FLDR=$(dirname "$VIZ_APP_FLDR")
 IMGS_FLDR="$SERVER_FLDR"/"$IMGS_FLDR"
 
 # tmp
-TMP_DB_DUMP_FULL="$TMP_BKP_FLDR"/"$TMP_DB_DUMP"
-TMP_BKP_DB_FULL="$TMP_BKP_FLDR"/"$TMP_DB_BACKUP"
-TMP_BKP_IMGS_FULL="$TMP_BKP_FLDR"/"$TMP_IMG_BACKUP"
-TMP_BKP_FILE_FULL="$TMP_BKP_FLDR/$TMP_BKP_FILE"
+export TMP_DB_DUMP_FULL="$TMP_BKP_FLDR"/"$TMP_DB_DUMP"
+export TMP_BKP_DB_FULL="$TMP_BKP_FLDR"/"$TMP_DB_BACKUP"
+export TMP_BKP_IMGS_FULL="$TMP_BKP_FLDR"/"$TMP_IMG_BACKUP"
+export TMP_BKP_FILE_FULL="$TMP_BKP_FLDR/$TMP_BKP_FILE"
 
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 

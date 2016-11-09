@@ -18,7 +18,7 @@ function check_json_files()
 echo "- creating reports backup ..."
 cd "$TMP_BKP_FLDR"
 mkdir -p "bkp" && cd "bkp"
-python "$SERVER_FLDR"/manage.py visualization_backup_dump
+python "$SERVER_FLDR"/manage.py visualization_backup_dump "$PARTIAL_BKP_TIME"
 check_json_files 'dump_Report.json'
 check_json_files 'dump_EventForBusStop.json'
 check_json_files 'dump_StadisticDataFromRegistrationBusStop.json'

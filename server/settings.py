@@ -208,9 +208,11 @@ CRONJOBS = [
     # every 2 minutes
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
     
-    # daily and partial backups to remote server
-    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt')
-    #('0 */1 * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
+    # daily complete backup at 3:30am
+    ('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    
+    # partial backups every 5 minutes
+    ('*/5 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
 ]
 CRONTAB_LOCK_JOBS = True
 
@@ -230,11 +232,34 @@ os.environ['wsgi.url_scheme'] = 'https'
 
 
 
-# VIZ_BACKUP_APP
+## VIZ_BACKUP_APP
+## see also: VisualizationBackupApp/REAME.md
+
+# database on host and remote must have the same name
 VIZ_BKP_APP_DATABASE        = "ghostinspector"
-VIZ_BKP_APP_REMOTE_USER     = "transapp"
-VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
-VIZ_BKP_APP_REMOTE_BKP_FLDR = "ftp_incoming"
-VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
-VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
+
+# from where to lookup for images on host
 VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"
+
+# send updates for the last 5 minutes 
+VIZ_PARTIAL_BKP_TIME        = "5 0 0"
+
+# where to store temporal bkp files on host
+VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
+
+# remote credentials
+# - private key: used to access the remote
+# - remote host: IP of the remote host
+# - remote user: username for the remote host
+VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
+VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
+VIZ_BKP_APP_REMOTE_USER     = "transapp"
+
+# where to put backups on remote
+VIZ_BKP_APP_REMOTE_BKP_FLDR = "ftp_incoming"
+
+
+
+
+
+
