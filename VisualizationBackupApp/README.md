@@ -1,6 +1,6 @@
 # VisualizationBackupApp
 
-This app performs database backups from the (TranSapp) server and loads them to the (TranSappViz), for the AndroidRequests app. So, this app is designed to be used on two servers, the Sender (TranSapp) and the Receiver (TranSappViz) of backups, both using the AndroidRequests models.
+This app performs database backups from the (TranSapp) server and loads them to the (TranSappViz) server. So, this app is designed to be used on two servers, the Sender (TranSapp) and the Receiver (TranSappViz) of backups, both using the AndroidRequests models.
 
 It provides two backup types, complete and partial, which are designed to be scheduled on a daily basis (long period of time) and diff backups run some minutes (short period of time), respectively.
 
@@ -33,19 +33,19 @@ INSTALLED_APPS = (
 
 Backups needs to be scheduled on the `settings.py` file, using the cron app. 
 
-On (TranSapp), the recommended setting is to schedule complete backups once a day on, and partial backups every 5 minutes.
+On (TranSapp), the recommended setting is to schedule complete backups once a day and partial backups every 5 minutes.
 ```python
 # ONLY ON (TranSapp)
 CRONJOBS = [	
-    # daily complete backup
-    ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt')
+    # daily complete backup at 3:30am
+    ('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt')
     
-    # daily complete backup
-    ('0 */1 * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
+    # partial backups every 5 minutes
+    ('*/5 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
 ]
 ```
 
-On (TranSappViz), the recommended setting is to schedule a lot of update checkings, this way new updates are applied as soon as possible. (its super duper free to fail if there arent updates, assuming you are not scheduling a check every second).
+On (TranSappViz), the recommended setting is to schedule a lot of update checkings, this way new updates are applied as soon as possible (it's super duper free to fail if there aren't updates, assuming you are not scheduling a check every second).
 ```python
 # ONLY ON (TranSappViz)
 CRONJOBS = [	
@@ -53,12 +53,15 @@ CRONJOBS = [
     ('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt')
     
     # check for partial updates every 2 minutes
-    ('0 */1 * * *', 'VisualizationBackupApp.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt')
+    ('*/2 * * * *', 'VisualizationBackupApp.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt')
 ]
 ```
 You can see the process log on the `/tmp/vizbkpapp_*_log.txt` files.
 
 Note that is highly recommended to set the parameter `CRONTAB_LOCK_JOBS = True` on `settings.py`. This is not mandatory, but unexpected stuff might happen otherwise!.
+
+See also [this wiki](https://en.wikipedia.org/wiki/Cron#Format) on how to write a schedule using the cron format. 
+
 
 ## Settings TODO:
  
