@@ -1,80 +1,159 @@
 #!/bin/bash
-#
-# assumptions:
-# - backups are stored on the ftp_incomming folder.
-# - backup file is a tar.bz2 compressed file
-# - uncompressed files are: data.json and meta.json
-# - 
-# ARGUMENTS
-# - BACKUP_FILE: only the name of the file
-# - MANAGE_PY: full path to the manage.py file. 
-#   e.g.: /home/transapp/visualization/manage.py
 
-BACKUP_FOLDER="$1"
-BACKUP_FILE="$2"
-BACKUP_DB="$3"
-BACKUP_IMGS="$4"
-MANAGE_PY="$5"
-DEST_IMG_FLDR="$6"
+echo "---------------------------------------------------------------"
+echo "loaddata.sh init . . $(date)"
+echo "---------------------------------------------------------------"
 
-function exit_usage()
-{
-	echo "Usage: $ bash script_post.sh <BACKUP_FOLDER> <BACKUP_FILE> <BACKUP_DB> <BACKUP_IMGS> <MANAGE_PY> <DEST_IMG_FLDR"
-	echo "e.g:"
-	echo " - BACKUP_FOLDER: ftp_incomming"
-	echo " - BACKUP_FILE  : backup_2016-10-03__12_22_02.tar.gz"
-	echo " - BACKUP_DB    : database.tar.gz"
-	echo " - BACKUP_IMGS  : images.tar.gz"
-	echo " - MANAGE_PY    : visualization/manage.py"
-	echo " - DEST_IMG_FLDR: visualization/media/reported_images"
+# root usage check
+if ! [ "$(id -u)" = "0" ] ; then
+	echo "This script must be called by root."
 	exit 1
-}
+fi
 
-echo " - [ON REMOTE VIZ]: -------- POST LOAD INIT --------"
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### USER PARAMETERS
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+SERVER_FLDR="$1"
+if [ -z "$SERVER_FLDR" ]; then
+	echo "This script must be called with the SERVER_FLDR parameter"
+	echo "SERVER_FLDR represents the full path to this server."
+	echo "e.g: /home/transapp/visualization"
+	exit 1
+fi
+if [ ! -d "$SERVER_FLDR" ]; then
+	echo "SERVER_FLDR folder does not exists: $SERVER_FLDR"
+	exit 1
+fi
 
-## CHECKS
-# backup folder
-if [   -z "$BACKUP_FOLDER" ]; then exit_usage; fi
-BACKUP_FOLDER="/home/$USER/$BACKUP_FOLDER"
+BACKUP_FOLDER="$2"
+if [ -z "$BACKUP_FOLDER" ]; then
+	echo "This script must be called with the BACKUP_FOLDER parameter"
+	echo "BACKUP_FOLDER is the FULL PATH to the folder where backups are stored"
+	echo "e.g: '/home/transapp/bkps'"
+	exit 1
+fi
 if [ ! -d "$BACKUP_FOLDER" ]; then
 	echo "Backup folder not found: $BACKUP_FOLDER"
-	exit_usage
+	exit 1
 fi
 
-# backup filename
-if [   -z "$BACKUP_FILE" ]; then exit_usage; fi
-BACKUP_FILE="$BACKUP_FOLDER/$BACKUP_FILE"
-if [ ! -e "$BACKUP_FILE" ]; then
-	echo "Backup file not found: $BACKUP_FILE"
-	exit_usage
+IMGS_FLDR="$3"
+if [ -z "$IMGS_FLDR" ]; then
+	echo "This script must be called with the IMGS_FLDR parameter"
+	echo "IMGS_FLDR represents the path the folder where images are stored, relative to SERVER_FLDR"
+	echo "e.g: media/reported_images"
+	exit 1
 fi
 
-# imgs backup DB
-if [   -z "$BACKUP_DB" ]; then exit_usage; fi
-#BACKUP_DB="$BACKUP_FOLDER/$BACKUP_DB"
+DATABASE_NAME="$4"
+if [ -z "$DATABASE_NAME" ]; then
+	echo "This script must be called with the DATABASE_NAME parameter"
+	echo "DATABASE_NAME represents the database name, duh."
+	exit 1
+fi
 
-# imgs backup images
-if [   -z "$BACKUP_IMGS" ]; then exit_usage; fi
-#BACKUP_IMGS="$BACKUP_FOLDER/$BACKUP_IMGS"
+BKP_TYPE="$5"
+if [ -z "$BKP_TYPE" ]; then
+	echo "This script must be called with the BKP_TYPE parameter"
+	echo "BKP_TYPE represents the backup type: 'complete' or 'partial'"
+	exit 1
+fi
+if [ "$BKP_TYPE" != "complete" ] && [ "$BKP_TYPE" != "partial" ] ; then
+	echo "INVALID TYPE: BKP_TYPE should be 'complete' or 'partial'"
+	exit 1
+fi
 
-# manage.py
-if [   -z "$MANAGE_PY" ]; then exit_usage; fi
-MANAGE_PY="/home/$USER/$MANAGE_PY"
+
+
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### GENERATED PARAMETERS
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+BACKUP_FOLDER="$BACKUP_FOLDER"/"$BKP_TYPE"
+
+# bkp files
+TMP_DB_DUMP=database.sql
+TMP_IMG_BACKUP=images.tar.gz
+TMP_DB_BACKUP=database.tar.gz
+
+
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### CHECKS
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+# backup folder with type
+if [ ! -d "$BACKUP_FOLDER" ]; then
+	echo "Backup folder not found for $BKP_TYPE backups: $BACKUP_FOLDER"
+	exit 1
+fi
+
+## manage.py existence
+MANAGE_PY="$SERVER_FLDR/manage.py"
 if [ ! -e "$MANAGE_PY" ]; then
 	echo "MANAGE.PY file not found: $MANAGE_PY"
-	exit_usage
+	exit 1
 fi
 
-# imgs backup images
-if [   -z "$DEST_IMG_FLDR" ]; then exit_usage; fi
-DEST_IMG_FLDR="/home/$USER/$DEST_IMG_FLDR"
-mkdir -p "$DEST_IMG_FLDR"
-if [ ! -d "$DEST_IMG_FLDR" ]; then
-	echo "Destination folder for images backup not found: $DEST_IMG_FLDR"
-	exit_usage
+## manage.py works well
+# /home/transapp/visualization/venv/bin/python
+python "$MANAGE_PY" 2>/dev/null 1>/dev/null
+if [ $? -ne 0 ]; then
+	echo "manage.py failed run.. maybe some dependencies are missing"
+	exit 1
 fi
 
-# check manage works well
+
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### PREPARATION
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+cd "$BACKUP_FOLDER"
+
+## Look for new files
+# e.g: backup_2016-10-03__12_22_02.tar.gz"
+pattern="NEW_backup_*.tar.gz"
+files=( $pattern )
+oldest_not_used="${files[0]}"
+
+
+if [ -z "$oldest_not_used" ] || [ ! -e "$oldest_not_used" ]; then
+	echo "New backup file not found on $BACKUP_FOLDER. Bye"
+	exit 1
+fi
+echo "- using oldest backup file: $oldest_not_used"
+
+
+echo "- Marking as used: $BACKUP_FILE"
+BACKUP_FILE="$BACKUP_FOLDER/${oldest_not_used:4}"
+mv "$oldest_not_used" "$BACKUP_FILE"
+
+
+
+# # imgs backup folder
+# DEST_IMG_FLDR="/home/$USER/$DEST_IMG_FLDR"
+# mkdir -p "$DEST_IMG_FLDR"
+# if [ ! -d "$DEST_IMG_FLDR" ]; then
+# 	echo "Destination folder for images backup not found: $DEST_IMG_FLDR"
+# 	exit 1
+# fi
+
+# # wait
+# INIT="$(date +%H:%M:%S)"
+# while [  -e working.lock ]; do
+# 	echo "waiting ... $INIT / $(date +%H:%M:%S)  P1-P2-P3=$PARAM1-$PARAM2-$PARAM3"
+# 	sleep 5
+# done
+
+
+# cd "$BACKUP_FOLDER"
+
+# # create tmp folder for stuff
+# echo " - [ON REMOTE VIZ]: creating tmp folder for extraction: $BACKUP_FOLDER/tmp"
+# rm -rf tmp
+# mkdir tmp
+# cd tmp
+
+# check manage.py works well
 #cd "$BACKUP_FOLDER"
 #/home/transapp/visualization/venv/bin/python "$MANAGE_PY" 2>/dev/null 1>/dev/null
 #if [ $? -ne 0 ]; then
@@ -89,63 +168,28 @@ fi
 # 	exit 1
 #fi
 
-## WORK
-cd "$BACKUP_FOLDER"
-
-# create tmp folder for stuff
-echo " - [ON REMOTE VIZ]: creating tmp folder for extraction: $BACKUP_FOLDER/tmp"
-rm -rf tmp
-mkdir tmp
-cd tmp
-
-# extract 
-echo " - [ON REMOTE VIZ]: extracting files to: $BACKUP_FOLDER/tmp" 
-tar -zxf "$BACKUP_FILE"
-
-if [ ! -e "$BACKUP_DB" ]; then
-	echo "Backup file not found: $BACKUP_DB" 
-	exit 1
-fi
-if [ ! -e "$BACKUP_IMGS" ]; then
-	echo "Backup file for images not found: $BACKUP_IMGS" 
-	exit 1
-fi
-tar -zxf "$BACKUP_DB"
-mkdir imgs
-cd imgs
-tar -zxf ../"$BACKUP_IMGS"
-cd ..
-
-# check tar.gz files
-if [ ! -e database.sql ]; then
-	echo "database.sql not found.. File extraction failed" 
-	exit 1
-fi
-
-# copy images
-echo " - [ON REMOTE VIZ]: copying images from $BACKUP_FOLDER/tmp/imgs to $DEST_IMG_FLDR" 
-cp -arn imgs/* "$DEST_IMG_FLDR"
-
-# load data
-echo " - [ON REMOTE VIZ]: loading backup to database using $MANAGE_PY"
-touch working.lock
-sudo -u postgres psql dropdb ghostinspector
-sudo -u postgres psql createdb -T template0 ghostinspector
-nohup sudo -u postgres psql ghostinspector < database.sql && rm working.lock & 
-#nohup /home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata data.json && rm working.lock &  
-
-# wait
-INIT="$(date +%H:%M:%S)"
-while [  -e working.lock ]; do
-	echo "waiting ... $INIT / $(date +%H:%M:%S)  P1-P2-P3=$PARAM1-$PARAM2-$PARAM3"
-	sleep 5
-done
 
 
-# delete stuff
-echo " - [ON REMOTE VIZ]: removing tmp folder" 
-cd "$BACKUP_FOLDER"
-rm -rf tmp
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### BACKUP LOADING
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
-echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------"
-exit 0
+
+
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### CLEANING
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+
+# # delete stuff
+# echo " - [ON REMOTE VIZ]: removing tmp folder" 
+# cd "$BACKUP_FOLDER"
+# rm -rf tmp
+
+# echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------"
+# exit 0
+
+
+echo "---------------------------------------------------------------"
+echo "loaddata.sh end . . $(date)"
+echo "---------------------------------------------------------------"
