@@ -255,11 +255,7 @@ VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
 VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
 VIZ_BKP_APP_REMOTE_USER     = "transapp"
 
-# where to put backups on remote
-VIZ_BKP_APP_REMOTE_BKP_FLDR = "ftp_incoming"
-
-
-
-
-
+# where to put backups on remote.
+# this folder will be created on the VIZ_BKP_APP_REMOTE_USER home
+VIZ_BKP_APP_REMOTE_BKP_FLDR = "bkps"
 

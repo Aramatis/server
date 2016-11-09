@@ -1,8 +1,14 @@
 #!/bin/bash
 
 echo "---------------------------------------------------------------"
-echo "dump.sh init $(date)"
+echo "dump.sh init . . $(date)"
 echo "---------------------------------------------------------------"
+
+# root usage check
+if ! [ "$(id -u)" = "0" ] ; then
+	echo "This script must be called by root."
+	exit 1
+fi
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### USER PARAMETERS
@@ -15,10 +21,6 @@ if [ -z "$VIZ_APP_FLDR" ]; then
 fi
 if [ ! -d "$VIZ_APP_FLDR" ]; then
 	echo "VIZ_APP_FLDR folder does not exists: $VIZ_APP_FLDR"
-	exit 1
-fi
-if ! [ "$(id -u)" = "0" ] ; then
-	echo "This script must be called by root."
 	exit 1
 fi
 
@@ -40,8 +42,8 @@ REMOTE_BKP_FLDR="$4"
 if [ -z "$REMOTE_BKP_FLDR" ]; then
 	echo "This script must be called with the REMOTE_BKP_FLDR parameter"
 	echo "REMOTE_BKP_FLDR is the path to the folder where backups are stored"
-	echo "on the remote machine. e.g: bkps/complete or bkps/partial"
-	echo "Any file oder than 15 days on this folder will be deleted!!"
+	echo "on the remote machine. e.g: 'bkps', will lead to bkps/complete and bkps/partial"
+	echo "Any file older than 15 days on this folder will be deleted!!"
 	exit 1
 fi
 
@@ -70,7 +72,7 @@ fi
 IMGS_FLDR="$7"
 if [ -z "$IMGS_FLDR" ]; then
 	echo "This script must be called with the IMGS_FLDR parameter"
-	echo "IMGS_FLDR represents the relative path the folder where images are stored."
+	echo "IMGS_FLDR represents the path where images are stored, relative to the server folder"
 	echo "e.g: media/reported_images"
 	exit 1
 fi
@@ -111,11 +113,10 @@ fi
 TMP_BKP_FLDR="$TMP_BKP_FLDR"/"$BKP_TYPE"
 REMOTE_BKP_FLDR="$REMOTE_BKP_FLDR"/"$BKP_TYPE"
 
-## bakcup files
-TMP_DB_DUMP=database.sql
+## backup files
 TMP_IMG_BACKUP=images.tar.gz
 TMP_DB_BACKUP=database.tar.gz
-TMP_BKP_FILE="backup_$(date +%Y-%m-%d__%H_%M_%S).tar.gz"
+TMP_BKP_FILE="NEW_backup_$(date +%Y-%m-%d__%H_%M_%S).tar.gz"
 
 # for ssh 
 REMOTE_USERHOST="$REMOTE_USER"@"$REMOTE_HOST"
@@ -128,7 +129,6 @@ SERVER_FLDR=$(dirname "$VIZ_APP_FLDR")
 IMGS_FLDR="$SERVER_FLDR"/"$IMGS_FLDR"
 
 # tmp
-export TMP_DB_DUMP_FULL="$TMP_BKP_FLDR"/"$TMP_DB_DUMP"
 export TMP_BKP_DB_FULL="$TMP_BKP_FLDR"/"$TMP_DB_BACKUP"
 export TMP_BKP_IMGS_FULL="$TMP_BKP_FLDR"/"$TMP_IMG_BACKUP"
 export TMP_BKP_FILE_FULL="$TMP_BKP_FLDR/$TMP_BKP_FILE"
@@ -223,11 +223,6 @@ echo "- deleting stuff"
 if [ -d "$TMP_BKP_FLDR" ]; then
 	cd "$TMP_BKP_FLDR"
 
-	# delete sql dump
-	if [ -e "$TMP_DB_DUMP" ]; then	
-		rm -f "$TMP_DB_DUMP"
-	fi
-
 	# delete db_backup
 	if [ -e "$TMP_BKP_DB_FULL" ]; then	
 		rm -f "$TMP_BKP_DB_FULL"
@@ -245,7 +240,7 @@ if [ -d "$TMP_BKP_FLDR" ]; then
 fi
 
 echo "-------------------------------------------------------------------"
-echo "dump.sh end"
+echo "dump.sh end . . $(date)"
 echo "-------------------------------------------------------------------"
 
 exit 0

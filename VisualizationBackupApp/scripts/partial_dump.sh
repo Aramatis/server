@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
-#### BACKUP CREATION
-#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
 function check_json_files()
 {
@@ -13,12 +10,36 @@ function check_json_files()
 	fi
 }
 
+
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### CHECK MANAGE.PY WORKS OK
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+## manage.py existence
+MANAGE_PY="$SERVER_FLDR/manage.py"
+if [ ! -e "$MANAGE_PY" ]; then
+	echo "MANAGE.PY file not found: $MANAGE_PY"
+	exit 1
+fi
+
+## manage.py works well
+cd "$BACKUP_FOLDER"
+python "$MANAGE_PY" 2>/dev/null 1>/dev/null
+if [ $? -ne 0 ]; then
+	echo "manage.py failed run.. maybe some dependencies are missing"
+	exit 1
+fi
+
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### BACKUP CREATION
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
 #### create database backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 echo "- creating reports backup ..."
 cd "$TMP_BKP_FLDR"
 mkdir -p "bkp" && cd "bkp"
-python "$SERVER_FLDR"/manage.py visualization_backup_dump "$PARTIAL_BKP_TIME"
+python "$MANAGE_PY" visualization_backup_dump "$PARTIAL_BKP_TIME"
 check_json_files 'dump_Report.json'
 check_json_files 'dump_EventForBusStop.json'
 check_json_files 'dump_StadisticDataFromRegistrationBusStop.json'

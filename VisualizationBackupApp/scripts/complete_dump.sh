@@ -4,6 +4,9 @@
 #### BACKUP CREATION
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
+TMP_DB_DUMP=database.sql
+TMP_DB_DUMP_FULL="$TMP_BKP_FLDR"/"$TMP_DB_DUMP"
+
 #### create image backup
 #### ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -38,3 +41,6 @@ if [ ! -e "$TMP_BKP_DB_FULL" ]; then
 	echo "Required file: $TMP_BKP_DB_FULL"
 	exit 1
 fi
+
+## clean
+rm -f "$TMP_DB_DUMP_FULL"
