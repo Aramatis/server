@@ -244,6 +244,9 @@ VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"
 # send updates for the last 5 minutes 
 VIZ_PARTIAL_BKP_TIME        = "5 0 0"
 
+# amount of days to keep backup files, then delete them 
+VIZ_BKP_APP_BKPS_LIFETIME   = "15"
+
 # where to store temporal bkp files on host
 VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
 

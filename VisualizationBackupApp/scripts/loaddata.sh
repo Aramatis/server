@@ -52,7 +52,15 @@ if [ -z "$DATABASE_NAME" ]; then
 	exit 1
 fi
 
-BKP_TYPE="$5"
+BKPS_LIFETIME="$5"
+if [ -z "$BKPS_LIFETIME" ]; then
+	echo "This script must be called with the BKPS_LIFETIME parameter"
+	echo "BKPS_LIFETIME represents the number of days to keep backup files alive."
+	echo "e.g.: 15"
+	exit 1
+fi
+
+BKP_TYPE="$6"
 if [ -z "$BKP_TYPE" ]; then
 	echo "This script must be called with the BKP_TYPE parameter"
 	echo "BKP_TYPE represents the backup type: 'complete' or 'partial'"
@@ -119,12 +127,16 @@ fi
 #### PREPARATION
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
+# delete old stuff older than N days
+echo " - deleting files older than N days on $BACKUP_FOLDER"
+if [ -d "$BACKUP_FOLDER" ]; then
+	find "$BACKUP_FOLDER" -ctime +"$BKPS_LIFETIME" -type f -delete	
+fi
+
 echo " - looking for new $BKP_TYPE backup file"
-
-cd "$BACKUP_FOLDER"
-
 ## Look for new files
 # e.g: backup_2016-10-03__12_22_02.tar.gz"
+cd "$BACKUP_FOLDER"
 pattern="NEW_backup_*.tar.gz"
 files=( $pattern )
 oldest_not_used="${files[0]}"

@@ -46,9 +46,30 @@ def partial_dump():
     _run_script(params)
 
 
+def _retrieve_load_params():
+    try:
+        return [
+            "loaddata.sh",
+            settings.    SERVER_FLDR
+            settings.VIZ_BKP_APP_REMOTE_BKP_FLDR
+            settings.VIZ_BKP_APP_IMGS_FLDR
+            settings.VIZ_BKP_APP_DATABASE
+            settings.VIZ_BKP_APP_BKPS_LIFETIME
+        ]
+        
+    except Exception as e:
+        print("MISSING SOME PARAMETERS FROM settings.py. MAKE SURE ALL " +
+                "REQUIRED VIZ_BKP_APP_ STUFF EXISTS.")
+        raise e
+
+
 def complete_loaddata():
-    _run_script("loaddata.sh")
+    params = _retrieve_load_params()
+    params.append("complete")
+    _run_script(params)
 
 
 def partial_loaddata():
-    _run_script("partial_loaddata.sh")
+    params = _retrieve_load_params()
+    params.append("partial")
+    _run_script(params)
