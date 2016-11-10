@@ -89,6 +89,6 @@ def complete_loaddata():
 
 def partial_loaddata():
     params = _retrieve_load_params()
-    params.append("2") # keep backups at most two days
+    params.append("2")       # keep backups at most two days
     params.append("partial")
     _run_script(params)

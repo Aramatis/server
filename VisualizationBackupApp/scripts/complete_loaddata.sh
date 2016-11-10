@@ -22,4 +22,10 @@ sudo -u postgres psql "$DATABASE_NAME" < database.sql
 echo " - copying images from $BACKUP_FOLDER/tmp/imgs to $IMGS_FLDR" 
 cd "$BACKUP_FOLDER"
 cd tmp
-cp -arn imgs/* "$IMGS_FLDR"
+if [ "$(ls -A imgs/)" ]; then
+    cp -arn imgs/* "$IMGS_FLDR"
+else
+    echo " - no images found"
+fi
+
+
