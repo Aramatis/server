@@ -48,7 +48,7 @@ class RegisterEventBus(View):
             #Return the same event.
         else:
             theBus = Busv2.objects.get_or_create(registrationPlate=pBusPlate)[0]
-            theAssignment = Busassignment.objects.get_or_create(service=pBusService, uuid=theBus)[0]
+            theAssignment = Busassignment.objects.get(service=pBusService, uuid=theBus)
         # estimate the oldest time where the reported event can be usefull
         # if there is no event here a new one is created
         oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)

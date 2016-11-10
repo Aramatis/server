@@ -359,8 +359,8 @@ class Busassignment(models.Model):
     """ Unique ID to primarily identify Buses created without registrationPlate """
     events = models.ManyToManyField(Event,  verbose_name='the event' ,through=EventForBusv2)
 
-    #class Meta:
-    #    unique_together = ('registrationPlate', 'service')
+    class Meta:
+        unique_together = ('uuid', 'service')
 
     def getDirection(self, pBusStop, pDistance):
         """ Given a bus stop and the distance from the bus to the bus stop, return the address to which point the bus """
