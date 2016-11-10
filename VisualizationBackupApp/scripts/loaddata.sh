@@ -77,9 +77,15 @@ TMP_IMG_BACKUP=images.tar.gz
 TMP_DB_BACKUP=database.tar.gz
 
 
+THIS_APP_FLDR="$SERVER_FLDR/VisualizationBackupApp"
+IMGS_FLDR="$SERVER_FLDR/$IMGS_FLDR"
+
+
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### CHECKS
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+echo " - checking the required stuff works"
 
 # backup folder with type
 if [ ! -d "$BACKUP_FOLDER" ]; then
@@ -102,10 +108,18 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+# imgs backup folder
+mkdir -p "$IMGS_FLDR"
+if [ ! -d "$IMGS_FLDR" ]; then
+	echo "Destination folder for backup images not found: $IMGS_FLDR"
+	exit 1
+fi
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### PREPARATION
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+
+echo " - looking for new $BKP_TYPE backup file"
 
 cd "$BACKUP_FOLDER"
 
@@ -117,63 +131,55 @@ oldest_not_used="${files[0]}"
 
 
 if [ -z "$oldest_not_used" ] || [ ! -e "$oldest_not_used" ]; then
-	echo "New backup file not found on $BACKUP_FOLDER. Bye"
+	echo " - There are not new backup files to load on $BACKUP_FOLDER. Bye"
 	exit 1
 fi
-echo "- using oldest backup file: $oldest_not_used"
+echo " - using oldest backup file: $oldest_not_used"
 
 
-echo "- Marking as used: $BACKUP_FILE"
+echo " - marking as used: $BACKUP_FILE"
 BACKUP_FILE="$BACKUP_FOLDER/${oldest_not_used:4}"
 mv "$oldest_not_used" "$BACKUP_FILE"
 
 
-
-# # imgs backup folder
-# DEST_IMG_FLDR="/home/$USER/$DEST_IMG_FLDR"
-# mkdir -p "$DEST_IMG_FLDR"
-# if [ ! -d "$DEST_IMG_FLDR" ]; then
-# 	echo "Destination folder for images backup not found: $DEST_IMG_FLDR"
-# 	exit 1
-# fi
-
-# # wait
-# INIT="$(date +%H:%M:%S)"
-# while [  -e working.lock ]; do
-# 	echo "waiting ... $INIT / $(date +%H:%M:%S)  P1-P2-P3=$PARAM1-$PARAM2-$PARAM3"
-# 	sleep 5
-# done
-
-
-# cd "$BACKUP_FOLDER"
-
-# # create tmp folder for stuff
-# echo " - [ON REMOTE VIZ]: creating tmp folder for extraction: $BACKUP_FOLDER/tmp"
-# rm -rf tmp
-# mkdir tmp
-# cd tmp
-
-# check manage.py works well
-#cd "$BACKUP_FOLDER"
-#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" 2>/dev/null 1>/dev/null
-#if [ $? -ne 0 ]; then
-#	echo "manage.py failed run.. maybe some dependencies are missing"
-#	exit 1
-#fi
-#echo "[]" > dummy.json
-#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" loaddata dummy.json 2>/dev/null 1>/dev/null
-#if [ $? -ne 0 ]; then
-#	echo "manage.py loadata failed run.. maybe some dependencies are missing"
-#	rm dummy.json
-# 	exit 1
-#fi
-
+# create tmp folder for stuff
+echo " - creating tmp folder for extraction: $BACKUP_FOLDER/tmp"
+cd "$BACKUP_FOLDER"
+rm -rf tmp
+mkdir tmp
+cd tmp
 
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### BACKUP LOADING
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
+# uncompress
+echo " - extracting files to: $BACKUP_FOLDER/tmp" 
+tar -zxf "$BACKUP_FILE"
+if [ ! -e "$TMP_DB_BACKUP" ]; then
+	echo "Backup file not found: $TMP_DB_BACKUP" 
+	exit 1
+fi
+
+if [ ! -e "$TMP_IMG_BACKUP" ]; then
+	echo "Backup file for images not found: $TMP_IMG_BACKUP" 
+	exit 1
+fi
+
+echo " - extracting database: $BACKUP_FOLDER/tmp/db"
+mkdir -p db && cd db
+tar -zxf ../"$TMP_DB_BACKUP"
+cd ..
+
+echo " - extracting images: $BACKUP_FOLDER/tmp/imgs" 
+mkdir -p imgs && cd imgs
+tar -zxf ../"$TMP_IMG_BACKUP"
+cd ..
+
+# actual work
+cd "$THIS_APP_FLDR"
+source scripts/"$BKP_TYPE"_loaddata.sh
 
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
@@ -181,15 +187,13 @@ mv "$oldest_not_used" "$BACKUP_FILE"
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
 
-# # delete stuff
-# echo " - [ON REMOTE VIZ]: removing tmp folder" 
-# cd "$BACKUP_FOLDER"
-# rm -rf tmp
-
-# echo " - [ON REMOTE VIZ]: -------- POST LOAD DONE --------"
-# exit 0
-
+# delete stuff
+echo " - cleaning stuff" 
+cd "$BACKUP_FOLDER"
+rm -rf tmp
 
 echo "---------------------------------------------------------------"
 echo "loaddata.sh end . . $(date)"
 echo "---------------------------------------------------------------"
+
+exit 0

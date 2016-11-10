@@ -8,44 +8,31 @@ function check_json_files()
 		echo "json file  $file not found.. File extraction failed" 
 		exit 1
 	fi
+	echo " - (OK) found json $file"
 }
 
-
-# extract 
-echo " - [ON REMOTE VIZ]: extracting files to: $BACKUP_FOLDER/tmp" 
-tar -zxf "$BACKUP_FILE"
-
-if [ ! -e "$BACKUP_DB" ]; then
-	echo "Backup file not found: $BACKUP_DB" 
-	exit 1
-fi
-
-#if [ ! -e "$BACKUP_IMGS" ]; then
-#	echo "Backup file for images not found: $BACKUP_IMGS" 
-#	exit 1
-#fi
-tar -zxf "$BACKUP_DB"
-#mkdir imgs
-#cd imgs
-#tar -zxf ../"$BACKUP_IMGS"
-#cd ..
+cd "$BACKUP_FOLDER"
+cd tmp/db
 
 # check json files
-check_json_files report.json
-check_json_files events_for_busstop.json
-check_json_files statistic_data_from_registration_busstop.json
-check_json_files events_for_busv2.json
-check_json_files statistic_data_from_registration_bus.json
-check_json_files busassignment.json
-check_json_files busv2.json
+echo " - checking for JSON files to load"
+check_json_files "dump_Report.json"
+check_json_files "dump_EventForBusStop.json"
+check_json_files "dump_StadisticDataFromRegistrationBusStop.json"
+check_json_files "dump_EventForBusv2.json"
+check_json_files "dump_StadisticDataFromRegistrationBus.json"
+check_json_files "dump_Busassignment.json"
+check_json_files "dump_Busv2.json"
 
 # load queries
-python "$MANAGE_PY" visualization_backup_loaddata #matias pc
-#/home/transapp/visualization/venv/bin/python "$MANAGE_PY" visualization_backup_loaddata #transapp viz
+echo " - loading records"
+python "$MANAGE_PY" visualization_backup_loaddata
 
 # copy images
-#echo " - [ON REMOTE VIZ]: copying images from $BACKUP_FOLDER/tmp/imgs to $DEST_IMG_FLDR" 
-#cp -arn imgs/* "$DEST_IMG_FLDR"
+echo " - copying images from $BACKUP_FOLDER/tmp/imgs to $IMGS_FLDR" 
+cd "$BACKUP_FOLDER"
+cd tmp
+cp -arn imgs/* "$IMGS_FLDR"
 
 
 

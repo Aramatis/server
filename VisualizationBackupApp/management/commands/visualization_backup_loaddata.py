@@ -18,8 +18,8 @@ class Command(BaseCommand):
         ]
 
         for filename in list_json:
-            # self.from_JSON(self.save_to_database_cb, filename)
-            self.from_JSON(self.print_cb, filename)
+            self.from_JSON(self.save_to_database_cb, filename)
+            # self.from_JSON(self.print_cb, filename)
 
 
     def from_JSON(self, callback, filename):

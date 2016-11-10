@@ -9,27 +9,6 @@
 
 
 
-
-
-# extract 
-echo " - [ON REMOTE VIZ]: extracting files to: $BACKUP_FOLDER/tmp" 
-tar -zxf "$BACKUP_FILE"
-
-if [ ! -e "$BACKUP_DB" ]; then
-	echo "Backup file not found: $BACKUP_DB" 
-	exit 1
-fi
-
-if [ ! -e "$BACKUP_IMGS" ]; then
-	echo "Backup file for images not found: $BACKUP_IMGS" 
-	exit 1
-fi
-tar -zxf "$BACKUP_DB"
-mkdir imgs
-cd imgs
-tar -zxf ../"$BACKUP_IMGS"
-cd ..
-
 # check tar.gz files
 if [ ! -e database.sql ]; then
 	echo "database.sql not found.. File extraction failed" 
