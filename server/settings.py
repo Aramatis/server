@@ -209,10 +209,11 @@ CRONJOBS = [
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
     
     # daily complete backup at 3:30am
-    ('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    ('*/5 * * * *', 'VisualizationBackupApp.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt')
+    #('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
-    ('*/5 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
+    ('*/1 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '>> /tmp/vizbkpapp_partial_dump_log.txt')
 ]
 CRONTAB_LOCK_JOBS = True
 
@@ -232,19 +233,23 @@ os.environ['wsgi.url_scheme'] = 'https'
 
 
 
+## ----------------------------------------------------------------------------
 ## VIZ_BACKUP_APP
 ## see also: VisualizationBackupApp/REAME.md
 
 # database on host and remote must have the same name
-VIZ_BKP_APP_DATABASE        = "ghostinspector"
+VIZ_BKP_APP_HOST_DATABASE   = "ghostinspector"
+VIZ_BKP_APP_REMOTE_DATABASE   = "ghostinspector"
+#VIZ_BKP_APP_REMOTE_DATABASE = "transappvis"
 
 # from where to lookup for images on host
 VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"
 
 # send updates for the last 5 minutes 
-VIZ_PARTIAL_BKP_TIME        = "5 0 0"
+VIZ_BKP_APP_TIME            = "5"
 
 # amount of days to keep backup files, then delete them 
+# this is only for complete backups
 VIZ_BKP_APP_BKPS_LIFETIME   = "15"
 
 # where to store temporal bkp files on host
@@ -257,8 +262,11 @@ VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
 VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
 VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
 VIZ_BKP_APP_REMOTE_USER     = "transapp"
+# VIZ_BKP_APP_PRIVATE_KEY     = "/home/sebastian/.ssh/sebastian.id_rsa"
+# VIZ_BKP_APP_REMOTE_HOST     = "172.17.57.17"
+# VIZ_BKP_APP_REMOTE_USER     = "mpavez"
 
 # where to put backups on remote.
 # this folder will be created on the VIZ_BKP_APP_REMOTE_USER home
 VIZ_BKP_APP_REMOTE_BKP_FLDR = "bkps"
-
+## ----------------------------------------------------------------------------

@@ -13,9 +13,9 @@ fi
 
 # load queries
 echo " - loading records"
-#sudo -u postgres dropdb ghostinspector
-#sudo -u postgres psql createdb -T template0 ghostinspector
-sudo -u postgres psql ghostinspector < database.sql
+#sudo -u postgres dropdb "$DATABASE_NAME"
+#sudo -u postgres psql createdb -T template0 "$DATABASE_NAME"
+sudo -u postgres psql "$DATABASE_NAME" < database.sql
 
 
 # copy images

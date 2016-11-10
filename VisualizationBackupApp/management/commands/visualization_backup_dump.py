@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 import time
 
+
 class Command(BaseCommand):
 
     help = 'Creates JSON backup files for AndroidRequests.{Reports,  \
@@ -17,11 +18,8 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
     
         # configuration
-        self.delta_days    = 0
-        self.delta_hours   = 0
         self.delta_minutes = 0
         self.report_images_filename = "dump_report_images.txt"
-
 
 
     # ----------------------------------------------------------------------------
@@ -29,20 +27,13 @@ class Command(BaseCommand):
     # ----------------------------------------------------------------------------
     def add_arguments(self, parser):
         parser.add_argument('minutes', type=int)
-        parser.add_argument('hours', type=int)
-        parser.add_argument('days', type=int)
+
 
     def handle(self, *args, **options):
         if options['minutes']:
             self.delta_minutes = options['minutes']
-        if options['hours']:
-            self.delta_hours = options['hours']
-        if options['days']:
-            self.delta_days = options['days']
 
-
-        print("Partial dump for newest data - (%d min, %d hr, %d days)" % (self.delta_minutes, self.delta_hours, self.delta_days))
-
+        print("Partial dump for newest data - (%d min)" % (self.delta_minutes))
         start_time = time.time()
         start_time_str = time.strftime("%b %d %Y %H:%M:%S", time.localtime(start_time))
         print("... started ... at: %s" % start_time_str)
@@ -54,7 +45,6 @@ class Command(BaseCommand):
         elapsed_time = finish_time - start_time
         finish_time_str = time.strftime("%b %d %Y %H:%M:%S", time.localtime(finish_time))
         print("... finished ... at %s ... elapsed: %d [s]" % (finish_time_str, elapsed_time))
-
 
 
     # ----------------------------------------------------------------------------
@@ -190,8 +180,7 @@ class Command(BaseCommand):
         return (
             timezone.now() - 
             timedelta(
-                days=self.delta_days,
-                hours=self.delta_hours,
+                days=0,
                 minutes=self.delta_minutes
             )
         )

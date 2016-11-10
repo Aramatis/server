@@ -95,7 +95,7 @@ if [ "$BKP_TYPE" != "complete" ] && [ "$BKP_TYPE" != "partial" ] ; then
 	exit 1
 fi
 
-PARTIAL_BKP_TIME="$10"
+PARTIAL_BKP_TIME="${10}"
 if [ "$BKP_TYPE" = "partial" ] && [ -z "$PARTIAL_BKP_TIME" ] ; then
 	echo "This script must be called with the PARTIAL_BKP_TIME parameter"
 	echo "PARTIAL_BKP_TIME represents the amount of time used to lookup for"
