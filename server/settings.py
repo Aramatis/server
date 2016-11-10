@@ -209,10 +209,11 @@ CRONJOBS = [
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
     
     # daily complete backup at 3:30am
-    ('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    #('*/5 * * * *', 'VisualizationBackupApp.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt')
+    #('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
-    ('*/5 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt')
+    ('*/1 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '>> /tmp/vizbkpapp_partial_dump_log.txt')
 ]
 CRONTAB_LOCK_JOBS = True
 
@@ -242,7 +243,7 @@ VIZ_BKP_APP_DATABASE        = "ghostinspector"
 VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"
 
 # send updates for the last 5 minutes 
-VIZ_PARTIAL_BKP_TIME        = "5 0 0"
+VIZ_BKP_APP_TIME        = "5"
 
 # where to store temporal bkp files on host
 VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
@@ -251,9 +252,9 @@ VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
 # - private key: used to access the remote
 # - remote host: IP of the remote host
 # - remote user: username for the remote host
-VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
-VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
-VIZ_BKP_APP_REMOTE_USER     = "transapp"
+VIZ_BKP_APP_PRIVATE_KEY     = "/home/sebastian/.ssh/sebastian.id_rsa"#"/home/server/.ssh/id_rsa"
+VIZ_BKP_APP_REMOTE_HOST     = "172.17.57.17"#"104.236.183.105"
+VIZ_BKP_APP_REMOTE_USER     = "mpavez"#"transapp"
 
 # where to put backups on remote.
 # this folder will be created on the VIZ_BKP_APP_REMOTE_USER home
