@@ -64,7 +64,7 @@ class RegisterEventBusV2(View):
             aEventReport.save()
 
             StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline, \
-                reportOfEvent=aEventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
+                reportOfEvent=aEventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId)
 
         # Returns updated event list for a bus
         eventsByBus = EventsByBusV2()
