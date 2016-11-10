@@ -50,7 +50,7 @@ class RegisterEventBusV2(View):
             eventReport.save()
 
             StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
-             reportOfEvent=eventReport, longitud=pLatitud, latitud=pLongitud, userId=pUserId)
+             reportOfEvent=eventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId)
         else:
             # if an event was not found, create a new one
             aEventReport = EventForBusv2.objects.create(userId=pUserId, busassignment=theAsignment, event=theEvent, timeStamp=aTimeStamp,\
