@@ -209,7 +209,7 @@ CRONJOBS = [
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
     
     # daily complete backup at 3:30am
-    ('*/5 * * * *', 'VisualizationBackupApp.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt')
+    ('*/5 * * * *', 'VisualizationBackupApp.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
     #('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
