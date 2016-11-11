@@ -24,6 +24,7 @@ if [ ! -d "$SERVER_FLDR" ]; then
 	echo "SERVER_FLDR folder does not exists: $SERVER_FLDR"
 	exit 1
 fi
+echo "$SERVER_FLDR"
 
 BACKUP_FOLDER="$2"
 if [ -z "$BACKUP_FOLDER" ]; then
@@ -36,6 +37,7 @@ if [ ! -d "$BACKUP_FOLDER" ]; then
 	echo "Backup folder not found: $BACKUP_FOLDER"
 	exit 1
 fi
+echo "$BACKUP_FOLDER"
 
 IMGS_FLDR="$3"
 if [ -z "$IMGS_FLDR" ]; then
@@ -44,6 +46,7 @@ if [ -z "$IMGS_FLDR" ]; then
 	echo "e.g: media/reported_images"
 	exit 1
 fi
+echo "$IMGS_FLDR"
 
 DATABASE_NAME="$4"
 if [ -z "$DATABASE_NAME" ]; then
@@ -51,6 +54,7 @@ if [ -z "$DATABASE_NAME" ]; then
 	echo "DATABASE_NAME represents the database name, duh."
 	exit 1
 fi
+echo "$DATABASE_NAME"
 
 BKPS_LIFETIME="$5"
 if [ -z "$BKPS_LIFETIME" ]; then
@@ -59,6 +63,7 @@ if [ -z "$BKPS_LIFETIME" ]; then
 	echo "e.g.: 15"
 	exit 1
 fi
+echo "$BKPS_LIFETIME"
 
 BKP_TYPE="$6"
 if [ -z "$BKP_TYPE" ]; then
@@ -70,6 +75,7 @@ if [ "$BKP_TYPE" != "complete" ] && [ "$BKP_TYPE" != "partial" ] ; then
 	echo "INVALID TYPE: BKP_TYPE should be 'complete' or 'partial'"
 	exit 1
 fi
+echo "$BKP_TYPE"
 
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
@@ -140,10 +146,10 @@ while true ; do
 	if mkdir "$MUTEX_FOLDER" 2>/dev/null
 		then    # directory did not exist, but was created successfully
 		trap exit_and_free 1 2 9 15 17 19 23
-    	echo >&2 " - successfully acquired lock: $MUTEX_FOLDER"
+    	echo " - successfully acquired lock: $MUTEX_FOLDER"
     	break
 	else    # failed to create the directory, presumably because it already exists
-		echo >&2 " - cannot acquire lock, giving up on $MUTEX_FOLDER"
+		echo " - cannot acquire lock, giving up on $MUTEX_FOLDER"
 
 		# force free on too old mutex
 		if test "`find $MUTEX_FOLDER -mmin +10`" ; then
@@ -155,6 +161,7 @@ while true ; do
 		if [ "$BKP_TYPE" = "complete" ]; then
 			sleep 2
 		else
+			echo "//////////// Ending work! ////////////"
 			exit 1
 		fi
 	fi

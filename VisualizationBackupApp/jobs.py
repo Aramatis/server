@@ -44,7 +44,6 @@ def _retrieve_load_params():
         element = (
             "loaddata.sh",
             [
-                os.path.dirname(os.path.realpath(__file__)),
                 settings.BASE_DIR,
                 settings.VIZ_BKP_APP_REMOTE_BKP_FLDR,
                 settings.VIZ_BKP_APP_IMGS_FLDR,
@@ -55,7 +54,6 @@ def _retrieve_load_params():
     except Exception as e:
         _print_param_exception()
         raise e
-
 
 def complete_dump():
     filename, params = _retrieve_dump_params()
@@ -77,10 +75,10 @@ def partial_dump():
 
 def complete_loaddata():
     try:
-        params = _retrieve_load_params()
+        filename, params = _retrieve_load_params()
         params.append(settings.VIZ_BKP_APP_BKPS_LIFETIME)
         params.append("complete")
-        _run_script(params)
+        _run_script(filename, params)
 
     except Exception as e:
         _print_param_exception()
@@ -88,7 +86,7 @@ def complete_loaddata():
 
 
 def partial_loaddata():
-    params = _retrieve_load_params()
+    filename, params = _retrieve_load_params()
     params.append("2")       # keep backups at most two days
     params.append("partial")
-    _run_script(params)
+    _run_script(filename, params)

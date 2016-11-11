@@ -209,11 +209,19 @@ CRONJOBS = [
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
     
     # daily complete backup at 3:30am
-    ('*/5 * * * *', 'VisualizationBackupApp.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    #('*/5 * * * *', 'VisualizationBackupApp.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
     #('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
-    ('*/1 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '>> /tmp/vizbkpapp_partial_dump_log.txt')
+    #('*/1 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt'),
+
+    # check for complete updates every one hour
+    #('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt'),
+    ('*/2 * * * *', 'VisualizationBackupApp.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt'),
+    
+    # check for partial updates every 2 minutes
+    #('*/2 * * * *', 'VisualizationBackupApp.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
+    ('*/1 * * * *', 'VisualizationBackupApp.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
 ]
 CRONTAB_LOCK_JOBS = True
 
@@ -266,7 +274,8 @@ VIZ_BKP_APP_REMOTE_USER     = "transapp"
 # VIZ_BKP_APP_REMOTE_HOST     = "172.17.57.17"
 # VIZ_BKP_APP_REMOTE_USER     = "mpavez"
 
-# where to put backups on remote.
+# where to put backups on remote. (full path!)
 # this folder will be created on the VIZ_BKP_APP_REMOTE_USER home
-VIZ_BKP_APP_REMOTE_BKP_FLDR = "bkps"
+VIZ_BKP_APP_REMOTE_BKP_FLDR = "/home/mpavez/bkps"
+#VIZ_BKP_APP_REMOTE_BKP_FLDR = "/home/transapp/bkps"
 ## ----------------------------------------------------------------------------

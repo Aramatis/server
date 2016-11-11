@@ -16,11 +16,10 @@ fi
 
 
 ## WORK
-FTP_FLDR=/home/"$USER"/"$BACKUP_FOLDER"
 
 # create backup folder
-echo " - [ON REMOTE VIZ]: creating folder for ftp files: $FTP_FLDR"
-mkdir -p "$FTP_FLDR"
+echo " - [ON REMOTE VIZ]: creating folder for ftp files: $BACKUP_FOLDER"
+mkdir -p "$BACKUP_FOLDER"
 
 
 echo " - [ON REMOTE VIZ]: -------- PRE LOAD INIT --------"
