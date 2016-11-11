@@ -56,7 +56,7 @@ INSTALLED_APPS = (
     'DataDictionary',
     'PredictorDTPM',
     'routeplanner',
-    'VisualizationBackupApp',
+    'AndroidRequestsBackups',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -209,19 +209,19 @@ CRONJOBS = [
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
     
     # daily complete backup at 3:30am
-    #('*/5 * * * *', 'VisualizationBackupApp.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
-    #('30  3 * * *', 'VisualizationBackupApp.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    #('*/5 * * * *', 'AndroidRequestsBackups.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    #('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
-    #('*/1 * * * *', 'VisualizationBackupApp.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt'),
+    #('*/1 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt'),
 
     # check for complete updates every one hour
-    #('0 */1 * * *', 'VisualizationBackupApp.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt'),
-    ('*/2 * * * *', 'VisualizationBackupApp.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt'),
+    #('0 */1 * * *', 'AndroidRequestsBackups.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt'),
+    ('*/5 * * * *', 'AndroidRequestsBackups.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt'),
     
     # check for partial updates every 2 minutes
-    #('*/2 * * * *', 'VisualizationBackupApp.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
-    ('*/1 * * * *', 'VisualizationBackupApp.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
+    ('*/2 * * * *', 'AndroidRequestsBackups.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
+    #('*/1 * * * *', 'AndroidRequestsBackups.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
 ]
 CRONTAB_LOCK_JOBS = True
 
@@ -243,7 +243,7 @@ os.environ['wsgi.url_scheme'] = 'https'
 
 ## ----------------------------------------------------------------------------
 ## VIZ_BACKUP_APP
-## see also: VisualizationBackupApp/REAME.md
+## see also: AndroidRequestsBackups/REAME.md
 
 # database on host and remote must have the same name
 VIZ_BKP_APP_HOST_DATABASE   = "ghostinspector"

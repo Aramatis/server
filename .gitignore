@@ -110,3 +110,7 @@ DataDictionary/templates/dataDic.md
 
 # Do not track keys
 server/keys/*
+
+# Do not track subrepos
+AndroidRequestsBackups
+
