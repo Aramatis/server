@@ -66,8 +66,8 @@ def complete_dump():
 def partial_dump():
     try:
         filename, params = _retrieve_dump_params()
-        params.append(settings.VIZ_BKP_APP_TIME)
         params.append("partial")
+        params.append(settings.VIZ_BKP_APP_TIME)
         _run_script(filename, params)
 
     except Exception as e:
@@ -78,8 +78,8 @@ def partial_dump():
 def complete_loaddata():
     try:
         params = _retrieve_load_params()
-        params.append("complete")
         params.append(settings.VIZ_BKP_APP_BKPS_LIFETIME)
+        params.append("complete")
         _run_script(params)
 
     except Exception as e:

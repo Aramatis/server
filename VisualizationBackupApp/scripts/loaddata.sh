@@ -72,11 +72,11 @@ if [ "$BKP_TYPE" != "complete" ] && [ "$BKP_TYPE" != "partial" ] ; then
 fi
 
 
-
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### GENERATED PARAMETERS
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
+MUTEXLOCK="$BACKUP_FOLDER"/lockFolder.lock
 BACKUP_FOLDER="$BACKUP_FOLDER"/"$BKP_TYPE"
 
 # bkp files
@@ -122,6 +122,26 @@ if [ ! -d "$IMGS_FLDR" ]; then
 	echo "Destination folder for backup images not found: $IMGS_FLDR"
 	exit 1
 fi
+
+#### #### #### #### #### #### #### #### #### #### #### #### #### #### 
+#### MUTEX
+#### #### #### #### #### #### #### #### #### #### #### #### #### ####
+while true ; do
+	if mkdir "$MUTEXLOCK"
+		then    # directory did not exist, but was created successfully
+    	echo >&2 "successfully acquired lock: $MUTEXLOCK"
+    	break
+   		# continue script
+	else    # failed to create the directory, presumably because it already exists
+		echo >&2 "cannot acquire lock, giving up on $MUTEXLOCK"
+		if [ "$BKP_TYPE" = "complete" ]; then
+			sleep 2
+		else	
+			exit 1
+		fi
+	fi
+done
+
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### PREPARATION
