@@ -6,7 +6,7 @@ function check_json_files()
 	file="$1"
 	if [ ! -e "$file" ]; then
 		echo "json file  $file not found.. File extraction failed" 
-		exit 1
+		exit_and_free
 	fi
 	echo " - (OK) found json $file"
 }

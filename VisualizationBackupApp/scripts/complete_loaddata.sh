@@ -8,7 +8,7 @@ cd tmp/db
 echo " - checking for JSON dump"
 if [ ! -e database.sql ]; then
 	echo "database.sql not found.. File extraction failed" 
-	exit 1
+	exit_and_free
 fi
 
 # load queries
@@ -27,5 +27,3 @@ if [ "$(ls -A imgs/)" ]; then
 else
     echo " - no images found"
 fi
-
-

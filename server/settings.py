@@ -245,7 +245,7 @@ VIZ_BKP_APP_REMOTE_DATABASE   = "ghostinspector"
 # from where to lookup for images on host
 VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"
 
-# send updates for the last 5 minutes 
+# send updates for the last 5 minutes
 VIZ_BKP_APP_TIME            = "5"
 
 # amount of days to keep backup files, then delete them 

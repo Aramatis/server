@@ -45,7 +45,7 @@ CRONJOBS = [
 ]
 ```
 
-On (TranSappViz), the recommended setting is to schedule a lot of update checkings, this way new updates are applied as soon as possible (it's super duper free to fail if there aren't updates, assuming you are not scheduling a check every second).
+On (TranSappViz), the recommended setting is to schedule a lot of update checkings, this way new updates are applied as soon as possible (it's super duper free to fail if there aren't updates, assuming you are not scheduling a check every second). It is very important to keep the partial backup time interval al least at a half of the `VIZ_BKP_APP_TIME` paameter, otherwise bkps can be lost. 
 ```python
 # ONLY ON (TranSappViz)
 CRONJOBS = [	

@@ -76,7 +76,7 @@ fi
 #### GENERATED PARAMETERS
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
-MUTEXLOCK="$BACKUP_FOLDER"/lockFolder.lock
+MUTEX_FOLDER="$BACKUP_FOLDER"/lockFolder.lock
 BACKUP_FOLDER="$BACKUP_FOLDER"/"$BKP_TYPE"
 
 # bkp files
@@ -126,17 +126,35 @@ fi
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 #### MUTEX
 #### #### #### #### #### #### #### #### #### #### #### #### #### ####
+function free_mutex()
+{
+	rm -rf "$MUTEX_FOLDER"
+}
+function exit_and_free()
+{
+	free_mutex
+	exit 1
+}
+
 while true ; do
-	if mkdir "$MUTEXLOCK"
+	if mkdir "$MUTEX_FOLDER" 2>/dev/null
 		then    # directory did not exist, but was created successfully
-    	echo >&2 "successfully acquired lock: $MUTEXLOCK"
+		trap exit_and_free 1 2 9 15 17 19 23
+    	echo >&2 " - successfully acquired lock: $MUTEX_FOLDER"
     	break
-   		# continue script
 	else    # failed to create the directory, presumably because it already exists
-		echo >&2 "cannot acquire lock, giving up on $MUTEXLOCK"
+		echo >&2 " - cannot acquire lock, giving up on $MUTEX_FOLDER"
+
+		# force free on too old mutex
+		if test "`find $MUTEX_FOLDER -mmin +10`" ; then
+			free_mutex
+			continue
+		fi
+
+		# wait for complete and exit for partial bkps
 		if [ "$BKP_TYPE" = "complete" ]; then
 			sleep 2
-		else	
+		else
 			exit 1
 		fi
 	fi
@@ -164,7 +182,7 @@ oldest_not_used="${files[0]}"
 
 if [ -z "$oldest_not_used" ] || [ ! -e "$oldest_not_used" ]; then
 	echo " - There are not new backup files to load on $BACKUP_FOLDER. Bye"
-	exit 1
+	exit_and_free
 fi
 echo " - using oldest backup file: $oldest_not_used"
 
@@ -191,12 +209,12 @@ echo " - extracting files to: $BACKUP_FOLDER/tmp"
 tar -zxf "$BACKUP_FILE"
 if [ ! -e "$TMP_DB_BACKUP" ]; then
 	echo "Backup file not found: $TMP_DB_BACKUP" 
-	exit 1
+	exit_and_free
 fi
 
 if [ ! -e "$TMP_IMG_BACKUP" ]; then
 	echo "Backup file for images not found: $TMP_IMG_BACKUP" 
-	exit 1
+	exit_and_free
 fi
 
 echo " - extracting database: $BACKUP_FOLDER/tmp/db"
@@ -223,6 +241,7 @@ source scripts/"$BKP_TYPE"_loaddata.sh
 echo " - cleaning stuff" 
 cd "$BACKUP_FOLDER"
 rm -rf tmp
+free_mutex
 
 echo "---------------------------------------------------------------"
 echo "loaddata.sh end . . $(date)"
