@@ -211,11 +211,11 @@ CRONJOBS = [
 
     ## Android Requests Backups schedule
     # daily complete backup at 3:30am
-    # ('*/5 * * * *', 'AndroidRequestsBackups.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
-    ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    ('*/4 * * * *', 'AndroidRequestsBackups.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    # ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
-    ('*/5 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt'),
+    ('*/2 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt'),
 
     # USE THIS ONLY FOR TESTING ON TRANSAPP HEADQUARTERS
     # check for complete updates every 5 minutes
