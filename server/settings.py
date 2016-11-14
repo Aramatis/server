@@ -225,7 +225,7 @@ CRONJOBS = [
     # '*/1 * * * *', 'AndroidRequestsBackups.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
 ]
 CRONTAB_LOCK_JOBS = True
-
+CRONTAB_COMMAND_SUFFIX = '2>&1'
 
 MODELSDOC_APPS = ('AndroidRequests',)
 
