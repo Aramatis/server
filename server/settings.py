@@ -253,7 +253,7 @@ VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"
 # this folder will be created on the VIZ_BKP_APP_REMOTE_USER home
 VIZ_BKP_APP_REMOTE_BKP_FLDR = "/home/transapp/bkps"
 
-# database on host and remote must have the same name
+# database name on TranSapp server
 VIZ_BKP_APP_HOST_DATABASE   = "ghostinspector"
 
 # send updates for the last 5 minutes
