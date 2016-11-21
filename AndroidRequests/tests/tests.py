@@ -145,6 +145,19 @@ class DevicePositionInTimeTest(TestCase):
 
         self.assertEqual(jsonResponse['response'], 'Token doesn\'t exist.')
 
+    def test_EventsByBusStopReportNegativelyForFistTime(self):
+        """ report stop event negatively for fist time """
+        
+        busStopCode = 'PA459'
+        eventCode = 'evn00001'
+
+        jsonResponse = self.test.confirmOrDeclineStopEvent(self.userId, busStopCode, eventCode, 'decline')
+
+        self.assertEqual(jsonResponse['codeBusStop'],busStopCode)
+        self.assertEqual(jsonResponse['events'][0]['eventDecline'],1)
+        self.assertEqual(jsonResponse['events'][0]['eventConfirm'],0)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'],eventCode)
+
     def test_EventsByBusStop(self):
         '''This method test two thing, the posibility to report an event and asking
         the events for the specific busStop'''
