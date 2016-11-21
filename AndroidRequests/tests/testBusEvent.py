@@ -112,3 +112,12 @@ class BusEventTest(TestCase):
         self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 1)
         self.assertEqual(jsonResponse['events'][0]['eventcode'],eventCode)
 
+    def test_AskForEventsOfNonExistentBus(self):
+        # ask for events for a bus that does not exists
+        licencePlate = 'AABB00'
+
+        jsonResponse = self.test.requestEventsForBus(self.service, licencePlate)
+
+        self.assertEqual(len(jsonResponse['events']), 0)
+        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
+        self.assertEqual(jsonResponse['service'], self.service)
