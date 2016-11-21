@@ -73,7 +73,7 @@ class ServiceRouteTestCase(TestCase):
         lon1 = 1
         lat2 = 2
         lon2 = 2
-        response = reponseView.get(request, self.service, lat1, lon1, lat2, lon2)
+        response = reponseView.get(request, '507', lat1, lon1, lat2, lon2)
 
         jsonResponse = json.loads(response.content)
 
