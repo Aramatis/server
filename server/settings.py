@@ -211,10 +211,10 @@ CRONJOBS = [
 
     ## Android Requests Backups schedule
     # daily complete backup at 3:30am
-    ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/android_request_bkps_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
-    ('*/2 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt'),
+    ('*/5 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',  '> /tmp/android_request_bkps_partial_dump_log.txt'),
 ]
 CRONTAB_LOCK_JOBS = True
 CRONTAB_COMMAND_SUFFIX = '2>&1'
@@ -238,25 +238,30 @@ os.environ['wsgi.url_scheme'] = 'https'
 ## VIZ_BACKUP_APP
 ## see also: AndroidRequestsBackups/REAME.md
 
-# from where to lookup for images on host
-ANDROID_REQUESTS_BACKUPS_IMGS_FLDR       = "media/reported_images"
-
-# where to put backups on remote. (full path!)
-ANDROID_REQUESTS_BACKUPS_REMOTE_BKP_FLDR = "/home/transapp/bkps"
-
-# database name on TranSapp server
-ANDROID_REQUESTS_BACKUPS_HOST_DATABASE   = "ghostinspector"
-
-# send updates for the last 5 minutes
-ANDROID_REQUESTS_BACKUPS_TIME            = "5"
-
-# where to store temporal bkp files on host
+## (TranSapp) related parameters
+# Folder to use for tmp processing (full path).
+# At some point, this folder can be completely deleted, so ensure
+# this is not something important!, like '/home' or '/'."
 ANDROID_REQUESTS_BACKUPS_TMP_BKP_FLDR    = "/tmp/backup_viz"
 
-# remote credentials
+
+## (TranSappViz) related parameters
+# Folder (full path) where to put backups on remote (TranSappViz) server.
+# Any file older than ANDROID_REQUESTS_BACKUPS_BKPS_LIFETIME days
+# will be deleted!
+# This value MUST match the one on the other server!, otherwise
+# really bad stuff might happen
+ANDROID_REQUESTS_BACKUPS_REMOTE_BKP_FLDR = "/home/transapp/bkps"
+
+# Amount of minutes to send to the remote (TranSappViz) server.
+# This value MUST match the one on the other server!, otherwise
+# some data can be lost
+ANDROID_REQUESTS_BACKUPS_TIME            = "5"
+
+# remote (TranSappViz) server credentials.
 # - private key: used to access the remote
 # - remote host: IP of the remote host
-# - remote user: username for the remote host
+# - remote user: username on the remote
 ANDROID_REQUESTS_BACKUPS_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
 ANDROID_REQUESTS_BACKUPS_REMOTE_HOST     = "104.236.183.105"
 ANDROID_REQUESTS_BACKUPS_REMOTE_USER     = "transapp"
