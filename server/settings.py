@@ -211,18 +211,10 @@ CRONJOBS = [
 
     ## Android Requests Backups schedule
     # daily complete backup at 3:30am
-    ('*/4 * * * *', 'AndroidRequestsBackups.jobs.complete_dump',  '> /tmp/vizbkpapp_complete_dump_log.txt'),
-    # ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
+    ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/vizbkpapp_complete_dump_log.txt'),
     
     # partial backups every 5 minutes
     ('*/2 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',  '> /tmp/vizbkpapp_partial_dump_log.txt'),
-
-    # USE THIS ONLY FOR TESTING ON TRANSAPP HEADQUARTERS
-    # check for complete updates every 5 minutes
-    # ('*/5 * * * *', 'AndroidRequestsBackups.jobs.complete_loaddata', '> /tmp/vizbkpapp_complete_loaddata_log.txt'),
-    
-    # check for partial updates every 2 minutes
-    # '*/1 * * * *', 'AndroidRequestsBackups.jobs.partial_loaddata',  '> /tmp/vizbkpapp_partial_loaddata_log.txt'),
 ]
 CRONTAB_LOCK_JOBS = True
 CRONTAB_COMMAND_SUFFIX = '2>&1'
@@ -247,27 +239,26 @@ os.environ['wsgi.url_scheme'] = 'https'
 ## see also: AndroidRequestsBackups/REAME.md
 
 # from where to lookup for images on host
-VIZ_BKP_APP_IMGS_FLDR       = "media/reported_images"
+ANDROID_REQUESTS_BACKUPS_IMGS_FLDR       = "media/reported_images"
 
 # where to put backups on remote. (full path!)
-# this folder will be created on the VIZ_BKP_APP_REMOTE_USER home
-VIZ_BKP_APP_REMOTE_BKP_FLDR = "/home/transapp/bkps"
+ANDROID_REQUESTS_BACKUPS_REMOTE_BKP_FLDR = "/home/transapp/bkps"
 
 # database name on TranSapp server
-VIZ_BKP_APP_HOST_DATABASE   = "ghostinspector"
+ANDROID_REQUESTS_BACKUPS_HOST_DATABASE   = "ghostinspector"
 
 # send updates for the last 5 minutes
-VIZ_BKP_APP_TIME            = "5"
+ANDROID_REQUESTS_BACKUPS_TIME            = "5"
 
 # where to store temporal bkp files on host
-VIZ_BKP_APP_TMP_BKP_FLDR    = "/tmp/backup_viz"
+ANDROID_REQUESTS_BACKUPS_TMP_BKP_FLDR    = "/tmp/backup_viz"
 
 # remote credentials
 # - private key: used to access the remote
 # - remote host: IP of the remote host
 # - remote user: username for the remote host
-VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
-VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
-VIZ_BKP_APP_REMOTE_USER     = "transapp"
+ANDROID_REQUESTS_BACKUPS_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
+ANDROID_REQUESTS_BACKUPS_REMOTE_HOST     = "104.236.183.105"
+ANDROID_REQUESTS_BACKUPS_REMOTE_USER     = "transapp"
 
 ## ----------------------------------------------------------------------------
