@@ -52,18 +52,18 @@ def clearEventsThatHaveBeenDecline():
                         timezone.timedelta(minutes=theEvent.lifespam + 10)
                 event.save()
 
-        # Event for buses
-        eventsToAsk = Event.objects.filter(eventType='bus')
-        currentEventReport = []
+    # Event for buses
+    eventsToAsk = Event.objects.filter(eventType='bus')
+    currentEventReport = []
 
-        for event in eventsToAsk:
-            eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
-            registry = EventForBusv2.objects.\
-                    filter(event=event, timeStamp__gt=eventTime).\
-                    order_by('-timeStamp')
+    for event in eventsToAsk:
+        eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
+        registry = EventForBusv2.objects.\
+                filter(event=event, timeStamp__gt=eventTime).\
+                order_by('-timeStamp')
 
-            for aux in registry:
-                currentEventReport.append(aux)
+        for aux in registry:
+            currentEventReport.append(aux)
 
         for event in currentEventReport:
             if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
