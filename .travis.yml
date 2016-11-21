@@ -31,7 +31,8 @@ before_script:
   - psql -c "ALTER USER inspector CREATEDB;" -U postgres
   - psql -c "GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;" -U postgres
   - cp $TRAVIS_BUILD_DIR/.travis/DTPMConnectionParams.json $TRAVIS_BUILD_DIR/PredictorDTPM/webService/
-  - cp $TRAVIS_BUILD_DIR/.travis/secret_key.txt $TRAVIS_BUILD_DIR/server/keys/
+  - cp $TRAVIS_BUILD_DIR/.travis/secret_key.txt $TRAVIS_BUILD_DIR/server/keys/  
+  - cp $TRAVIS_BUILD_DIR/.travis/google_key.json $TRAVIS_BUILD_DIR/server/keys/
   - mkdir $TRAVIS_BUILD_DIR/server/logs
 # Tell Travis how to run the test script itself
 script: 
