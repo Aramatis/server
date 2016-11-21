@@ -270,10 +270,4 @@ VIZ_BKP_APP_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
 VIZ_BKP_APP_REMOTE_HOST     = "104.236.183.105"
 VIZ_BKP_APP_REMOTE_USER     = "transapp"
 
-## (uncomment for testing)
-# VIZ_BKP_APP_REMOTE_BKP_FLDR = "/home/mpavez/bkps"
-# VIZ_BKP_APP_PRIVATE_KEY     = "/home/sebastian/.ssh/sebastian.id_rsa"
-# VIZ_BKP_APP_REMOTE_HOST     = "172.17.57.17"
-# VIZ_BKP_APP_REMOTE_USER     = "mpavez"
-
 ## ----------------------------------------------------------------------------
