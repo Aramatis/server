@@ -499,7 +499,11 @@ class DummyLicensePlateUUIDTest(TestCase):
 
 
     def test_AskForAnNonExistentBus(self):
-        pass
+        """ ask for events for a bus that does not exists """
+        uuid = '2e5443b7-a824-4a78-bb62-6c4e24adaaeb'
 
+        jsonResponse = self.helper.requestEventsForBusV2(uuid)
 
+        self.assertEqual(len(jsonResponse['events']), 0)
+        self.assertEqual(jsonResponse['registrationPlate'], '')
 
