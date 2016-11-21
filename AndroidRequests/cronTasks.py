@@ -64,7 +64,7 @@ def clearEventsThatHaveBeenDecline():
 
         for aux in registry:
             currentEventReport.append(aux)
-
+        
         for event in currentEventReport:
             if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
                event.eventConfirm * percentageOverConfirm < event.eventDecline:

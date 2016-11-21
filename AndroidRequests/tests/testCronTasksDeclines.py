@@ -84,7 +84,7 @@ class CronTasksTestCase(TestCase):
         self.test.reportStopEvent(self.userId, self.stop, self.stopEventCode)
 
         # report events for bus stop
-        for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES-1):
+        for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES):
             self.test.confirmOrDeclineStopEvent(self.userId, self.stop, self.stopEventCode, 'confirm')
 
         # decline event
@@ -102,6 +102,7 @@ class CronTasksTestCase(TestCase):
         """ it does not have the minimum number of declines for bus  """
         # create assignment
         self.test.createBusAndAssignmentOnDatabase(self.userId, self.service, self.registrationPlate)
+
         self.test.reportEventV2(self.userId, self.machineId, self.service, self.busEventCode)
         
         # decline event
@@ -144,6 +145,10 @@ class CronTasksTestCase(TestCase):
 
     def test_have_the_percentage_of_declines_and_the_minimum_number_of_declines_over_confirm_for_bus(self):
         """ it has the minimum number of declines and the percentage of declines over confirms for bus """
+        # create assignment
+        self.test.createBusAndAssignmentOnDatabase(self.userId, self.service, self.registrationPlate)
+
+        self.test.reportEventV2(self.userId, self.machineId, self.service, self.busEventCode)
 
         # generate report events for bus
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES):
@@ -153,6 +158,11 @@ class CronTasksTestCase(TestCase):
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES*3):
             self.test.confirmOrDeclineEventV2(self.userId, self.machineId, self.service, self.busEventCode, 'decline')
         # decline is 100% over confirm
+
+        jsonResponse = self.test.requestEventsForBusV2(self.machineId)
+        self.assertEqual(len(jsonResponse['events']), 1)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'], self.busEventCode)
+        self.assertEqual(jsonResponse['uuid'], self.machineId)
 
         cronTasks.clearEventsThatHaveBeenDecline()
 
