@@ -63,4 +63,22 @@ class ServiceRouteTestCase(TestCase):
                 self.assertEqual(point['longitude'], index)
                 index += 1
 
+    def test_getRouteForServiceWithoutRoute(self):
+        """ get route for a service without route points """
+        request = self.factory.get('/android/requestRouteForService/')
+        request.user = AnonymousUser()
+
+        reponseView = ServiceRoute()
+        lat1 = 1
+        lon1 = 1
+        lat2 = 2
+        lon2 = 2
+        response = reponseView.get(request, self.service, lat1, lon1, lat2, lon2)
+
+        jsonResponse = json.loads(response.content)
+
+        self.assertEqual(jsonResponse['service'], '507')
+        self.assertEqual(jsonResponse['statusMessage'], "Service does not have route in the database.")
+        self.assertEqual(jsonResponse['statusCode'], "300")
+
 
