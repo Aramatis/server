@@ -37,22 +37,23 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.helper.insertEventsOnDatabase()
 
         # add dummy  bus
-        b1 = Busv2.objects.create(registrationPlate = 'AA1111', uuid = '159fc6b7-7a20-477e-b5c7-af421e1e0e16')
-        # add bus assignment
-        ba1 = Busassignment.objects.create(service = '507', uuid = b1)
+        self.licencePlate = 'AA1111'
+        self.service = '507'
+
+        self.machineId = self.helper.askForMachineId(self.licencePlate)
+        self.helper.getInBusWithMachineId(self.userId, self.service, self.machineId)
 
         # add dummy bus stop
-        busStop = BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
+        self.helper.insertBusstopsOnDatabase(['PA459'])
 
-        # add dummy service and its path
-        Service.objects.create( service = '507', origin = 'origin_test', destiny = 'destination_test')#'#00a0f0'color_id = models.IntegerField(default = 0)
-        ServiceStopDistance.objects.create( busStop = busStop,  service = '507I', distance = 5)
-        ServiceLocation.objects.create(service = '507I', distance = 1, longitud=4, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 2, longitud=5, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 3, longitud=6, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 4, longitud=7, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 5, longitud=8, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 6, longitud=9, latitud=5)
+        # add dummy service and its patha
+        self.service = '507'
+        self.direction = 'I'
+        self.helper.insertServicesOnDatabase([self.service])
+
+        self.helper.insertServiceStopDistanceOnDatabase(self.service, self.direction)
+
+        self.helper.insertServiceLocationOnDatabase(self.service, self.direction)
 
     def test_RequestTokenWithDummyLicensePlateUUID(self):
         ''' This method will test a token for a dummy license plate bus with uuid '''
@@ -497,7 +498,8 @@ class DummyLicensePlateUUIDTest(TestCase):
         self.assertEqual(responseToReportEventBus['events'][2]['eventcode'], eventCode2)
 
 
-
+    def test_AskForAnNonExistentBus(self):
+        pass
 
 
 

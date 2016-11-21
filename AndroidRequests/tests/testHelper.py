@@ -85,6 +85,32 @@ class TestHelper():
         csv.close()
         log.close()
 
+    def insertServiceStopDistanceOnDatabase(self, service, direction):
+        """ load service stop distance data by service with direction """
+
+        log = open('loadDataErrorTest.log', 'w')
+
+        csv = open('InitialData/servicestopdistance.csv', 'r') 
+        csv.next()
+        factory = TestLoaderFactory()
+        loader = factory.getModelLoader('servicestopdistance')(csv, log)
+        loader.load(service + direction)
+        csv.close()
+        log.close()
+
+    def insertServiceLocationOnDatabase(self, service, direction):
+        """ load service location data by service with direction """
+
+        log = open('loadDataErrorTest.log', 'w')
+
+        csv = open('InitialData/servicelocation.csv', 'r') 
+        csv.next()
+        factory = TestLoaderFactory()
+        loader = factory.getModelLoader('servicelocation')(csv, log)
+        loader.load(service + direction)
+        csv.close()
+        log.close()
+
     def askForMachineId(self, pLicencePlate):
         """ simulate a request to get machine id based on its licence plate """
         URL = '/android/getUUID/'
