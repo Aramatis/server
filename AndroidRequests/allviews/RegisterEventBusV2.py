@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment
 
 from EventsByBusV2 import EventsByBusV2
+import urllib2
+import urllib
 
 class RegisterEventBusV2(View):
     '''This class handles requests that report events of a bus.'''
@@ -29,6 +31,17 @@ class RegisterEventBusV2(View):
         # estimate the oldest time where the reported event can be usefull
         # if there is no event here a new one is created
         oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
+
+        #TODO: get the GPS data from the url
+        # parameters = {}
+        # parameters['licencePlate'] = "CJRD76"
+        # parameters['time'] = "2016-11-22 2015:53:20"
+        # url = "http://200.9.100.91:8080/gpsonline/transappBusPosition/getEstimatedPosition"
+        # full_url = url + '?licencePlate' + parameters['licencePlate'] + '&time' + parameters['time']
+        # data = urllib2.urlopen(full_url)
+
+        # req = urllib2.Request(url)
+        # response = urllib2.urlopen(req)
 
         # check if there is an event
         if EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, \
