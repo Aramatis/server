@@ -12,11 +12,11 @@ sudo: required
 services: 
   postgresql
 addons:
-  postgresql: "9.3"
+  postgresql: "9.5"
 # List the versions of Django you'd like to test against
 env:
   - DJANGO_VERSION=1.8
-#  - DJANGO_VERSION=1.9
+  - DJANGO_VERSION=1.10.3
 # Tell it the things it will need to install when it boots
 install: 
   # Install the dependencies the app itself 
@@ -38,7 +38,7 @@ before_script:
 script: 
   - "python manage.py makemigrations"
   - "python manage.py migrate"
-  - "coverage run --source='.' manage.py test --pattern='test*.py'"
+  - "coverage run --source='.' manage.py test"
   - "coverage report --omit=DataDictionary/*,server/* -m"
 
 after_success:
