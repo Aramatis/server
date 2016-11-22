@@ -38,7 +38,7 @@ before_script:
 script: 
   - "python manage.py makemigrations"
   - "python manage.py migrate"
-  - "coverage run --source='.' manage.py test"
+  - "coverage run --source='.' manage.py test --pattern='test*.py'"
   - "coverage report --omit=DataDictionary/*,server/* -m"
 
 after_success:
