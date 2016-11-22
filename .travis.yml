@@ -12,7 +12,7 @@ sudo: required
 services: 
   postgresql
 addons:
-  postgresql: "9.5"
+  postgresql: "9.3"
 # List the versions of Django you'd like to test against
 env:
   - DJANGO_VERSION=1.8
