@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 
 def fill_tables(apps, schema_editor):
-	statisticsfrombus = apps.get_model('AndroidRequests', 'StadisticDataFromRegistrationBus')
+    statisticsfrombus = apps.get_model('AndroidRequests', 'StadisticDataFromRegistrationBus')
 
-	for sts in statisticsfrombus.objects.all():
-		aux = sts.latitud
-		sts.latitud = sts.longitud
-		sts.longitud = aux
-		sts.save()
+    for sts in statisticsfrombus.objects.all():
+        aux = sts.latitud
+        sts.latitud = sts.longitud
+        sts.longitud = aux
+        sts.save()
 
 class Migration(migrations.Migration):
 
@@ -19,5 +19,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-    	migrations.RunPython(fill_tables, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(fill_tables, reverse_code=migrations.RunPython.noop),
     ]
