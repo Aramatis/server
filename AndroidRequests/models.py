@@ -85,7 +85,8 @@ class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
     """ latitude of the bus GPS """
     gpsTimeStamp = models.DateTimeField('GPS Time Stamp', null=True, blank=False)
     """ date time of the bus GPS position data """
-    
+    distance = models.FloatField('Distance', null=True, blank=False)
+    """ distance from the report to the bus GPS """
     
 
 class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):

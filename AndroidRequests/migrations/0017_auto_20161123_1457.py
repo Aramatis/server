@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 
-#Add the fields to get GPS info
 
 class Migration(migrations.Migration):
 
@@ -12,6 +11,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name='stadisticdatafromregistrationbus',
+            name='distance',
+            field=models.FloatField(null=True, verbose_name=b'Distance'),
+        ),
         migrations.AddField(
             model_name='stadisticdatafromregistrationbus',
             name='gpsLatitud',

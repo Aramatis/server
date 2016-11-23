@@ -9,8 +9,9 @@ import AndroidRequests.constants as Constants
 from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment
 
 from EventsByBusV2 import EventsByBusV2
-import urllib2
+import AndroidRequests.gpsFunctions as Gps
 import json
+
 
 class RegisterEventBusV2(View):
     '''This class handles requests that report events of a bus.'''
@@ -35,27 +36,14 @@ class RegisterEventBusV2(View):
         oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
 
         #get the GPS data from the url
-        parameters = {}
-        parameters['licencePlate'] = theBus.registrationPlate
-        parameters['time'] = aTimeStamp.strftime("%Y-%m-%d %H:%M:%S").replace(" ", "%20")
-        url = "http://200.9.100.91:8080/gpsonline/transappBusPosition/getEstimatedPosition"
-        full_url = url + '?licencePlate=' + parameters['licencePlate'] + '&time=' + parameters['time']
-        data = urllib2.urlopen(full_url)
-
         responseLongitud = None 
         responseLatitud = None
         responseTimeStamp = None
+        responseDistance = None
         
-        try:
-            response = json.load(data)
-            if response['error'] == False and response['machine']['licencePlate'] == parameters['licencePlate']:
-                responseLongitud = response['nearestGpsPoint']['longitude']
-                responseLatitud = response['nearestGpsPoint']['latitude']
-                responseTimeStamp = response['nearestGpsPoint']['time']                
-                responseTimeStamp = parse_datetime(responseTimeStamp + Constants.TIMEZONE)
-        except:
-            pass
-                
+        responseLongitud, responseLatitud, responseTimeStamp, responseDistance = \
+            Gps.getGPSData(theBus.registrationPlate, aTimeStamp, float(pLongitud), float(pLatitud))
+                    
         # check if there is an event
         if EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, \
             busassignment=theAsignment, event=theEvent).exists():
@@ -77,7 +65,7 @@ class RegisterEventBusV2(View):
 
             StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
              reportOfEvent=eventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId, gpsLongitud=responseLongitud ,\
-             gpsLatitud=responseLatitud ,gpsTimeStamp=responseTimeStamp)
+             gpsLatitud=responseLatitud ,gpsTimeStamp=responseTimeStamp, distance=responseDistance)
         else:
             # if an event was not found, create a new one
             aEventReport = EventForBusv2.objects.create(userId=pUserId, busassignment=theAsignment, event=theEvent, timeStamp=aTimeStamp,\
@@ -92,7 +80,7 @@ class RegisterEventBusV2(View):
 
             StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline, \
                 reportOfEvent=aEventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId, gpsLongitud=responseLongitud ,\
-                gpsLatitud=responseLatitud ,gpsTimeStamp=responseTimeStamp)
+                gpsLatitud=responseLatitud ,gpsTimeStamp=responseTimeStamp, distance=responseDistance)
 
         # Returns updated event list for a bus
         eventsByBus = EventsByBusV2()
