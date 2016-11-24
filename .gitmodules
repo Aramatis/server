@@ -1,0 +1,3 @@
+[submodule "AndroidRequestsBackups"]
+	path = AndroidRequestsBackups
+	url = https://github.com/InspectorIncognito/AndroidRequestsBackups.git
