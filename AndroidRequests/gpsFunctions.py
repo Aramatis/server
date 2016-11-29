@@ -19,15 +19,15 @@ def haversine(lon1, lat1, lon2, lat2):
     c = 2 * asin(sqrt(a)) 
     km = 6367 * c
     m = km * 1000
-    return m
+    return m   
 
-def getGPSData(registrationPlate, timeStamp, plon, plat):
+def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
     parameters = {}
     parameters['licencePlate'] = registrationPlate
     parameters['time'] = timeStamp.strftime("%Y-%m-%d %H:%M:%S").replace(" ", "%20")
     url = "http://200.9.100.91:8080/gpsonline/transappBusPosition/getEstimatedPosition"
     full_url = url + '?licencePlate=' + parameters['licencePlate'] + '&time=' + parameters['time']
-    data = urllib2.urlopen(full_url)
+    
 
     longitud = None 
     latitud = None
@@ -35,7 +35,11 @@ def getGPSData(registrationPlate, timeStamp, plon, plat):
     distance = None
     
     try:
-        response = json.load(data)
+        if jsonContent != None:
+            response = json.loads(jsonContent)
+        else:
+            data = urllib2.urlopen(full_url)
+            response = json.load(data)
         if response['error'] == False and response['machine']['licencePlate'] == parameters['licencePlate']:
             longitud = response['nearestGpsPoint']['longitude']
             latitud = response['nearestGpsPoint']['latitude']
