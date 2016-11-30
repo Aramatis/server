@@ -92,6 +92,16 @@ class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus event """
     reportOfEvent = models.ForeignKey('EventForBusv2', verbose_name='Bus Event')
 
+    gpsLongitud = models.FloatField('GPS Longitude', null=True, blank=False)
+    """ longitude of the bus GPS """
+    gpsLatitud = models.FloatField('GPS Latitude', null=True, blank=False)
+    """ latitude of the bus GPS """
+    gpsTimeStamp = models.DateTimeField('GPS Time Stamp', null=True, blank=False)
+    """ date time of the bus GPS position data """
+    distance = models.FloatField('Distance', null=True, blank=False)
+    """ distance from the report to the bus GPS """
+    
+
 class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus stop event """
     reportOfEvent = models.ForeignKey('EventForBusStop', verbose_name='Bus Stop Event')

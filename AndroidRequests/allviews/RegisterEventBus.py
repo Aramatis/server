@@ -10,6 +10,8 @@ from AndroidRequests.models import Event, Busv2, Busassignment, EventForBusv2, E
 import AndroidRequests.constants as Constants
 
 from EventsByBusV2 import EventsByBusV2
+import AndroidRequests.gpsFunctions as Gps
+import json
 
 class RegisterEventBus(View):
     '''This class handles requests that report events of a bus.'''
@@ -53,6 +55,15 @@ class RegisterEventBus(View):
         # if there is no event here a new one is created
         oldestAlertedTime = aTimeStamp - timezone.timedelta(minutes=theEvent.lifespam)
 
+        #get the GPS data from the url
+        responseLongitud = None 
+        responseLatitud = None
+        responseTimeStamp = None
+        responseDistance = None
+        
+        responseLongitud, responseLatitud, responseTimeStamp, responseDistance = \
+            Gps.getGPSData(theBus.registrationPlate, aTimeStamp, float(pLongitud), float(pLatitud))
+                
         # check if there is an event
         if EventForBusv2.objects.filter(timeStamp__gt = oldestAlertedTime, busassignment=theAssignment, event=theEvent).exists():
             # get the event
@@ -71,7 +82,8 @@ class RegisterEventBus(View):
             eventReport.save()
 
             StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline,\
-             reportOfEvent=eventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId)
+             reportOfEvent=eventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId, gpsLongitud=responseLongitud ,\
+             gpsLatitud=responseLatitud ,gpsTimeStamp=responseTimeStamp, distance=responseDistance)
         else:
             # if an event was not found, create a new one
             aEventReport = EventForBusv2.objects.create(userId=pUserId, busassignment=theAssignment, event=theEvent, timeStamp=aTimeStamp,\
@@ -85,7 +97,8 @@ class RegisterEventBus(View):
             aEventReport.save()
 
             StadisticDataFromRegistrationBus.objects.create(timeStamp=aTimeStamp, confirmDecline=pConfirmDecline, \
-                reportOfEvent=aEventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId)
+                reportOfEvent=aEventReport, longitud=pLongitud, latitud=pLatitud, userId=pUserId, gpsLongitud=responseLongitud ,\
+                gpsLatitud=responseLatitud ,gpsTimeStamp=responseTimeStamp, distance=responseDistance)
 
         # Returns updated event list for a bus
         eventsByBus = EventsByBusV2()
