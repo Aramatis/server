@@ -16,7 +16,6 @@ import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -29,8 +28,30 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as fil
 with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as file:
     GOOGLE_KEY = json.load(file)['key']
 
+# Define the user will receive email when server has an error
+with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as file:
+    adminsJson = json.load(file)['admins']
+    #print jsonAdmins
+    ADMINS = []
+    for user in adminsJson:
+        admin = (user['name'], user['email'])
+        ADMINS.append(admin)
+
+# Set email configuration to report errors
+with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as file:
+    emailConfigJson = json.load(file)
+    EMAIL_HOST    = emailConfigJson["EMAIL_HOST"]
+    EMAIL_PORT    = emailConfigJson["EMAIL_PORT"]
+    EMAIL_USE_TSL = emailConfigJson["EMAIL_USE_TLS"]
+
+    EMAIL_HOST_USER     = emailConfigJson["EMAIL_HOST_USER"]
+    EMAIL_HOST_PASSWORD = emailConfigJson["EMAIL_HOST_PASSWORD"]
+    SERVER_EMAIL        = emailConfigJson["SERVER_EMAIL"]
+
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 """
 '54.94.231.101' => public prod server ip
@@ -75,8 +96,7 @@ ROOT_URLCONF = 'server.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,6 +144,9 @@ LOGGING = {
             '()': 'django.utils.log.CallbackFilter',
             'callback': ignore_devicepositionintime,
         },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
     },
     'handlers': {
         'file': {
@@ -133,20 +156,25 @@ LOGGING = {
             'filename': os.path.dirname(__file__) + "/logs/file.log",
             'formatter': 'simple',
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'AndroidRequests': {
-            'handlers': ['file'],
+            'handlers': ['file', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'routeplanner': {
-            'handlers': ['file'],
+            'handlers': ['file', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         }
