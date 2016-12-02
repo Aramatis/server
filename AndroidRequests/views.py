@@ -76,9 +76,9 @@ def nearbyBuses(request, pUserId, pBusStop):
     authBuses = []
     if(response.text != ""):
         data = json.loads(response.text)
-        data['error'] = None
-
-        authBuses = getAuthorityBuses(data)
+        
+        if 'id' in data:
+            authBuses = getAuthorityBuses(data)
 
         if data['error'] is not None:
             answer['DTPMError'] = data['error']
@@ -210,7 +210,7 @@ def getAuthorityBuses(data):
     """ apply json format to authority info """
 
     logger = logging.getLogger(__name__)
-    print data
+    
     authBuses = []
     busStopCode = data['id']
     for service in data['servicios']:
@@ -293,7 +293,7 @@ def mergeBuses(userBuses, authorityBuses):
                     if not userBus['isTheSameUser']:
                         buses.append(userBus)
                     authorityBuses.remove(authBus)
-                    # print "son iguales"
+                    # p rint "son iguales"
                     # print str(userBus)
                 else:
                     pass
