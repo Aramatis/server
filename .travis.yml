@@ -17,6 +17,7 @@ addons:
 env:
   - DJANGO_VERSION=1.8
   - DJANGO_VERSION=1.10.3
+# Use https (public access) instead of git for git-submodules. This modifies only Travis-CI behavior!
 git:
   submodules: false
 # use sed to replace the SSH URL with the public URL, then init and update submodules
