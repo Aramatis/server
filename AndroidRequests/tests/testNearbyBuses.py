@@ -44,7 +44,7 @@ class NearbyBusTest(TestCase):
 
         if (jsonResponse['DTPMError'] != ""):
             self.assertEqual(jsonResponse['DTPMError'],
-                             "Usted no cuenta con los permisos necesarios para realizar esta consulta.")
+                    "You do not have permission to do this! >:(.")
         else:
             self.assertEqual('servicios' in jsonResponse, True)
             self.assertEqual('eventos' in jsonResponse, True)
