@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 from django.core.exceptions import ObjectDoesNotExist
 
+
 def fill_table(apps, schema_editor):
     busesassignments = apps.get_model('AndroidRequests', 'busassignment')
     tokens = apps.get_model('AndroidRequests', 'token')
@@ -11,18 +12,20 @@ def fill_table(apps, schema_editor):
     for assignment in busesassignments.objects.all():
         if assignment.service.isupper():
             try:
-                correct = busesassignments.objects.get(uuid = assignment.uuid,\
-                    service = assignment.service.lower())
-                for token in tokens.objects.filter(busassignment = assignment):
+                correct = busesassignments.objects.get(uuid=assignment.uuid,
+                                                       service=assignment.service.lower())
+                for token in tokens.objects.filter(busassignment=assignment):
                     token.busassignment = correct
                     token.save()
-                for event in eventsForBusv2.objects.filter(busassignment = assignment):
+                for event in eventsForBusv2.objects.filter(
+                        busassignment=assignment):
                     event.busassignment = correct
                     event.save()
                 assignment.delete()
             except ObjectDoesNotExist:
                 assignment.service = assignment.service.lower()
                 assignment.save()
+
 
 class Migration(migrations.Migration):
 
@@ -31,5 +34,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(fill_table, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(fill_table,
+                             reverse_code=migrations.RunPython.noop),
     ]

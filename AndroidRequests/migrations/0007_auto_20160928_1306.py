@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import uuid
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,6 +15,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='token',
             name='uuid',
-            field=models.UUIDField(default=uuid.uuid4, unique=True, editable=False),
+            field=models.UUIDField(
+                default=uuid.uuid4,
+                unique=True,
+                editable=False),
         ),
     ]

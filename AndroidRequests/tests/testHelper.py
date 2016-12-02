@@ -1,30 +1,13 @@
-from django.test import TestCase, RequestFactory, Client
+from django.test import RequestFactory, Client
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
-from django.utils import timezone
 import json
 
-# my stuff
-from AndroidRequests.models import *
 # views
-from AndroidRequests.allviews.BusStopsByService import BusStopsByService
-from AndroidRequests.allviews.EndRoute import EndRoute
-from AndroidRequests.allviews.EventsByBus import EventsByBus
-from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
-from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
-from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
-from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
-from AndroidRequests.allviews.RequestToken import RequestToken
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
-from AndroidRequests.allviews.SendPoses import SendPoses
-from AndroidRequests.allviews.RequestUUID import RequestUUID
-from AndroidRequests.allviews.SetDirection import SetDirection
-import AndroidRequests.views as views
-import AndroidRequests.constants as Constants
 
-import os, sys
 from Loaders.TestLoaderFactory import TestLoaderFactory
+
 
 class TestHelper():
     """ methods that help to create test cases """
@@ -38,7 +21,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/events.csv', 'r') #path to Bus Stop csv file
+        csv = open('InitialData/events.csv', 'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('event')(csv, log)
@@ -51,7 +34,8 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/services.csv', 'r') #path to Bus Stop csv file
+        # path to Bus Stop csv file
+        csv = open('InitialData/services.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('service')(csv, log)
@@ -64,7 +48,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/busstop.csv', 'r') #path to Bus Stop csv file
+        csv = open('InitialData/busstop.csv', 'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('busstop')(csv, log)
@@ -77,7 +61,9 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/servicesbybusstop.csv', 'r') #path to Bus Stop csv file
+        csv = open(
+            'InitialData/servicesbybusstop.csv',
+            'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('servicesbybusstop')(csv, log)
@@ -90,7 +76,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/servicestopdistance.csv', 'r') 
+        csv = open('InitialData/servicestopdistance.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('servicestopdistance')(csv, log)
@@ -103,7 +89,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/servicelocation.csv', 'r') 
+        csv = open('InitialData/servicelocation.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('servicelocation')(csv, log)
@@ -128,14 +114,15 @@ class TestHelper():
 
         jsonResponse = json.loads(response.content)
         machineId = jsonResponse['uuid']
- 
+
         return machineId
 
     def createBusAndAssignmentOnDatabase(self, userId, service, licencePlate):
         """ create a bus object and assignment object """
         self.getInBusWithLicencePlate(userId, service, licencePlate)
 
-    def getInBusWithLicencePlate(self, userId, service, licencePlate, time = timezone.now()):
+    def getInBusWithLicencePlate(
+            self, userId, service, licencePlate, time=timezone.now()):
         """ create a user on bus in database """
         machineId = self.askForMachineId(licencePlate)
         URL = '/android/requestToken/v2/'
@@ -149,7 +136,7 @@ class TestHelper():
 
         jsonResponse = json.loads(response.content)
         token = jsonResponse['token']
- 
+
         return token
 
     def getInBusWithMachineId(self, userId, service, machineId):
@@ -170,7 +157,7 @@ class TestHelper():
 
         jsonResponse = json.loads(response.content)
         token = jsonResponse['token']
- 
+
         return token
 
     def endRoute(self, token):
@@ -193,7 +180,7 @@ class TestHelper():
 
         return jsonResponse
 
-    def sendFakeTrajectoryOfToken(self, travelToken, poses = None):
+    def sendFakeTrajectoryOfToken(self, travelToken, poses=None):
         """ send fake positions for user travel """
 
         URL = '/android/sendTrajectory'
@@ -201,30 +188,38 @@ class TestHelper():
         request.user = AnonymousUser()
 
         now = timezone.now()
-        times = [now,\
-                 now - timezone.timedelta(0, 5),\
-                 now - timezone.timedelta(0, 10),\
-                 now - timezone.timedelta(0, 15),\
-                 now - timezone.timedelta(0, 20),\
-                 now - timezone.timedelta(0, 25),\
-                 now - timezone.timedelta(0, 30),\
-                 now - timezone.timedelta(0, 35),\
+        times = [now,
+                 now - timezone.timedelta(0, 5),
+                 now - timezone.timedelta(0, 10),
+                 now - timezone.timedelta(0, 15),
+                 now - timezone.timedelta(0, 20),
+                 now - timezone.timedelta(0, 25),
+                 now - timezone.timedelta(0, 30),
+                 now - timezone.timedelta(0, 35),
                  now - timezone.timedelta(0, 40)]
         fTimes = []
         for time in times:
             fTimes.append(time.strftime("%Y-%m-%dT%X"))
 
         if poses is None:
-            poses = {"poses":[\
-                {"latitud":-33.458771,"longitud" : -70.676266, "timeStamp": fTimes[0], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458699,"longitud" : -70.675708, "timeStamp": fTimes[1], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458646,"longitud" : -70.674678, "timeStamp": fTimes[2], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458646,"longitud" : -70.673799, "timeStamp": fTimes[3], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.458413,"longitud" : -70.671631, "timeStamp": fTimes[4], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457983,"longitud" : -70.669035, "timeStamp": fTimes[5], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457518,"longitud" : -70.666718, "timeStamp": fTimes[6], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457196,"longitud" : -70.664636, "timeStamp": fTimes[7], "inVehicleOrNot":"vehicle"},\
-                {"latitud":-33.457070,"longitud" : -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot":"vehicle"}]}
+            poses = {"poses": [
+                {"latitud": -33.458771, "longitud": -70.676266,
+                    "timeStamp": fTimes[0], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.458699, "longitud": -70.675708,
+                    "timeStamp": fTimes[1], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.458646, "longitud": -70.674678,
+                    "timeStamp": fTimes[2], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.458646, "longitud": -70.673799,
+                    "timeStamp": fTimes[3], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.458413, "longitud": -70.671631,
+                    "timeStamp": fTimes[4], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.457983, "longitud": -70.669035,
+                    "timeStamp": fTimes[5], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.457518, "longitud": -70.666718,
+                    "timeStamp": fTimes[6], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.457196, "longitud": -70.664636,
+                    "timeStamp": fTimes[7], "inVehicleOrNot":"vehicle"},
+                {"latitud": -33.457070, "longitud": -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot":"vehicle"}]}
 
         """
         view = SendPoses()
@@ -235,15 +230,16 @@ class TestHelper():
         response = view.post(request)
         """
         c = Client()
-        URL = URL 
-        response = c.post(URL, {'pToken': travelToken, 'pTrajectory': json.dumps(poses)})
+        URL = URL
+        response = c.post(URL, {'pToken': travelToken,
+                                'pTrajectory': json.dumps(poses)})
 
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
- 
+
     def setDirection(self, travelKey, direction):
         """ set direction of trip """
         URL = '/android/setDirection'
@@ -260,18 +256,19 @@ class TestHelper():
         response = view.post(request)
         """
         c = Client()
-        URL = URL 
+        URL = URL
         response = c.post(URL, {'pToken': travelKey, 'pDirection': direction})
-        
+
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
-        
+
     """
        BUS EVENT METHODS V1
     """
+
     def reportEvent(self, userId, service, licencePlate, eventCode):
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
@@ -283,7 +280,8 @@ class TestHelper():
         response = view.get(request, userId, service, licencePlate, eventCode, 'confirm')
         """
         c = Client()
-        URL = URL + '/'.join([userId, service, licencePlate, eventCode, 'confirm'])
+        URL = URL + \
+            '/'.join([userId, service, licencePlate, eventCode, 'confirm'])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -292,7 +290,8 @@ class TestHelper():
 
         return jsonResponse
 
-    def confirmOrDeclineEvent(self, userId, service, licencePlate, eventCode, confirmOrDecline):
+    def confirmOrDeclineEvent(self, userId, service,
+                              licencePlate, eventCode, confirmOrDecline):
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
         """
@@ -303,7 +302,8 @@ class TestHelper():
         response = view.get(request, userId, service, licencePlate, eventCode, confirmOrDecline)
         """
         c = Client()
-        URL = URL + '/'.join([userId, service, licencePlate, eventCode, confirmOrDecline])
+        URL = URL + '/'.join([userId, service, licencePlate,
+                              eventCode, confirmOrDecline])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -335,6 +335,7 @@ class TestHelper():
     """
        BUS EVENT METHODS V2
     """
+
     def reportEventV2(self, userId, machineId, service, eventCode):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2/'
@@ -346,7 +347,8 @@ class TestHelper():
         response = view.get(request, userId, machineId, service, eventCode, 'confirm')
         """
         c = Client()
-        URL = URL + '/'.join([userId, machineId, service, eventCode, 'confirm'])
+        URL = URL + '/'.join([userId, machineId, service,
+                              eventCode, 'confirm'])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -354,8 +356,9 @@ class TestHelper():
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
-   
-    def confirmOrDeclineEventV2(self, userId, machineId, service, eventCode, confirmOrDecline):
+
+    def confirmOrDeclineEventV2(
+            self, userId, machineId, service, eventCode, confirmOrDecline):
         """ confirm or decline an event with the new version  """
         URL = '/android/reportEventBus/v2/'
         """
@@ -366,7 +369,8 @@ class TestHelper():
         response = view.get(request, userId, machineId, service, eventCode, confirmOrDecline)
         """
         c = Client()
-        URL = URL + '/'.join([userId, machineId, service, eventCode, confirmOrDecline])
+        URL = URL + '/'.join([userId, machineId, service,
+                              eventCode, confirmOrDecline])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -398,6 +402,7 @@ class TestHelper():
     """
         STOP METHODS
     """
+
     def reportStopEvent(self, userId, stopCode, eventCode):
         """ report an event for stop """
         URL = '/android/reportEventBusStop/'
@@ -418,7 +423,8 @@ class TestHelper():
 
         return jsonResponse
 
-    def confirmOrDeclineStopEvent(self, userId, stopCode, eventCode, confirmOrDecline):
+    def confirmOrDeclineStopEvent(
+            self, userId, stopCode, eventCode, confirmOrDecline):
         """ confirm or decline an event for stop """
         URL = '/android/reportEventBusStop/'
         """
@@ -451,11 +457,9 @@ class TestHelper():
         c = Client()
         URL = URL + code
         response = c.get(URL, {})
-        
+
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
-
-

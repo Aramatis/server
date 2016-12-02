@@ -12,19 +12,24 @@ import os
 # import DB's models
 from AndroidRequests.models import Report
 
+
 class IncorrectExtensionImageError(Exception):
     """ Image extension is not valid """
+
 
 class EmptyTextMessageError(Exception):
     """ Text message is empty """
 
+
 class EmptyUserIdError(Exception):
     """ UserId is empty """
 
+
 class RegisterReport(View):
     """This class handles requests for report an event not supported by the system."""
+
     def __init__(self):
-        self.context={}
+        self.context = {}
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -54,8 +59,12 @@ class RegisterReport(View):
                 if pUserId == '':
                     raise EmptyUserIdError
 
-                report = Report.objects.create(timeStamp=pTimeStamp, userId=pUserId, \
-                                message=text, reportInfo=aditionalInfo, imageName = None)
+                report = Report.objects.create(
+                    timeStamp=pTimeStamp,
+                    userId=pUserId,
+                    message=text,
+                    reportInfo=aditionalInfo,
+                    imageName=None)
                 fine = True
             except EmptyUserIdError as e:
                 message = 'Has to exist a user id.'
@@ -72,7 +81,8 @@ class RegisterReport(View):
                         if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
                             raise IncorrectExtensionImageError
 
-                        imageName = str(report.pk) + "_" + pTimeStamp.strftime('%X_%Y-%m-%d')  + "." + extension
+                        imageName = str(
+                            report.pk) + "_" + pTimeStamp.strftime('%X_%Y-%m-%d') + "." + extension
                         path = os.path.join(settings.MEDIA_IMAGE, imageName)
                         imageFile = open(path, "wb")
                         imageFile.write(stringImage)
@@ -89,7 +99,6 @@ class RegisterReport(View):
                     message = 'Error to save image'
                     report.delete()
                     fine = False
-        
+
         response = {'valid': fine, 'message': message}
         return JsonResponse(response, safe=False)
-

@@ -15,21 +15,26 @@ MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
 MINIMUM_NUMBER_OF_DECLINES = 30
 PORCENTAGE_OF_DECLINE_OVER_CONFIRM = 60.0
 
+
 def cleanActiveTokenTable():
     """It cleans the active tokens table on the DB. This checks that the last time a
     token was granted with new position doesn't exceed a big amount of time."""
     logger = logging.getLogger(__name__)
 
     activeTokens = ActiveToken.objects.all()
-    currentTimeMinusXMinutes = timezone.now() - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
+    currentTimeMinusXMinutes = timezone.now(
+    ) - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
     for aToken in activeTokens:
         if aToken.timeStamp < currentTimeMinusXMinutes:
             aToken.delete()
-            logger.info("{} deleted by clenaActiveTokenTable method".format(aToken.token.token))
+            logger.info(
+                "{} deleted by clenaActiveTokenTable method".format(
+                    aToken.token.token))
+
 
 def clearEventsThatHaveBeenDecline():
     '''This clears the events that have lost credibility'''
-    percentageOverConfirm = 1 + PORCENTAGE_OF_DECLINE_OVER_CONFIRM /100.0
+    percentageOverConfirm = 1 + PORCENTAGE_OF_DECLINE_OVER_CONFIRM / 100.0
 
     # Events for bus stop
     events = Event.objects.filter(eventType='busStop')
@@ -38,8 +43,8 @@ def clearEventsThatHaveBeenDecline():
     for event in events:
         eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
         aux = EventForBusStop.objects.\
-                filter(event=event,timeStamp__gt=eventTime)\
-                .order_by('-timeStamp')
+            filter(event=event, timeStamp__gt=eventTime)\
+            .order_by('-timeStamp')
 
         for evnt in aux:
             currentEventReport.append(evnt)
@@ -49,7 +54,7 @@ def clearEventsThatHaveBeenDecline():
                event.eventConfirm * percentageOverConfirm < event.eventDecline:
                 theEvent = event.event
                 event.timeStamp = event.timeCreation - \
-                        timezone.timedelta(minutes=theEvent.lifespam + 10)
+                    timezone.timedelta(minutes=theEvent.lifespam + 10)
                 event.save()
 
     # Event for buses
@@ -59,16 +64,16 @@ def clearEventsThatHaveBeenDecline():
     for event in eventsToAsk:
         eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
         registry = EventForBusv2.objects.\
-                filter(event=event, timeStamp__gt=eventTime).\
-                order_by('-timeStamp')
+            filter(event=event, timeStamp__gt=eventTime).\
+            order_by('-timeStamp')
 
         for aux in registry:
             currentEventReport.append(aux)
-        
+
         for event in currentEventReport:
             if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
                event.eventConfirm * percentageOverConfirm < event.eventDecline:
                 theEvent = event.event
                 event.timeStamp = event.timeCreation - \
-                        timezone.timedelta(minutes=theEvent.lifespam + 10)
+                    timezone.timedelta(minutes=theEvent.lifespam + 10)
                 event.save()

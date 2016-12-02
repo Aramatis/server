@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Log(models.Model):
     """ register a call to dtpm """
     busStopCode = models.CharField(max_length=6, null=False)
@@ -15,6 +16,7 @@ class Log(models.Model):
     errorMessage = models.TextField(null=True)
     """ error message returned by DTPM """
 
+
 class BusLog(models.Model):
     """ register buses gotten from dtpm  """
     licensePlate = models.CharField(max_length=7, null=False)
@@ -27,5 +29,5 @@ class BusLog(models.Model):
     """ Distance from bus to bus stop """
     valid = models.CharField(max_length=1, null=False)
     """ It says if the information received is correct """
-    log = models.ForeignKey('Log', on_delete = models.CASCADE)
+    log = models.ForeignKey('Log', on_delete=models.CASCADE)
     """ Foreign key """

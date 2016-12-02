@@ -1,11 +1,9 @@
 # encoding=utf-8
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.conf import settings
 from django.views.generic import View
 
 # python utilities
-import requests
 import logging
 
 # third-party libraries
@@ -16,6 +14,7 @@ import re
 # Create your views here.
 
 CITY_SUFFIX = 'rm'
+
 
 class RoutePlanner(View):
     """
@@ -36,7 +35,7 @@ class RoutePlanner(View):
 
         return location
 
-    def get(self, request, pUserId, pOrigin, pDestination, language = "es"):
+    def get(self, request, pUserId, pOrigin, pDestination, language="es"):
         """
         Method to calculate a route between two locations
         You can learn more about this here ->
@@ -44,16 +43,19 @@ class RoutePlanner(View):
         """
         logger = logging.getLogger(__name__)
 
-        # Log 
+        # Log
         if pUserId != 'null':
-            Log.objects.create(userId = pUserId, origin = pOrigin, destination = pDestination)
+            Log.objects.create(
+                userId=pUserId,
+                origin=pOrigin,
+                destination=pDestination)
         else:
             logger.error('reouteplanner: null user')
 
         # add suffix
         pOrigin = self.addCitySuffix(pOrigin)
         pDestination = self.addCitySuffix(pDestination)
-     
+
         googleClient = googlemaps.Client(settings.GOOGLE_KEY)
 
         # DIRECTION API PARAMETERS
@@ -76,16 +78,16 @@ class RoutePlanner(View):
         "rail" is equivalent to ["train, "tram", "subway"]
         """
 
-        #transitRoutingPreference = "less_walking"
+        # transitRoutingPreference = "less_walking"
         """
         Specifies preferences for transit requests. Valid values are "less_walking" or
         "fewer_transfers"
         """
 
-        #departureTime =
+        # departureTime =
         """ Specifies the desired time of departure. Default: Now """
 
-        #arrivalTime =
+        # arrivalTime =
         """
         Specifies the desired time of arrival for transit directions.
         Note: you can't specify both departure_time and arrival_time
@@ -119,17 +121,17 @@ class RoutePlanner(View):
 
         try:
             routes = googleClient.directions(pOrigin, pDestination,
-                                             mode = mode,
-                                             transit_mode = transitMode,
-                                             #transit_routing_preference = transitRoutingPreference,
-                                             avoid = avoid,
-                                             units = units,
-                                             region = region,
-                                             alternatives = alternatives,
-                                             language = language)
+                                             mode=mode,
+                                             transit_mode=transitMode,
+                                             # transit_routing_preference = transitRoutingPreference,
+                                             avoid=avoid,
+                                             units=units,
+                                             region=region,
+                                             alternatives=alternatives,
+                                             language=language)
         except Exception as e:
             logger = logging.getLogger(__name__)
             logger.error(str(e))
             routes = []
 
-        return JsonResponse(routes, safe = False)
+        return JsonResponse(routes, safe=False)

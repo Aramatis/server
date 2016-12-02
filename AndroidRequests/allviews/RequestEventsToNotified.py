@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from django.views.generic import View
-from django.utils import timezone
 
 # my stuff
 # import DB's models
 from AndroidRequests.models import Event
+
 
 class RequestEventsToNotified(View):
     """This class sends the event that can be notified in a given time.
@@ -29,6 +29,3 @@ class RequestEventsToNotified(View):
             response.append(data.getDictionary())
 
         return JsonResponse(response, safe=False)
-
-
-

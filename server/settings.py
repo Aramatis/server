@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as file:
     SECRET_KEY = file.read().strip()
-    #'cbwz-*ri$u=_v@xa5m(3)qujt8yur&id*j%ps3src9^l+doxx4'
+    # 'cbwz-*ri$u=_v@xa5m(3)qujt8yur&id*j%ps3src9^l+doxx4'
 
 # Google key to ask for google services
 with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as file:
@@ -31,7 +31,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as fi
 # Define the user will receive email when server has an error
 with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as file:
     adminsJson = json.load(file)['admins']
-    #print jsonAdmins
+    # print jsonAdmins
     ADMINS = []
     for user in adminsJson:
         admin = (user['name'], user['email'])
@@ -40,13 +40,13 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as file:
 # Set email configuration to report errors
 with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as file:
     emailConfigJson = json.load(file)
-    EMAIL_HOST    = emailConfigJson["EMAIL_HOST"]
-    EMAIL_PORT    = emailConfigJson["EMAIL_PORT"]
+    EMAIL_HOST = emailConfigJson["EMAIL_HOST"]
+    EMAIL_PORT = emailConfigJson["EMAIL_PORT"]
     EMAIL_USE_TSL = emailConfigJson["EMAIL_USE_TLS"]
 
-    EMAIL_HOST_USER     = emailConfigJson["EMAIL_HOST_USER"]
+    EMAIL_HOST_USER = emailConfigJson["EMAIL_HOST_USER"]
     EMAIL_HOST_PASSWORD = emailConfigJson["EMAIL_HOST_PASSWORD"]
-    SERVER_EMAIL        = emailConfigJson["SERVER_EMAIL"]
+    SERVER_EMAIL = emailConfigJson["SERVER_EMAIL"]
 
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
@@ -112,17 +112,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'server.wsgi.application'
 
 # Logging
+
+
 def ignore_silk(record):
     """ return False if exist the word silk in the message """
     if "silk" in record.getMessage():
         return False
     return True
 
+
 def ignore_devicepositionintime(record):
     """ return False if exist the word devicepositionintime in the message """
     if "devicepositionintime" in record.getMessage():
         return False
     return True
+
 
 LOGGING = {
     'version': 1,
@@ -151,7 +155,7 @@ LOGGING = {
     'handlers': {
         'file': {
             'level': 'DEBUG',
-            'filters': [ 'ignore_silk', 'ignore_devicepositionintime' ],
+            'filters': ['ignore_silk', 'ignore_devicepositionintime'],
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + "/logs/file.log",
             'formatter': 'simple',
@@ -188,18 +192,20 @@ LOGGING = {
 
 DATABASES = {
     'default': {
-       'ENGINE': 'django.db.backends.postgresql_psycopg2',
-       'NAME': 'ghostinspector',
-       'USER': 'inspector',
-       'PASSWORD': '1ghost2inspector',
-       'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
-       'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'ghostinspector',
+        'USER': 'inspector',
+        'PASSWORD': '1ghost2inspector',
+        # Empty for localhost through domain sockets or           '127.0.0.1'
+        # for localhost through TCP.
+        'HOST': 'localhost',
+        'PORT': '',
     }
     # for development purpuse use SQLite
-    #'default': {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    #}
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
 }
 
 
@@ -208,8 +214,8 @@ DATABASES = {
 
 LANGUAGE_CODE = 'es-CL'
 
-TIME_ZONE = 'Chile/Continental' # -3
-#TIME_ZONE = 'Cuba' # -4
+TIME_ZONE = 'Chile/Continental'  # -3
+# TIME_ZONE = 'Cuba' # -4
 
 USE_I18N = True
 
@@ -230,19 +236,21 @@ MEDIA_IMAGE = os.path.join(MEDIA_ROOT, "reported_images/")
 
 # cron settings
 CRONJOBS = [
-    #the job is executed every day at 24
+    # the job is executed every day at 24
     ('0 0 * * *', 'AndroidRequests.cronTasks.clearEventsThatHaveBeenDecline'),
 
     # every 2 minutes
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
-    
 
-    ## Android Requests Backups schedule
+
+    # Android Requests Backups schedule
     # daily complete backup at 3:30am
-    ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump', '> /tmp/android_request_bkps_complete_dump_log.txt'),
-    
+    ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump',
+     '> /tmp/android_request_bkps_complete_dump_log.txt'),
+
     # partial backups every 5 minutes
-    ('*/5 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',  '> /tmp/android_request_bkps_partial_dump_log.txt'),
+    ('*/5 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',
+     '> /tmp/android_request_bkps_partial_dump_log.txt'),
 ]
 CRONTAB_LOCK_JOBS = True
 CRONTAB_COMMAND_SUFFIX = '2>&1'
@@ -261,19 +269,18 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 os.environ['wsgi.url_scheme'] = 'https'
 
 
+# ----------------------------------------------------------------------------
+# VIZ_BACKUP_APP
+# see also: AndroidRequestsBackups/REAME.md
 
-## ----------------------------------------------------------------------------
-## VIZ_BACKUP_APP
-## see also: AndroidRequestsBackups/REAME.md
-
-## (TranSapp) related parameters
+# (TranSapp) related parameters
 # Folder to use for tmp processing (full path).
 # At some point, this folder can be completely deleted, so ensure
 # this is not something important!, like '/home' or '/'."
-ANDROID_REQUESTS_BACKUPS_TMP_BKP_FLDR    = "/tmp/backup_viz"
+ANDROID_REQUESTS_BACKUPS_TMP_BKP_FLDR = "/tmp/backup_viz"
 
 
-## (TranSappViz) related parameters
+# (TranSappViz) related parameters
 # Folder (full path) where to put backups on remote (TranSappViz) server.
 # Any file older than ANDROID_REQUESTS_BACKUPS_BKPS_LIFETIME days
 # will be deleted!
@@ -284,14 +291,14 @@ ANDROID_REQUESTS_BACKUPS_REMOTE_BKP_FLDR = "/home/transapp/bkps"
 # Amount of minutes to send to the remote (TranSappViz) server.
 # This value MUST match the one on the other server!, otherwise
 # some data can be lost
-ANDROID_REQUESTS_BACKUPS_TIME            = "5"
+ANDROID_REQUESTS_BACKUPS_TIME = "5"
 
 # remote (TranSappViz) server credentials.
 # - private key: used to access the remote
 # - remote host: IP of the remote host
 # - remote user: username on the remote
-ANDROID_REQUESTS_BACKUPS_PRIVATE_KEY     = "/home/server/.ssh/id_rsa"
-ANDROID_REQUESTS_BACKUPS_REMOTE_HOST     = "104.236.183.105"
-ANDROID_REQUESTS_BACKUPS_REMOTE_USER     = "transapp"
+ANDROID_REQUESTS_BACKUPS_PRIVATE_KEY = "/home/server/.ssh/id_rsa"
+ANDROID_REQUESTS_BACKUPS_REMOTE_HOST = "104.236.183.105"
+ANDROID_REQUESTS_BACKUPS_REMOTE_USER = "transapp"
 
-## ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------

@@ -2,13 +2,10 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
 
-#python utilities
-import requests
-from random import uniform
-
 # my stuff
 # import DB's models
 from AndroidRequests.models import BusStop, Event, EventForBusStop
+
 
 class EventsByBusStop(View):
     """This class handles requests for the current reported events
@@ -39,7 +36,8 @@ class EventsByBusStop(View):
 
             eventTime = pTimeStamp - timezone.timedelta(minutes=event.lifespam)
             # ask for events that ocured between now and the lifeSpam of it
-            aux = EventForBusStop.objects.filter(busStop=pBusStop,event=event,timeStamp__gt=eventTime).order_by('-timeStamp')
+            aux = EventForBusStop.objects.filter(
+                busStop=pBusStop, event=event, timeStamp__gt=eventTime).order_by('-timeStamp')
 
             # check if there exist one event that fit descritions and
             if aux.exists():

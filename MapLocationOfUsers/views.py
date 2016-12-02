@@ -5,9 +5,10 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 # models
-from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, Token
+from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
 
 # Create your views here.
+
 
 class MapHandler(View):
     '''This class manages the map where the markers from the devices using the
@@ -15,19 +16,20 @@ class MapHandler(View):
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
-        self.context={}
+        self.context = {}
 
     def get(self, request):
         template = "map.html"
 
         return render(request, template, self.context)
 
+
 class GetMapPositions(View):
     '''This class requests to the database the values of the actives users'''
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
-        self.context={}
+        self.context = {}
 
     def get(self, request):
 
@@ -35,7 +37,7 @@ class GetMapPositions(View):
         earlier = now - timezone.timedelta(minutes=5)
 
         # the position of interest are the ones ocurred in the last 10 minutes
-        postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier,now))\
+        postions = DevicePositionInTime.objects.filter(timeStamp__range=(earlier, now))\
             .order_by('-timeStamp')
 
         # TODO: get unique users from query and not fiter here
@@ -43,10 +45,12 @@ class GetMapPositions(View):
         users = []
         for aPosition in postions:
             if not (aPosition.userId in users):
-                response.append({'latitud': aPosition.latitud, 'longitud': aPosition.longitud})
+                response.append({'latitud': aPosition.latitud,
+                                 'longitud': aPosition.longitud})
                 users.append(aPosition.userId)
 
         return JsonResponse(response, safe=False)
+
 
 class GetMapTrajectory(View):
     """This class handles the requests for getting the Trajectory of some tokens that where
@@ -54,7 +58,7 @@ class GetMapTrajectory(View):
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
-        self.context={}
+        self.context = {}
 
     def get(self, request):
 
@@ -63,7 +67,8 @@ class GetMapTrajectory(View):
 
         for aToken in tokens:
             tokenResponse = {}
-            trajectory = PoseInTrajectoryOfToken.objects.filter(token=aToken, inVehicleOrNot="vehicle").order_by('-timeStamp')
+            trajectory = PoseInTrajectoryOfToken.objects.filter(
+                token=aToken, inVehicleOrNot="vehicle").order_by('-timeStamp')
 
             aPose = trajectory[0]
 
@@ -79,14 +84,13 @@ class GetMapTrajectory(View):
         now = timezone.now()
 
         earlier = now - timezone.timedelta(minutes=5)
-        allPoses = PoseInTrajectoryOfToken.objects.filter(timeStamp__range=(earlier,now))
+        allPoses = PoseInTrajectoryOfToken.objects.filter(
+            timeStamp__range=(earlier, now))
 
         tokens = []
 
         for aPose in allPoses:
-            if not aPose.token in tokens:
+            if aPose.token not in tokens:
                 tokens.append(aPose.token)
 
         return tokens
-
-

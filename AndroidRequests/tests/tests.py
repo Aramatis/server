@@ -1,45 +1,38 @@
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
-import json
 
 # my stuff
-from AndroidRequests.models import *
+from AndroidRequests.models import DevicePositionInTime, Bus, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment
 # views
-from AndroidRequests.allviews.BusStopsByService import BusStopsByService
-from AndroidRequests.allviews.EndRoute import EndRoute
-from AndroidRequests.allviews.EventsByBus import EventsByBus
-from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
-from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
-from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
-from AndroidRequests.allviews.RequestToken import RequestToken
-from AndroidRequests.allviews.SendPoses import SendPoses
 import AndroidRequests.views as views
-import AndroidRequests.constants as Constants
 from AndroidRequests.tests.testHelper import TestHelper
 
 # Create your tests here.
 
+
 class DevicePositionInTimeTestCase(TestCase):
     """ test for DevicePositionInTime model """
+
     def setUp(self):
         """ this method will automatically call for every single test """
 
         self.timeStamp = [timezone.now(), timezone.now(), timezone.now()]
         self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
-        self.latitude = [-33.4577491104941, -33.4445256604888, -33.4402777996082]
+        self.latitude = [-33.4577491104941, -
+                         33.4445256604888, -33.4402777996082]
         self.longitude = [-70.6634020999999, -70.6509264499999, -70.6433333]
 
     def test_consistency_model_DevicePositionInTime(self):
         """ This method test the database for the DevicePositionInTime model """
 
         for n in range(3):
-            DevicePositionInTime.objects.create(userId = self.userId, longitud = self.longitude[n],\
-                    latitud = self.latitude[n], timeStamp = self.timeStamp[n])
+            DevicePositionInTime.objects.create(userId=self.userId, longitud=self.longitude[n],
+                                                latitud=self.latitude[n], timeStamp=self.timeStamp[n])
 
         for n in range(3):
-            devicePosition = DevicePositionInTime.objects.get(longitud = self.longitude[n])
+            devicePosition = DevicePositionInTime.objects.get(
+                longitud=self.longitude[n])
             self.assertEqual(devicePosition.latitud, self.latitude[n])
             self.assertEqual(devicePosition.timeStamp, self.timeStamp[n])
 
@@ -48,13 +41,14 @@ class DevicePositionInTimeTestCase(TestCase):
 
         userId = "this is a wrong userid"
 
-        self.assertRaises(ValueError,\
-                DevicePositionInTime.objects.create,\
-                userId = userId,\
-                longitud = self.latitude[0],\
-                latitud = self.longitude[0],\
-                timeStamp = self.timeStamp[0])
-                #"badly formed hexadecimal UUID string")
+        self.assertRaises(ValueError,
+                          DevicePositionInTime.objects.create,
+                          userId=userId,
+                          longitud=self.latitude[0],
+                          latitud=self.longitude[0],
+                          timeStamp=self.timeStamp[0])
+        # "badly formed hexadecimal UUID string")
+
 
 class DevicePositionInTimeTest(TestCase):
     """ test for DevicePositionInTime model """
@@ -68,11 +62,19 @@ class DevicePositionInTimeTest(TestCase):
 
         # inital config for DevicePositionInTime
         self.time = timezone.now()
-        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.5, latitud = 5.2, timeStamp = self.time)
-        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.4, latitud = 5.2, timeStamp = self.time)
+        DevicePositionInTime.objects.create(
+            userId=self.userId,
+            longitud=3.5,
+            latitud=5.2,
+            timeStamp=self.time)
+        DevicePositionInTime.objects.create(
+            userId=self.userId,
+            longitud=3.4,
+            latitud=5.2,
+            timeStamp=self.time)
         # this should not be answered
-        DevicePositionInTime.objects.create(userId = self.userId, longitud = 3.3, latitud = 4.2, timeStamp = self.time\
-                -timezone.timedelta(minutes=11))
+        DevicePositionInTime.objects.create(userId=self.userId, longitud=3.3, latitud=4.2, timeStamp=self.time
+                                            - timezone.timedelta(minutes=11))
 
         # initial config for ActiveToken
 
@@ -81,29 +83,50 @@ class DevicePositionInTimeTest(TestCase):
         self.test.insertEventsOnDatabase()
 
         # add dummy  bus
-        Bus.objects.create(registrationPlate = 'AA1111', service = '507', uuid = '159fc6b7-7a20-477e-b5c7-af421e1e0e16')
+        Bus.objects.create(
+            registrationPlate='AA1111',
+            service='507',
+            uuid='159fc6b7-7a20-477e-b5c7-af421e1e0e16')
         # add dummy bus stop
-        busStop = BusStop.objects.create(code='PA459', name='bla',longitud=0,latitud=0)
+        busStop = BusStop.objects.create(
+            code='PA459', name='bla', longitud=0, latitud=0)
 
         # add dummy service and its path
-        Service.objects.create( service = '507', origin = 'origin_test', destiny = 'destination_test')#'#00a0f0'color_id = models.IntegerField(default = 0)
-        ServiceStopDistance.objects.create( busStop = busStop,  service = '507I', distance = 5)
-        ServiceLocation.objects.create(service = '507I', distance = 1, longitud=4, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 2, longitud=5, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 3, longitud=6, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 4, longitud=7, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 5, longitud=8, latitud=5)
-        ServiceLocation.objects.create(service = '507I', distance = 6, longitud=9, latitud=5)
+        # '#00a0f0'color_id = models.IntegerField(default = 0)
+        Service.objects.create(
+            service='507',
+            origin='origin_test',
+            destiny='destination_test')
+        ServiceStopDistance.objects.create(
+            busStop=busStop, service='507I', distance=5)
+        ServiceLocation.objects.create(
+            service='507I', distance=1, longitud=4, latitud=5)
+        ServiceLocation.objects.create(
+            service='507I', distance=2, longitud=5, latitud=5)
+        ServiceLocation.objects.create(
+            service='507I', distance=3, longitud=6, latitud=5)
+        ServiceLocation.objects.create(
+            service='507I', distance=4, longitud=7, latitud=5)
+        ServiceLocation.objects.create(
+            service='507I', distance=5, longitud=8, latitud=5)
+        ServiceLocation.objects.create(
+            service='507I', distance=6, longitud=9, latitud=5)
 
     def test_consistencyModelDevicePositionInTime(self):
         '''This method test the database for the DevicePositionInTime model'''
 
         longituds = [3.5, 3.4, 3.3]
         latituds = [5.2, 5.2, 4.2]
-        timeStamps = [self.time,self.time,self.time-timezone.timedelta(minutes=11)]
+        timeStamps = [
+            self.time,
+            self.time,
+            self.time -
+            timezone.timedelta(
+                minutes=11)]
 
         for cont in range(3):
-            devicePosition = DevicePositionInTime.objects.get(longitud = longituds[cont])
+            devicePosition = DevicePositionInTime.objects.get(
+                longitud=longituds[cont])
             self.assertEqual(devicePosition.latitud, latituds[cont])
             self.assertEqual(devicePosition.timeStamp, timeStamps[cont])
 
@@ -112,27 +135,37 @@ class DevicePositionInTimeTest(TestCase):
 
         service = '503'
         licencePlate = 'ZZZZ00'
-        travelToken = self.test.getInBusWithLicencePlate(self.userId, service, licencePlate)
+        travelToken = self.test.getInBusWithLicencePlate(
+            self.userId, service, licencePlate)
 
         # the created token is an active token
-        self.assertEqual(ActiveToken.objects.filter(token=travelToken).exists(), True)
+        self.assertEqual(
+            ActiveToken.objects.filter(
+                token=travelToken).exists(), True)
         # the created token exist in the table of token
-        self.assertEqual(Token.objects.filter(token=travelToken).exists(), True)
+        self.assertEqual(
+            Token.objects.filter(
+                token=travelToken).exists(), True)
 
         jsonResponse = self.test.endRoute(travelToken)
 
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
         # activeToken has to be missing but token has to exists
-        self.assertEqual(ActiveToken.objects.filter(token=travelToken).exists(), False)
-        self.assertEqual(Token.objects.filter(token=travelToken).exists(), True)
+        self.assertEqual(
+            ActiveToken.objects.filter(
+                token=travelToken).exists(), False)
+        self.assertEqual(
+            Token.objects.filter(
+                token=travelToken).exists(), True)
 
     def test_consistencyModelPoseInTrajectoryOfToken(self):
         '''this method test the PoseInTrajectoryOfToken'''
 
         service = '503'
         licencePlate = 'ZZZZ00'
-        testToken = self.test.getInBusWithLicencePlate(self.userId, service, licencePlate)
+        testToken = self.test.getInBusWithLicencePlate(
+            self.userId, service, licencePlate)
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken)
 
@@ -147,16 +180,17 @@ class DevicePositionInTimeTest(TestCase):
 
     def test_EventsByBusStopReportNegativelyForFistTime(self):
         """ report stop event negatively for fist time """
-        
+
         busStopCode = 'PA459'
         eventCode = 'evn00001'
 
-        jsonResponse = self.test.confirmOrDeclineStopEvent(self.userId, busStopCode, eventCode, 'decline')
+        jsonResponse = self.test.confirmOrDeclineStopEvent(
+            self.userId, busStopCode, eventCode, 'decline')
 
-        self.assertEqual(jsonResponse['codeBusStop'],busStopCode)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'],1)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'],0)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'],eventCode)
+        self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
+        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
+        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 0)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
     def test_EventsByBusStop(self):
         '''This method test two thing, the posibility to report an event and asking
@@ -165,43 +199,48 @@ class DevicePositionInTimeTest(TestCase):
         busStopCode = 'PA459'
         eventCode = 'evn00001'
         # submitting some events to the server
-        jsonResponse = self.test.reportStopEvent(self.userId, busStopCode, eventCode)
+        jsonResponse = self.test.reportStopEvent(
+            self.userId, busStopCode, eventCode)
 
         # report one event, and confirm it
-        self.assertEqual(jsonResponse['codeBusStop'],busStopCode)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'],0)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'],1)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'],eventCode)
+        self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
+        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
+        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 1)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
         # do event +1 to the event
-        jsonResponse = self.test.confirmOrDeclineStopEvent(self.userId, busStopCode, eventCode, 'confirm')
+        jsonResponse = self.test.confirmOrDeclineStopEvent(
+            self.userId, busStopCode, eventCode, 'confirm')
 
-        self.assertEqual(jsonResponse['codeBusStop'],busStopCode)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'],0)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'],2)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'],eventCode)
+        self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
+        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
+        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 2)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
         # do event -1 to the event
-        jsonResponse = self.test.confirmOrDeclineStopEvent(self.userId, busStopCode, eventCode, 'decline')
+        jsonResponse = self.test.confirmOrDeclineStopEvent(
+            self.userId, busStopCode, eventCode, 'decline')
 
-        self.assertEqual(jsonResponse['codeBusStop'],busStopCode)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'],1)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'],2)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'],eventCode)
+        self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
+        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
+        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 2)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
         # change manualy the timeStamp to simulate an event that has expired
-        busStop= BusStop.objects.get(code=busStopCode)
+        busStop = BusStop.objects.get(code=busStopCode)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBusStop.objects.get(busStop=busStop,event=event)
+        anEvent = EventForBusStop.objects.get(busStop=busStop, event=event)
 
-        anEvent.timeStamp = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
+        anEvent.timeStamp = anEvent.timeCreation - \
+            timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
 
         # ask for ecents and the answere should be none
-        jsonResponse = self.test.reportStopEvent(self.userId, busStopCode, eventCode)
+        jsonResponse = self.test.reportStopEvent(
+            self.userId, busStopCode, eventCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
         self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 1)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'],eventCode)
+        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
     def test_registerPose(self):
         request = self.factory.get('/android/userPosition')
@@ -210,15 +249,19 @@ class DevicePositionInTimeTest(TestCase):
         lon = 46
         response = views.userPosition(request, self.userId, lat, lon)
 
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(DevicePositionInTime.objects.filter(longitud=lon, latitud=lat).exists(), True)
+        self.assertEqual(
+            DevicePositionInTime.objects.filter(
+                longitud=lon,
+                latitud=lat).exists(),
+            True)
 
     def test_preferPositionOfPersonInsideABus(self):
 
-        #Bus.objects.create(registrationPlate = 'AA1111', service = '507')
-        thebus = Busv2.objects.create(registrationPlate = 'AA1111')
-        Busassignment.objects.create(service = '507', uuid=thebus)
+        # Bus.objects.create(registrationPlate = 'AA1111', service = '507')
+        thebus = Busv2.objects.create(registrationPlate='AA1111')
+        Busassignment.objects.create(service='507', uuid=thebus)
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
@@ -226,7 +269,7 @@ class DevicePositionInTimeTest(TestCase):
         userLongitud = -70.676266
 
         # first we test the position of the bus without passsangers
-        #bus = Bus.objects.get(registrationPlate='AA1111', service='507')
+        # bus = Bus.objects.get(registrationPlate='AA1111', service='507')
         bus = Busv2.objects.get(registrationPlate='AA1111')
         busassignment = Busassignment.objects.get(service='507', uuid=bus)
 
@@ -240,16 +283,20 @@ class DevicePositionInTimeTest(TestCase):
         # add the position of a passanger inside the bus
         service = '507'
         licencePlate = 'AA1111'
-        testToken = self.test.getInBusWithLicencePlate(self.userId, service, licencePlate)
+        testToken = self.test.getInBusWithLicencePlate(
+            self.userId, service, licencePlate)
 
-        testPoses = {"poses":[
-            {"latitud": userLatitud, "longitud" : userLongitud, "timeStamp":str(timeStampNow), "inVehicleOrNot":"vehicle"}]}
+        testPoses = {"poses": [
+            {"latitud": userLatitud, "longitud": userLongitud, "timeStamp": str(timeStampNow), "inVehicleOrNot": "vehicle"}]}
 
-        jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken, testPoses)
+        jsonResponse = self.test.sendFakeTrajectoryOfToken(
+            testToken, testPoses)
+
+        self.assertEqual(jsonResponse['response'], 'Poses were register.')
 
         # ask the position of the bus whit a passanger
-        bus = Busv2.objects.get(registrationPlate= licencePlate)
-        busassignment = Busassignment.objects.get(uuid = bus, service= service)
+        bus = Busv2.objects.get(registrationPlate=licencePlate)
+        busassignment = Busassignment.objects.get(uuid=bus, service=service)
 
         busPose = busassignment.getLocation()
 
@@ -259,4 +306,3 @@ class DevicePositionInTimeTest(TestCase):
         self.assertEqual(busPose['passengers'] > 0, True)
 
         self.test.endRoute(testToken)
-

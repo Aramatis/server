@@ -4,17 +4,19 @@ from django.utils import timezone, dateparse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-#python utilities
+# python utilities
 import json
 
 # my stuff
 # import DB's models
 from AndroidRequests.models import ActiveToken, Token, PoseInTrajectoryOfToken
 
+
 class SendPoses(View):
     """This class receives a segment of the trajectory associated to a token."""
+
     def __init__(self):
-        self.context={}
+        self.context = {}
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -31,7 +33,7 @@ class SendPoses(View):
                 trajectory = json.loads(pTrajectory)
                 trajectory = trajectory['poses']
 
-                #update the token time stamp, for maintanence purpuses
+                # update the token time stamp, for maintanence purpuses
                 aToken = ActiveToken.objects.get(token=pToken)
                 aToken.timeStamp = timezone.now()
                 aToken.save()
@@ -43,11 +45,15 @@ class SendPoses(View):
                     aTimeStamp = dateparse.parse_datetime(pose['timeStamp'])
                     aTimeStamp = timezone.make_aware(aTimeStamp)
 
-                    PoseInTrajectoryOfToken.objects.create(longitud=pose['longitud'],latitud=pose['latitud'],\
-                            timeStamp=aTimeStamp, inVehicleOrNot=pose["inVehicleOrNot"],token=theToken)
+                    PoseInTrajectoryOfToken.objects.create(
+                        longitud=pose['longitud'],
+                        latitud=pose['latitud'],
+                        timeStamp=aTimeStamp,
+                        inVehicleOrNot=pose["inVehicleOrNot"],
+                        token=theToken)
 
                 response['response'] = 'Poses were register.'
-            else:#if the token was not found alert
+            else:  # if the token was not found alert
                 response['response'] = 'Token doesn\'t exist.'
 
         return JsonResponse(response, safe=False)

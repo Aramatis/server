@@ -1,14 +1,9 @@
 # encoding=utf-8
 from django.test import TestCase, RequestFactory
-from django.utils import timezone
-from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase, RequestFactory
-import json
-# my stuff
-from routeplanner.models import *
 # views
 import routeplanner.views as views
 from routeplanner.views import RoutePlanner
+
 
 class RoutePlannerTest(TestCase):
     """ test for DevicePositionInTime model """
@@ -58,11 +53,10 @@ class RoutePlannerTest(TestCase):
         request.user = AnonymousUser()
         reponseView = RoutePlanner()
         response = reponseView.get(request, origin, destination)
- 
+
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
-        
+
         return jsonResponse
 """
-

@@ -5,7 +5,8 @@ import os
 import json
 
 # models
-from  PredictorDTPM.models import Log
+from PredictorDTPM.models import Log
+
 
 class WebService:
     """ Communicate with TranSantiago predictor service """
@@ -15,7 +16,7 @@ class WebService:
 
         def __init__(self):
 
-            with open(os.path.join(os.path.dirname(__file__), \
+            with open(os.path.join(os.path.dirname(__file__), 
                     '../../server/keys/DTPMConnectionParams.json')) as data_file:
                 info = json.load(data_file)
 
@@ -59,7 +60,7 @@ class WebService:
                 self.__completeId(WebService.clientInstance.transactionId)
         WebService.clientInstance.transactionId += 1
 
-        #print "WebService: \n\tclientCode:{}\n\tresolutionCode:{}\n\tipFinalUser:{},\n\twebTransId:{} "\
+        # print "WebService: \n\tclientCode:{}\n\tresolutionCode:{}\n\tipFinalUser:{},\n\twebTransId:{} "\
         #        .format(clientCode, resCode, ipFinalUser, webTransId)
 
         result = client.service.predictorParaderoServicio(
@@ -100,7 +101,7 @@ class WebService:
         response['servicios'] = []
         response['error'] = None
 
-        if (dtpmInfo['respuestaParadero'] != None):
+        if (dtpmInfo['respuestaParadero'] is not None):
             response['error'] = dtpmInfo['respuestaParadero']
 
         # for each service

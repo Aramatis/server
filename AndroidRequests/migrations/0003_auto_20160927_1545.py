@@ -5,6 +5,7 @@ from django.db import models, migrations
 import uuid
 import AndroidRequests.constants as Constants
 
+
 def gen_uuid(apps, schema_editor):
     MyModel = apps.get_model('AndroidRequests', 'bus')
     uuidsArray = {}
@@ -19,6 +20,7 @@ def gen_uuid(apps, schema_editor):
             row.uuid = puuid
             uuidsArray[row.registrationPlate] = puuid
         row.save()
+
 
 class Migration(migrations.Migration):
 

@@ -4,7 +4,8 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
-from AndroidRequests.models import *
+from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation
+
 
 def deleteEndOfLine(line):
     """ delete unnecessary characteras
@@ -15,6 +16,7 @@ def deleteEndOfLine(line):
     newLine = line.replace("\r", "")
     newLine = newLine.replace("\n", "")
     return newLine
+
 
 class Loader:
     """ Abstract class for data loaders """
@@ -27,8 +29,8 @@ class Loader:
     def __init__(self, csv, log):
         """ The constructor, receives a csv file with the data,
         and a log file to write the errors occurred in the process. """
-        self.csv = csv;
-        self.log = log;
+        self.csv = csv
+        self.log = log
 
     def rowAddedMessage(self, className, rowsNum):
         """ Return a String indicating the amount of rows added to the database. """
@@ -37,7 +39,7 @@ class Loader:
     def getErrorMessage(self, className, exception, dataName, dataValue):
         """ Return a String with a message error and the data produced the error """
         messageError = "{} -> data({}): {} | Exception: {}\n".\
-                    format(className, dataName, dataValue, str(exception))
+            format(className, dataName, dataValue, str(exception))
         return messageError
 
     @abc.abstractmethod
@@ -49,6 +51,7 @@ class Loader:
     def load(self):
         """Read the file given and load the data in the database."""
         return
+
 
 class BusStopLoader(Loader):
     """ This class load the bus stop data to the database."""
@@ -78,17 +81,19 @@ class BusStopLoader(Loader):
             pLon = data[3]
 
             try:
-                BusStop.objects.create(code = pCode, name = pName, \
-                        latitud = pLat, longitud = pLon)
-            except Exception, e:
+                BusStop.objects.create(code=pCode, name=pName,
+                                       latitud=pLat, longitud=pLon)
+            except Exception as e:
                 dataName = "code,name,lat,lon"
                 dataValue = "{};{};{};{}".format(pCode, pName, pLat, pLon)
-                errorMessage = super(BusStopLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                errorMessage = super(
+                    BusStopLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(BusStopLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -118,18 +123,21 @@ class ServiceStopDistanceLoader(Loader):
             pServiceName = data[1]
             pDistance = data[2]
             try:
-                busStop = BusStop.objects.get(code = pBusStopCode)
-                route   = ServiceStopDistance.objects.create(busStop = busStop, \
-                    service = pServiceName, distance = int(pDistance))
-            except Exception, e:
+                busStop = BusStop.objects.get(code=pBusStopCode)
+                ServiceStopDistance.objects.create(
+                    busStop=busStop, service=pServiceName, distance=int(pDistance))
+            except Exception as e:
                 dataName = "busStopCode,serviceName,distance"
-                dataValue = "{};{};{}".format(pBusStopCode, pServiceName, pDistance)
-                errorMessage = super(ServiceStopDistanceLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{}".format(
+                    pBusStopCode, pServiceName, pDistance)
+                errorMessage = super(
+                    ServiceStopDistanceLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -162,18 +170,26 @@ class ServiceLoader(Loader):
             pColorId = data[4]
 
             try:
-                Service.objects.create(service = pServiceName, origin = pOrigin, \
-                        destiny = pDestination, color = pColor, color_id = pColorId)
-            except Exception, e:
+                Service.objects.create(
+                    service=pServiceName,
+                    origin=pOrigin,
+                    destiny=pDestination,
+                    color=pColor,
+                    color_id=pColorId)
+            except Exception as e:
                 dataName = "serviceName,origin,destination,color,colorId"
-                dataValue = "{};{};{};{};{}".format(pServiceName, pOrigin, pDestination, pColor, pColorId)
-                errorMessage = super(ServiceLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{};{};{}".format(
+                    pServiceName, pOrigin, pDestination, pColor, pColorId)
+                errorMessage = super(
+                    ServiceLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(ServiceLoader, self).rowAddedMessage(self.className, i)
+
 
 class ServicesByBusStopLoader(Loader):
     """ This class load the data for the ServicesByBusStop table."""
@@ -202,18 +218,22 @@ class ServicesByBusStopLoader(Loader):
             for pService in pServices:
                 serviceWithoutDirection = pService[:-1]
                 try:
-                    serviceObj = Service.objects.get(service = serviceWithoutDirection)
-                    busStopObj = BusStop.objects.get(code = pBusStopCode)
-                    ServicesByBusStop.objects.create(busStop = busStopObj, service = serviceObj, code = pService)
-                except Exception, e:
+                    serviceObj = Service.objects.get(
+                        service=serviceWithoutDirection)
+                    busStopObj = BusStop.objects.get(code=pBusStopCode)
+                    ServicesByBusStop.objects.create(
+                        busStop=busStopObj, service=serviceObj, code=pService)
+                except Exception as e:
                     dataName = "busStopCode,ServiceNameWithDirection"
                     dataValue = "{};{}".format(pBusStopCode, pService)
-                    errorMessage = super(ServicesByBusStopLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                    errorMessage = super(
+                        ServicesByBusStopLoader, self).getErrorMessage(
+                        self.className, e, dataName, dataValue)
                     self.log.write(errorMessage)
                     continue
 
-                i+=1
-                if(i%self.ticks==0):
+                i += 1
+                if(i % self.ticks == 0):
                     print super(ServicesByBusStopLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -244,18 +264,25 @@ class ServiceLocationLoader(Loader):
             pLat = data[2]
             pLon = data[3]
             try:
-                ServiceLocation.objects.create(service = pServiceName, \
-                    distance = pDistance, latitud = pLat, longitud = pLon)
-            except Exception, e:
+                ServiceLocation.objects.create(
+                    service=pServiceName,
+                    distance=pDistance,
+                    latitud=pLat,
+                    longitud=pLon)
+            except Exception as e:
                 dataName = "serviceName,distance,latitude,longitude"
-                dataValue = "{};{};{};{}".format(pServiceName, pDistance, pLat, pLon)
-                errorMessage = super(ServiceLocationLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{};{}".format(
+                    pServiceName, pDistance, pLat, pLon)
+                errorMessage = super(
+                    ServiceLocationLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(ServiceLocationLoader, self).rowAddedMessage(self.className, i)
+
 
 class EventLoader(Loader):
     """ This class load the events data to the database."""
@@ -287,18 +314,28 @@ class EventLoader(Loader):
             pDescription = data[5]
             pLifespam = data[6]
             try:
-                Event.objects.create(id = pId, eventType = pEventType, category = pCategory,\
-                    origin = pOrigin, name = pName, description = pDescription, lifespam = pLifespam)
-            except Exception, e:
+                Event.objects.create(
+                    id=pId,
+                    eventType=pEventType,
+                    category=pCategory,
+                    origin=pOrigin,
+                    name=pName,
+                    description=pDescription,
+                    lifespam=pLifespam)
+            except Exception as e:
                 dataName = "id,eventType,category,origin,name,description,lifespam"
-                dataValue = "{};{};{};{};{};{};{}".format(pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
-                errorMessage = super(EventLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{};{};{};{};{}".format(
+                    pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
+                errorMessage = super(
+                    EventLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(EventLoader, self).rowAddedMessage(self.className, i)
+
 
 class RouteLoader(Loader):
     """ This class load service-routes data to the database."""
@@ -327,15 +364,18 @@ class RouteLoader(Loader):
             pLon = data[2]
             pSequence = data[3]
             try:
-                Route.objects.create(serviceCode = pServiceCode, latitud = pLat,\
-                                        longitud = pLon, sequence = pSequence)
-            except Exception, e:
+                Route.objects.create(serviceCode=pServiceCode, latitud=pLat,
+                                     longitud=pLon, sequence=pSequence)
+            except Exception as e:
                 dataName = "serviceCode,latitude,longitude,sequence"
-                dataValue = "{};{};{};{}".format(pServiceCode, pLat, pLon, pSequence)
-                errorMessage = super(RouteLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                dataValue = "{};{};{};{}".format(
+                    pServiceCode, pLat, pLon, pSequence)
+                errorMessage = super(
+                    RouteLoader, self).getErrorMessage(
+                    self._className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(RouteLoader, self).rowAddedMessage(self.className, i)

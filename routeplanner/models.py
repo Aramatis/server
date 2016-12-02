@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Log(models.Model):
     """ register a call to google transit api """
     userId = models.UUIDField()
@@ -9,4 +10,3 @@ class Log(models.Model):
     origin = models.TextField(null=False)
     """ origin location """
     destination = models.TextField(null=False)
-

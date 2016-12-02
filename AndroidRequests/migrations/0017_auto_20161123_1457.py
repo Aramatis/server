@@ -29,6 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='stadisticdatafromregistrationbus',
             name='gpsTimeStamp',
-            field=models.DateTimeField(null=True, verbose_name=b'GPS Time Stamp'),
+            field=models.DateTimeField(
+                null=True, verbose_name=b'GPS Time Stamp'),
         ),
     ]

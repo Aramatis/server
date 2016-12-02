@@ -4,7 +4,8 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
-from AndroidRequests.models import *
+from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation
+
 
 def deleteEndOfLine(line):
     """ delete unnecessary characteras
@@ -15,6 +16,7 @@ def deleteEndOfLine(line):
     newLine = line.replace("\r", "")
     newLine = newLine.replace("\n", "")
     return newLine
+
 
 class TestLoader:
     """ Abstract class for data TestLoaders """
@@ -27,8 +29,8 @@ class TestLoader:
     def __init__(self, csv, log):
         """ The constructor, receives a csv file with the data,
         and a log file to write the errors occurred in the process. """
-        self.csv = csv;
-        self.log = log;
+        self.csv = csv
+        self.log = log
 
     def rowAddedMessage(self, className, rowsNum):
         """ Return a String indicating the amount of rows added to the database. """
@@ -37,13 +39,14 @@ class TestLoader:
     def getErrorMessage(self, className, exception, dataName, dataValue):
         """ Return a String with a message error and the data produced the error """
         messageError = "{} -> data({}): {} | Exception: {}\n".\
-                    format(className, dataName, dataValue, str(exception))
+            format(className, dataName, dataValue, str(exception))
         return messageError
 
     @abc.abstractmethod
     def load(self):
         """Read the file given and load the data in the database."""
         return
+
 
 class BusStopTestLoader(TestLoader):
     """ This class load the bus stop data to the database."""
@@ -68,21 +71,23 @@ class BusStopTestLoader(TestLoader):
             pLat = data[2]
             pLon = data[3]
 
-            if not pCode in busStopCodes:
+            if pCode not in busStopCodes:
                 continue
 
             try:
-                BusStop.objects.create(code = pCode, name = pName, \
-                        latitud = pLat, longitud = pLon)
-            except Exception, e:
+                BusStop.objects.create(code=pCode, name=pName,
+                                       latitud=pLat, longitud=pLon)
+            except Exception as e:
                 dataName = "code,name,lat,lon"
                 dataValue = "{};{};{};{}".format(pCode, pName, pLat, pLon)
-                errorMessage = super(BusStopTestLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                errorMessage = super(
+                    BusStopTestLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(BusStopTestLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -107,23 +112,26 @@ class ServiceStopDistanceTestLoader(TestLoader):
             pBusStopCode = data[0]
             pServiceName = data[1]
             pDistance = data[2]
- 
-            if not pBusStopCode in busStopCodes:
+
+            if pBusStopCode not in busStopCodes:
                 continue
 
             try:
-                busStop = BusStop.objects.get(code = pBusStopCode)
-                route   = ServiceStopDistance.objects.create(busStop = busStop, \
-                    service = pServiceName, distance = int(pDistance))
-            except Exception, e:
+                busStop = BusStop.objects.get(code=pBusStopCode)
+                ServiceStopDistance.objects.create(
+                    busStop=busStop, service=pServiceName, distance=int(pDistance))
+            except Exception as e:
                 dataName = "busStopCode,serviceName,distance"
-                dataValue = "{};{};{}".format(pBusStopCode, pServiceName, pDistance)
-                errorMessage = super(ServiceStopDistanceTestLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{}".format(
+                    pBusStopCode, pServiceName, pDistance)
+                errorMessage = super(
+                    ServiceStopDistanceTestLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(ServiceStopDistanceTestLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -151,22 +159,30 @@ class ServiceTestLoader(TestLoader):
             pColor = data[3]
             pColorId = data[4]
 
-            if not pServiceName in services:
+            if pServiceName not in services:
                 continue
 
             try:
-                Service.objects.create(service = pServiceName, origin = pOrigin, \
-                        destiny = pDestination, color = pColor, color_id = pColorId)
-            except Exception, e:
+                Service.objects.create(
+                    service=pServiceName,
+                    origin=pOrigin,
+                    destiny=pDestination,
+                    color=pColor,
+                    color_id=pColorId)
+            except Exception as e:
                 dataName = "serviceName,origin,destination,color,colorId"
-                dataValue = "{};{};{};{};{}".format(pServiceName, pOrigin, pDestination, pColor, pColorId)
-                errorMessage = super(ServiceTestLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{};{};{}".format(
+                    pServiceName, pOrigin, pDestination, pColor, pColorId)
+                errorMessage = super(
+                    ServiceTestLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(ServiceTestLoader, self).rowAddedMessage(self.className, i)
+
 
 class ServicesByBusStopTestLoader(TestLoader):
     """ This class load the data for the ServicesByBusStop table."""
@@ -189,24 +205,28 @@ class ServicesByBusStopTestLoader(TestLoader):
             pBusStopCode = data[0]
             pServices = data[1].split("-")
 
-            if not pBusStopCode in busStopCodes:
+            if pBusStopCode not in busStopCodes:
                 continue
 
             for pService in pServices:
                 serviceWithoutDirection = pService[:-1]
                 try:
-                    serviceObj = Service.objects.get(service = serviceWithoutDirection)
-                    busStopObj = BusStop.objects.get(code = pBusStopCode)
-                    ServicesByBusStop.objects.create(busStop = busStopObj, service = serviceObj, code = pService)
-                except Exception, e:
+                    serviceObj = Service.objects.get(
+                        service=serviceWithoutDirection)
+                    busStopObj = BusStop.objects.get(code=pBusStopCode)
+                    ServicesByBusStop.objects.create(
+                        busStop=busStopObj, service=serviceObj, code=pService)
+                except Exception as e:
                     dataName = "busStopCode,ServiceNameWithDirection"
                     dataValue = "{};{}".format(pBusStopCode, pService)
-                    errorMessage = super(ServicesByBusStopTestLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                    errorMessage = super(
+                        ServicesByBusStopTestLoader, self).getErrorMessage(
+                        self.className, e, dataName, dataValue)
                     self.log.write(errorMessage)
                     continue
 
-                i+=1
-                if(i%self.ticks==0):
+                i += 1
+                if(i % self.ticks == 0):
                     print super(ServicesByBusStopTestLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -233,22 +253,29 @@ class ServiceLocationTestLoader(TestLoader):
             pLat = data[2]
             pLon = data[3]
 
-            if not pServiceName in servicesWithDirection:
+            if pServiceName not in servicesWithDirection:
                 continue
 
             try:
-                ServiceLocation.objects.create(service = pServiceName, \
-                    distance = pDistance, latitud = pLat, longitud = pLon)
-            except Exception, e:
+                ServiceLocation.objects.create(
+                    service=pServiceName,
+                    distance=pDistance,
+                    latitud=pLat,
+                    longitud=pLon)
+            except Exception as e:
                 dataName = "serviceName,distance,latitude,longitude"
-                dataValue = "{};{};{};{}".format(pServiceName, pDistance, pLat, pLon)
-                errorMessage = super(ServiceLocationTestLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{};{}".format(
+                    pServiceName, pDistance, pLat, pLon)
+                errorMessage = super(
+                    ServiceLocationTestLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(ServiceLocationTestLoader, self).rowAddedMessage(self.className, i)
+
 
 class EventTestLoader(TestLoader):
     """ This class load the events data to the database."""
@@ -280,18 +307,28 @@ class EventTestLoader(TestLoader):
             pDescription = data[5]
             pLifespam = data[6]
             try:
-                Event.objects.create(id = pId, eventType = pEventType, category = pCategory,\
-                    origin = pOrigin, name = pName, description = pDescription, lifespam = pLifespam)
-            except Exception, e:
+                Event.objects.create(
+                    id=pId,
+                    eventType=pEventType,
+                    category=pCategory,
+                    origin=pOrigin,
+                    name=pName,
+                    description=pDescription,
+                    lifespam=pLifespam)
+            except Exception as e:
                 dataName = "id,eventType,category,origin,name,description,lifespam"
-                dataValue = "{};{};{};{};{};{};{}".format(pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
-                errorMessage = super(EventTestLoader, self).getErrorMessage(self.className, e, dataName, dataValue)
+                dataValue = "{};{};{};{};{};{};{}".format(
+                    pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
+                errorMessage = super(
+                    EventTestLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(EventTestLoader, self).rowAddedMessage(self.className, i)
+
 
 class RouteTestLoader(TestLoader):
     """ This class load service-routes data to the database."""
@@ -316,19 +353,22 @@ class RouteTestLoader(TestLoader):
             pLon = data[2]
             pSequence = data[3]
 
-            if not pServiceCode in servicesWithDirection:
+            if pServiceCode not in servicesWithDirection:
                 continue
 
             try:
-                Route.objects.create(serviceCode = pServiceCode, latitud = pLat,\
-                                        longitud = pLon, sequence = pSequence)
-            except Exception, e:
+                Route.objects.create(serviceCode=pServiceCode, latitud=pLat,
+                                     longitud=pLon, sequence=pSequence)
+            except Exception as e:
                 dataName = "serviceCode,latitude,longitude,sequence"
-                dataValue = "{};{};{};{}".format(pServiceCode, pLat, pLon, pSequence)
-                errorMessage = super(RouteTestLoader, self).getErrorMessage(self._className, e, dataName, dataValue)
+                dataValue = "{};{};{};{}".format(
+                    pServiceCode, pLat, pLon, pSequence)
+                errorMessage = super(
+                    RouteTestLoader, self).getErrorMessage(
+                    self._className, e, dataName, dataValue)
                 self.log.write(errorMessage)
                 continue
 
-            i+=1
-            if(i%self.ticks==0):
+            i += 1
+            if(i % self.ticks == 0):
                 print super(RouteTestLoader, self).rowAddedMessage(self.className, i)

@@ -7,8 +7,10 @@ from AndroidRequests.models import Route
 # views
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
 
+
 class ServiceRouteTestCase(TestCase):
     """ test for ServiceRoute view """
+
     def setUp(self):
 
         # create dummy service
@@ -17,17 +19,57 @@ class ServiceRouteTestCase(TestCase):
         self.serviceCodeR = "506R"
 
         # create a service route for a dummy service
-        Route.objects.create(serviceCode=self.serviceCodeI, sequence=1, latitud=1, longitud=1)
-        Route.objects.create(serviceCode=self.serviceCodeI, sequence=2, latitud=2, longitud=2)
-        Route.objects.create(serviceCode=self.serviceCodeI, sequence=3, latitud=3, longitud=3)
-        Route.objects.create(serviceCode=self.serviceCodeI, sequence=4, latitud=4, longitud=4)
-        Route.objects.create(serviceCode=self.serviceCodeI, sequence=5, latitud=5, longitud=5)
+        Route.objects.create(
+            serviceCode=self.serviceCodeI,
+            sequence=1,
+            latitud=1,
+            longitud=1)
+        Route.objects.create(
+            serviceCode=self.serviceCodeI,
+            sequence=2,
+            latitud=2,
+            longitud=2)
+        Route.objects.create(
+            serviceCode=self.serviceCodeI,
+            sequence=3,
+            latitud=3,
+            longitud=3)
+        Route.objects.create(
+            serviceCode=self.serviceCodeI,
+            sequence=4,
+            latitud=4,
+            longitud=4)
+        Route.objects.create(
+            serviceCode=self.serviceCodeI,
+            sequence=5,
+            latitud=5,
+            longitud=5)
 
-        Route.objects.create(serviceCode=self.serviceCodeR, sequence=6, latitud=6, longitud=6)
-        Route.objects.create(serviceCode=self.serviceCodeR, sequence=7, latitud=7, longitud=7)
-        Route.objects.create(serviceCode=self.serviceCodeR, sequence=8, latitud=8, longitud=8)
-        Route.objects.create(serviceCode=self.serviceCodeR, sequence=9, latitud=9, longitud=9)
-        Route.objects.create(serviceCode=self.serviceCodeR, sequence=10, latitud=10, longitud=10)
+        Route.objects.create(
+            serviceCode=self.serviceCodeR,
+            sequence=6,
+            latitud=6,
+            longitud=6)
+        Route.objects.create(
+            serviceCode=self.serviceCodeR,
+            sequence=7,
+            latitud=7,
+            longitud=7)
+        Route.objects.create(
+            serviceCode=self.serviceCodeR,
+            sequence=8,
+            latitud=8,
+            longitud=8)
+        Route.objects.create(
+            serviceCode=self.serviceCodeR,
+            sequence=9,
+            latitud=9,
+            longitud=9)
+        Route.objects.create(
+            serviceCode=self.serviceCodeR,
+            sequence=10,
+            latitud=10,
+            longitud=10)
 
         self.factory = RequestFactory()
 
@@ -41,7 +83,8 @@ class ServiceRouteTestCase(TestCase):
         lon1 = 1
         lat2 = 2
         lon2 = 2
-        response = reponseView.get(request, self.service, lat1, lon1, lat2, lon2)
+        response = reponseView.get(
+            request, self.service, lat1, lon1, lat2, lon2)
 
         jsonResponse = json.loads(response.content)
 
@@ -78,7 +121,7 @@ class ServiceRouteTestCase(TestCase):
         jsonResponse = json.loads(response.content)
 
         self.assertEqual(jsonResponse['service'], '507')
-        self.assertEqual(jsonResponse['statusMessage'], "Service does not have route in the database.")
+        self.assertEqual(
+            jsonResponse['statusMessage'],
+            "Service does not have route in the database.")
         self.assertEqual(jsonResponse['statusCode'], "300")
-
-

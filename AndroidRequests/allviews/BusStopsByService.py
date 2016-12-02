@@ -6,36 +6,39 @@ from django.utils import timezone
 from AndroidRequests.models import ServicesByBusStop
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 
+
 class BusStopsByService(View):
-	"""This class handles requests for the list of bus stops for an specific service."""
-	def __init__(self):
-		self.context={}
+    """This class handles requests for the list of bus stops for an specific service."""
 
-	def get(self, request, pBusService):
-		"""it receive the bus Service to get all the bus stops where it service stops."""
-		response = {}
-		response['service'] = pBusService
+    def __init__(self):
+        self.context = {}
 
-		# ask for the bus stops for this service
-		busStops = self.getBusStopsForService(pBusService)
+    def get(self, request, pBusService):
+        """it receive the bus Service to get all the bus stops where it service stops."""
+        response = {}
+        response['service'] = pBusService
 
-		response['paraderos'] = busStops
+        # ask for the bus stops for this service
+        busStops = self.getBusStopsForService(pBusService)
 
-		return JsonResponse(response, safe=False)
+        response['paraderos'] = busStops
 
-	def getBusStopsForService(self,pBusService):
-		"""this method look for all the bus stops where the service stops."""
-		busStops = []
+        return JsonResponse(response, safe=False)
 
-		for sbs in ServicesByBusStop.objects.filter(service=pBusService):
-			data = {}
-			busStop = sbs.busStop
-			data['codigo'] = busStop.code
-			data['nombre'] = busStop.name
-			data['latitud'] = busStop.latitud
-			data['longitud'] = busStop.longitud
-			getEventsByBusStop = EventsByBusStop()
-			data['eventos'] = getEventsByBusStop.getEventsForBusStop(busStop, timezone.now())
-			busStops.append(data)
+    def getBusStopsForService(self, pBusService):
+        """this method look for all the bus stops where the service stops."""
+        busStops = []
 
-		return busStops
+        for sbs in ServicesByBusStop.objects.filter(service=pBusService):
+            data = {}
+            busStop = sbs.busStop
+            data['codigo'] = busStop.code
+            data['nombre'] = busStop.name
+            data['latitud'] = busStop.latitud
+            data['longitud'] = busStop.longitud
+            getEventsByBusStop = EventsByBusStop()
+            data['eventos'] = getEventsByBusStop.getEventsForBusStop(
+                busStop, timezone.now())
+            busStops.append(data)
+
+        return busStops

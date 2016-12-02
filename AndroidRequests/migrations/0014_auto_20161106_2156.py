@@ -24,12 +24,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='service',
             name='service',
-            field=models.CharField(max_length=11, serialize=False, verbose_name=b'Service', primary_key=True),
+            field=models.CharField(
+                max_length=11,
+                serialize=False,
+                verbose_name=b'Service',
+                primary_key=True),
         ),
         migrations.AlterField(
             model_name='servicelocation',
             name='service',
-            field=models.CharField(max_length=11, verbose_name=b'Service Code'),
+            field=models.CharField(
+                max_length=11, verbose_name=b'Service Code'),
         ),
         migrations.AlterField(
             model_name='servicesbybusstop',
@@ -39,6 +44,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='servicestopdistance',
             name='service',
-            field=models.CharField(max_length=11, verbose_name=b'Service Code'),
+            field=models.CharField(
+                max_length=11, verbose_name=b'Service Code'),
         ),
     ]

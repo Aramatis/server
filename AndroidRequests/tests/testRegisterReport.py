@@ -13,8 +13,10 @@ from AndroidRequests.models import Report
 # views
 from AndroidRequests.allviews.RegisterReport import RegisterReport
 
+
 class RegisterReportTestCase(TestCase):
     """ test for register report view """
+
     def setUp(self):
 
         self.factory = RequestFactory()
@@ -24,12 +26,12 @@ class RegisterReportTestCase(TestCase):
         self.reponseView = RegisterReport()
 
         # inputs
-        self.userId      = '067e6162-3b6f-4ae2-a171-2470b63dff00'
+        self.userId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
         self.textMessage = 'this is a comment for testing purpose'
         with open(os.path.join(os.path.dirname(__file__), 'registerReportTestImage.jpg')) as imageFile:
-            self.image   = base64.b64encode(imageFile.read())
+            self.image = base64.b64encode(imageFile.read())
         self.formatImage = 'JPEG'
-        self.reportInfo  = 'additional info'
+        self.reportInfo = 'additional info'
 
         POST = {}
         POST['text'] = self.textMessage
@@ -50,7 +52,7 @@ class RegisterReportTestCase(TestCase):
         self.assertEqual(Report.objects.all().count(), 1)
 
         # delete image file saved
-        report = Report.objects.get(userId = self.userId)
+        report = Report.objects.get(userId=self.userId)
         path = os.path.join(settings.MEDIA_IMAGE, report.imageName)
         os.remove(path)
 
@@ -127,7 +129,6 @@ class RegisterReportTestCase(TestCase):
         self.assertEqual(Report.objects.all().count(), 1)
 
         # delete image file saved
-        report = Report.objects.get(userId = self.userId)
+        report = Report.objects.get(userId=self.userId)
         path = os.path.join(settings.MEDIA_IMAGE, report.imageName)
         os.remove(path)
-

@@ -2,13 +2,13 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.conf import settings
 
-#python utilities
-import json
+# python utilities
 from datetime import datetime
 
 # my stuff
 from PredictorDTPM.webService.WebService import WebService
 from PredictorDTPM.models import Log, BusLog
+
 
 def busStopInfo(request, pSecretKey, pBusStop):
     """ return dtpm data related to buses of pBusStop """
@@ -26,29 +26,27 @@ def busStopInfo(request, pSecretKey, pBusStop):
 
     return JsonResponse(data, safe=False)
 
+
 def registerDTPMAnswer(data):
     """ register DTPM answer in database """
 
-    log = Log.objects.create(\
-            busStopCode = data['id'], \
-            serverTimeStamp = timezone.now(),\
-            dtpmTimeStamp = datetime.strptime(\
-                "{} {}".format(data['fechaConsulta'], data['horaConsulta']), "%Y-%m-%d %H:%M"),\
-            webTransId = data['webTransId'], \
-            errorMessage = data['error'])
+    log = Log.objects.create(
+        busStopCode=data['id'],
+        serverTimeStamp=timezone.now(),
+        dtpmTimeStamp=datetime.strptime(
+            "{} {}".format(data['fechaConsulta'], data['horaConsulta']), "%Y-%m-%d %H:%M"),
+        webTransId=data['webTransId'],
+        errorMessage=data['error'])
 
     for bus in data['servicios']:
         if bus['patente'] is None or bus['servicio'] is None\
            or bus['tiempo'] is None or bus['valido'] is None:
             continue
         distance = int(bus['distancia'].replace(" mts.", ""))
-        BusLog.objects.create(\
-                licensePlate = bus['patente'], \
-                serviceName = bus['servicio'], \
-                timeMessage = bus['tiempo'], \
-                distance = distance, \
-                valid = bus['valido'], \
-                log = log)
-
-
-
+        BusLog.objects.create(
+            licensePlate=bus['patente'],
+            serviceName=bus['servicio'],
+            timeMessage=bus['tiempo'],
+            distance=distance,
+            valid=bus['valido'],
+            log=log)
