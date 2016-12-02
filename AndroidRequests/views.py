@@ -210,7 +210,7 @@ def getAuthorityBuses(data):
     """ apply json format to authority info """
 
     logger = logging.getLogger(__name__)
-
+    print data
     authBuses = []
     busStopCode = data['id']
     for service in data['servicios']:
