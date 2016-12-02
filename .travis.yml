@@ -17,6 +17,13 @@ addons:
 env:
   - DJANGO_VERSION=1.8
   - DJANGO_VERSION=1.10.3
+# Use https (public access) instead of git for git-submodules. This modifies only Travis-CI behavior!
+git:
+  submodules: false
+# use sed to replace the SSH URL with the public URL, then init and update submodules
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
 # Tell it the things it will need to install when it boots
 install: 
   # Install the dependencies the app itself 
@@ -33,6 +40,8 @@ before_script:
   - cp $TRAVIS_BUILD_DIR/.travis/DTPMConnectionParams.json $TRAVIS_BUILD_DIR/PredictorDTPM/webService/
   - cp $TRAVIS_BUILD_DIR/.travis/secret_key.txt $TRAVIS_BUILD_DIR/server/keys/  
   - cp $TRAVIS_BUILD_DIR/.travis/google_key.json $TRAVIS_BUILD_DIR/server/keys/
+  - cp $TRAVIS_BUILD_DIR/.travis/admins.json $TRAVIS_BUILD_DIR/server/keys/
+  - cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/
   - mkdir $TRAVIS_BUILD_DIR/server/logs
 # Tell Travis how to run the test script itself
 script: 
