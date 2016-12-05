@@ -301,4 +301,7 @@ ANDROID_REQUESTS_BACKUPS_PRIVATE_KEY = "/home/server/.ssh/id_rsa"
 ANDROID_REQUESTS_BACKUPS_REMOTE_HOST = "104.236.183.105"
 ANDROID_REQUESTS_BACKUPS_REMOTE_USER = "transapp"
 
+# testing
+ANDROID_REQUESTS_BACKUPS_THIS_USER_TEST      = "server"
+ANDROID_REQUESTS_BACKUPS_THIS_USER_HOME_TEST = "/home/server"
 # ----------------------------------------------------------------------------

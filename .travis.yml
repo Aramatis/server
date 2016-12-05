@@ -3,6 +3,7 @@
 branches:
   only:
     - master
+    - feat/backups_testing
 # Tell Travis you want a Python environment to test in
 language: python
 # List the versions of Python you'd like to test against
