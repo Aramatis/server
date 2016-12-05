@@ -10,6 +10,10 @@
 
 TranSapp is an application for helping people to share information between them related with public transport system in Santiago, chile. You can report problems related to bus or bustop. 
 
+## Do you want to have your own TranSapp server?
+
+Follow the process described in this repository: [TranSapp server installation](https://github.com/InspectorIncognito/serverInstaller)
+
 ## Can i contribute to the project?
 
 Sure, we will happy that other people participate of this, you could use it in other cities or countries. Yo have to do a fork of the project and that is all :-).
