@@ -44,12 +44,23 @@ before_script:
   - cp $TRAVIS_BUILD_DIR/.travis/admins.json $TRAVIS_BUILD_DIR/server/keys/
   - cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/
   - mkdir $TRAVIS_BUILD_DIR/server/logs
+  ## ssh stuff
+  # generate key
+  - ssh-keygen -t rsa -f $HOME/.ssh/id_rsa -N ""
+  # add to authorized keys
+  - cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
+  # prevent first usage ask for fingerprint
+  - echo "Host localhost"                > $HOME/.ssh/config
+  - echo "    StrictHostKeyChecking no" >> $HOME/.ssh/config
+  - chmod 400 $HOME/.ssh/config
+
 # Tell Travis how to run the test script itself
 script: 
-  - "python manage.py makemigrations"
-  - "python manage.py migrate"
-  - "coverage run --source='.' manage.py test"
-  - "coverage report --omit=DataDictionary/*,server/* -m"
+  - "python manage.py test -k AndroidRequestsBackups"
+  # - "python manage.py makemigrations"
+  # - "python manage.py migrate"
+  # - "coverage run --source='.' manage.py test"
+  # - "coverage report --omit=DataDictionary/*,server/* -m"
 
 after_success:
   - coveralls
