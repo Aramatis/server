@@ -246,11 +246,15 @@ CRONJOBS = [
     # Android Requests Backups schedule
     # daily complete backup at 3:30am
     ('30  3 * * *', 'AndroidRequestsBackups.jobs.complete_dump',
-     '> /tmp/android_request_bkps_complete_dump_log.txt'),
+    '> /tmp/android_request_bkps_complete_dump_log.txt'),
 
     # partial backups every 5 minutes
     ('*/5 * * * *', 'AndroidRequestsBackups.jobs.partial_dump',
-     '> /tmp/android_request_bkps_partial_dump_log.txt'),
+    '> /tmp/android_request_bkps_partial_dump_log.txt'),
+
+    # remote connection checker
+    ('0 */1 * * *', 'AndroidRequestsBackups.jobs.ssh_sftp_checker',
+     '> /tmp/android_request_bkps_ssh_sftp_checker_log.txt'),
 ]
 CRONTAB_LOCK_JOBS = True
 CRONTAB_COMMAND_SUFFIX = '2>&1'
