@@ -28,37 +28,41 @@ before_install:
 # Tell it the things it will need to install when it boots
 install: 
   # Install the dependencies the app itself 
- - pip install -r requirements.txt 
+  - sudo pip install -r requirements.txt 
   # Install whatever version of Django that's listed above
   # Travis is currently working on
- - pip install -q Django==$DJANGO_VERSION 
+  - sudo pip install -q Django==$DJANGO_VERSION 
 
 before_script:
-  - psql -c "CREATE DATABASE ghostinspector;" -U postgres
-  - psql -c "CREATE USER inspector WITH PASSWORD '1ghost2inspector';" -U postgres
-  - psql -c "ALTER USER inspector CREATEDB;" -U postgres
-  - psql -c "GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;" -U postgres
-  - cp $TRAVIS_BUILD_DIR/.travis/DTPMConnectionParams.json $TRAVIS_BUILD_DIR/PredictorDTPM/webService/
-  - cp $TRAVIS_BUILD_DIR/.travis/secret_key.txt $TRAVIS_BUILD_DIR/server/keys/  
-  - cp $TRAVIS_BUILD_DIR/.travis/google_key.json $TRAVIS_BUILD_DIR/server/keys/
-  - cp $TRAVIS_BUILD_DIR/.travis/admins.json $TRAVIS_BUILD_DIR/server/keys/
-  - cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/
-  - mkdir $TRAVIS_BUILD_DIR/server/logs
+  - sudo psql -c "CREATE DATABASE ghostinspector;" -U postgres
+  - sudo psql -c "CREATE USER inspector WITH PASSWORD '1ghost2inspector';" -U postgres
+  - sudo psql -c "ALTER USER inspector CREATEDB;" -U postgres
+  - sudo psql -c "GRANT ALL PRIVILEGES ON DATABASE ghostinspector TO inspector;" -U postgres
+  - sudo cp $TRAVIS_BUILD_DIR/.travis/DTPMConnectionParams.json $TRAVIS_BUILD_DIR/PredictorDTPM/webService/
+  - sudo cp $TRAVIS_BUILD_DIR/.travis/secret_key.txt $TRAVIS_BUILD_DIR/server/keys/  
+  - sudo cp $TRAVIS_BUILD_DIR/.travis/google_key.json $TRAVIS_BUILD_DIR/server/keys/
+  - sudo cp $TRAVIS_BUILD_DIR/.travis/admins.json $TRAVIS_BUILD_DIR/server/keys/
+  - sudo cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/
+  - sudo cp $TRAVIS_BUILD_DIR/.travis/android_requests_backups.py $TRAVIS_BUILD_DIR/server/keys/
+  - sudo sed -i 's/<REPLACE_USER>/$USER/' $TRAVIS_BUILD_DIR/server/keys/android_requests_backups.py
+  - sudo sed -i 's/<REPLACE_HOME>/$HOME/' $TRAVIS_BUILD_DIR/server/keys/android_requests_backups.py
+  - sudo mkdir $TRAVIS_BUILD_DIR/server/logs
+  
   ## ssh stuff
   # generate key
-  - "ssh-keygen -t rsa -f $HOME/.ssh/id_rsa -N \"\""
+  - "sudo ssh-keygen -t rsa -f $HOME/.ssh/id_rsa -N \"\""
   # add to authorized keys
-  - "cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys"
+  - "sudo cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys"
   # prevent first usage ask for fingerprint
-  - "echo \"Host localhost\"                > $HOME/.ssh/config"
-  - "echo \"    StrictHostKeyChecking no\" >> $HOME/.ssh/config"
-  - "chmod 400 $HOME/.ssh/config"
-  - "cat $HOME/.ssh/authorized_keys"
-  - "cat $HOME/.ssh/config"
+  - "sudo echo \"Host localhost\"                > $HOME/.ssh/config"
+  - "sudo echo \"    StrictHostKeyChecking no\" >> $HOME/.ssh/config"
+  - "sudo chmod 400 $HOME/.ssh/config"
+  - "sudo cat $HOME/.ssh/authorized_keys"
+  - "sudo cat $HOME/.ssh/config"
 
 # Tell Travis how to run the test script itself
 script: 
-  - "sudo -u root python manage.py test -k AndroidRequestsBackups"
+  - "sudo python manage.py test -k AndroidRequestsBackups"
   # - "python manage.py makemigrations"
   # - "python manage.py migrate"
   # - "coverage run --source='.' manage.py test"
