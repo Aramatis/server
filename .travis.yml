@@ -49,16 +49,14 @@ before_script:
   - sudo mkdir $TRAVIS_BUILD_DIR/server/logs
   
   ## ssh stuff
-  # generate key
+  # generate key add to authorized keys and known hosts 
   - "sudo ssh-keygen -t rsa -f $HOME/.ssh/id_rsa -N \"\""
-  # add to authorized keys
   - "sudo cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys"
+  - "sudo ssh-keyscan -H localhost  >> $HOME/.ssh/known_hosts"
   # prevent first usage ask for fingerprint
-  - "sudo echo \"Host localhost\"                > $HOME/.ssh/config"
-  - "sudo echo \"    StrictHostKeyChecking no\" >> $HOME/.ssh/config"
-  - "sudo chmod 400 $HOME/.ssh/config"
-  - "sudo cat $HOME/.ssh/authorized_keys"
-  - "sudo cat $HOME/.ssh/config"
+  #- "sudo echo \"Host localhost\"                > $HOME/.ssh/config"
+  #- "sudo echo \"    StrictHostKeyChecking no\" >> $HOME/.ssh/config"
+  #- "sudo chmod 400 $HOME/.ssh/config"
 
 # Tell Travis how to run the test script itself
 script: 
