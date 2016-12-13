@@ -34,10 +34,12 @@ before_install:
 install: 
   # Install the dependencies the app itself 
   - pip install -r requirements.txt 
+  - sudo pip install -r requirements.txt 
 
   # Install whatever version of Django that's listed above
   # Travis is currently working on
   - pip install -q Django==$DJANGO_VERSION 
+  - sudo pip install -q Django==$DJANGO_VERSION 
 
 before_script:
   - psql -c "CREATE DATABASE ghostinspector;" -U postgres
@@ -57,8 +59,8 @@ before_script:
   ## ssh stuff
   # generate key add to authorized keys and known hosts 
   - "sudo ssh-keygen -t rsa -f /root/.ssh/id_rsa -N \"\""
-  - "sudo cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys"
-  - "sudo ssh-keyscan -H localhost  >> /root/.ssh/known_hosts"
+  - "sudo -u root cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys"
+  - "sudo -u root ssh-keyscan -H localhost  >> /root/.ssh/known_hosts"
   # prevent first usage ask for fingerprint
   #- "echo \"Host localhost\"                > $HOME/.ssh/config"
   #- "echo \"    StrictHostKeyChecking no\" >> $HOME/.ssh/config"
