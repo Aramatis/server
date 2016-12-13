@@ -38,8 +38,13 @@ class Loader:
 
     def getErrorMessage(self, className, exception, dataName, dataValue):
         """ Return a String with a message error and the data produced the error """
-        messageError = "{} -> data({}): {} | Exception: {}\n".\
-            format(className, dataName, dataValue, str(exception))
+        messageError = "=========================================\n"\
+                       "Exception: {}\n"\
+                       "Loader: {}\n"\
+                       "Data columns: {}\n"\
+                       "Values: {}\n"\
+                       "=========================================\n".\
+            format(str(exception), className, dataName, dataValue)
         return messageError
 
     @abc.abstractmethod
@@ -240,7 +245,7 @@ class ServicesByBusStopLoader(Loader):
 class ServiceLocationLoader(Loader):
     """ This class load the data for the ServiceLocation table."""
     _className = "ServiceLocation"
-    ticks = 50000
+    ticks = 1000
 
     @property
     def className(self):
@@ -249,9 +254,25 @@ class ServiceLocationLoader(Loader):
     def deleteAllRecords(self):
         ServiceLocation.objects.all().delete()
 
+    def processData(self, rows):
+        try:
+            ServiceLocation.objects.bulk_create(rows)
+        except Exception as e:
+            dataName = "serviceName,distance,latitude,longitude"
+            dataValue = ""
+            for row in rows:
+                dataValue = dataValue + "\n{};{};{};{}".format(
+                    row.service, row.distance, row.latitud, row.longitud)
+            errorMessage = super(
+                ServiceLocationLoader, self).getErrorMessage(
+                self.className, e, dataName, dataValue)
+            self.log.write(errorMessage)
+
     def load(self):
         self.deleteAllRecords()
-        i = 1
+        i = 0
+
+        rows = []
         for line in self.csv:
             line = deleteEndOfLine(line)
             if len(line) == 0:
@@ -263,26 +284,23 @@ class ServiceLocationLoader(Loader):
             pDistance = data[1]
             pLat = data[2]
             pLon = data[3]
-            try:
-                ServiceLocation.objects.create(
-                    service=pServiceName,
-                    distance=pDistance,
-                    latitud=pLat,
-                    longitud=pLon)
-            except Exception as e:
-                dataName = "serviceName,distance,latitude,longitude"
-                dataValue = "{};{};{};{}".format(
-                    pServiceName, pDistance, pLat, pLon)
-                errorMessage = super(
-                    ServiceLocationLoader, self).getErrorMessage(
-                    self.className, e, dataName, dataValue)
-                self.log.write(errorMessage)
-                continue
+
+            row = ServiceLocation(
+                service=pServiceName,
+                distance=pDistance,
+                latitud=pLat,
+                longitud=pLon)
+            rows.append(row)
 
             i += 1
             if(i % self.ticks == 0):
+                self.processData(rows)
+                rows = []
                 print super(ServiceLocationLoader, self).rowAddedMessage(self.className, i)
 
+        if len(rows) > 0:
+            self.processData(rows)
+            print super(ServiceLocationLoader, self).rowAddedMessage(self.className, i)
 
 class EventLoader(Loader):
     """ This class load the events data to the database."""
