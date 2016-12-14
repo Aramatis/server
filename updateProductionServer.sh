@@ -25,13 +25,19 @@ then
     python manage.py migrate
     python manage.py collectstatic --noinput
 
+    # replace path to the server project
+    sed -i -e 's/\/server\//\/ubuntu\//g' server/wsgi.py
+
+    # define DEBUG = FALSE
+    sed -i -e 's/DEBUG = True/DEBUG = False/g' server/settings.py
+
     # run test
     coverage run --source='.' manage.py test
     coverage report --omit=DataDictionary,server,AndroidRequestsBackups -m
     
     service apache2 restart
 else
-    echo "FYI: Tag does not exists."
+    echo "FYI: Tag $serverVersion does not exists."
 fi
 
 #####################################################################
