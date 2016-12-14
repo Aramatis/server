@@ -11,10 +11,10 @@ evn00022;busStop;ambiente;o;Paradero lleno;Paradero está lleno de personas;30
 evn00100;bus;desde paradero;o;Bus en tránsito;El bus pasó en tránsito;720
 evn00101;bus;desde paradero;o;Bus vacío no se detuvo;Bus con pocos pasajeros y no para;720
 evn00102;bus;desde paradero;o;Bus lleno no se detuvo;Bus con muchos pasajeros y no para;720
-evn00200;bus;ambiente;i;Imposible moverse;No se puede transitar por el bus;20
-evn00201;bus;ambiente;i;Se camina con dificultad;Es difícil transitar por el bus;20
-evn00202;bus;ambiente;i;No hay asientos disponibles;No hay asientos disponibles;20
-evn00203;bus;ambiente;i;Hay asientos disponibles;Hay asientos disponibles;20
+evn00200;bus;hacinamiento;i;Imposible moverse;No se puede transitar por el bus;20
+evn00201;bus;hacinamiento;i;Se camina con dificultad;Es difícil transitar por el bus;20
+evn00202;bus;hacinamiento;i;No hay asientos disponibles;No hay asientos disponibles;20
+evn00203;bus;hacinamiento;i;Hay asientos disponibles;Hay asientos disponibles;20
 evn00210;bus;incidentes en el bus;i;Están Robando;En el bus se presenció un robo;20
 evn00211;bus;incidentes en el bus;i;Están Bebiendo;Pasajeros bebiendo en el bus;20
 evn00212;bus;incidentes en el bus;i;Grupo haciendo desorden;Gente haciendo desorden en el bus;20
