@@ -1,22 +1,29 @@
 # validate script syntax with http://lint.travis-ci.org/
 # base of this file: http://datadesk.latimes.com/posts/2012/06/test-your-django-app-with-travisci/
+
+# repo
 branches:
   only:
     - master
     - feat/backups_testing
-# Tell Travis you want a Python environment to test in
+
+# main language
 language: python
-# List the versions of Python you'd like to test against
-python:
-  - "2.7.6"
+python: "2.7.6"
+
+# machine
+os: "linux"
+dist: "trusty"
 sudo: required
+
+# database
 services: 
   postgresql
 
 addons:
   postgresql: "9.3"
 
-# List the versions of Django you'd like to test against
+# test matrix
 env:
   - DJANGO_VERSION=1.8
   - DJANGO_VERSION=1.10.3
@@ -25,21 +32,19 @@ env:
 git:
   submodules: false
 
+
 before_install:
   # use sed to replace the SSH URL with the public URL, then init and update submodules
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
 
-# Tell it the things it will need to install when it boots
 install: 
   # Install the dependencies the app itself 
   - pip install -r requirements.txt 
-  - sudo pip install -r requirements.txt 
 
   # Install whatever version of Django that's listed above
   # Travis is currently working on
   - pip install -q Django==$DJANGO_VERSION 
-  - sudo pip install -q Django==$DJANGO_VERSION 
 
 before_script:
   - psql -c "CREATE DATABASE ghostinspector;" -U postgres
@@ -51,28 +56,13 @@ before_script:
   - cp $TRAVIS_BUILD_DIR/.travis/google_key.json $TRAVIS_BUILD_DIR/server/keys/
   - cp $TRAVIS_BUILD_DIR/.travis/admins.json $TRAVIS_BUILD_DIR/server/keys/
   - cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/
-  - cp $TRAVIS_BUILD_DIR/.travis/android_requests_backups.py $TRAVIS_BUILD_DIR/server/keys/
-  - sed -i 's/<REPLACE_USER>/root/' $TRAVIS_BUILD_DIR/server/keys/android_requests_backups.py
-  - sed -i 's/<REPLACE_HOME>/root\//' $TRAVIS_BUILD_DIR/server/keys/android_requests_backups.py
   - mkdir $TRAVIS_BUILD_DIR/server/logs
-  
-  ## ssh stuff
-  # generate key add to authorized keys and known hosts 
-  - "sudo ssh-keygen -t rsa -f /root/.ssh/id_rsa -N \"\""
-  - "sudo -u root cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys"
-  - "sudo -u root ssh-keyscan -H localhost  >> /root/.ssh/known_hosts"
-  # prevent first usage ask for fingerprint
-  #- "echo \"Host localhost\"                > $HOME/.ssh/config"
-  #- "echo \"    StrictHostKeyChecking no\" >> $HOME/.ssh/config"
-  #- "chmod 400 $HOME/.ssh/config"
 
-# Tell Travis how to run the test script itself
 script: 
-  - "sudo python manage.py test -k AndroidRequestsBackups"
-  # - "python manage.py makemigrations"
-  # - "python manage.py migrate"
-  # - "coverage run --source='.' manage.py test"
-  # - "coverage report --omit=DataDictionary/*,server/* -m"
+  - python manage.py makemigrations
+  - python manage.py migrate
+  - coverage run --source='.' manage.py test
+  - coverage report --omit=DataDictionary/*,server/* -m
 
 after_success:
   - coveralls
