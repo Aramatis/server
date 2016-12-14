@@ -58,6 +58,13 @@ before_script:
   - cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/
   - mkdir $TRAVIS_BUILD_DIR/server/logs
 
+  # copy AndroidRequestsBackups settings, only for demostration purposes.
+  # travis will not run this tests, so the only reason is to avoid import errors on settings.py
+  - cp $TRAVIS_BUILD_DIR/.travis/android_requests_backups.py $TRAVIS_BUILD_DIR/server/keys/
+  - sed -i 's/<REPLACE_USER>/$USER/' $TRAVIS_BUILD_DIR/server/keys/android_requests_backups.py
+  - sed -i 's/<REPLACE_HOME>/$HOME/' $TRAVIS_BUILD_DIR/server/keys/android_requests_backups.py
+  
+
 script: 
   - python manage.py makemigrations
   - python manage.py migrate
