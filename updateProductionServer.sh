@@ -12,6 +12,27 @@ serverVersion=$1
 fileVersion=${2:-0}
 
 #####################################################################
+# Check if we need to add key files in server project
+#####################################################################
+KEY_PATH=server/keys
+KEY_FILES=(
+    admins.json
+    DTPMConnectionParams.json
+    google_key.json
+    email_config.json
+    secret_key.txt
+    )
+
+for FILE_NAME in "${KEY_FILES[@]}"
+do
+    if [ ! -f $KEY_PATH/$FILE_NAME ]; then
+	echo "REMEBER TO ADD ALL KEY FILES IN THIS SERVER"
+        echo "THE NEXT FILE COULD NOT FIND: $FILE_NAME"
+	exit
+    fi
+done
+
+#####################################################################
 # Update repository
 #####################################################################
 
