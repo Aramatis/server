@@ -208,9 +208,25 @@ class ServicesByBusStopLoader(Loader):
     def deleteAllRecords(self):
         ServicesByBusStop.objects.all().delete()
 
+    def processData(self, rows):
+        try:
+            ServicesByBusStop.objects.bulk_create(rows)
+        except Exception as e:
+            dataName = "busStopCode,ServiceNameWithDirection"
+            dataValue = ""
+            for row in rows:
+                dataValue = dataValue + "\n{};{}".format(
+                    row.busStopCode.code, row.code)
+            errorMessage = super(
+                ServicesByBusStopLoader, self).getErrorMessage(
+                self.className, e, dataName, dataValue)
+            self.log.write(errorMessage)
+
     def load(self):
         self.deleteAllRecords()
-        i = 1
+        i = 0
+
+        rows = []
         for line in self.csv:
             line = deleteEndOfLine(line)
             if len(line) == 0:
@@ -220,26 +236,25 @@ class ServicesByBusStopLoader(Loader):
 
             pBusStopCode = data[0]
             pServices = data[1].split("-")
+
             for pService in pServices:
                 serviceWithoutDirection = pService[:-1]
-                try:
-                    serviceObj = Service.objects.get(
-                        service=serviceWithoutDirection)
-                    busStopObj = BusStop.objects.get(code=pBusStopCode)
-                    ServicesByBusStop.objects.create(
-                        busStop=busStopObj, service=serviceObj, code=pService)
-                except Exception as e:
-                    dataName = "busStopCode,ServiceNameWithDirection"
-                    dataValue = "{};{}".format(pBusStopCode, pService)
-                    errorMessage = super(
-                        ServicesByBusStopLoader, self).getErrorMessage(
-                        self.className, e, dataName, dataValue)
-                    self.log.write(errorMessage)
-                    continue
+                
+                serviceObj = Service.objects.get(
+                    service=serviceWithoutDirection)
+                busStopObj = BusStop.objects.get(code=pBusStopCode)
+                row = ServicesByBusStop(
+                    busStop=busStopObj, service=serviceObj, code=pService)
+                rows.append(row)
 
                 i += 1
                 if(i % self.ticks == 0):
+                    self.processData(rows)
                     print super(ServicesByBusStopLoader, self).rowAddedMessage(self.className, i)
+
+        if len(rows) > 0:
+            self.processData(rows)
+            print super(ServicesByBusStopLoader, self).rowAddedMessage(self.className, i)
 
 
 class ServiceLocationLoader(Loader):
@@ -358,7 +373,7 @@ class EventLoader(Loader):
 class RouteLoader(Loader):
     """ This class load service-routes data to the database."""
     _className = "Route"
-    ticks = 30000
+    ticks = 1000
 
     @property
     def className(self):
@@ -367,9 +382,25 @@ class RouteLoader(Loader):
     def deleteAllRecords(self):
         Route.objects.all().delete()
 
+    def processData(self, rows):
+        try:
+            Route.objects.bulk_create(rows)
+        except Exception as e:
+            dataName = "serviceCode,latitude,longitude,sequence"
+            dataValue = ""
+            for row in rows:
+                dataValue = dataValue + "\n{};{};{};{}".format(
+                    row.serviceCode, row.latitud, row.longitud, row.sequence)
+            errorMessage = super(
+                RouteLoader, self).getErrorMessage(
+                self.className, e, dataName, dataValue)
+            self.log.write(errorMessage)
+
     def load(self):
         self.deleteAllRecords()
-        i = 1
+        i = 0
+
+        rows = []
         for line in self.csv:
             line = deleteEndOfLine(line)
             if len(line) == 0:
@@ -381,19 +412,18 @@ class RouteLoader(Loader):
             pLat = data[1]
             pLon = data[2]
             pSequence = data[3]
-            try:
-                Route.objects.create(serviceCode=pServiceCode, latitud=pLat,
-                                     longitud=pLon, sequence=pSequence)
-            except Exception as e:
-                dataName = "serviceCode,latitude,longitude,sequence"
-                dataValue = "{};{};{};{}".format(
-                    pServiceCode, pLat, pLon, pSequence)
-                errorMessage = super(
-                    RouteLoader, self).getErrorMessage(
-                    self._className, e, dataName, dataValue)
-                self.log.write(errorMessage)
-                continue
+            
+            row = Route(serviceCode=pServiceCode, latitud=pLat,
+                        longitud=pLon, sequence=pSequence)
+            rows.append(row)
 
             i += 1
             if(i % self.ticks == 0):
+                self.processData(rows)
+                rows = []
                 print super(RouteLoader, self).rowAddedMessage(self.className, i)
+
+        if len(rows) > 0:
+            self.processData(rows)
+            print super(RouteLoader, self).rowAddedMessage(self.className, i)
+

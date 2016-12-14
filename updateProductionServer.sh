@@ -21,6 +21,7 @@ KEY_FILES=(
     google_key.json
     email_config.json
     secret_key.txt
+    android_requests_backups.py
     )
 
 for FILE_NAME in "${KEY_FILES[@]}"

@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory
+from django.test import TransactionTestCase, RequestFactory
 from django.utils import timezone
 
 # my stuff
@@ -10,7 +10,7 @@ from AndroidRequests.tests.testHelper import TestHelper
 # Create your tests here.
 
 
-class BusEventTest(TestCase):
+class BusEventTest(TransactionTestCase):
     """ test for bus events """
 
     def setUp(self):

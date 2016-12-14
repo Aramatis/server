@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory
+from django.test import TransactionTestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 import json
@@ -18,7 +18,7 @@ import AndroidRequests.constants as Constants
 from AndroidRequests.tests.testHelper import TestHelper
 
 
-class DummyLicensePlateUUIDTest(TestCase):
+class DummyLicensePlateUUIDTest(TransactionTestCase):
 
     def setUp(self):
         """ this method will automatically call for every single test """

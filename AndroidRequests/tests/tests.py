@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory
+from django.test import TransactionTestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 
@@ -11,7 +11,7 @@ from AndroidRequests.tests.testHelper import TestHelper
 # Create your tests here.
 
 
-class DevicePositionInTimeTestCase(TestCase):
+class DevicePositionInTimeTestCase(TransactionTestCase):
     """ test for DevicePositionInTime model """
 
     def setUp(self):
@@ -50,7 +50,7 @@ class DevicePositionInTimeTestCase(TestCase):
         # "badly formed hexadecimal UUID string")
 
 
-class DevicePositionInTimeTest(TestCase):
+class DevicePositionInTimeTest(TransactionTestCase):
     """ test for DevicePositionInTime model """
 
     def setUp(self):

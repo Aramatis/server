@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory
+from django.test import TransactionTestCase, RequestFactory
 
 # view
 from AndroidRequests.tests.testHelper import TestHelper
@@ -7,7 +7,7 @@ from AndroidRequests.tests.testHelper import TestHelper
 import AndroidRequests.cronTasks as cronTasks
 
 
-class CronTasksTestCase(TestCase):
+class CronTasksTestCase(TransactionTestCase):
     """ test for cron-task actions """
 
     def setUp(self):
