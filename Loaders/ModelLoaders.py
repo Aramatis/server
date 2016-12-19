@@ -38,13 +38,15 @@ class Loader:
 
     def getErrorMessage(self, className, exception, dataName, dataValue):
         """ Return a String with a message error and the data produced the error """
+        msgException = str(exception)
+        msgException = msgException.replace('\n', '')
         messageError = "=========================================\n"\
                        "Exception: {}\n"\
                        "Loader: {}\n"\
                        "Data columns: {}\n"\
-                       "Values: {}\n"\
+                       "Values: {}"\
                        "=========================================\n".\
-            format(str(exception), className, dataName, dataValue)
+            format(msgException, className, dataName, dataValue)
         return messageError
 
     @abc.abstractmethod
@@ -90,7 +92,7 @@ class BusStopLoader(Loader):
                                        latitud=pLat, longitud=pLon)
             except Exception as e:
                 dataName = "code,name,lat,lon"
-                dataValue = "{};{};{};{}".format(pCode, pName, pLat, pLon)
+                dataValue = "{};{};{};{}\n".format(pCode, pName, pLat, pLon)
                 errorMessage = super(
                     BusStopLoader, self).getErrorMessage(
                     self.className, e, dataName, dataValue)
@@ -133,7 +135,7 @@ class ServiceStopDistanceLoader(Loader):
                     busStop=busStop, service=pServiceName, distance=int(pDistance))
             except Exception as e:
                 dataName = "busStopCode,serviceName,distance"
-                dataValue = "{};{};{}".format(
+                dataValue = "{};{};{}\n".format(
                     pBusStopCode, pServiceName, pDistance)
                 errorMessage = super(
                     ServiceStopDistanceLoader, self).getErrorMessage(
@@ -183,7 +185,7 @@ class ServiceLoader(Loader):
                     color_id=pColorId)
             except Exception as e:
                 dataName = "serviceName,origin,destination,color,colorId"
-                dataValue = "{};{};{};{};{}".format(
+                dataValue = "{};{};{};{};{}\n".format(
                     pServiceName, pOrigin, pDestination, pColor, pColorId)
                 errorMessage = super(
                     ServiceLoader, self).getErrorMessage(
@@ -215,7 +217,7 @@ class ServicesByBusStopLoader(Loader):
             dataName = "busStopCode,ServiceNameWithDirection"
             dataValue = ""
             for row in rows:
-                dataValue = dataValue + "\n{};{}".format(
+                dataValue = dataValue + "{};{}\n".format(
                     row.busStopCode.code, row.code)
             errorMessage = super(
                 ServicesByBusStopLoader, self).getErrorMessage(
@@ -276,7 +278,7 @@ class ServiceLocationLoader(Loader):
             dataName = "serviceName,distance,latitude,longitude"
             dataValue = ""
             for row in rows:
-                dataValue = dataValue + "\n{};{};{};{}".format(
+                dataValue = dataValue + "{};{};{};{}\n".format(
                     row.service, row.distance, row.latitud, row.longitud)
             errorMessage = super(
                 ServiceLocationLoader, self).getErrorMessage(
@@ -357,7 +359,7 @@ class EventLoader(Loader):
                     lifespam=pLifespam)
             except Exception as e:
                 dataName = "id,eventType,category,origin,name,description,lifespam"
-                dataValue = "{};{};{};{};{};{};{}".format(
+                dataValue = "{};{};{};{};{};{};{}\n".format(
                     pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
                 errorMessage = super(
                     EventLoader, self).getErrorMessage(
@@ -389,7 +391,7 @@ class RouteLoader(Loader):
             dataName = "serviceCode,latitude,longitude,sequence"
             dataValue = ""
             for row in rows:
-                dataValue = dataValue + "\n{};{};{};{}".format(
+                dataValue = dataValue + "{};{};{};{}\n".format(
                     row.serviceCode, row.latitud, row.longitud, row.sequence)
             errorMessage = super(
                 RouteLoader, self).getErrorMessage(

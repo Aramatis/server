@@ -19,14 +19,21 @@ django.setup()
 # InitialData/servicestopdistance.csv ServiceLocation
 # InitialData/servicelocation.csv event InitialData/events.csv
 
+def loadData(args, logFileName = 'loadDataError.log'):
+    ''' load csv data to database '''
+    factory = LoaderFactory()
+    log = open(logFileName, 'w+')
+    for i in range(0, len(args)-1, 2):
+        csv = open(args[i + 1], 'r')  # path to csv file
+        # skip header
+        csv.next()
+        loader = factory.getModelLoader(args[i])(csv, log)
+        loader.load()
+        csv.close()
+    log.close()
 
-factory = LoaderFactory()
-log = open('loadDataError.log', 'w+')
-for i in range(1, len(sys.argv), 2):
-    csv = open(sys.argv[i + 1], 'r')  # path to csv file
-    # skip header
-    csv.next()
-    loader = factory.getModelLoader(sys.argv[i])(csv, log)
-    loader.load()
-    csv.close()
-log.close()
+if __name__ == "__main__":
+    ''' load data with data given by args '''
+    sys.argv.pop(0)
+    loadData(sys.argv)
+
