@@ -358,14 +358,23 @@ class EventLoader(Loader):
             pDescription = data[5]
             pLifespam = data[6]
             try:
-                Event.objects.create(
-                    id=pId,
-                    eventType=pEventType,
-                    category=pCategory,
-                    origin=pOrigin,
-                    name=pName,
-                    description=pDescription,
-                    lifespam=pLifespam)
+                if Event.objects.filter(id=pId).exists():
+                    event = Event.objects.get(id=pId)
+                    event.eventType = pEventType
+                    event.category = pCategory
+                    event.origin = pOrigin
+                    event.name = pName
+                    event.description = pDescription
+                    event.save()
+                else:
+                    Event.objects.create(
+                        id=pId,
+                        eventType=pEventType,
+                        category=pCategory,
+                        origin=pOrigin,
+                        name=pName,
+                        description=pDescription,
+                        lifespam=pLifespam)
             except Exception as e:
                 dataName = "id,eventType,category,origin,name,description,lifespam"
                 dataValue = "{};{};{};{};{};{};{}\n".format(
