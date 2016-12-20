@@ -242,12 +242,21 @@ class ServicesByBusStopLoader(Loader):
             for pService in pServices:
                 serviceWithoutDirection = pService[:-1]
                 
-                serviceObj = Service.objects.get(
-                    service=serviceWithoutDirection)
-                busStopObj = BusStop.objects.get(code=pBusStopCode)
-                row = ServicesByBusStop(
-                    busStop=busStopObj, service=serviceObj, code=pService)
-                rows.append(row)
+                try:
+                    serviceObj = Service.objects.get(
+                        service=serviceWithoutDirection)
+                    busStopObj = BusStop.objects.get(code=pBusStopCode)
+                    row = ServicesByBusStop(
+                        busStop=busStopObj, service=serviceObj, code=pService)
+                    rows.append(row)
+                except Exception as e:
+                    dataName = "busStopCode,ServiceNameWithDirection"
+                    dataValue = "{};{}\n".format(pBusStopCode, pService)
+                    errorMessage = super(
+                        ServicesByBusStopLoader, self).getErrorMessage(
+                        self.className, e, dataName, dataValue)
+                    self.log.write(errorMessage)
+                    continue
 
                 i += 1
                 if(i % self.ticks == 0):
@@ -322,7 +331,7 @@ class ServiceLocationLoader(Loader):
 class EventLoader(Loader):
     """ This class load the events data to the database."""
     _className = "Event"
-    ticks = 1000
+    ticks = 1
 
     @property
     def className(self):

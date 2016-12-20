@@ -34,7 +34,7 @@ class LoadInitialDataTest(TestCase):
         newFile = open(self.TEST_FILE_NAME, 'w')
         for line in newLines:
             if addBadLine:
-                newFile.write('TextInID' + line)
+                newFile.write('HI!IAmAnError' + line)
             else:
                 newFile.write(line)
         newFile.close()
@@ -44,6 +44,12 @@ class LoadInitialDataTest(TestCase):
         logFile = open(os.path.join(self.CURRENT_PATH, logFileName)).read()
         self.assertEqual(logFile, expectedLog)
         os.remove(logFileName)
+
+    def printFile(self, FileName):
+        ''' print on command line the content inside test.csv '''
+        print "============= BEGIN TEST FILE  =================="
+        print open(os.path(self.CURRENT_PATH, FileName)).read()
+        print "============== END TEST FILE ===================="
 
     """
     DON'T UNCOMMENT, THIS COMMAND USE REAL DATABASE, IT'S WRONG
@@ -74,7 +80,7 @@ class LoadInitialDataTest(TestCase):
         "Exception: el valor es demasiado largo para el tipo character varying(6)\n"\
         "Loader: BusStop\n"\
         "Data columns: code,name,lat,lon\n"\
-        "Values: TextInIDAG;Camino Agrícola;-33.49158577;-70.61753772\n"\
+        "Values: HI!IAmAnErrorAG;Camino Agrícola;-33.49158577;-70.61753772\n"\
         "=========================================\n"
 
         self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
@@ -100,7 +106,7 @@ class LoadInitialDataTest(TestCase):
         "Exception: el valor es demasiado largo para el tipo character varying(8)\n"\
         "Loader: Event\n"\
         "Data columns: id,eventType,category,origin,name,description,lifespam\n"\
-        "Values: TextInIDevn00000;busStop;buses Juntos;o;2 juntos;2 buses pasan juntos ;1440\n"\
+        "Values: HI!IAmAnErrorevn00000;busStop;buses Juntos;o;2 juntos;2 buses pasan juntos ;1440\n"\
         "=========================================\n"\
 
         self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
@@ -126,7 +132,7 @@ class LoadInitialDataTest(TestCase):
         "Exception: el valor es demasiado largo para el tipo character varying(11)\n"\
         "Loader: Route\n"\
         "Data columns: serviceCode,latitude,longitude,sequence\n"\
-        "Values: TextInID101I;-33.406175;-70.623244;1\n"\
+        "Values: HI!IAmAnError101I;-33.406175;-70.623244;1\n"\
         "=========================================\n"\
 
         self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
@@ -134,9 +140,13 @@ class LoadInitialDataTest(TestCase):
     def test_loadServiceLocationWithoutProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
 
+        # we need to load previous data:
+        # busstop
+        loadData(['busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+
         FILE_NAME = 'servicelocation.csv'
         self.createTestFile(FILE_NAME)
-
+        
         loadData(['servicelocation', self.TEST_FILE_NAME])
 
     def test_loadServiceLocationWithProblem(self):
@@ -152,7 +162,177 @@ class LoadInitialDataTest(TestCase):
         "Exception: el valor es demasiado largo para el tipo character varying(11)\n"\
         "Loader: ServiceLocation\n"\
         "Data columns: serviceName,distance,latitude,longitude\n"\
-        "Values: TextInID101I;0;-33.406175;-70.623244\n"\
+        "Values: HI!IAmAnError101I;0;-33.406175;-70.623244\n"\
         "=========================================\n"\
+
+        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+
+    def test_loadServicesWithoutProblem(self):
+        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+
+        FILE_NAME = 'services.csv'
+        self.createTestFile(FILE_NAME)
+
+        loadData(['service', self.TEST_FILE_NAME])
+
+    def test_loadServicesWithProblem(self):
+        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+        
+        FILE_NAME = 'services.csv'
+        self.createTestFile(FILE_NAME, addBadLine = True)
+
+        LOG_FILE_NAME = 'test.log'
+        loadData(['service', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+
+        EXPECTED_LOG = "=========================================\n"\
+        "Exception: el valor es demasiado largo para el tipo character varying(11)\n"\
+        "Loader: Service\n"\
+        "Data columns: serviceName,origin,destination,color,colorId\n"\
+        "Values: HI!IAmAnError101;RECOLETA;CERRILLOS;00D5FF;4\n"\
+        "=========================================\n"\
+
+        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+
+    def test_loadServicesByBusStopWithoutProblem(self):
+        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+
+        # we need to load previous data:
+        # services
+        loadData(['service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
+        # busstop
+        loadData(['busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+
+        FILE_NAME = 'servicesbybusstop.csv'
+        self.createTestFile(FILE_NAME)
+        
+        loadData(['servicesbybusstop', self.TEST_FILE_NAME])
+
+    def test_loadServicesByBusStopWithProblem(self):
+        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+        
+        # we need to load previous data:
+        # services
+        loadData(['service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
+
+        FILE_NAME = 'servicesbybusstop.csv'
+        self.createTestFile(FILE_NAME, addBadLine = True)
+
+        LOG_FILE_NAME = 'test.log'
+        loadData(['servicesbybusstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        
+        EXPECTED_LOG = "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;109I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;406I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;422I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;426I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;505I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;507I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;508I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;513I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;B26I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;B28I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;J01I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;J02I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;J05I\n"\
+                "=========================================\n"\
+                "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServicesByBusStop\n"\
+                "Data columns: busStopCode,ServiceNameWithDirection\n"\
+                "Values: HI!IAmAnErrorPA1;J16I\n"\
+                "=========================================\n"
+
+        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+
+    def test_loadServicesStopDistanceWithoutProblem(self):
+        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+
+        # we need to load previous data:
+        # busstop
+        loadData(['busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+
+        FILE_NAME = 'servicestopdistance.csv'
+        self.createTestFile(FILE_NAME)
+
+        loadData(['servicestopdistance', self.TEST_FILE_NAME])
+
+    def test_loadServicesStopDistanceWithProblem(self):
+        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+        
+        FILE_NAME = 'servicestopdistance.csv'
+        self.createTestFile(FILE_NAME, addBadLine = True)
+
+        LOG_FILE_NAME = 'test.log'
+        loadData(['servicestopdistance', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        
+        EXPECTED_LOG = "=========================================\n"\
+                "Exception: BusStop matching query does not exist.\n"\
+                "Loader: ServiceStopDistance\n"\
+                "Data columns: busStopCode,serviceName,distance\n"\
+                "Values: HI!IAmAnErrorPB1;101I;234\n"\
+                "=========================================\n"
 
         self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)

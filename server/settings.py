@@ -51,7 +51,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as 
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 """
 '54.94.231.101' => public prod server ip
