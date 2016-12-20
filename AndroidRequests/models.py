@@ -24,7 +24,6 @@ JSONEncoder.default = JSONEncoder_newdefault
 # Create your models here.
 # Remembre to add new models to admin.py
 
-
 class Location(models.Model):
     """ Some of our models require to set a geolocation (coodinates)"""
     longitud = models.FloatField('Longitude', null=False, blank=False)
@@ -204,6 +203,8 @@ class ServicesByBusStop(models.Model):
     """ Bus stops where the service is stopped """
     service = models.ForeignKey('Service', verbose_name='the service')
     """ Service that stops in the bus stop """
+    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    """ gtfs version """
 
 
 class BusStop(Location):
@@ -219,6 +220,9 @@ class BusStop(Location):
         Event,
         verbose_name='Events',
         through=EventForBusStop)
+    """ events associated to bus stop """
+    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    """ gtfs version """
 
     def getDictionary(self):
         """usefull information regarding the bus."""
@@ -246,6 +250,9 @@ class Service(models.Model):
         BusStop,
         verbose_name='Bus Stops',
         through=ServicesByBusStop)
+    """ bus stops where the service stops """
+    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    """ gtfs version """
 
 
 class ServiceNotFoundException(Exception):
@@ -613,6 +620,8 @@ class ServiceLocation(Location):
     """ Service code where the last character indicates its direction """
     distance = models.IntegerField('Route Distance')
     """ Distance traveled by the service since its origin """
+    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    """ gtfs version """
 
     class Meta:
         index_together = ["service", "distance"]
@@ -631,6 +640,8 @@ class ServiceStopDistance(models.Model):
     """ It represents the Service code, ex: '506I' """
     distance = models.IntegerField('Distance Traveled')
     """ Distance traveled by the service when it reaches the bus stop """
+    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    """ gtfs version """
 
 
 class Token(models.Model):
@@ -645,6 +656,8 @@ class Token(models.Model):
     '''Color to paint the travel icon'''
     userId = models.UUIDField()
     """ To identify the data owner """
+    timeCreation = models.DateTimeField('Time Creation', null=True, blank=False)
+    """ creation time of token """
     # uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     # ''' UUID to identify a dummy bus'''
 
@@ -684,6 +697,15 @@ class Report(models.Model):
     userId = models.UUIDField()
     """ To identify the data owner """
 
+
+class GtfsVersion(models.Model):
+    """ manage different version presents in database """
+    gtfsVersion = models.CharField(max_length=10, default=None, null=False, unique=True)
+    """ GTFS version """
+    timeCreation = models.DateTimeField('Time Creation', null=True, blank=False)
+    """ creation time of token """
+
+
 ##
 #
 # Log for some requests
@@ -711,3 +733,5 @@ class Route(Location):
     """ Bus identifier """
     sequence = models.IntegerField('Sequence')
     """ point position in a route """
+    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    """ gtfs version """
