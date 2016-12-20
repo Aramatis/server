@@ -77,7 +77,7 @@ class LoadInitialDataTest(TestCase):
         loadData(['busstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
-        "Exception: el valor es demasiado largo para el tipo character varying(6)\n"\
+        "Exception: value too long for type character varying(6)\n"\
         "Loader: BusStop\n"\
         "Data columns: code,name,lat,lon\n"\
         "Values: HI!IAmAnErrorAG;Camino Agrícola;-33.49158577;-70.61753772\n"\
@@ -103,7 +103,7 @@ class LoadInitialDataTest(TestCase):
         loadData(['event', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
-        "Exception: el valor es demasiado largo para el tipo character varying(8)\n"\
+        "Exception: value too long for type character varying(8)\n"\
         "Loader: Event\n"\
         "Data columns: id,eventType,category,origin,name,description,lifespam\n"\
         "Values: HI!IAmAnErrorevn00000;busStop;buses Juntos;o;2 juntos;2 buses pasan juntos ;1440\n"\
@@ -129,7 +129,7 @@ class LoadInitialDataTest(TestCase):
         loadData(['route', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
-        "Exception: el valor es demasiado largo para el tipo character varying(11)\n"\
+        "Exception: value too long for type character varying(11)\n"\
         "Loader: Route\n"\
         "Data columns: serviceCode,latitude,longitude,sequence\n"\
         "Values: HI!IAmAnError101I;-33.406175;-70.623244;1\n"\
@@ -159,7 +159,7 @@ class LoadInitialDataTest(TestCase):
         loadData(['servicelocation', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
-        "Exception: el valor es demasiado largo para el tipo character varying(11)\n"\
+        "Exception: value too long for type character varying(11)\n"\
         "Loader: ServiceLocation\n"\
         "Data columns: serviceName,distance,latitude,longitude\n"\
         "Values: HI!IAmAnError101I;0;-33.406175;-70.623244\n"\
@@ -185,7 +185,7 @@ class LoadInitialDataTest(TestCase):
         loadData(['service', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
 
         EXPECTED_LOG = "=========================================\n"\
-        "Exception: el valor es demasiado largo para el tipo character varying(11)\n"\
+        "Exception: value too long for type character varying(11)\n"\
         "Loader: Service\n"\
         "Data columns: serviceName,origin,destination,color,colorId\n"\
         "Values: HI!IAmAnError101;RECOLETA;CERRILLOS;00D5FF;4\n"\
