@@ -25,8 +25,10 @@ FILE_NAMES = [
 
 downloader = urllib.URLopener()
 
+mkdir -p DATA_PATH + '/' + FILE_VERSION
+
 for fileName in FILE_NAMES:
-    savedFileName = DATA_PATH + '/' + fileName + FILE_EXTENSION
+    savedFileName = DATA_PATH + '/' + FILE_VERSION + '/' + fileName + FILE_EXTENSION
     url = '{}/{}'.format(URL_PREFIX, fileName + FILE_VERSION + FILE_EXTENSION)
     print "Downloading ... " + url
     downloader.retrieve(url, savedFileName)
