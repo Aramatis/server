@@ -110,7 +110,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         busService = '507'
-        eventCode = 'evn00101'
+        eventCode = 'evn00202'
 
         machineId = self.helper.askForMachineId(licencePlate)
 
@@ -215,7 +215,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         licencePlate = 'AA1111'
         busService = '507'
-        eventCode = 'evn00101'
+        eventCode = 'evn00202'
 
         machineId = self.helper.askForMachineId(licencePlate)
 
