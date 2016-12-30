@@ -263,6 +263,47 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         self.assertEqual(anEvent.aditionalInfo, aditionalInfo)
 
+    def test_EventsByBusStopWhereBusEventsAreAlwaysDifferentRecords(self):
+        '''This method test the posibility to report an event adding 
+        aditional information twice and should generate two records '''
+
+        busStopCode = 'PA459'
+
+        eventCode1 = 'evn00102'
+        aditionalInfo1 = '509'
+
+        # submitting some events to the server
+        jsonResponse = self.test.reportStopEvent(
+            self.userId, busStopCode, eventCode1, aditionalInfo1)
+        # report one event, and confirm it
+        self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
+        self.assertEqual(len(jsonResponse['events']), 0)
+
+        # event exists in database with aditional info saved
+        busStop = BusStop.objects.get(code=busStopCode)
+        event = Event.objects.get(id=eventCode1)
+        event = EventForBusStop.objects.get(busStop=busStop, event=event)
+
+        self.assertEqual(event.aditionalInfo, aditionalInfo1)
+
+        eventCode2 = 'evn00102'
+        aditionalInfo2 = '509'
+        # submitting some events to the server
+        jsonResponse = self.test.reportStopEvent(
+            self.userId, busStopCode, eventCode2, aditionalInfo2)
+        # report one event, and confirm it
+        self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
+        self.assertEqual(len(jsonResponse['events']), 0)
+
+        # event exists in database with aditional info saved
+        busStop = BusStop.objects.get(code=busStopCode)
+        event = Event.objects.get(id=eventCode2)
+        events = EventForBusStop.objects.filter(busStop=busStop, event=event).order_by('timeCreation')
+
+        self.assertEqual(len(events), 2)
+        self.assertEqual(events[0].aditionalInfo, aditionalInfo1)
+        self.assertEqual(events[1].aditionalInfo, aditionalInfo2)
+
     def test_registerPose(self):
         request = self.factory.get('/android/userPosition')
         request.user = AnonymousUser()
