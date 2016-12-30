@@ -32,23 +32,23 @@ urlpatterns = [
     url(r'^sendTrajectory$', SendPoses.as_view()),
     # reportEventBus with location
     url(
-        r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>evn\d{5})/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>(confirm|decline))$',
         RegisterEventBus.as_view()),
     # reportEventBus without location
     url(
-        r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBus/(?P<pUserId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pBusPlate>[\w,0-9,-]*)/(?P<pEventID>evn\d{5})/(?P<pConfirmDecline>(confirm|decline))$',
         RegisterEventBus.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pEventID>evn\d{5})/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pEventID>evn\d{5})/(?P<pConfirmDecline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pService>[0-9,\w]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pService>[0-9,\w]*)/(?P<pEventID>evn\d{5})/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pService>[0-9,\w]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBusStop/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStopCode>[\w,0-9]*)/(?P<pService>[0-9,\w]*)/(?P<pEventID>evn\d{5})/(?P<pConfirmDecline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
  
     # List of events that depend of parameter pWhich={stopstop,stopbus, busbus}
