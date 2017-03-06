@@ -2,7 +2,14 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+from django.utils import timezone
 
+ID_GTFS_VERSION=1
+
+def addFirstVersion(apps, schema_editor):
+    """ add first gtfs version """
+    gtfsVersion = apps.get_model('AndroidRequests', 'gtfsVersion')
+    gtfsVersion.objects.create(id=ID_GTFS_VERSION, gtfsVersion='v0.6', timeCreation=timezone.now())
 
 class Migration(migrations.Migration):
 
@@ -19,6 +26,7 @@ class Migration(migrations.Migration):
                 ('timeCreation', models.DateTimeField(null=True, verbose_name=b'Time Creation')),
             ],
         ),
+        migrations.RunPython(addFirstVersion),
         migrations.AddField(
             model_name='token',
             name='timeCreation',
@@ -27,37 +35,37 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='busstop',
             name='gtfsVersion',
-            field=models.ForeignKey(default='v0.6', verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
+            field=models.ForeignKey(default=ID_GTFS_VERSION, verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='route',
             name='gtfsVersion',
-            field=models.ForeignKey(default='v0.6', verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
+            field=models.ForeignKey(default=ID_GTFS_VERSION, verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='service',
             name='gtfsVersion',
-            field=models.ForeignKey(default='v0.6', verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
+            field=models.ForeignKey(default=ID_GTFS_VERSION, verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='servicelocation',
             name='gtfsVersion',
-            field=models.ForeignKey(default='v0.6', verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
+            field=models.ForeignKey(default=ID_GTFS_VERSION, verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='servicesbybusstop',
             name='gtfsVersion',
-            field=models.ForeignKey(default='v0.6', verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
+            field=models.ForeignKey(default=ID_GTFS_VERSION, verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='servicestopdistance',
             name='gtfsVersion',
-            field=models.ForeignKey(default='v0.6', verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
+            field=models.ForeignKey(default=ID_GTFS_VERSION, verbose_name=b'gtfs version', to='AndroidRequests.GtfsVersion'),
             preserve_default=False,
         ),
     ]
