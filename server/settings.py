@@ -208,6 +208,8 @@ DATABASES = {
     # }
 }
 
+# GTFS DATA USED TO PREDICT POSITION AND OTHER THINGS
+GTFS_VERSION =  'v0.6'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
