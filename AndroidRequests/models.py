@@ -203,7 +203,7 @@ class ServicesByBusStop(models.Model):
     """ Bus stops where the service is stopped """
     service = models.ForeignKey('Service', verbose_name='the service')
     """ Service that stops in the bus stop """
-    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 
 
@@ -221,7 +221,7 @@ class BusStop(Location):
         verbose_name='Events',
         through=EventForBusStop)
     """ events associated to bus stop """
-    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 
     def getDictionary(self):
@@ -251,7 +251,7 @@ class Service(models.Model):
         verbose_name='Bus Stops',
         through=ServicesByBusStop)
     """ bus stops where the service stops """
-    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 
 
@@ -620,7 +620,7 @@ class ServiceLocation(Location):
     """ Service code where the last character indicates its direction """
     distance = models.IntegerField('Route Distance')
     """ Distance traveled by the service since its origin """
-    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 
     class Meta:
@@ -640,7 +640,7 @@ class ServiceStopDistance(models.Model):
     """ It represents the Service code, ex: '506I' """
     distance = models.IntegerField('Distance Traveled')
     """ Distance traveled by the service when it reaches the bus stop """
-    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 
 
@@ -698,9 +698,9 @@ class Report(models.Model):
     """ To identify the data owner """
 
 
-class GtfsVersion(models.Model):
+class GTFS(models.Model):
     """ manage different version presents in database """
-    gtfsVersion = models.CharField(max_length=10, default=None, null=False, unique=True)
+    version = models.CharField(max_length=10, default=None, null=False, unique=True)
     """ GTFS version """
     timeCreation = models.DateTimeField('Time Creation', null=True, blank=False)
     """ creation time of token """
@@ -733,5 +733,5 @@ class Route(Location):
     """ Bus identifier """
     sequence = models.IntegerField('Sequence')
     """ point position in a route """
-    gtfsVersion = models.ForeignKey('GtfsVersion', verbose_name='gtfs version')
+    gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
