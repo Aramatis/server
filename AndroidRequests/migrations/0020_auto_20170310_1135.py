@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='busstop',
             name='id',
-            field=models.AutoField(auto_created=True, primary_key=True),
+            field=models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True),
         ),
         # for service model
         migrations.RemoveField(
@@ -71,6 +71,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='service',
             name='id',
-            field=models.AutoField(auto_created=True, primary_key=True),
+            field=models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True),
         ),
     ]

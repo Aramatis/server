@@ -19,32 +19,32 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='servicesbybusstop',
             name='busStop',
-            field=models.ForeignKey(default=1, verbose_name=b'bus stop', to='AndroidRequests.BusStop'),
+            field=models.ForeignKey(default=1, verbose_name=b'the busStop', to='AndroidRequests.BusStop'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='servicestopdistance',
             name='busStop',
-            field=models.ForeignKey(default=1, verbose_name=b'bus stop', to='AndroidRequests.BusStop'),
+            field=models.ForeignKey(default=1, verbose_name=b'Bus Stop', to='AndroidRequests.BusStop'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='eventforbusstop',
             name='busStop',
-            field=models.ForeignKey(default=1, verbose_name=b'bus stop', to='AndroidRequests.BusStop'),
+            field=models.ForeignKey(default=1, verbose_name=b'Bus Stop', to='AndroidRequests.BusStop'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='nearbybuseslog',
             name='busStop',
-            field=models.ForeignKey(default=1, verbose_name=b'bus stop', to='AndroidRequests.BusStop'),
+            field=models.ForeignKey(default=1, verbose_name=b'Bus Stop', to='AndroidRequests.BusStop'),
             preserve_default=False,
         ),
         # for service model
         migrations.AddField(
             model_name='servicesbybusstop',
             name='service',
-            field=models.ForeignKey(default=1, verbose_name=b'service', to='AndroidRequests.Service'),
+            field=models.ForeignKey(default=1, verbose_name=b'the service', to='AndroidRequests.Service'),
             preserve_default=False,
         ),
     ]
