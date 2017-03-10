@@ -206,13 +206,15 @@ class ServicesByBusStop(models.Model):
     gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 
+    class Meta:
+        unique_together = ('code', 'busStop', 'gtfs')
+
 
 class BusStop(Location):
     """Represents the busStop itself."""
     code = models.CharField(
         'Code',
-        max_length=6,
-        primary_key=True)  # For example PA443
+        max_length=6)
     """ Code that identifies the bus stop """
     name = models.CharField('Name', max_length=70, null=False, blank=False)
     """ Name of the bus stop, indicating the streets """
@@ -233,10 +235,12 @@ class BusStop(Location):
 
         return dictionary
 
+    class Meta:
+        unique_together = ('code', 'gtfs')
 
 class Service(models.Model):
     """ Represent a Service like '506' and save his data """
-    service = models.CharField('Service', max_length=11, primary_key=True)
+    service = models.CharField('Service', max_length=11)
     """ Represent the service, like '506c' without direction """
     origin = models.CharField(max_length=100, null=False, blank=False)
     """ Indicates the place where the service start his travel """
@@ -253,6 +257,9 @@ class Service(models.Model):
     """ bus stops where the service stops """
     gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
+
+    class Meta:
+        unique_together = ('service', 'gtfs')
 
 
 class ServiceNotFoundException(Exception):
@@ -625,6 +632,7 @@ class ServiceLocation(Location):
 
     class Meta:
         index_together = ["service", "distance"]
+        unique_together = ('service', 'distance', 'gtfs')
 
 
 class ServiceStopDistance(models.Model):
@@ -642,6 +650,8 @@ class ServiceStopDistance(models.Model):
     """ Distance traveled by the service when it reaches the bus stop """
     gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
+    class Meta:
+        unique_together = ('busStop', 'service', 'gtfs')
 
 
 class Token(models.Model):
@@ -735,3 +745,6 @@ class Route(Location):
     """ point position in a route """
     gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
+
+    class Meta:
+        unique_together = ('serviceCode', 'sequence', 'gtfs')

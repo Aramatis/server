@@ -4,7 +4,8 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
-from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation
+from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation, GTFS
+from django.utils import timezone
 
 
 def deleteEndOfLine(line):
@@ -26,11 +27,12 @@ class Loader:
     def className(self):
         return
 
-    def __init__(self, csv, log):
+    def __init__(self, csv, log, gtfsVersion):
         """ The constructor, receives a csv file with the data,
         and a log file to write the errors occurred in the process. """
         self.csv = csv
         self.log = log
+        self.gtfs, _ = GTFS.objects.get_or_create(version=gtfsVersion, defaults={'timeCreation': timezone.now()})
 
     def rowAddedMessage(self, className, rowsNum):
         """ Return a String indicating the amount of rows added to the database. """
@@ -50,11 +52,6 @@ class Loader:
         return messageError
 
     @abc.abstractmethod
-    def deleteAllRecords(self):
-        """ Delete all register in database table """
-        return
-
-    @abc.abstractmethod
     def load(self):
         """Read the file given and load the data in the database."""
         return
@@ -69,11 +66,7 @@ class BusStopLoader(Loader):
     def className(self):
         return self._className
 
-    def deleteAllRecords(self):
-        BusStop.objects.all().delete()
-
     def load(self):
-        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             line = deleteEndOfLine(line)
@@ -88,8 +81,10 @@ class BusStopLoader(Loader):
             pLon = data[3]
 
             try:
-                BusStop.objects.create(code=pCode, name=pName,
-                                       latitud=pLat, longitud=pLon)
+                BusStop.objects.get_or_create(code=pCode, gtfs=self.gtfs, 
+                                              defaults={'name': pName,
+                                                        'latitud': pLat, 
+                                                        'longitud': pLon})
             except Exception as e:
                 dataName = "code,name,lat,lon"
                 dataValue = "{};{};{};{}\n".format(pCode, pName, pLat, pLon)
@@ -103,9 +98,9 @@ class BusStopLoader(Loader):
             if(i % self.ticks == 0):
                 print super(BusStopLoader, self).rowAddedMessage(self.className, i)
 
-
 class ServiceStopDistanceLoader(Loader):
-    """ This class load the data for the ServiceStopDistance table."""
+    """ This class load the data for the ServiceStopDistance table. 
+    It assumes bustops data exist in database """
     _className = "ServiceStopDistance"
     ticks = 5000
 
@@ -113,11 +108,7 @@ class ServiceStopDistanceLoader(Loader):
     def className(self):
         return self._className
 
-    def deleteAllRecords(self):
-        ServiceStopDistance.objects.all().delete()
-
     def load(self):
-        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             line = deleteEndOfLine(line)
@@ -130,9 +121,9 @@ class ServiceStopDistanceLoader(Loader):
             pServiceName = data[1]
             pDistance = data[2]
             try:
-                busStop = BusStop.objects.get(code=pBusStopCode)
-                ServiceStopDistance.objects.create(
-                    busStop=busStop, service=pServiceName, distance=int(pDistance))
+                busStop = BusStop.objects.get(code=pBusStopCode, gtfs=self.gtfs)
+                ServiceStopDistance.objects.get_or_create(
+                    busStop=busStop, service=pServiceName, gtfs=self.gtfs, distance=int(pDistance))
             except Exception as e:
                 dataName = "busStopCode,serviceName,distance"
                 dataValue = "{};{};{}\n".format(
@@ -157,11 +148,7 @@ class ServiceLoader(Loader):
     def className(self):
         return self._className
 
-    def deleteAllRecords(self):
-        Service.objects.all().delete()
-
     def load(self):
-        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             line = deleteEndOfLine(line)
@@ -177,12 +164,13 @@ class ServiceLoader(Loader):
             pColorId = data[4]
 
             try:
-                Service.objects.create(
+                Service.objects.get_or_create(
                     service=pServiceName,
                     origin=pOrigin,
                     destiny=pDestination,
                     color=pColor,
-                    color_id=pColorId)
+                    color_id=pColorId,
+                    gtfs=self.gtfs)
             except Exception as e:
                 dataName = "serviceName,origin,destination,color,colorId"
                 dataValue = "{};{};{};{};{}\n".format(
@@ -207,9 +195,6 @@ class ServicesByBusStopLoader(Loader):
     def className(self):
         return self._className
 
-    def deleteAllRecords(self):
-        ServicesByBusStop.objects.all().delete()
-
     def processData(self, rows):
         try:
             ServicesByBusStop.objects.bulk_create(rows)
@@ -225,7 +210,6 @@ class ServicesByBusStopLoader(Loader):
             self.log.write(errorMessage)
 
     def load(self):
-        self.deleteAllRecords()
         i = 0
 
         rows = []
@@ -277,9 +261,6 @@ class ServiceLocationLoader(Loader):
     def className(self):
         return self._className
 
-    def deleteAllRecords(self):
-        ServiceLocation.objects.all().delete()
-
     def processData(self, rows):
         try:
             ServiceLocation.objects.bulk_create(rows)
@@ -295,7 +276,6 @@ class ServiceLocationLoader(Loader):
             self.log.write(errorMessage)
 
     def load(self):
-        self.deleteAllRecords()
         i = 0
 
         rows = []
@@ -337,11 +317,7 @@ class EventLoader(Loader):
     def className(self):
         return self._className
 
-    def deleteAllRecords(self):
-        Event.objects.all().delete()
-
     def load(self):
-        self.deleteAllRecords()
         i = 1
         for line in self.csv:
             line = deleteEndOfLine(line)
@@ -399,9 +375,6 @@ class RouteLoader(Loader):
     def className(self):
         return self._className
 
-    def deleteAllRecords(self):
-        Route.objects.all().delete()
-
     def processData(self, rows):
         try:
             Route.objects.bulk_create(rows)
@@ -417,7 +390,6 @@ class RouteLoader(Loader):
             self.log.write(errorMessage)
 
     def load(self):
-        self.deleteAllRecords()
         i = 0
 
         rows = []

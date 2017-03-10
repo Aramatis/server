@@ -9,25 +9,29 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
 
+"""
+ HOW TO USE IT
+ run the script giving the parameters by command line
+ the first parameter is the gtfs version followed by 
+ pairs the name of the model and the paths to the csv files with the data
 
-# HOW TO USE IT
-# run the script giving the parameters by command line
-# the parameters must be the name of the model and the paths to the csv files with the data
-# EX: python loadData.py busstop InitialData/busstops.csv service
-# InitialData/services.csv servicesbybusstop
-# InitialData/servicesbybusstop.csv servicestopdistance
-# InitialData/servicestopdistance.csv ServiceLocation
-# InitialData/servicelocation.csv event InitialData/events.csv
-
+ EX: python loadData.py 'v0.6' busstop InitialData/busstop.csv 
+                               service InitialData/services.csv 
+                               servicesbybusstop InitialData/servicesbybusstop.csv
+                               servicestopdistance InitialData/servicestopdistance.csv
+                               ServiceLocation InitialData/servicelocation.csv
+                               event InitialData/events.csv
+"""
 def loadData(args, logFileName = 'loadDataError.log'):
     ''' load csv data to database '''
     factory = LoaderFactory()
     log = open(logFileName, 'w+')
-    for i in range(0, len(args)-1, 2):
+    gtfsVersion = args[0]
+    for i in range(1, len(args)-1, 2):
         csv = open(args[i + 1], 'r')  # path to csv file
         # skip header
         csv.next()
-        loader = factory.getModelLoader(args[i])(csv, log)
+        loader = factory.getModelLoader(args[i])(csv, log, gtfsVersion)
         loader.load()
         csv.close()
     log.close()
