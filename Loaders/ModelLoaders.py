@@ -246,7 +246,7 @@ class ServicesByBusStopLoader(Loader):
                     self.processData(rows, i)
 
         if len(rows) > 0:
-            self.processData(rows, index)
+            self.processData(rows, i)
 
 
 class ServiceLocationLoader(Loader):
