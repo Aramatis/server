@@ -206,7 +206,7 @@ class ServicesByBusStopLoader(Loader):
                 ServicesByBusStopLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
             self.log.write(errorMessage)
-            print "Error in bulk_create"
+            print "Error in bulk_create [{},{}]".format(index-ticks, index)
 
     def load(self):
         i = 0
@@ -244,6 +244,7 @@ class ServicesByBusStopLoader(Loader):
                 i += 1
                 if(i % self.ticks == 0):
                     self.processData(rows, i)
+                    rows = []
 
         if len(rows) > 0:
             self.processData(rows, i)
@@ -272,7 +273,7 @@ class ServiceLocationLoader(Loader):
                 ServiceLocationLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
             self.log.write(errorMessage)
-            print "Error in bulk_create"
+            print "Error in bulk_create [{},{}]".format(index-ticks, index)
 
     def load(self):
         i = 0
@@ -340,6 +341,7 @@ class EventLoader(Loader):
                     event.origin = pOrigin
                     event.name = pName
                     event.description = pDescription
+                    event.lifespam = pLifespam
                     event.save()
                 else:
                     Event.objects.create(
@@ -388,6 +390,7 @@ class RouteLoader(Loader):
                 RouteLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
             self.log.write(errorMessage)
+            print "Error in bulk_create [{},{}]".format(index-ticks, index)
 
     def load(self):
         i = 0
