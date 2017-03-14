@@ -33,9 +33,20 @@ def assignServiceId(apps, schema_editor):
         serviceId +=1
     print "Finish to add ids to service records"
 
+def assignTokenId(apps, schema_editor):
+    ''' '''
+    tokenM = apps.get_model('AndroidRequests', 'token')
+
+    tokenId = 1
+    for token in tokenM.objects.all():
+        token.id = tokenId
+        token.save()
+        tokenId +=1
+    print "Finish to add ids to token records"
+
 def changeServicesbybusstop(apps, schema_editor):
     ''' '''
-    busStopM = apps.get_model('AndroidRequests', 'busStop')
+    busStopM = apps.get_model('AndroidRequests', 'busstop')
     servicesbybusstopM = apps.get_model('AndroidRequests', 'servicesbybusstop')
     for busstop in busStopM.objects.all():
         servicesbybusstopM.objects.filter(busStop=busstop).update(busStop_id_aux=busstop.id)
@@ -49,7 +60,7 @@ def changeServicestopdistance(apps, schema_editor):
         servicestopdistanceM.objects.filter(busStop=busstop).update(busStop_id_aux=busstop.id)
     print "Finish..."
 
-def changeeventforbusstop(apps, schema_editor):
+def changeEventforbusstop(apps, schema_editor):
     ''' '''
     busStopM = apps.get_model('AndroidRequests', 'busStop')
     eventforbusstopM = apps.get_model('AndroidRequests', 'eventforbusstop')
@@ -57,7 +68,7 @@ def changeeventforbusstop(apps, schema_editor):
         eventforbusstopM.objects.filter(busStop=busstop).update(busStop_id_aux=busstop.id)
     print "Finish..."
 
-def changenearbybuseslog(apps, schema_editor):
+def changeNearbybuseslog(apps, schema_editor):
     ''' '''
     busStopM = apps.get_model('AndroidRequests', 'busStop')
     nearbybuseslogM = apps.get_model('AndroidRequests', 'nearbybuseslog')
@@ -66,12 +77,29 @@ def changenearbybuseslog(apps, schema_editor):
     print "Finish..."
 
 # service model
-def changeservicesbybusstop(apps, schema_editor):
+def changeServicesbybusstopService(apps, schema_editor):
     ''' '''
     serviceM = apps.get_model('AndroidRequests', 'service')
     servicesbybusstopM = apps.get_model('AndroidRequests', 'servicesbybusstop')
     for service in serviceM.objects.all():
         servicesbybusstopM.objects.filter(service=service).update(service_id_aux=service.id)
+    print "Finish..."
+
+# token model
+def changePoseintrajectoryoftoken(apps, schema_editor):
+    ''' '''
+    tokenM = apps.get_model('AndroidRequests', 'token')
+    trajectoryM = apps.get_model('AndroidRequests', 'poseintrajectoryoftoken')
+    for token in tokenM.objects.all():
+        trajectoryM.objects.filter(token=token).update(token_id_aux=token.id)
+    print "Finish..."
+
+def changeActivetoken(apps, schema_editor):
+    ''' '''
+    tokenM = apps.get_model('AndroidRequests', 'token')
+    activetokenM = apps.get_model('AndroidRequests', 'activetoken')
+    for token in tokenM.objects.all():
+        activetokenM.objects.filter(token=token).update(token_id_aux=token.id)
     print "Finish..."
 
 
@@ -125,13 +153,36 @@ class Migration(migrations.Migration):
             field=models.IntegerField(default=-1, serialize=False, verbose_name='ID'),
             preserve_default=False,
         ),
+        # token model
+        migrations.AddField(
+            model_name='token',
+            name='id',
+            field=models.IntegerField(default=-1, serialize=False, verbose_name='ID'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='poseintrajectoryoftoken',
+            name='token_id_aux',
+            field=models.IntegerField(default=-1, serialize=False, verbose_name='ID'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='activetoken',
+            name='token_id_aux',
+            field=models.IntegerField(default=-1, serialize=False, verbose_name='ID'),
+            preserve_default=False,
+        ),
         # busstop model
         migrations.RunPython(assignBusStopId),
         migrations.RunPython(changeServicesbybusstop),
         migrations.RunPython(changeServicestopdistance),
-        migrations.RunPython(changeeventforbusstop),
-        migrations.RunPython(changenearbybuseslog),
+        migrations.RunPython(changeEventforbusstop),
+        migrations.RunPython(changeNearbybuseslog),
         # service model
         migrations.RunPython(assignServiceId),
-        migrations.RunPython(changeservicesbybusstop),
+        migrations.RunPython(changeServicesbybusstopService),
+        # token model
+        migrations.RunPython(assignTokenId),
+        migrations.RunPython(changePoseintrajectoryoftoken),
+        migrations.RunPython(changeActivetoken),
     ]

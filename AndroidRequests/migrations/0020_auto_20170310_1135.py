@@ -6,19 +6,8 @@ from django.db import models, migrations
 """
 PROCEDURE
 - Remove foreign key 
-- Change primary key in bus stop model
+- Change primary key
 """
-
-def fullData(apps, schema_editor):
-    ''' '''
-    servicesbybusstopM = apps.get_model('AndroidRequests', 'servicesbybusstop')
-    servicesbybusstopM.objects.all().update(busStop_id=F('busStop_id_aux'))
-
-    servicestopdistanceM = apps.get_model('AndroidRequests', 'servicestopdistance')
-    servicestopdistanceM.objects.all().update(busStop_id=F('busStop_id_aux'))
-
-    eventforbusstopM = apps.get_model('AndroidRequests', 'eventforbusstop')
-    eventforbusstopM.objects.all().update(busStop_id=F('busStop_id_aux'))
 
 class Migration(migrations.Migration):
 
@@ -56,7 +45,7 @@ class Migration(migrations.Migration):
             name='id',
             field=models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True),
         ),
-        # for service model
+        # Service model
         migrations.RemoveField(
             model_name='servicesbybusstop',
             name='service'
@@ -70,6 +59,25 @@ class Migration(migrations.Migration):
         # make id field primary key
         migrations.AlterField(
             model_name='service',
+            name='id',
+            field=models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True),
+        ),
+        # Token model
+        migrations.RemoveField(
+            model_name='poseintrajectoryoftoken',
+            name='token'
+        ),
+        migrations.RemoveField(
+            model_name='activetoken',
+            name='token'
+        ),
+        migrations.AlterField(
+            model_name='token',
+            name='token',
+            field=models.CharField(max_length=128, verbose_name=b'Token'),
+        ),
+        migrations.AlterField(
+            model_name='token',
             name='id',
             field=models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True),
         ),

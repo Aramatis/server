@@ -19,9 +19,16 @@ def fullData(apps, schema_editor):
     eventforbusstopM = apps.get_model('AndroidRequests', 'eventforbusstop')
     eventforbusstopM.objects.all().update(busStop_id=F('busStop_id_aux'))
 
-    # for service model
+    # Service model
     servicesbybusstopM = apps.get_model('AndroidRequests', 'servicesbybusstop')
     servicesbybusstopM.objects.all().update(service_id=F('service_id_aux'))
+
+    # Token model
+    trajectoryM = apps.get_model('AndroidRequests', 'poseintrajectoryoftoken')
+    trajectoryM.objects.all().update(token_id=F('token_id_aux'))
+
+    activetokenM = apps.get_model('AndroidRequests', 'activetoken')
+    activetokenM.objects.all().update(token_id=F('token_id_aux'))
 
 
 class Migration(migrations.Migration):

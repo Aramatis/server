@@ -32,9 +32,18 @@ class Migration(migrations.Migration):
             model_name='nearbybuseslog',
             name='busStop_id_aux',
         ),
+        # Service model
         migrations.RemoveField(
             model_name='servicesbybusstop',
             name='service_id_aux',
         ),
-
+        # Token model
+        migrations.RemoveField(
+            model_name='poseintrajectoryoftoken',
+            name='token_id_aux',
+        ),
+        migrations.RemoveField(
+            model_name='activetoken',
+            name='token_id_aux',
+        ),
     ]

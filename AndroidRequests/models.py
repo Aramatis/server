@@ -656,7 +656,7 @@ class ServiceStopDistance(models.Model):
 
 class Token(models.Model):
     '''This table has all the tokens that have been used ever.'''
-    token = models.CharField('Token', max_length=128, primary_key=True)
+    token = models.CharField('Token', max_length=128)
     '''Identifier for an incognito trip'''
     busassignment = models.ForeignKey(Busassignment, verbose_name='Bus')
     '''Bus that is making the trip'''

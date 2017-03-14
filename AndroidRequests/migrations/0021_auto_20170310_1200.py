@@ -40,11 +40,24 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(default=1, verbose_name=b'Bus Stop', to='AndroidRequests.BusStop'),
             preserve_default=False,
         ),
-        # for service model
+        # Service model
         migrations.AddField(
             model_name='servicesbybusstop',
             name='service',
             field=models.ForeignKey(default=1, verbose_name=b'the service', to='AndroidRequests.Service'),
+            preserve_default=False,
+        ),
+        # Token model
+        migrations.AddField(
+            model_name='poseintrajectoryoftoken',
+            name='token',
+            field=models.ForeignKey(default=1, verbose_name=b'Token', to='AndroidRequests.Token'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='activetoken',
+            name='token',
+            field=models.OneToOneField(default=1, verbose_name=b'Token', to='AndroidRequests.Token'),
             preserve_default=False,
         ),
     ]
