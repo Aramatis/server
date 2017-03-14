@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^map/', include('MapLocationOfUsers.urls')),
     url(r'^modeldic/', include('DataDictionary.urls')),
     url(r'^routeplanner/', include('routeplanner.urls')),
+    url(r'^score/', include('score.urls')),
 ]
