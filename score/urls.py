@@ -1,7 +1,7 @@
 from django.conf.urls import url
-from . import views
+from score.views import TranSappUserLogin, TranSappUserLogout
 
 urlpatterns = [
-    url(r'^login/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStop>\w+)$',        views.nearbyBuses),
-    url(r'^registerReport$', RegisterReport.as_view()),
+    url(r'^login$', TranSappUserLogin.as_view()),
+    url(r'^logout$', TranSappUserLogout.as_view()),
 ]

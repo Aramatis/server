@@ -7,9 +7,12 @@ from django.views.generic import View
 import logging
 import requests
 import uuid
+import re
+import json
 
-from score.models import TranSappUser
+from score.models import TranSappUser, Level
 
+NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 # Create your views here.
 
 class TranSappUserLogin(View):
@@ -22,53 +25,71 @@ class TranSappUserLogin(View):
         ''' ask to facebook if tokenId is valid '''
         pass
     
-    def checkFacebookId(self, facebookId):
-        ''' ask to facebook if tokenId is valid '''
+    def checkFacebookId(self, accessToken):
+        ''' ask to facebook if accessToken is valid '''
 
-        URL = 'debug_token?input_token={}&access_token={}'.format(facebookId, )
-        response = request.get()
+        APP_NAME = 'TranSapp'
+        APP_ID = '371656789840491'
+        APP_SECRET = 'b3027c1f591caa7ef9c2f7b2cc0c50af'
+        URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'.format(accessToken, APP_ID, APP_SECRET)
+        response = requests.get(URL)
+        response = json.loads(response.text)
+        
+        if response['data'] and \
+           response['data']['is_valid'] and \
+           response['data']['app_id'] == APP_ID:
+             return response['data']['user_id']
 
-        if response['data']:
-            return response['data']['is_valid']
-
-        return False
+        return None
 
     def post(self, request):
         """ register user """
 
-        tokenId = request.POST.get('userId')
-        tokenType = request.POST.get('tokenType')
-        phoneId = request.POST.get('phoneId')
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-
+        accessToken = request.POST.get('accessToken') 
+        accountType = request.POST.get('accountType') 
+        phoneId = request.POST.get('phoneId')         
+        name = request.POST.get('name')              
+        email = request.POST.get('email')            
+        userId = request.POST.get('userId')          
+               
         response = {}
-        if tokenType == 'FACEBOOK' and self.checkFacebookId(tokenId):
-            users = TranSappUser.objects.filter(tokenId=tokenId)
-            sessionUUID = uuid.uuid4()
-            if users:
-                # user exists
-                user = users[0]
-                user.sessionId = sessionUUID
-                user.save()
-            else:
-                # user does not exist
-                TranSappUser.objects.create(tokenId=tokenId, 
-                    socialNetwork=SOCIAL_NETWORK.FACEBOOK,
-                    name=name,
-                    email=email
-                    sessionId=sessionUUID)
+        response['status'] = 400
+        response['message'] = 'Access token is not valid'
+        if accountType == TranSappUser.FACEBOOK:
+            facebookUserId = self.checkFacebookId(accessToken)
+            if facebookUserId and userId == facebookUserId:
+                # is a valid facebook user
+                users = TranSappUser.objects.filter(userId=userId)
+                sessionToken = uuid.uuid4()
+                if users:
+                    # user exists
+                    user = users[0]
+                    user.phoneId = phoneId
+                    user.sessionToken = sessionToken
+                    user.save()
+                else:
+                    # user does not exist
+                    firstLevel = Level.objects.get(position=1)
+                    user = TranSappUser.objects.create(userId=userId, 
+                        accountType=TranSappUser.FACEBOOK,
+                        name=name,
+                        email=email,
+                        phoneId=phoneId,
+                        sessionToken=sessionToken, 
+                        level=firstLevel)
 
-            response['status'] = 'ok'
-            response['sessionId'] = user.sessionId
+                response['status'] = 200
+                response['message'] = ':-)'
+                response['sessionToken'] = user.sessionToken
+                response['userData'] = {}
+                response['userData']['score'] = user.globalScore
+                response['userData']['level'] = {}
+                response['userData']['level']['name'] = user.level.name
+                response['userData']['level']['maxScore'] = 1000 #TODO: fixed this pls!!!
 
-        elif: tokenType == 'GOOGLE' and self.checkGoogleId(tokenId):
+        elif accountType == TranSappUser.GOOGLE and self.checkGoogleId(tokenId):
             pass
-            response['status'] = 'ok'
-        else:
-            response['status'] = 'error'
-            response['message'] = 'Token id is not valid'
-
+        
         return JsonResponse(response, safe=False)
 
 class TranSappUserLogout(View):
@@ -77,24 +98,35 @@ class TranSappUserLogout(View):
     def __init__(self):
         self.context = {}
 
+    def isValidUUID(self, value):
+        ''' '''
+        pattern = re.compile(r'^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')
+        return pattern.match(value)
+
     def post(self, request):
         ''' change session id to default value '''
 
-        tokenId = request.POST.get('userId')
-        sessionUUID = request.POST.get('sessionId')
-
-        users = TranSappUser.objects.filter(tokenId=tokenId, sessionId=sessionUUID)
+        userId = request.POST.get('userId')
+        sessionToken = request.POST.get('sessionToken')
+        
+        
+        if self.isValidUUID(sessionToken): 
+            users = TranSappUser.objects.filter(userId=userId, sessionToken=sessionToken)
+        else:
+            users = []
 
         response = {}
         if users:
             # user exists
             user = users[0]
-            user = user.sessionId = None
+            user.sessionToken = NULL_SESSION_TOKEN
             user.save()
 
-            response['status'] = 'ok'
+            response['status'] = 200
         else:
-            response['status'] = 'error'
+            response['status'] = 400
             response['message'] = 'pair does not match with any user'
         
         return JsonResponse(response, safe=False)
+
+
