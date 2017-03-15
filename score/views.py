@@ -15,6 +15,12 @@ from score.models import TranSappUser, Level
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 # Create your views here.
 
+def isValidUUID(value):
+    ''' '''
+    pattern = re.compile(r'^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')
+    return pattern.match(value)
+
+
 class TranSappUserLogin(View):
     ''' log in transapp user '''
 
@@ -55,40 +61,44 @@ class TranSappUserLogin(View):
         response = {}
         response['status'] = 400
         response['message'] = 'Access token is not valid'
+
         if accountType == TranSappUser.FACEBOOK:
             facebookUserId = self.checkFacebookId(accessToken)
             if facebookUserId and userId == facebookUserId:
                 # is a valid facebook user
                 users = TranSappUser.objects.filter(userId=userId)
                 sessionToken = uuid.uuid4()
-                if users:
-                    # user exists
-                    user = users[0]
-                    user.phoneId = phoneId
-                    user.sessionToken = sessionToken
-                    user.save()
-                else:
-                    # user does not exist
-                    firstLevel = Level.objects.get(position=1)
-                    user = TranSappUser.objects.create(userId=userId, 
-                        accountType=TranSappUser.FACEBOOK,
-                        name=name,
-                        email=email,
-                        phoneId=phoneId,
-                        sessionToken=sessionToken, 
-                        level=firstLevel)
 
-                response['status'] = 200
-                response['message'] = ':-)'
-                response['sessionToken'] = user.sessionToken
-                response['userData'] = {}
-                response['userData']['score'] = user.globalScore
-                response['userData']['level'] = {}
-                response['userData']['level']['name'] = user.level.name
-                response['userData']['level']['maxScore'] = 1000 #TODO: fixed this pls!!!
+                try:
+                    if users:
+                        # user exists
+                        user = users[0]
+                        user.phoneId = phoneId
+                        user.sessionToken = sessionToken
+                        user.save()
+                    else:
+                        # user does not exist
+                        firstLevel = Level.objects.get(position=1)
+                        user = TranSappUser.objects.create(userId=userId, 
+                            accountType=TranSappUser.FACEBOOK,
+                            name=name,
+                            email=email,
+                            phoneId=phoneId,
+                            sessionToken=sessionToken, 
+                            level=firstLevel)
 
-        elif accountType == TranSappUser.GOOGLE and self.checkGoogleId(tokenId):
-            pass
+                    response['status'] = 200
+                    response['message'] = ':-)'
+                    response['sessionToken'] = user.sessionToken
+                    response['userData'] = {}
+                    response['userData']['score'] = user.globalScore
+                    response['userData']['level'] = {}
+                    response['userData']['level']['name'] = user.level.name
+                    response['userData']['level']['maxScore'] = Level.objects.get(position=user.level.position+1).minScore
+                except:
+                    print "we had problems"
+        elif accountType == TranSappUser.GOOGLE:
+            googleUserId = self.checkGoogleId(tokenId)
         
         return JsonResponse(response, safe=False)
 
@@ -98,11 +108,6 @@ class TranSappUserLogout(View):
     def __init__(self):
         self.context = {}
 
-    def isValidUUID(self, value):
-        ''' '''
-        pattern = re.compile(r'^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')
-        return pattern.match(value)
-
     def post(self, request):
         ''' change session id to default value '''
 
@@ -110,7 +115,7 @@ class TranSappUserLogout(View):
         sessionToken = request.POST.get('sessionToken')
         
         
-        if self.isValidUUID(sessionToken): 
+        if isValidUUID(sessionToken): 
             users = TranSappUser.objects.filter(userId=userId, sessionToken=sessionToken)
         else:
             users = []

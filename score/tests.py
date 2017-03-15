@@ -77,14 +77,16 @@ class UserLogTestCase(TestCase):
     def testLogInWithRealAccessToken(self):
         '''   '''
 
+        # login
         jsonResponse = self.login(self.REAL_ACCESS_TOKEN, self.PHONE_ID_1)
  
         self.assertEqual(jsonResponse['status'], 200)
         self.assertEqual(jsonResponse['userData']['score'], 0)
         self.assertEqual(jsonResponse['userData']['level']['name'], 'firstLevel')
         self.assertEqual(jsonResponse['userData']['level']['maxScore'], 1000)
-        self.assertTrue(TranSappUserLogout().isValidUUID(jsonResponse['sessionToken']))
+        self.assertTrue(views.isValidUUID(jsonResponse['sessionToken']))
 
+        # verify database
         self.assertEqual(TranSappUser.objects.count(), 1)
         user = TranSappUser.objects.first()
         self.assertEqual(user.sessionToken, uuid.UUID(jsonResponse['sessionToken']))
@@ -94,7 +96,7 @@ class UserLogTestCase(TestCase):
 
 
         # the same user will log in on another phone
-        jsonResponse = self.login(self.REAL_ACCESS_TOKEN, SELF.PHONE_ID_2)
+        jsonResponse = self.login(self.REAL_ACCESS_TOKEN, self.PHONE_ID_2)
 
         self.assertEqual(TranSappUser.objects.count(), 1)
         user = TranSappUser.objects.first()
@@ -106,14 +108,20 @@ class UserLogTestCase(TestCase):
 
     def testLogInWithFakeAccessToken(self):
         '''   '''
-        jsonResponse = self.login(self.FAKE_ACCESS_TOKEN)
+        jsonResponse = self.login(self.FAKE_ACCESS_TOKEN, self.PHONE_ID_1)
         self.assertEqual(jsonResponse['status'], 400)
+
+    def testLogInWithFakeAccessToken(self):
+        '''   '''
+        jsonResponse = self.login(self.REAL_ACCESS_TOKEN, 'asdasd')
+        self.assertEqual(jsonResponse['status'], 400)
+
 
     def testLogOut(self):
         '''   '''
 
         # login
-        jsonLogin = self.login(self.REAL_ACCESS_TOKEN)
+        jsonLogin = self.login(self.REAL_ACCESS_TOKEN, self.PHONE_ID_1)
 
         # logout
         jsonLogout = self.logout(jsonLogin['sessionToken'])
