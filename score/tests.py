@@ -12,7 +12,7 @@ from score.models import TranSappUser, Level
 class UserLogTestCase(TestCase):
     '''  '''
     URL_PREFIX = '/score/'
-
+    """
     def makeGetRequest(self, url, params = {}):
         
         URL = UserLogTestCase.URL_PREFIX + url
@@ -21,7 +21,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         return response
-
+    """
     def makePostRequest(self, url, params = {}):
         
         URL = UserLogTestCase.URL_PREFIX + url
@@ -105,17 +105,15 @@ class UserLogTestCase(TestCase):
         self.assertEqual(user.email, self.EMAIL)
         self.assertEqual(user.phoneId, uuid.UUID(self.PHONE_ID_2))
 
+    def testLogInWithRealAccessTokenButBadPhoneId(self):
+        '''   '''
+        jsonResponse = self.login(self.REAL_ACCESS_TOKEN, 'asdasd')
+        self.assertEqual(jsonResponse['status'], 400)
 
     def testLogInWithFakeAccessToken(self):
         '''   '''
         jsonResponse = self.login(self.FAKE_ACCESS_TOKEN, self.PHONE_ID_1)
         self.assertEqual(jsonResponse['status'], 400)
-
-    def testLogInWithFakeAccessToken(self):
-        '''   '''
-        jsonResponse = self.login(self.REAL_ACCESS_TOKEN, 'asdasd')
-        self.assertEqual(jsonResponse['status'], 400)
-
 
     def testLogOut(self):
         '''   '''
@@ -138,3 +136,16 @@ class UserLogTestCase(TestCase):
         - logout malo -> mensaje de error
         - logout bueno -> mensaje de existo
         """
+
+    def testLogOutWithBadSessionToken(self):
+        '''   '''
+
+        # login
+        jsonLogin = self.login(self.REAL_ACCESS_TOKEN, self.PHONE_ID_1)
+
+        # logout
+        jsonLogout = self.logout("I'm a bad session token")
+
+        # tests
+        self.assertEqual(jsonLogout['status'], 400)
+
