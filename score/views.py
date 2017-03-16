@@ -41,18 +41,16 @@ class TranSappUserLogin(View):
     def checkFacebookId(self, accessToken):
         ''' ask to facebook if accessToken is valid '''
 
-        APP_NAME = settings.FACEBOOK_APP_NAME
-        APP_ID = settings.FACEBOOK_APP_ID
-        APP_SECRET = settings.FACEBOOK_APP_SECRET
-        URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'.format(accessToken, APP_ID, APP_SECRET)
+        URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'.\
+            format(accessToken, settings.FACEBOOK_APP_ID, settings.FACEBOOK_APP_SECRET)
         response = requests.get(URL)
         response = json.loads(response.text)
         
         if response['data'] and \
            response['data']['is_valid'] and \
-           response['data']['app_id'] == APP_ID:
+           response['data']['app_id'] == settings.FACEBOOK_APP_ID:
              return response['data']['user_id']
-
+        
         return None
 
     def post(self, request):
@@ -71,6 +69,7 @@ class TranSappUserLogin(View):
 
         if accountType == TranSappUser.FACEBOOK:
             facebookUserId = self.checkFacebookId(accessToken)
+            
             if facebookUserId and userId == facebookUserId:
                 # is a valid facebook user
                 users = TranSappUser.objects.filter(userId=userId)
