@@ -2,6 +2,7 @@
 from django.http import JsonResponse
 from django.conf import settings
 from django.views.generic import View
+from django.conf import settings
 
 # python utilities
 import logging
@@ -34,9 +35,9 @@ class TranSappUserLogin(View):
     def checkFacebookId(self, accessToken):
         ''' ask to facebook if accessToken is valid '''
 
-        APP_NAME = 'TranSapp'
-        APP_ID = '371656789840491'
-        APP_SECRET = 'b3027c1f591caa7ef9c2f7b2cc0c50af'
+        APP_NAME = settings.FACEBOOK_APP_NAME
+        APP_ID = settings.FACEBOOK_APP_ID
+        APP_SECRET = settings.FACEBOOK_APP_SECRET
         URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'.format(accessToken, APP_ID, APP_SECRET)
         response = requests.get(URL)
         response = json.loads(response.text)
@@ -95,8 +96,8 @@ class TranSappUserLogin(View):
                     response['userData']['level'] = {}
                     response['userData']['level']['name'] = user.level.name
                     response['userData']['level']['maxScore'] = Level.objects.get(position=user.level.position+1).minScore
-                except:
-                    print "we had problems"
+                except Exception as e:
+                    print str(e)
         elif accountType == TranSappUser.GOOGLE:
             googleUserId = self.checkGoogleId(tokenId)
         
