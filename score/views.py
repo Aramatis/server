@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.views.generic import View
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 # python utilities
 import logging
@@ -27,6 +29,10 @@ class TranSappUserLogin(View):
 
     def __init__(self):
         self.context = {}
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(TranSappUserLogin, self).dispatch(request, *args, **kwargs)
 
     def checkGoogleId(self, googleId):
         ''' ask to facebook if tokenId is valid '''
@@ -108,6 +114,10 @@ class TranSappUserLogout(View):
 
     def __init__(self):
         self.context = {}
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(TranSappUserLogout, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
         ''' change session id to default value '''
