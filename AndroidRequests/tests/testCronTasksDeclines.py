@@ -32,6 +32,8 @@ class CronTasksTestCase(TransactionTestCase):
     def test_does_not_have_the_minimum_number_of_declines_for_bus_stop(self):
         """ it does not have the minimum number of declines for bus stop """
 
+        import time
+        time.sleep(60)
         self.test.reportStopEvent(self.userId, self.stop, self.stopEventCode)
 
         # decline event

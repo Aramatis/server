@@ -1,9 +1,12 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
+from django.utils import timezone
+
 import json
 
 # my stuff
-from AndroidRequests.models import Service, BusStop, ServicesByBusStop
+from AndroidRequests.models import Service, BusStop, ServicesByBusStop, GTFS
 # views
 from AndroidRequests.allviews.BusStopsByService import BusStopsByService
 
@@ -12,11 +15,14 @@ class BusStopsByServiceTestCase(TestCase):
     """ test for BusStopByService view """
 
     def setUp(self):
+        
+        gtfs = GTFS.objects.create(version=settings.GTFS_VERSION, timeCreation=timezone.now())
         # create dummy service
         self.service = "506"
         serviceCode = "506I"
         serviceObj = Service.objects.create(
             service=self.service,
+            gtfs=gtfs,
             origin="this is the origin location",
             destiny="this es the destiny location")
 
@@ -34,6 +40,7 @@ class BusStopsByServiceTestCase(TestCase):
         for index in [0, 1, 2]:
             self.busStopObjs.append(BusStop.objects.create(
                 code=codes[index],
+                gtfs=gtfs,
                 name=names[index],
                 latitud=latitudes[index],
                 longitud=longitudes[index]
@@ -44,6 +51,7 @@ class BusStopsByServiceTestCase(TestCase):
             ServicesByBusStop.objects.create(
                 code=serviceCode,
                 busStop=self.busStopObjs[index],
+                gtfs=gtfs,
                 service=serviceObj
             )
 

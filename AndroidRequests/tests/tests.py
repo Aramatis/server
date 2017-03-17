@@ -1,6 +1,7 @@
 from django.test import TransactionTestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
 
 # my stuff
 from AndroidRequests.models import DevicePositionInTime, Bus, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment
@@ -89,7 +90,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
             uuid='159fc6b7-7a20-477e-b5c7-af421e1e0e16')
         # add dummy bus stop
         busStop = BusStop.objects.create(
-            code='PA459', name='bla', longitud=0, latitud=0)
+            code='PA459', gtfs__version=settings.GTFS_VERSION, name='bla', longitud=0, latitud=0)
 
         # add dummy service and its path
         # '#00a0f0'color_id = models.IntegerField(default = 0)

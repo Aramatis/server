@@ -1,5 +1,6 @@
 from django.views.generic import View
 from django.utils import timezone
+from django.conf import settings
 
 # my stuff
 # import DB's models
@@ -22,7 +23,7 @@ class RegisterEventBusStop(View):
             pLongitud=500):
 
         theEvent = Event.objects.get(id=pEventID)
-        theBusStop = BusStop.objects.get(code=pBusStopCode)
+        theBusStop = BusStop.objects.get(code=pBusStopCode, gtfs__version=settings.GTFS_VERSION)
 
         aTimeStamp = timezone.now()
 

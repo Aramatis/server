@@ -8,6 +8,9 @@ import json
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 
+# models
+from AndroidRequests.models import GTFS
+
 from Loaders.TestLoaderFactory import TestLoaderFactory
 
 
@@ -28,7 +31,7 @@ class TestHelper():
         csv = open(self.FILE_SOURCE + '/events.csv', 'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
-        loader = factory.getModelLoader('event')(csv, log)
+        loader = factory.getModelLoader('event')(csv, log, settings.GTFS_VERSION)
         loader.load()
         csv.close()
         log.close()
@@ -42,7 +45,7 @@ class TestHelper():
         csv = open(self.GTFS_PATH + '/services.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
-        loader = factory.getModelLoader('service')(csv, log)
+        loader = factory.getModelLoader('service')(csv, log, settings.GTFS_VERSION)
         loader.load(serviceList)
         csv.close()
         log.close()
@@ -55,7 +58,7 @@ class TestHelper():
         csv = open(self.GTFS_PATH + '/busstop.csv', 'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
-        loader = factory.getModelLoader('busstop')(csv, log)
+        loader = factory.getModelLoader('busstop')(csv, log, settings.GTFS_VERSION)
         loader.load(busStopList)
         csv.close()
         log.close()
@@ -70,7 +73,7 @@ class TestHelper():
             'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
-        loader = factory.getModelLoader('servicesbybusstop')(csv, log)
+        loader = factory.getModelLoader('servicesbybusstop')(csv, log, settings.GTFS_VERSION)
         loader.load(busStopList)
         csv.close()
         log.close()
@@ -83,7 +86,7 @@ class TestHelper():
         csv = open(self.GTFS_PATH + '/servicestopdistance.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
-        loader = factory.getModelLoader('servicestopdistance')(csv, log)
+        loader = factory.getModelLoader('servicestopdistance')(csv, log, settings.GTFS_VERSION)
         loader.load(service + direction)
         csv.close()
         log.close()
@@ -96,7 +99,7 @@ class TestHelper():
         csv = open(self.GTFS_PATH + '/servicelocation.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
-        loader = factory.getModelLoader('servicelocation')(csv, log)
+        loader = factory.getModelLoader('servicelocation')(csv, log, settings.GTFS_VERSION)
         loader.load(service + direction)
         csv.close()
         log.close()

@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
+from django.conf import settings
 
 # import DB's models
 from AndroidRequests.models import ServicesByBusStop
@@ -29,7 +30,7 @@ class BusStopsByService(View):
         """this method look for all the bus stops where the service stops."""
         busStops = []
 
-        for sbs in ServicesByBusStop.objects.filter(service=pBusService):
+        for sbs in ServicesByBusStop.objects.filter(service=pBusService, gtfs__version=settings.GTFS_VERSION):
             data = {}
             busStop = sbs.busStop
             data['codigo'] = busStop.code

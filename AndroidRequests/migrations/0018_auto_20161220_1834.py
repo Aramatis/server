@@ -9,7 +9,8 @@ GTFS_ID=1
 def addFirstVersion(apps, schema_editor):
     """ add first gtfs version """
     gtfs = apps.get_model('AndroidRequests', 'gtfs')
-    gtfs.objects.create(id=GTFS_ID, version='v0.6', timeCreation=timezone.now())
+    #gtfs.objects.create(id=GTFS_ID, version='v0.6', timeCreation=timezone.now())
+    gtfs.objects.create(version='v0.6', timeCreation=timezone.now())
 
 class Migration(migrations.Migration):
 

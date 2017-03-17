@@ -2,13 +2,14 @@
 from django.test import TestCase 
 import os, subprocess
 from loadData import loadData
+from django.utils import timezone
 
 class LoadInitialDataTest(TestCase):
 
     def setUp(self):
         ''' this method will automatically call for every single test at the beginning'''
         self.CURRENT_PATH = os.path.dirname(os.path.realpath('__file__'))
-        self.FILE_PATH = os.path.join(self.CURRENT_PATH, 'InitialData/')
+        self.FILE_PATH = os.path.join(self.CURRENT_PATH, 'InitialData/{}/'.format(settings.GTFS_VERSION))
         self.TEST_FILE_NAME = os.path.join(self.CURRENT_PATH, 'test.csv')
 
     def tearDown(self):
@@ -65,7 +66,7 @@ class LoadInitialDataTest(TestCase):
         FILE_NAME = 'busstop.csv'
         self.createTestFile(FILE_NAME)
 
-        loadData(['busstop', self.TEST_FILE_NAME])
+        loadData([settings.GTFS_VERSION, 'busstop', self.TEST_FILE_NAME])
 
     def test_loadBusStopsWithProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -74,7 +75,7 @@ class LoadInitialDataTest(TestCase):
         self.createTestFile(FILE_NAME, addBadLine = True)
 
         LOG_FILE_NAME = 'test.log'
-        loadData(['busstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        loadData([settings.GTFS_VERSION, 'busstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
         "Exception: value too long for type character varying(6)\n"\
@@ -91,7 +92,7 @@ class LoadInitialDataTest(TestCase):
         FILE_NAME = 'events.csv'
         self.createTestFile(FILE_NAME)
 
-        loadData(['event', self.TEST_FILE_NAME])
+        loadData([settings.GTFS_VERSION, 'event', self.TEST_FILE_NAME])
 
     def test_loadEventsWithProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -100,7 +101,7 @@ class LoadInitialDataTest(TestCase):
         self.createTestFile(FILE_NAME, addBadLine = True)
 
         LOG_FILE_NAME = 'test.log'
-        loadData(['event', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        loadData([settings.GTFS_VERSION, 'event', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
         "Exception: value too long for type character varying(8)\n"\
@@ -117,7 +118,7 @@ class LoadInitialDataTest(TestCase):
         FILE_NAME = 'routes.csv'
         self.createTestFile(FILE_NAME)
 
-        loadData(['route', self.TEST_FILE_NAME])
+        loadData([settings.GTFS_VERSION, 'route', self.TEST_FILE_NAME])
 
     def test_loadRoutesWithProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -126,7 +127,7 @@ class LoadInitialDataTest(TestCase):
         self.createTestFile(FILE_NAME, addBadLine = True)
 
         LOG_FILE_NAME = 'test.log'
-        loadData(['route', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        loadData([settings.GTFS_VERSION, 'route', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
         "Exception: value too long for type character varying(11)\n"\
@@ -142,12 +143,12 @@ class LoadInitialDataTest(TestCase):
 
         # we need to load previous data:
         # busstop
-        loadData(['busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
 
         FILE_NAME = 'servicelocation.csv'
         self.createTestFile(FILE_NAME)
         
-        loadData(['servicelocation', self.TEST_FILE_NAME])
+        loadData([settings.GTFS_VERSION, 'servicelocation', self.TEST_FILE_NAME])
 
     def test_loadServiceLocationWithProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -156,7 +157,7 @@ class LoadInitialDataTest(TestCase):
         self.createTestFile(FILE_NAME, addBadLine = True)
 
         LOG_FILE_NAME = 'test.log'
-        loadData(['servicelocation', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        loadData([settings.GTFS_VERSION, 'servicelocation', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
         "Exception: value too long for type character varying(11)\n"\
@@ -173,7 +174,7 @@ class LoadInitialDataTest(TestCase):
         FILE_NAME = 'services.csv'
         self.createTestFile(FILE_NAME)
 
-        loadData(['service', self.TEST_FILE_NAME])
+        loadData([settings.GTFS_VERSION, 'service', self.TEST_FILE_NAME])
 
     def test_loadServicesWithProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -182,7 +183,7 @@ class LoadInitialDataTest(TestCase):
         self.createTestFile(FILE_NAME, addBadLine = True)
 
         LOG_FILE_NAME = 'test.log'
-        loadData(['service', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        loadData([settings.GTFS_VERSION, 'service', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
 
         EXPECTED_LOG = "=========================================\n"\
         "Exception: value too long for type character varying(11)\n"\
@@ -198,27 +199,27 @@ class LoadInitialDataTest(TestCase):
 
         # we need to load previous data:
         # services
-        loadData(['service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
+        loadData([settings.GTFS_VERSION, 'service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
         # busstop
-        loadData(['busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
 
         FILE_NAME = 'servicesbybusstop.csv'
         self.createTestFile(FILE_NAME)
         
-        loadData(['servicesbybusstop', self.TEST_FILE_NAME])
+        loadData([settings.GTFS_VERSION, 'servicesbybusstop', self.TEST_FILE_NAME])
 
     def test_loadServicesByBusStopWithProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
         
         # we need to load previous data:
         # services
-        loadData(['service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
+        loadData([settings.GTFS_VERSION, 'service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
 
         FILE_NAME = 'servicesbybusstop.csv'
         self.createTestFile(FILE_NAME, addBadLine = True)
 
         LOG_FILE_NAME = 'test.log'
-        loadData(['servicesbybusstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        loadData([settings.GTFS_VERSION, 'servicesbybusstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
                 "Exception: BusStop matching query does not exist.\n"\
@@ -312,12 +313,12 @@ class LoadInitialDataTest(TestCase):
 
         # we need to load previous data:
         # busstop
-        loadData(['busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
 
         FILE_NAME = 'servicestopdistance.csv'
         self.createTestFile(FILE_NAME)
 
-        loadData(['servicestopdistance', self.TEST_FILE_NAME])
+        loadData([settings.GTFS_VERSION, 'servicestopdistance', self.TEST_FILE_NAME])
 
     def test_loadServicesStopDistanceWithProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -326,7 +327,7 @@ class LoadInitialDataTest(TestCase):
         self.createTestFile(FILE_NAME, addBadLine = True)
 
         LOG_FILE_NAME = 'test.log'
-        loadData(['servicestopdistance', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+        loadData([settings.GTFS_VERSION, 'servicestopdistance', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
         EXPECTED_LOG = "=========================================\n"\
                 "Exception: BusStop matching query does not exist.\n"\

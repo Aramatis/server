@@ -38,7 +38,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     logger = logging.getLogger(__name__)
 
     timeNow = timezone.now()
-    theBusStop = BusStop.objects.get(code=pBusStop)
+    theBusStop = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
 
     """
     This is temporal, it has to be deleted in the future
@@ -145,7 +145,8 @@ def getUserBuses(theBusStop, questioner):
 
     logger = logging.getLogger(__name__)
 
-    servicesToBusStop = ServicesByBusStop.objects.filter(busStop=theBusStop)
+    servicesToBusStop = ServicesByBusStop.objects.filter(busStop=theBusStop, \
+        gtfs__version=settings.GTFS_VERSION)
     serviceNames = []
     serviceDirections = []
     for s in servicesToBusStop:
@@ -183,7 +184,7 @@ def getUserBuses(theBusStop, questioner):
                 logger.error(str(e))
                 bus['sentido'] = "left"
             bus['color'] = Service.objects.get(
-                service=bus['servicio']).color_id
+                service=bus['servicio'], gtfs__version=settings.GTFS_VERSION).color_id
             bus['random'] = busData['random']
             bus['valido'] = 1
             # extras
@@ -248,7 +249,7 @@ def getAuthorityBuses(data):
         service['lon'] = busData['longitude']
         service['direction'] = busData['direction']
         service['color'] = Service.objects.get(
-            service=service['servicio']).color_id
+            service=service['servicio'], gtfs__version=settings.GTFS_VERSION).color_id
 
         try:
             service['sentido'] = busassignment.getDirection(

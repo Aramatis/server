@@ -1,9 +1,12 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
+from django.utils import timezone
+from django.conf import settings
+
 import json
 
 # my stuff
-from AndroidRequests.models import Route
+from AndroidRequests.models import Route, GTFS
 # views
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
 
@@ -14,6 +17,7 @@ class ServiceRouteTestCase(TestCase):
     def setUp(self):
 
         # create dummy service
+        self.gtfs = GTFS.objects.create(version=settings.GTFS_VERSION, timeCreation=timezone.now())
         self.service = "506"
         self.serviceCodeI = "506I"
         self.serviceCodeR = "506R"
@@ -21,52 +25,62 @@ class ServiceRouteTestCase(TestCase):
         # create a service route for a dummy service
         Route.objects.create(
             serviceCode=self.serviceCodeI,
+            gtfs=self.gtfs,
             sequence=1,
             latitud=1,
             longitud=1)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
+            gtfs=self.gtfs,
             sequence=2,
             latitud=2,
             longitud=2)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
+            gtfs=self.gtfs,
             sequence=3,
             latitud=3,
             longitud=3)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
+            gtfs=self.gtfs,
             sequence=4,
             latitud=4,
             longitud=4)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
+            gtfs=self.gtfs,
             sequence=5,
             latitud=5,
             longitud=5)
 
         Route.objects.create(
             serviceCode=self.serviceCodeR,
+            gtfs=self.gtfs,
             sequence=6,
             latitud=6,
             longitud=6)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
+            gtfs=self.gtfs,
             sequence=7,
             latitud=7,
             longitud=7)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
+            gtfs=self.gtfs,
             sequence=8,
             latitud=8,
             longitud=8)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
+            gtfs=self.gtfs,
             sequence=9,
             latitud=9,
             longitud=9)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
+            gtfs=self.gtfs,
             sequence=10,
             latitud=10,
             longitud=10)

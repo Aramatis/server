@@ -4,7 +4,8 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
-from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation
+from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation, GTFS
+from django.utils import timezone
 
 
 def deleteEndOfLine(line):
@@ -26,11 +27,12 @@ class TestLoader:
     def className(self):
         return
 
-    def __init__(self, csv, log):
+    def __init__(self, csv, log, gtfsVersion):
         """ The constructor, receives a csv file with the data,
         and a log file to write the errors occurred in the process. """
         self.csv = csv
         self.log = log
+        self.gtfs, _ = GTFS.objects.get_or_create(version=gtfsVersion, defaults={'timeCreation': timezone.now()})
 
     def rowAddedMessage(self, className, rowsNum):
         """ Return a String indicating the amount of rows added to the database. """
@@ -75,7 +77,7 @@ class BusStopTestLoader(TestLoader):
                 continue
 
             try:
-                BusStop.objects.create(code=pCode, name=pName,
+                BusStop.objects.create(code=pCode, gtfs=self.gtfs, name=pName,
                                        latitud=pLat, longitud=pLon)
             except Exception as e:
                 dataName = "code,name,lat,lon"
@@ -89,50 +91,6 @@ class BusStopTestLoader(TestLoader):
             i += 1
             if(i % self.ticks == 0):
                 print super(BusStopTestLoader, self).rowAddedMessage(self.className, i)
-
-
-class ServiceStopDistanceTestLoader(TestLoader):
-    """ This class load the data for the ServiceStopDistance table. it needs bus stop data """
-    _className = "ServiceStopDistanceTestLoader"
-    ticks = 100000
-
-    @property
-    def className(self):
-        return self._className
-
-    def load(self, busStopCodes):
-        i = 1
-        for line in self.csv:
-            line = deleteEndOfLine(line)
-            if len(line) == 0:
-                continue
-
-            data = line.split(";")
-
-            pBusStopCode = data[0]
-            pServiceName = data[1]
-            pDistance = data[2]
-
-            if pBusStopCode not in busStopCodes:
-                continue
-
-            try:
-                busStop = BusStop.objects.get(code=pBusStopCode)
-                ServiceStopDistance.objects.create(
-                    busStop=busStop, service=pServiceName, distance=int(pDistance))
-            except Exception as e:
-                dataName = "busStopCode,serviceName,distance"
-                dataValue = "{};{};{}".format(
-                    pBusStopCode, pServiceName, pDistance)
-                errorMessage = super(
-                    ServiceStopDistanceTestLoader, self).getErrorMessage(
-                    self.className, e, dataName, dataValue)
-                self.log.write(errorMessage)
-                continue
-
-            i += 1
-            if(i % self.ticks == 0):
-                print super(ServiceStopDistanceTestLoader, self).rowAddedMessage(self.className, i)
 
 
 class ServiceTestLoader(TestLoader):
@@ -165,6 +123,7 @@ class ServiceTestLoader(TestLoader):
             try:
                 Service.objects.create(
                     service=pServiceName,
+                    gtfs=self.gtfs,
                     origin=pOrigin,
                     destiny=pDestination,
                     color=pColor,
@@ -183,6 +142,50 @@ class ServiceTestLoader(TestLoader):
             if(i % self.ticks == 0):
                 print super(ServiceTestLoader, self).rowAddedMessage(self.className, i)
 
+
+
+class ServiceStopDistanceTestLoader(TestLoader):
+    """ This class load the data for the ServiceStopDistance table. it needs bus stop data """
+    _className = "ServiceStopDistanceTestLoader"
+    ticks = 100000
+
+    @property
+    def className(self):
+        return self._className
+
+    def load(self, busStopCodes):
+        i = 1
+        for line in self.csv:
+            line = deleteEndOfLine(line)
+            if len(line) == 0:
+                continue
+
+            data = line.split(";")
+
+            pBusStopCode = data[0]
+            pServiceName = data[1]
+            pDistance = data[2]
+
+            if pBusStopCode not in busStopCodes:
+                continue
+
+            try:
+                busStop = BusStop.objects.get(code=pBusStopCode, gtfs=self.gtfs)
+                ServiceStopDistance.objects.create(
+                    busStop=busStop, gtfs=self.gtfs, service=pServiceName, distance=int(pDistance))
+            except Exception as e:
+                dataName = "busStopCode,serviceName,distance"
+                dataValue = "{};{};{}".format(
+                    pBusStopCode, pServiceName, pDistance)
+                errorMessage = super(
+                    ServiceStopDistanceTestLoader, self).getErrorMessage(
+                    self.className, e, dataName, dataValue)
+                self.log.write(errorMessage)
+                continue
+
+            i += 1
+            if(i % self.ticks == 0):
+                print super(ServiceStopDistanceTestLoader, self).rowAddedMessage(self.className, i)
 
 class ServicesByBusStopTestLoader(TestLoader):
     """ This class load the data for the ServicesByBusStop table."""
@@ -212,10 +215,10 @@ class ServicesByBusStopTestLoader(TestLoader):
                 serviceWithoutDirection = pService[:-1]
                 try:
                     serviceObj = Service.objects.get(
-                        service=serviceWithoutDirection)
-                    busStopObj = BusStop.objects.get(code=pBusStopCode)
+                        service=serviceWithoutDirection, gtfs=self.gtfs)
+                    busStopObj = BusStop.objects.get(code=pBusStopCode, gtfs=self.gtfs)
                     ServicesByBusStop.objects.create(
-                        busStop=busStopObj, service=serviceObj, code=pService)
+                        busStop=busStopObj, gtfs=self.gtfs, service=serviceObj, code=pService)
                 except Exception as e:
                     dataName = "busStopCode,ServiceNameWithDirection"
                     dataValue = "{};{}".format(pBusStopCode, pService)
@@ -259,6 +262,7 @@ class ServiceLocationTestLoader(TestLoader):
             try:
                 ServiceLocation.objects.create(
                     service=pServiceName,
+                    gtfs=self.gtfs,
                     distance=pDistance,
                     latitud=pLat,
                     longitud=pLon)
@@ -357,8 +361,8 @@ class RouteTestLoader(TestLoader):
                 continue
 
             try:
-                Route.objects.create(serviceCode=pServiceCode, latitud=pLat,
-                                     longitud=pLon, sequence=pSequence)
+                Route.objects.create(serviceCode=pServiceCode, gtfs=self.gtfs, 
+                                     latitud=pLat, longitud=pLon, sequence=pSequence)
             except Exception as e:
                 dataName = "serviceCode,latitude,longitude,sequence"
                 dataValue = "{};{};{};{}".format(

@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
+from django.conf import settings
 
 # my stuff
 # import DB's models
@@ -14,7 +15,7 @@ class EventsByBusStop(View):
     def get(self, resquest, pBusStopCode):
         """Only the busto code is needed."""
         aTimeStamp = timezone.now()
-        theBusStop = BusStop.objects.get(code=pBusStopCode)
+        theBusStop = BusStop.objects.get(code=pBusStopCode, gtfs__version=settings.GTFS_VERSION)
 
         # ask for the events
         eventsData = self.getEventsForBusStop(theBusStop, aTimeStamp)
