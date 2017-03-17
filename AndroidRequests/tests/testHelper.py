@@ -1,6 +1,8 @@
 from django.test import RequestFactory, Client
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
+
 import json
 
 # views
@@ -11,6 +13,8 @@ from Loaders.TestLoaderFactory import TestLoaderFactory
 
 class TestHelper():
     """ methods that help to create test cases """
+    FILE_SOURCE = 'InitialData'
+    GTFS_PATH = 'InitialData/{}'.format(settings.GTFS_VERSION)
 
     def __init__(self, testInstance):
         self.factory = RequestFactory()
@@ -21,7 +25,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/events.csv', 'r')  # path to Bus Stop csv file
+        csv = open(self.FILE_SOURCE + '/events.csv', 'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('event')(csv, log)
@@ -35,7 +39,7 @@ class TestHelper():
         log = open('loadDataErrorTest.log', 'w')
 
         # path to Bus Stop csv file
-        csv = open('InitialData/services.csv', 'r')
+        csv = open(self.GTFS_PATH + '/services.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('service')(csv, log)
@@ -48,7 +52,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/busstop.csv', 'r')  # path to Bus Stop csv file
+        csv = open(self.GTFS_PATH + '/busstop.csv', 'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('busstop')(csv, log)
@@ -62,7 +66,7 @@ class TestHelper():
         log = open('loadDataErrorTest.log', 'w')
 
         csv = open(
-            'InitialData/servicesbybusstop.csv',
+            self.GTFS_PATH + '/servicesbybusstop.csv',
             'r')  # path to Bus Stop csv file
         csv.next()
         factory = TestLoaderFactory()
@@ -76,7 +80,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/servicestopdistance.csv', 'r')
+        csv = open(self.GTFS_PATH + '/servicestopdistance.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('servicestopdistance')(csv, log)
@@ -89,7 +93,7 @@ class TestHelper():
 
         log = open('loadDataErrorTest.log', 'w')
 
-        csv = open('InitialData/servicelocation.csv', 'r')
+        csv = open(self.GTFS_PATH + '/servicelocation.csv', 'r')
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader('servicelocation')(csv, log)
