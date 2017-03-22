@@ -26,7 +26,7 @@ class SetDirection(View):
             pDirection = request.POST.get('pDirection', '')
 
             if pDirection in ["I", "R"]:
-                if ActiveToken.objects.filter(token=pToken).exists():
+                if ActiveToken.objects.filter(token__token=pToken).exists():
                     aToken = Token.objects.get(token=pToken)
                     aToken.direction = pDirection
                     aToken.save()

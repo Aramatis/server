@@ -71,7 +71,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # the created token is an active token
         self.assertEqual(
             ActiveToken.objects.filter(
-                token=testToken).exists(), True)
+                token__token=testToken).exists(), True)
         # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
 
@@ -96,7 +96,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # the created token is an active token
         self.assertEqual(
             ActiveToken.objects.filter(
-                token=testToken).exists(), True)
+                token__token=testToken).exists(), True)
         # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
 
@@ -123,7 +123,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # the created token is an active token
         self.assertEqual(
             ActiveToken.objects.filter(
-                token=testToken).exists(), True)
+                token__token=testToken).exists(), True)
         # the created token exist in the table of token
         self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
         # the created token has the uuid for the dummybus

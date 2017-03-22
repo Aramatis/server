@@ -29,12 +29,12 @@ class SendPoses(View):
             pToken = request.POST.get('pToken', '')
             pTrajectory = request.POST.get('pTrajectory', '')
 
-            if ActiveToken.objects.filter(token=pToken).exists():
+            if ActiveToken.objects.filter(token__token=pToken).exists():
                 trajectory = json.loads(pTrajectory)
                 trajectory = trajectory['poses']
 
                 # update the token time stamp, for maintanence purpuses
-                aToken = ActiveToken.objects.get(token=pToken)
+                aToken = ActiveToken.objects.get(token__token=pToken)
                 aToken.timeStamp = timezone.now()
                 aToken.save()
 

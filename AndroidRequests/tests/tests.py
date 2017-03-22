@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, Bus, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment
+from AndroidRequests.models import DevicePositionInTime, Bus, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
 # views
 import AndroidRequests.views as views
 from AndroidRequests.tests.testHelper import TestHelper
@@ -83,6 +83,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         self.test.insertEventsOnDatabase()
 
+        self.gtfs = GTFS.objects.get(version=settings.GTFS_VERSION)
         # add dummy  bus
         Bus.objects.create(
             registrationPlate='AA1111',
@@ -90,28 +91,29 @@ class DevicePositionInTimeTest(TransactionTestCase):
             uuid='159fc6b7-7a20-477e-b5c7-af421e1e0e16')
         # add dummy bus stop
         busStop = BusStop.objects.create(
-            code='PA459', gtfs__version=settings.GTFS_VERSION, name='bla', longitud=0, latitud=0)
+            code='PA459', gtfs=self.gtfs, name='bla', longitud=0, latitud=0)
 
         # add dummy service and its path
         # '#00a0f0'color_id = models.IntegerField(default = 0)
         Service.objects.create(
             service='507',
+            gtfs=self.gtfs,
             origin='origin_test',
             destiny='destination_test')
         ServiceStopDistance.objects.create(
-            busStop=busStop, service='507I', distance=5)
+            busStop=busStop, gtfs=self.gtfs, service='507I', distance=5)
         ServiceLocation.objects.create(
-            service='507I', distance=1, longitud=4, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=1, longitud=4, latitud=5)
         ServiceLocation.objects.create(
-            service='507I', distance=2, longitud=5, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=2, longitud=5, latitud=5)
         ServiceLocation.objects.create(
-            service='507I', distance=3, longitud=6, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=3, longitud=6, latitud=5)
         ServiceLocation.objects.create(
-            service='507I', distance=4, longitud=7, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=4, longitud=7, latitud=5)
         ServiceLocation.objects.create(
-            service='507I', distance=5, longitud=8, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=5, longitud=8, latitud=5)
         ServiceLocation.objects.create(
-            service='507I', distance=6, longitud=9, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=6, longitud=9, latitud=5)
 
     def test_consistencyModelDevicePositionInTime(self):
         '''This method test the database for the DevicePositionInTime model'''
@@ -142,7 +144,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         # the created token is an active token
         self.assertEqual(
             ActiveToken.objects.filter(
-                token=travelToken).exists(), True)
+                token__token=travelToken).exists(), True)
         # the created token exist in the table of token
         self.assertEqual(
             Token.objects.filter(
@@ -155,7 +157,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         # activeToken has to be missing but token has to exists
         self.assertEqual(
             ActiveToken.objects.filter(
-                token=travelToken).exists(), False)
+                token__token=travelToken).exists(), False)
         self.assertEqual(
             Token.objects.filter(
                 token=travelToken).exists(), True)
@@ -228,7 +230,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
         # change manualy the timeStamp to simulate an event that has expired
-        busStop = BusStop.objects.get(code=busStopCode)
+        busStop = BusStop.objects.get(code=busStopCode, gtfs__version=settings.GTFS_VERSION)
         event = Event.objects.get(id=eventCode)
         anEvent = EventForBusStop.objects.get(busStop=busStop, event=event)
 

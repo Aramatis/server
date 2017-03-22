@@ -17,8 +17,8 @@ class EndRoute(View):
         """Delete the token from the active ones."""
         response = {}
         # check if the token exist
-        if ActiveToken.objects.filter(token=pToken).exists():
-            ActiveToken.objects.get(token=pToken).delete()
+        if ActiveToken.objects.filter(token__token=pToken).exists():
+            ActiveToken.objects.get(token__token=pToken).delete()
             response['response'] = 'Trip ended.'
         else:  # if the token was not found alert
             response['response'] = 'Token doesn\'t exist.'

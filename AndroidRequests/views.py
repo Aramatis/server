@@ -144,9 +144,9 @@ def getUserBuses(theBusStop, questioner):
     """ get active user buses """
 
     logger = logging.getLogger(__name__)
-
-    servicesToBusStop = ServicesByBusStop.objects.filter(busStop=theBusStop, \
-        gtfs__version=settings.GTFS_VERSION)
+    print "hola hola"
+    print ServicesByBusStop.objects.filter(busStop=theBusStop).query
+    servicesToBusStop = ServicesByBusStop.objects.filter(busStop=theBusStop)
     serviceNames = []
     serviceDirections = []
     for s in servicesToBusStop:

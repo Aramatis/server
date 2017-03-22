@@ -30,7 +30,7 @@ class CronTasksTestCase(TestCase):
             self.userId, self.busService, self.registrationPlate, timeStamp)
 
         self.assertEqual(ActiveToken.objects.count(), 1)
-        self.assertEqual(ActiveToken.objects.all().first().token_id, token)
+        self.assertEqual(ActiveToken.objects.first().token.token, token)
 
         cronTasks.cleanActiveTokenTable()
 
@@ -43,9 +43,9 @@ class CronTasksTestCase(TestCase):
             self.userId, self.busService, self.registrationPlate, timeStamp)
 
         self.assertEqual(ActiveToken.objects.count(), 1)
-        self.assertEqual(ActiveToken.objects.all().first().token_id, token)
+        self.assertEqual(ActiveToken.objects.first().token.token, token)
 
         cronTasks.cleanActiveTokenTable()
 
         self.assertEqual(ActiveToken.objects.count(), 1)
-        self.assertEqual(ActiveToken.objects.all().first().token_id, token)
+        self.assertEqual(ActiveToken.objects.first().token.token, token)
