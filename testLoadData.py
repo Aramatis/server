@@ -3,6 +3,7 @@ from django.test import TestCase
 import os, subprocess
 from loadData import loadData
 from django.utils import timezone
+from django.conf import settings
 
 class LoadInitialDataTest(TestCase):
 
@@ -21,6 +22,8 @@ class LoadInitialDataTest(TestCase):
         MAX_ROWS = 2
         newLines = []
 
+        if fileName == 'events.csv':
+            fileName = '../{}'.format(fileName)
         fileRef = open(os.path.join(self.FILE_PATH, fileName))
 
         index = 0
@@ -143,7 +146,7 @@ class LoadInitialDataTest(TestCase):
 
         # we need to load previous data:
         # busstop
-        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.FILE_PATH, 'busstop.csv')])
 
         FILE_NAME = 'servicelocation.csv'
         self.createTestFile(FILE_NAME)
@@ -199,9 +202,9 @@ class LoadInitialDataTest(TestCase):
 
         # we need to load previous data:
         # services
-        loadData([settings.GTFS_VERSION, 'service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
+        loadData([settings.GTFS_VERSION, 'service', os.path.join(self.FILE_PATH, 'services.csv')])
         # busstop
-        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.FILE_PATH, 'busstop.csv')])
 
         FILE_NAME = 'servicesbybusstop.csv'
         self.createTestFile(FILE_NAME)
@@ -213,7 +216,7 @@ class LoadInitialDataTest(TestCase):
         
         # we need to load previous data:
         # services
-        loadData([settings.GTFS_VERSION, 'service', os.path.join(self.CURRENT_PATH, 'InitialData/services.csv')])
+        loadData([settings.GTFS_VERSION, 'service', os.path.join(self.FILE_PATH, 'services.csv')])
 
         FILE_NAME = 'servicesbybusstop.csv'
         self.createTestFile(FILE_NAME, addBadLine = True)
@@ -313,7 +316,7 @@ class LoadInitialDataTest(TestCase):
 
         # we need to load previous data:
         # busstop
-        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.CURRENT_PATH, 'InitialData/busstop.csv')])
+        loadData([settings.GTFS_VERSION, 'busstop', os.path.join(self.FILE_PATH, 'busstop.csv')])
 
         FILE_NAME = 'servicestopdistance.csv'
         self.createTestFile(FILE_NAME)

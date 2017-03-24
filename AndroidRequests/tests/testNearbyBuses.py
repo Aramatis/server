@@ -54,6 +54,7 @@ class NearbyBusTest(TestCase):
 
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         busStopCode = 'PA433'
+        self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
 
         # TODO: FALTA TOMAR UNA URL REAL Y LA FORMATEADA

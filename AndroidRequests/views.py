@@ -38,7 +38,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     logger = logging.getLogger(__name__)
 
     timeNow = timezone.now()
-    theBusStop = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
+    busStopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
 
     """
     This is temporal, it has to be deleted in the future
@@ -47,7 +47,7 @@ def nearbyBuses(request, pUserId, pBusStop):
         # Register user request
         NearByBusesLog.objects.create(
             userId=pUserId,
-            busStop=theBusStop,
+            busStop=busStopObj,
             timeStamp=timeNow)
     else:
         logger.error('nearbybuses: null user')
@@ -57,13 +57,13 @@ def nearbyBuses(request, pUserId, pBusStop):
     BUS STOP EVENTS
     """
     getEventsBusStop = EventsByBusStop()
-    busStopEvent = getEventsBusStop.getEventsForBusStop(theBusStop, timeNow)
+    busStopEvent = getEventsBusStop.getEventsForBusStop(busStopObj, timeNow)
     answer["eventos"] = busStopEvent
 
     """
     USER BUSES
     """
-    userBuses = getUserBuses(theBusStop, pUserId)
+    userBuses = getUserBuses(pBusStop, pUserId)
 
     """
     DTPM BUSES
@@ -140,13 +140,11 @@ def formatTime(time, distance):
     return time
 
 
-def getUserBuses(theBusStop, questioner):
+def getUserBuses(busStopCode, questioner):
     """ get active user buses """
 
     logger = logging.getLogger(__name__)
-    print "hola hola"
-    print ServicesByBusStop.objects.filter(busStop=theBusStop).query
-    servicesToBusStop = ServicesByBusStop.objects.filter(busStop=theBusStop)
+    servicesToBusStop = ServicesByBusStop.objects.filter(busStop__code=busStopCode, gtfs__version=settings.GTFS_VERSION)
     serviceNames = []
     serviceDirections = []
     for s in servicesToBusStop:
@@ -179,7 +177,7 @@ def getUserBuses(theBusStop, questioner):
             bus['tienePasajeros'] = busData['passengers']
             try:
                 bus['sentido'] = user.busassignment.getDirection(
-                    theBusStop.code, 30)
+                    busStopObj.code, 30)
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"

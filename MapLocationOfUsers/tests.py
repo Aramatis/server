@@ -134,7 +134,7 @@ class GetMapPositionsTest(TestCase):
             response = reponseView.get(request, testTokens[cont])
 
         nonTrajectory = PoseInTrajectoryOfToken.objects.filter(
-            token=timeOutToken)
+            token__token=timeOutToken)
         for data in nonTrajectory:
             data.timeStamp = data.timeStamp - timezone.timedelta(minutes=11)
             data.save()
