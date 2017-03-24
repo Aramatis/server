@@ -173,12 +173,6 @@ class EventForBusStop(EventRegistration):
     ''' Saves additional information required by the event '''
 
 
-class EventForBus(EventRegistration):
-    '''This model stores the reported events for the Bus'''
-    bus = models.ForeignKey('Bus', verbose_name='the bus')
-    '''Indicates the bus to which the event refers'''
-
-
 class EventForBusv2(EventRegistration):
     '''This model stores the reported events for the Bus'''
     busassignment = models.ForeignKey('Busassignment', verbose_name='the bus')
@@ -269,172 +263,6 @@ class ServiceNotFoundException(Exception):
 
 class ServiceDistanceNotFoundException(Exception):
     """ error produced when it is not possible to get distance between a service and bus stop """
-
-
-class Bus(models.Model):
-    """DEPRECATED
-    Represent a bus like the unique combination of registration plate and service as one.
-    So there can be two buses with the same service and two buses with the same registration plate.
-    The last thing means that one fisical bus can work in two different services."""
-    registrationPlate = models.CharField(max_length=8)
-    """ It's the registration plate for the bus, without hyphen """
-    service = models.CharField(max_length=11, null=False, blank=False)
-    """ It indicates the service performed by the bus """
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    """ Unique ID to primarily identify Buses created without registrationPlate """
-    events = models.ManyToManyField(
-        Event, verbose_name='the event', through=EventForBus)
-
-    class Meta:
-        unique_together = ('registrationPlate', 'service')
-
-    def getDirection(self, pBusStop, pDistance):
-        """ Given a bus stop and the distance from the bus to the bus stop, return the address to which point the bus """
-        try:
-            serviceCode = ServicesByBusStop.objects.get(
-                busStop=pBusStop, service=self.service, gtfs__version=settings.GTFS_VERSION).code
-        except ServicesByBusStop.DoesNotExist:
-            raise ServiceNotFoundException(
-                "Service {} is not present in bus stop {}".format(
-                    self.service, pBusStop))
-
-        try:
-            serviceDistance = ServiceStopDistance.objects.get(
-                busStop=pBusStop, service=serviceCode).distance
-        except ServiceStopDistance.DoesNotExist:
-            raise ServiceDistanceNotFoundException(
-                "The distance is not possible getting for bus stop '{}' and service '{}'".format(
-                    pBusStop, serviceCode))
-
-        distance = serviceDistance - int(pDistance)
-        # bus service distance from route origin
-        greaters = ServiceLocation.objects.filter(
-            service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__gt=distance).order_by('distance')[:1]
-        # get 2 locations greater than current location (nearer to the bus
-        # stop)
-        lowers = ServiceLocation.objects.filter(
-            service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__lte=distance).order_by('-distance')[:1]
-        # get 2 locations lower than current location
-
-        # we need two point to detect the bus direction (left, right, up, down)
-        if len(greaters) > 0 and len(lowers) > 0:
-            greater = greaters[0]
-            lower = lowers[0]
-        elif len(greaters) == 0 and len(lowers) == 2:
-            greater = lowers[0]
-            lower = lowers[1]
-        elif len(greaters) == 0 and len(lowers) == 1:
-            greater = lowers[0]
-            lower = lowers[0]
-        elif len(lowers) == 0 and len(greaters) == 2:
-            lower = greaters[0]
-            greater = greaters[1]
-        elif len(lowers) == 0 and len(greaters) == 1:
-            lower = greaters[0]
-            greater = greaters[0]
-        elif len(lowers) == 0 and len(greaters) == 2:
-            lower = greaters[0]
-            greater = greaters[1]
-        elif len(greaters) == 0 and len(lowers) == 0:
-            # there are not points to detect direction
-            # TODO: add log to register this situations
-            logger = logging.getLogger(__name__)
-            logger.info("There is not position to detect bus direction")
-            return "left"
-
-        epsilon = 0.00008
-        x1 = lower.longitud
-        # y1 = lower.latitud
-        x2 = greater.longitud
-        # y2 = greater.latitud
-
-        if(abs(x2 - x1) >= epsilon):
-            if(x2 - x1 > 0):
-                return "right"
-            else:
-                return "left"
-        else:
-            # we compare bus location with bus stop location
-            busStopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
-            xBusStop = busStopObj.longitud
-            if(x2 - xBusStop > 0):
-                return "left"
-            else:
-                return "right"
-
-    def getLocation(self):
-        """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
-        tokens = Token.objects.filter(bus=self)
-        lastDate = timezone.now() - timezone.timedelta(minutes=5)
-        passengers = 0
-        lat = -500
-        lon = -500
-        random = True
-        for token in tokens:
-            if(not hasattr(token, 'activetoken')):
-                continue
-            passengers += 1
-            trajectoryQuery = PoseInTrajectoryOfToken.objects.filter(
-                token=token)
-            if trajectoryQuery.exists():
-                lastPose = trajectoryQuery.latest('timeStamp')
-                if (lastPose.timeStamp >= lastDate):
-                    lastDate = lastPose.timeStamp
-                    lat = lastPose.latitud
-                    lon = lastPose.longitud
-                    random = False
-
-        return {'latitude': lat,
-                'longitude': lon,
-                'passengers': passengers,
-                'random': random
-                }
-
-    def getEstimatedLocation(self, busstop, distance):
-        '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
-        try:
-            serviceCode = ServicesByBusStop.objects.get(
-                busStop=busstop, service=self.service, gtfs__version=settings.GTFS_VERSION).code
-        except ServicesByBusStop.DoesNotExist:
-            raise ServiceNotFoundException(
-                "Service {} is not present in bus stop {}".format(
-                    self.service, busstop))
-
-        ssd = ServiceStopDistance.objects.get(
-            busStop=busstop, service=serviceCode).distance - int(distance)
-
-        try:
-            closest_gt = ServiceLocation.objects.filter(
-                service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__gte=ssd).order_by('distance')[0].distance
-        except:
-            closest_gt = 50000
-        try:
-            closest_lt = ServiceLocation.objects.filter(
-                service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__lte=ssd).order_by('-distance')[0].distance
-        except:
-            closest_lt = 0
-
-        if(abs(closest_gt - ssd) < abs(closest_lt - ssd)):
-            closest = closest_gt
-        else:
-            closest = closest_lt
-
-        location = ServiceLocation.objects.filter(
-            service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance=closest)[0]
-
-        return {'latitude': location.latitud,
-                'longitude': location.longitud,
-                'direction': serviceCode[-1]
-                }
-
-    def getDictionary(self):
-        """ Return a dictionary with useful information about the bus """
-        dictionary = {}
-
-        dictionary['serviceBus'] = self.service
-        dictionary['registrationPlateBus'] = self.registrationPlate
-
-        return dictionary
 
 
 class Busv2(models.Model):
@@ -669,8 +497,6 @@ class Token(models.Model):
     """ To identify the data owner """
     timeCreation = models.DateTimeField('Time Creation', null=True, blank=False)
     """ creation time of token """
-    # uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    # ''' UUID to identify a dummy bus'''
 
     def getBusesIn(self, pListOfServices):
         """ return a list of buses that match with buses given as parameter """
