@@ -300,7 +300,7 @@ class Busassignment(models.Model):
         """ Given a bus stop and the distance from the bus to the bus stop, return the address to which point the bus """
         try:
             serviceCode = ServicesByBusStop.objects.get(
-                busStop=pBusStop, service=self.service, gtfs__version=settings.GTFS_VERSION).code
+                busStop__code=pBusStop, service__service=self.service, gtfs__version=settings.GTFS_VERSION).code
         except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException(
                 "Service {} is not present in bus stop {}".format(
@@ -308,7 +308,7 @@ class Busassignment(models.Model):
 
         try:
             serviceDistance = ServiceStopDistance.objects.get(
-                busStop=pBusStop, service=serviceCode).distance
+                busStop__code=pBusStop, service=serviceCode).distance
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(
                 "The distance is not possible getting for bus stop '{}' and service '{}'".format(
@@ -434,15 +434,16 @@ class Busassignment(models.Model):
                 'longitude': location.longitud,
                 'direction': serviceCode[-1]
                 }
-
+    """
     def getDictionary(self):
-        """ Return a dictionary with useful information about the bus """
+        """" Return a dictionary with useful information about the bus """"
         dictionary = {}
 
         dictionary['serviceBus'] = self.service
         dictionary['registrationPlateBus'] = self.uuid.registrationPlate
 
         return dictionary
+    """
 
 
 class ServiceLocation(Location):

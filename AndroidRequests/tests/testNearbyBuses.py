@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory
+from django.test import TransactionTestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
 import json
 
@@ -9,7 +9,7 @@ import AndroidRequests.views as views
 import AndroidRequests.constants as Constants
 
 
-class NearbyBusTest(TestCase):
+class NearbyBusTest(TransactionTestCase):
     """ test for DevicePositionInTime model """
 
     def setUp(self):

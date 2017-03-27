@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, Bus, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
+from AndroidRequests.models import DevicePositionInTime, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
 # views
 import AndroidRequests.views as views
 from AndroidRequests.tests.testHelper import TestHelper
@@ -85,10 +85,10 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         self.gtfs = GTFS.objects.get(version=settings.GTFS_VERSION)
         # add dummy  bus
-        Bus.objects.create(
-            registrationPlate='AA1111',
-            service='507',
-            uuid='159fc6b7-7a20-477e-b5c7-af421e1e0e16')
+        userId = '159fc6b77a20477eb5c7af421e1e0e16'
+        registrationPlate = 'AA1111'
+        service = '507'
+        self.test.createBusAndAssignmentOnDatabase(userId=userId, service=service, licencePlate=registrationPlate)
         # add dummy bus stop
         busStop = BusStop.objects.create(
             code='PA459', gtfs=self.gtfs, name='bla', longitud=0, latitud=0)
@@ -262,19 +262,14 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
     def test_preferPositionOfPersonInsideABus(self):
 
-        # Bus.objects.create(registrationPlate = 'AA1111', service = '507')
-        thebus = Busv2.objects.create(registrationPlate='AA1111')
-        Busassignment.objects.create(service='507', uuid=thebus)
-
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
         userLatitud = -33.458771
         userLongitud = -70.676266
 
         # first we test the position of the bus without passsangers
-        # bus = Bus.objects.get(registrationPlate='AA1111', service='507')
-        bus = Busv2.objects.get(registrationPlate='AA1111')
-        busassignment = Busassignment.objects.get(service='507', uuid=bus)
+        thebus = Busv2.objects.create(registrationPlate='AA1112')
+        busassignment = Busassignment.objects.create(service='507', uuid=thebus)
 
         busPose = busassignment.getLocation()
 
@@ -285,7 +280,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         # add the position of a passanger inside the bus
         service = '507'
-        licencePlate = 'AA1111'
+        licencePlate = 'AA1112'
         testToken = self.test.getInBusWithLicencePlate(
             self.userId, service, licencePlate)
 

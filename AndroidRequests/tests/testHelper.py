@@ -8,9 +8,6 @@ import json
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 
-# models
-from AndroidRequests.models import GTFS
-
 from Loaders.TestLoaderFactory import TestLoaderFactory
 
 
@@ -18,91 +15,76 @@ class TestHelper():
     """ methods that help to create test cases """
     FILE_SOURCE = 'InitialData'
     GTFS_PATH = 'InitialData/{}'.format(settings.GTFS_VERSION)
+    LOG_FILE_NAME = 'loadDataErrorTest.log'
 
     def __init__(self, testInstance):
         self.factory = RequestFactory()
         self.test = testInstance
 
+    def __loadData(self, model, filePath, log, dataFilter=[]):
+        """ load data on database """
+
+        csv = open(filePath, 'r')  # path to csv file
+        csv.next()
+        factory = TestLoaderFactory()
+        loader = factory.getModelLoader(model)(csv, log, settings.GTFS_VERSION)
+        loader.load(dataFilter)
+        csv.close()
+        log.close()
+
     def insertEventsOnDatabase(self):
         """ loads events """
 
-        log = open('loadDataErrorTest.log', 'w')
+        log = open(self.LOG_FILE_NAME, 'w')
+        filePath = self.FILE_SOURCE + '/events.csv'
+        model = 'event' 
 
-        csv = open(self.FILE_SOURCE + '/events.csv', 'r')  # path to Bus Stop csv file
-        csv.next()
-        factory = TestLoaderFactory()
-        loader = factory.getModelLoader('event')(csv, log, settings.GTFS_VERSION)
-        loader.load()
-        csv.close()
-        log.close()
-
+        self.__loadData(model, filePath, log)
+ 
     def insertServicesOnDatabase(self, serviceList):
         """ load services """
 
-        log = open('loadDataErrorTest.log', 'w')
+        log = open(self.LOG_FILE_NAME, 'w')
+        filePath = self.GTFS_PATH + '/services.csv'
+        model = 'service'
 
-        # path to Bus Stop csv file
-        csv = open(self.GTFS_PATH + '/services.csv', 'r')
-        csv.next()
-        factory = TestLoaderFactory()
-        loader = factory.getModelLoader('service')(csv, log, settings.GTFS_VERSION)
-        loader.load(serviceList)
-        csv.close()
-        log.close()
+        self.__loadData(model, filePath, log, serviceList)
 
     def insertBusstopsOnDatabase(self, busStopList):
         """ load bus stops """
 
-        log = open('loadDataErrorTest.log', 'w')
+        log = open(self.LOG_FILE_NAME, 'w')
+        filePath = self.GTFS_PATH + '/busstop.csv'
+        model = 'busstop'
 
-        csv = open(self.GTFS_PATH + '/busstop.csv', 'r')  # path to Bus Stop csv file
-        csv.next()
-        factory = TestLoaderFactory()
-        loader = factory.getModelLoader('busstop')(csv, log, settings.GTFS_VERSION)
-        loader.load(busStopList)
-        csv.close()
-        log.close()
+        self.__loadData(model, filePath, log, busStopList)
 
     def insertServicesByBusstopsOnDatabase(self, busStopList):
         """ load services by bus stops """
 
-        log = open('loadDataErrorTest.log', 'w')
+        log = open(self.LOG_FILE_NAME, 'w')
+        filePath = self.GTFS_PATH + '/servicesbybusstop.csv'
+        model = 'servicesbybusstop'
 
-        csv = open(
-            self.GTFS_PATH + '/servicesbybusstop.csv',
-            'r')  # path to Bus Stop csv file
-        csv.next()
-        factory = TestLoaderFactory()
-        loader = factory.getModelLoader('servicesbybusstop')(csv, log, settings.GTFS_VERSION)
-        loader.load(busStopList)
-        csv.close()
-        log.close()
+        self.__loadData(model, filePath, log, busStopList)
 
     def insertServiceStopDistanceOnDatabase(self, service, direction):
         """ load service stop distance data by service with direction """
 
-        log = open('loadDataErrorTest.log', 'w')
+        log = open(self.LOG_FILE_NAME, 'w')
+        filePath = self.GTFS_PATH + '/servicestopdistance.csv'
+        model = 'servicestopdistance'
 
-        csv = open(self.GTFS_PATH + '/servicestopdistance.csv', 'r')
-        csv.next()
-        factory = TestLoaderFactory()
-        loader = factory.getModelLoader('servicestopdistance')(csv, log, settings.GTFS_VERSION)
-        loader.load(service + direction)
-        csv.close()
-        log.close()
+        self.__loadData(model, filePath, log, service + direction)
 
     def insertServiceLocationOnDatabase(self, service, direction):
         """ load service location data by service with direction """
 
-        log = open('loadDataErrorTest.log', 'w')
+        log = open(self.LOG_FILE_NAME, 'w')
+        filePath = self.GTFS_PATH + '/servicelocation.csv'
+        model = 'servicelocation'
 
-        csv = open(self.GTFS_PATH + '/servicelocation.csv', 'r')
-        csv.next()
-        factory = TestLoaderFactory()
-        loader = factory.getModelLoader('servicelocation')(csv, log, settings.GTFS_VERSION)
-        loader.load(service + direction)
-        csv.close()
-        log.close()
+        self.__loadData(model, filePath, log, service + direction)
 
     def askForMachineId(self, pLicencePlate):
         """ simulate a request to get machine id based on its licence plate """

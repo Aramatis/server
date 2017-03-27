@@ -293,7 +293,7 @@ class EventTestLoader(TestLoader):
     def deleteAllRecords(self):
         Event.objects.all().delete()
 
-    def load(self):
+    def load(self, dataFilter):
         self.deleteAllRecords()
         i = 1
         for line in self.csv:

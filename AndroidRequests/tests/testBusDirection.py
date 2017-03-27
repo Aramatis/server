@@ -3,7 +3,8 @@ from django.utils import timezone
 from django.conf import settings
 
 # my stuff
-from AndroidRequests.models import ServiceLocation, BusStop, ServiceStopDistance, Bus, Service, ServicesByBusStop, GTFS
+from AndroidRequests.models import ServiceLocation, BusStop, ServiceStopDistance, Busv2, Busassignment, Service, ServicesByBusStop, GTFS
+from AndroidRequests.tests.testHelper import TestHelper
 
 # Create your tests here.
 
@@ -12,35 +13,28 @@ class BusDirectionTestCase(TestCase):
 
     def setUp(self):
         """ this method will automatically call for every single test """
+        
+        self.test = TestHelper(self)
 
-        self.gtfs = GTFS.objects.create(version=settings.GTFS_VERSION, timeCreation=timezone.now())
-        # dummy  bus
+        # dummy data
         self.service = '507'
         self.serviceCode = '507R'
         self.registrationPlate = 'AA1111'
-        self.bus = Bus.objects.create(
-            registrationPlate=self.registrationPlate,
-            service=self.service)
-        # dummy bus stop
+
+        # add service
+        self.test.insertServicesOnDatabase([self.service])
+
+        # add bus stop
         self.busStopCode = 'PA459'
-        self.busStopName = 'dummy bus stop'
+        self.test.insertBusstopsOnDatabase([self.busStopCode])
 
-        # add dummy service and its path
-        service = Service.objects.get_or_create(
-            service=self.service,
-            gtfs=self.gtfs, defaults={"origin":'origin_test',"destiny":'destination_test'})[0]
+        self.test.insertServicesByBusstopsOnDatabase([self.busStopCode])
 
-        # add dummy bus stop
-        busStop = BusStop.objects.create(
-            code=self.busStopCode,
-            gtfs=self.gtfs,
-            name=self.busStopName,
-            longitud=-1,
-            latitud=-1)
+        # create bus
+        userId = 'dec51b413a954765abb415524c04c807'
+        self.test.createBusAndAssignmentOnDatabase(userId, self.service, self.registrationPlate)
 
-        ServicesByBusStop.objects.create(
-            busStop=busStop, gtfs=self.gtfs, service=service, code=self.serviceCode)
-        # ServiceStopDistance.objects.create(busStop = busStop, service = serviceCode, distance = 124529)
+        self.gtfs = GTFS.objects.get(version=settings.GTFS_VERSION)
 
     def test_bus_in_the_upper_right_corner_to_bus_stop(self):
         """
@@ -60,7 +54,7 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # set bus stop
-        busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
+        busStop = BusStop.objects.get(code=self.busStopCode, gtfs__version=settings.GTFS_VERSION)
         busStop.longitud = 100
         busStop.latitud = 95
         busStop.save()
@@ -116,7 +110,7 @@ class BusDirectionTestCase(TestCase):
         distance = 25
 
         # print "upper_right_corner"
-        orientation = self.bus.getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
 
         self.assertEqual(orientation, 'left')
 
@@ -194,7 +188,7 @@ class BusDirectionTestCase(TestCase):
         distance = 20
 
         # print "lower_right_corner"
-        orientation = self.bus.getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
 
         self.assertEqual(orientation, 'left')
 
@@ -271,7 +265,7 @@ class BusDirectionTestCase(TestCase):
 
         distance = 20
         # print "lower_left_corner"
-        orientation = self.bus.getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
 
         self.assertEqual(orientation, 'right')
 
@@ -350,6 +344,6 @@ class BusDirectionTestCase(TestCase):
         distance = 25
 
         # print "upper_left_corner"
-        orientation = self.bus.getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
 
         self.assertEqual(orientation, 'right')
