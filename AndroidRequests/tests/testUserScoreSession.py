@@ -40,7 +40,7 @@ class FacebookAPI():
 
 class UserLogTestCase(TestCase):
     '''  '''
-    URL_PREFIX = '/score/'
+    URL_PREFIX = '/android/'
     """
     def makeGetRequest(self, url, params = {}):
         
