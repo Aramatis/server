@@ -90,7 +90,6 @@ INSTALLED_APPS = (
     'PredictorDTPM',
     'routeplanner',
     'AndroidRequestsBackups',
-    'score', 
 )
 
 MIDDLEWARE_CLASSES = (

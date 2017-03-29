@@ -13,7 +13,7 @@ import uuid
 import re
 import json
 
-from score.models import TranSappUser, Level
+from AndroidRequests.models import TranSappUser, Level
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 # Create your views here.

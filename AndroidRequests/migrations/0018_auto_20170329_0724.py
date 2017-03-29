@@ -7,23 +7,17 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('AndroidRequests', '0017_auto_20161123_1457'),
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='ActiveUser',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('phoneId', models.UUIDField()),
-                ('active', models.BooleanField(default=False)),
-            ],
-        ),
         migrations.CreateModel(
             name='Level',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50)),
                 ('minScore', models.FloatField(default=0)),
+                ('position', models.IntegerField(unique=True)),
             ],
         ),
         migrations.CreateModel(
@@ -38,32 +32,26 @@ class Migration(migrations.Migration):
             name='ScoreHistory',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('timeCreation', models.DateTimeField()),
-                ('score', models.FloatField(default=0)),
-                ('meta', models.CharField(max_length=100, null=True)),
-                ('scoreEvent', models.ForeignKey(to='score.ScoreEvent')),
+                ('scoreEvent', models.ForeignKey(to='AndroidRequests.ScoreEvent')),
             ],
         ),
         migrations.CreateModel(
             name='TranSappUser',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('tokenId', models.CharField(max_length=128)),
+                ('userId', models.CharField(max_length=128)),
                 ('name', models.CharField(max_length=50)),
                 ('email', models.EmailField(max_length=254)),
-                ('socialNetwork', models.CharField(max_length=10, choices=[(b'FACEBOOK', b'Facebook'), (b'GOOGLE', b'Google')])),
+                ('phoneId', models.UUIDField()),
+                ('accountType', models.CharField(max_length=10, choices=[(b'FACEBOOK', b'Facebook'), (b'GOOGLE', b'Google')])),
                 ('globalScore', models.FloatField(default=0)),
-                ('level', models.ForeignKey(to='score.Level')),
+                ('sessionToken', models.UUIDField()),
+                ('level', models.ForeignKey(to='AndroidRequests.Level')),
             ],
         ),
         migrations.AddField(
             model_name='scorehistory',
             name='tranSappUser',
-            field=models.ForeignKey(to='score.TranSappUser'),
-        ),
-        migrations.AddField(
-            model_name='activeuser',
-            name='tranSappUser',
-            field=models.ForeignKey(to='score.TranSappUser'),
+            field=models.ForeignKey(to='AndroidRequests.TranSappUser'),
         ),
     ]

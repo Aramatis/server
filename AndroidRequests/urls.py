@@ -17,6 +17,8 @@ from AndroidRequests.allviews.RegisterReport import RegisterReport
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
 from AndroidRequests.allviews.SetDirection import SetDirection
 from AndroidRequests.allviews.RequestUUID import RequestUUID
+from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin
+from AndroidRequests.allviews.UserScoreSession import TranSappUserLogout
 
 urlpatterns = [
     url(r'^nearbyBuses/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStop>\w+)$',
@@ -87,4 +89,10 @@ urlpatterns = [
         RegisterEventBusV2.as_view()),
     url(r'^requestEventsForBus/v2/(?P<pUuid>[0-9a-z-]+)$',
         EventsByBusV2.as_view()),
+
+    # =====================================================
+    # SCORE SESSION
+    # =====================================================
+    url(r'^login$', TranSappUserLogin.as_view()),
+    url(r'^logout$', TranSappUserLogout.as_view()),
 ]

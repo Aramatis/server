@@ -6,9 +6,9 @@ import json
 import requests
 
 # Create your tests here.
-from score.views import TranSappUserLogin, TranSappUserLogout
-from score import views
-from score.models import TranSappUser, Level
+from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin, TranSappUserLogout
+from AndroidRequests.allviews import UserScoreSession as uss
+from AndroidRequests.models import TranSappUser, Level
 
 class FacebookAPI():
     ''' class to manipulate calls to facebook API '''
@@ -117,7 +117,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(jsonResponse['userData']['score'], 0)
         self.assertEqual(jsonResponse['userData']['level']['name'], 'firstLevel')
         self.assertEqual(jsonResponse['userData']['level']['maxScore'], 1000)
-        self.assertTrue(views.isValidUUID(jsonResponse['sessionToken']))
+        self.assertTrue(uss.isValidUUID(jsonResponse['sessionToken']))
 
         # verify database
         self.assertEqual(TranSappUser.objects.count(), 1)
@@ -157,7 +157,7 @@ class UserLogTestCase(TestCase):
         # tests
         self.assertEqual(jsonLogout['status'], 200)
         user = TranSappUser.objects.get(userId=self.USER_ID)
-        self.assertEqual(user.sessionToken, views.NULL_SESSION_TOKEN)
+        self.assertEqual(user.sessionToken, uss.NULL_SESSION_TOKEN)
     
     def testFacebookLogoutWithBadSessionToken(self):
         '''   '''
