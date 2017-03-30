@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50)),
                 ('minScore', models.FloatField(default=0)),
+                ('maxScore', models.FloatField(default=0)),
                 ('position', models.IntegerField(unique=True)),
             ],
         ),
@@ -24,7 +25,7 @@ class Migration(migrations.Migration):
             name='ScoreEvent',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('code', models.CharField(max_length=10)),
+                ('code', models.CharField(unique=True, max_length=10)),
                 ('score', models.FloatField(default=0)),
             ],
         ),
@@ -32,7 +33,10 @@ class Migration(migrations.Migration):
             name='ScoreHistory',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('timeCreation', models.DateTimeField(null=False)),
                 ('scoreEvent', models.ForeignKey(to='AndroidRequests.ScoreEvent')),
+                ('meta', models.CharField(max_length=100, null=True)),
+                ('score', models.FloatField(default=0)),
             ],
         ),
         migrations.CreateModel(
@@ -53,5 +57,10 @@ class Migration(migrations.Migration):
             model_name='scorehistory',
             name='tranSappUser',
             field=models.ForeignKey(to='AndroidRequests.TranSappUser'),
+        ),
+        migrations.AddField(
+            model_name='token',
+            name='userEvaluation',
+            field=models.IntegerField(null=True),
         ),
     ]
