@@ -19,6 +19,7 @@ from AndroidRequests.allviews.SetDirection import SetDirection
 from AndroidRequests.allviews.RequestUUID import RequestUUID
 from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin
 from AndroidRequests.allviews.UserScoreSession import TranSappUserLogout
+from AndroidRequests.allviews.EvaluateTrip import EvaluateTrip
 
 urlpatterns = [
     url(r'^nearbyBuses/(?P<pUserId>[0-9a-z-]+)/(?P<pBusStop>\w+)$',
@@ -95,4 +96,8 @@ urlpatterns = [
     # =====================================================
     url(r'^login$', TranSappUserLogin.as_view()),
     url(r'^logout$', TranSappUserLogout.as_view()),
+    # =====================================================
+    # EVALUATE TRIP
+    # =====================================================
+    url(r'^evaluateTrip$', EvaluateTrip.as_view()),
 ]
