@@ -63,8 +63,8 @@ class UserLogTestCase(TestCase):
     def setUp(self):
         '''   '''
         # Insert levels
-        Level.objects.create(name="firstLevel", minScore=0, position=1)
-        Level.objects.create(name="secondLevel", minScore=1000, position=2)
+        Level.objects.create(name="firstLevel", minScore=0, maxScore=1000, position=1)
+        Level.objects.create(name="secondLevel", minScore=1000, maxScore=2000, position=2)
 
         self.NAME = 'test name'
         self.EMAIL = 'felipe@hernandez.cl'
