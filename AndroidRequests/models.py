@@ -645,6 +645,8 @@ class Token(models.Model):
     '''Color to paint the travel icon'''
     userId = models.UUIDField()
     """ To identify the data owner """
+    userEvaluation = models.IntegerField(null=True)
+    """ User evaluation does at the end of trip """
     # uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     # ''' UUID to identify a dummy bus'''
 
@@ -724,6 +726,8 @@ class Level(models.Model):
     ''' level name '''
     minScore = models.FloatField(default=0, null=False)
     ''' minimun score to keep the level '''
+    maxScore = models.FloatField(default=0, null=False)
+    ''' maximum score to keep the level '''
     position = models.IntegerField(null=False, unique=True)
     ''' to order levels 1,2,3,... '''
 
@@ -756,7 +760,7 @@ class TranSappUser(models.Model):
 
 class ScoreEvent(models.Model):
     ''' score given by action '''
-    code = models.CharField(max_length=10, null=False, blank=False)
+    code = models.CharField(max_length=10, null=False, blank=False, unique=True)
     ''' event code '''
     score = models.FloatField(default=0, null=False)
     ''' score given to user when he does the action associated to code '''
@@ -767,3 +771,11 @@ class ScoreHistory(models.Model):
     tranSappUser = models.ForeignKey(TranSappUser)
     ''' user '''
     scoreEvent = models.ForeignKey(ScoreEvent)
+    ''' event that generates the score '''
+    timeCreation = models.DateTimeField(null=False)
+    ''' time when event was generated '''
+    score = models.FloatField(default=0, null=False)
+    ''' winned score '''
+    meta = models.CharField(max_length=100, null=True)
+    ''' addional data to score '''
+
