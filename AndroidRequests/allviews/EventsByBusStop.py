@@ -13,14 +13,16 @@ class EventsByBusStop(View):
     for a given bus stop."""
 
     def get(self, resquest, pBusStopCode):
-        """Only the busto code is needed."""
-        aTimeStamp = timezone.now()
-        theBusStop = BusStop.objects.get(code=pBusStopCode, gtfs__version=settings.GTFS_VERSION)
+        """Only the bus stop code is needed."""
+
+        timestamp = timezone.now()
+        #theBusStop = BusStop.objects.get(code=pBusStopCode, gtfs__version=settings.GTFS_VERSION)
+        busStop = BusStop.objects.filter(code=pBusStopCode)
 
         # ask for the events
-        eventsData = self.getEventsForBusStop(theBusStop, aTimeStamp)
+        eventsData = self.getEventsForBusStop(busStop, timestamp)
 
-        eventeDictionary = theBusStop.getDictionary()
+        eventeDictionary = busStop.getDictionary()
         eventeDictionary['events'] = eventsData
 
         return JsonResponse(eventeDictionary, safe=False)
@@ -32,9 +34,8 @@ class EventsByBusStop(View):
 
         events = Event.objects.filter(eventType='busStop')
 
-        # this will discart all the events that have expire
+        # this will discart all the events that have expired
         for event in events:
-
             eventTime = pTimeStamp - timezone.timedelta(minutes=event.lifespam)
             # ask for events that ocured between now and the lifeSpam of it
             aux = EventForBusStop.objects.filter(
