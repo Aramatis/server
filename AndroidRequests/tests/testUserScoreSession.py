@@ -10,6 +10,8 @@ from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin, TranSap
 from AndroidRequests.allviews import UserScoreSession as uss
 from AndroidRequests.models import TranSappUser, Level
 
+from AndroidRequests.statusResponse import Status
+
 class FacebookAPI():
     ''' class to manipulate calls to facebook API '''
     HOST = 'https://graph.facebook.com/v2.8/'
@@ -140,12 +142,14 @@ class UserLogTestCase(TestCase):
     def testFacebbokLoginWithRealAccessTokenButBadPhoneId(self):
         '''   '''
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, 'asdasd', TranSappUser.FACEBOOK)
-        self.assertEqual(jsonResponse['status'], 400)
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['message'])
 
     def testFacebookLoginWithFakeAccessToken(self):
         '''   '''
         jsonResponse = self.login(self.FAKE_ACCESS_TOKEN, self.PHONE_ID_1, TranSappUser.FACEBOOK)
-        self.assertEqual(jsonResponse['status'], 400)
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['message'])
     
     def testFacebookLogout(self):
         '''   '''
@@ -155,7 +159,7 @@ class UserLogTestCase(TestCase):
         jsonLogout = self.logout(jsonLogin['sessionToken'])
 
         # tests
-        self.assertEqual(jsonLogout['status'], 200)
+        self.assertEqual(jsonLogout['status'], Status.getJsonStatus(Status.OK, {})['status'])
         user = TranSappUser.objects.get(userId=self.USER_ID)
         self.assertEqual(user.sessionToken, uss.NULL_SESSION_TOKEN)
     
@@ -167,5 +171,6 @@ class UserLogTestCase(TestCase):
         # logout
         jsonLogout = self.logout("I'm a bad session token")
         # tests
-        self.assertEqual(jsonLogout['status'], 400)
+        self.assertEqual(jsonLogout['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
+        self.assertEqual(jsonLogout['message'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['message'])
     
