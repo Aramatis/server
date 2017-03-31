@@ -1,6 +1,8 @@
 from django.views.generic import View
 from django.utils import timezone
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 import json
 # my stuff
@@ -13,6 +15,10 @@ import AndroidRequests.scoreFunctions as score
 
 class RegisterEventBusStop(View):
     '''This class handles the requests that report events of a bus stop'''
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RegisterEventBusStop, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
         """ """
