@@ -31,6 +31,7 @@ class TranSappUserLogin(View):
 
     def __init__(self):
         self.context = {}
+        self.logger = logging.getLogger(__name__)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -60,10 +61,10 @@ class TranSappUserLogin(View):
 
         accessToken = request.POST.get('accessToken') 
         accountType = request.POST.get('accountType') 
-        phoneId = request.POST.get('phoneId')         
-        name = request.POST.get('name')              
-        email = request.POST.get('email')            
-        userId = request.POST.get('userId')          
+        phoneId = request.POST.get('phoneId')
+        name = request.POST.get('name')            
+        email = request.POST.get('email')          
+        userId = request.POST.get('userId') 
                
         response = {}
         # access token invalid
@@ -104,7 +105,8 @@ class TranSappUserLogin(View):
                     response['userData']['level']['name'] = user.level.name
                     response['userData']['level']['maxScore'] = user.level.maxScore
                 except Exception as e:
-                    print str(e)
+                    Status.getJsonStatus(Status.INTERNAL_ERROR, response)
+                    self.logger.error(str(e))
         elif accountType == TranSappUser.GOOGLE:
             googleUserId = self.checkGoogleId(tokenId)
         

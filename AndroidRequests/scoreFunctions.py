@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import abc
 import uuid
+import logging
 from django.utils import timezone
 
 from AndroidRequests.statusResponse import Status
@@ -15,6 +16,7 @@ class CalculateScore():
         """
         @request django.http.request
         """
+        self.logger = logging.getLogger(__name__)
         self.isUpdatedScore, self.user, self.response = self.validateParams(request)
 
     def validateParams(self, request):
@@ -84,6 +86,8 @@ class EventScore(CalculateScore):
         try:
             score = ScoreEvent.objects.get(code=eventCode).score
         except:
+            errorMsg = 'event code: {} does not exist in database'.format(eventCode)
+            self.logger.error(errorMsg)
             score = 0
 
         return score

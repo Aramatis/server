@@ -5,6 +5,7 @@ class Status():
     INVALID_USER = 3
     INVALID_PARAMS = 4
     INVALID_ACCESS_TOKEN = 5
+    INTERNAL_ERROR = 6
 
     statusDict = {
             OK: {'status':200, 'message': 'ok'},
@@ -13,6 +14,7 @@ class Status():
             INVALID_PARAMS: {'status':402, 'message': 'invalid params'},
             # facebook or google access token
             INVALID_ACCESS_TOKEN: {'status':403, 'message': 'access token is not valid'},
+            INTERNAL_ERROR: {'status':404, 'message': 'something in the code exploded'},
             }
 
     @staticmethod

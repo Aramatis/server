@@ -142,8 +142,8 @@ class UserLogTestCase(TestCase):
     def testFacebbokLoginWithRealAccessTokenButBadPhoneId(self):
         '''   '''
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, 'asdasd', TranSappUser.FACEBOOK)
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['message'])
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INTERNAL_ERROR, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INTERNAL_ERROR, {})['message'])
 
     def testFacebookLoginWithFakeAccessToken(self):
         '''   '''
@@ -174,3 +174,27 @@ class UserLogTestCase(TestCase):
         self.assertEqual(jsonLogout['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
         self.assertEqual(jsonLogout['message'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['message'])
     
+    """
+    def testRealRequest(self):
+        ''' log in a user '''
+        url = 'login'
+
+        accessToken = "EAAFSBRbv0msBACqZCiODUTEYxqt2GUhokpgEklQxxf2VPoCEZB04179bjWglbJien5OwKd3X3IN7egoY9P2RycfaBooj4T70TcXZClaZCHCLVdPMX32huJciKpZBPV0cYRzhMswqpeUvZAgk5FaVfELLhblZATaZAcx2EaoeXYV7TtVuSblwx3ZAc48eFLB9D8J0ZBqoIhbzBduQ96f4DXquZCZB"
+        accountType = "FACEBOOK"
+        phoneId = "bc7d8116-3cf3-414b-ad92-449feb762648"
+        name = "Agustin Antoine Ortiz"
+        email = "antoineagustin@gmail.com"
+        userId = "10211203806510951"
+
+        params = {
+            'accessToken': accessToken,
+            'accountType': accountType,
+            'phoneId': phoneId, 
+            'name':  name,
+            'email': email,
+            'userId': userId
+        }
+        response = self.makePostRequest(url, params)
+        
+        print json.loads(response.content)
+     """
