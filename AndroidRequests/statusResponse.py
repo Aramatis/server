@@ -19,5 +19,6 @@ class Status():
     def getJsonStatus(code, jsonContent):
         """ return json with status and message related to code """
         status = Status.statusDict[code]
-        
-        return jsonContent.update(status)
+        jsonContent.update(status)
+
+        return jsonContent

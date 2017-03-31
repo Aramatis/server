@@ -13,6 +13,8 @@ import uuid
 import re
 import json
 
+from AndroidRequests.statusResponse import Status
+
 from AndroidRequests.models import TranSappUser, Level
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
@@ -64,8 +66,8 @@ class TranSappUserLogin(View):
         userId = request.POST.get('userId')          
                
         response = {}
-        response['status'] = 400
-        response['message'] = 'Access token is not valid'
+        # access token invalid
+        Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, response)
 
         if accountType == TranSappUser.FACEBOOK:
             facebookUserId = self.checkFacebookId(accessToken)
@@ -93,14 +95,14 @@ class TranSappUserLogin(View):
                             sessionToken=sessionToken, 
                             level=firstLevel)
 
-                    response['status'] = 200
-                    response['message'] = ':-)'
+                    # ok
+                    Status.getJsonStatus(Status.OK, response)
                     response['sessionToken'] = user.sessionToken
                     response['userData'] = {}
                     response['userData']['score'] = user.globalScore
                     response['userData']['level'] = {}
                     response['userData']['level']['name'] = user.level.name
-                    response['userData']['level']['maxScore'] = Level.objects.get(position=user.level.position+1).minScore
+                    response['userData']['level']['maxScore'] = user.level.maxScore
                 except Exception as e:
                     print str(e)
         elif accountType == TranSappUser.GOOGLE:
@@ -137,10 +139,9 @@ class TranSappUserLogout(View):
             user.sessionToken = NULL_SESSION_TOKEN
             user.save()
 
-            response['status'] = 200
+            Status.getJsonStatus(Status.OK, response)
         else:
-            response['status'] = 400
-            response['message'] = 'pair does not match with any user'
+            Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
         
         return JsonResponse(response, safe=False)
 
