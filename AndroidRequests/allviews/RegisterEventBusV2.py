@@ -2,22 +2,41 @@ from django.views.generic import View
 from django.utils import timezone
 from django.http import JsonResponse
 
+import json
 # my stuff
 # import DB's models
 from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment
 
 from EventsByBusV2 import EventsByBusV2
 import AndroidRequests.gpsFunctions as Gps
+import AndroidRequests.scoreFunctions as score
 
 
 class RegisterEventBusV2(View):
     '''This class handles requests that report events of a bus.'''
 
+    def post(self, request):
+        """ """
+        phoneId = request.POST.get('phoneId', '')
+        machineId = request.POST.get('machineId', '')
+        service = request.POST.get('service', '')
+
+        eventCode = request.POST.get('eventId', '')
+        vote = request.POST.get('vote', '')
+        latitude = float(request.POST.get('latitude', '500'))
+        longitude = float(request.POST.get('longitude', '500'))
+        
+        userId = request.POST.get('userId', '')
+        sessionToken = request.POST.get('sessionToken', '')
+
+        return self.get(request, phoneId, machineId, service, 
+                eventCode, vote, latitude, longitude)
+
     def get(
             self,
             request,
-            pUserId,
-            pUuid,
+            pPhoneId,
+            pMachineId,
             pBusService,
             pEventID,
             pConfirmDecline,
@@ -32,12 +51,12 @@ class RegisterEventBusV2(View):
         theBus = {}
         theAsignment = {}
         try:
-            theBus = Busv2.objects.get(uuid=pUuid)
+            theBus = Busv2.objects.get(uuid=pMachineId)
             theAsignment = Busassignment.objects.get(
                 uuid=theBus, service=pBusService)
         except:
             return JsonResponse({}, safe=False)
-        # theBus = Bus.objects.get(service=pBusService, uuid=pUuid)
+        # theBus = Bus.objects.get(service=pBusService, uuid=pMachineId)
         # estimate the oldest time where the reported event can be usefull
         # if there is no event here a new one is created
         oldestAlertedTime = aTimeStamp - \
@@ -71,23 +90,10 @@ class RegisterEventBusV2(View):
             else:
                 eventReport.eventConfirm += 1
 
-            eventReport.save()
-
-            StadisticDataFromRegistrationBus.objects.create(
-                timeStamp=aTimeStamp,
-                confirmDecline=pConfirmDecline,
-                reportOfEvent=eventReport,
-                longitud=pLongitud,
-                latitud=pLatitud,
-                userId=pUserId,
-                gpsLongitud=responseLongitud,
-                gpsLatitud=responseLatitud,
-                gpsTimeStamp=responseTimeStamp,
-                distance=responseDistance)
         else:
             # if an event was not found, create a new one
-            aEventReport = EventForBusv2.objects.create(
-                userId=pUserId,
+            eventReport = EventForBusv2.objects.create(
+                userId=pPhoneId,
                 busassignment=theAsignment,
                 event=theEvent,
                 timeStamp=aTimeStamp,
@@ -95,27 +101,30 @@ class RegisterEventBusV2(View):
 
             # set the initial values for this fields
             if pConfirmDecline == 'decline':
-                aEventReport.eventDecline = 1
-                aEventReport.eventConfirm = 0
+                eventReport.eventDecline = 1
+                eventReport.eventConfirm = 0
 
-            aEventReport.save()
+        eventReport.save()
 
-            StadisticDataFromRegistrationBus.objects.create(
-                timeStamp=aTimeStamp,
-                confirmDecline=pConfirmDecline,
-                reportOfEvent=aEventReport,
-                longitud=pLongitud,
-                latitud=pLatitud,
-                userId=pUserId,
-                gpsLongitud=responseLongitud,
-                gpsLatitud=responseLatitud,
-                gpsTimeStamp=responseTimeStamp,
-                distance=responseDistance)
+        StadisticDataFromRegistrationBus.objects.create(
+            timeStamp=aTimeStamp,
+            confirmDecline=pConfirmDecline,
+            reportOfEvent=eventReport,
+            longitud=pLongitud,
+            latitud=pLatitud,
+            userId=pPhoneId,
+            gpsLongitud=responseLongitud,
+            gpsLatitud=responseLatitud,
+            gpsTimeStamp=responseTimeStamp,
+            distance=responseDistance)
 
+        # update score
+        jsonScoreResponse = score.calculateEventScore(request, pEventID)
         # Returns updated event list for a bus
-        eventsByBus = EventsByBusV2()
+        jsonEventResponse = json.loads(EventsByBusV2().get(request, pMachineId).content)
+        jsonEventResponse["gamificationData"] = jsonScoreResponse
 
-        return eventsByBus.get(request, pUuid)
+        return JsonResponse(jsonEventResponse)
 
     def getLastEvent(self, querySet):
         """if the query has two responses, return the latest one"""
