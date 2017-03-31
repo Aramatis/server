@@ -100,4 +100,6 @@ urlpatterns = [
     # EVALUATE TRIP
     # =====================================================
     url(r'^evaluateTrip$', EvaluateTrip.as_view()),
+    url(r'^reportEventBus/v2$', RegisterEventBusV2.as_view()),
+    url(r'^reportEventBusStop$', RegisterEventBusStop.as_view()),
 ]
