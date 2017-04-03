@@ -3,6 +3,7 @@
 # -*- coding: utf-8 -*-
 
 import urllib
+import os
 
 # HOW TO USE IT
 # run the script when you want to update base data
@@ -25,7 +26,10 @@ FILE_NAMES = [
 
 downloader = urllib.URLopener()
 
-mkdir -p DATA_PATH + '/' + FILE_VERSION
+try: 
+    os.mkdir(DATA_PATH + '/' + FILE_VERSION, )
+except:
+    print "directory already exists..."
 
 for fileName in FILE_NAMES:
     savedFileName = DATA_PATH + '/' + FILE_VERSION + '/' + fileName + FILE_EXTENSION
