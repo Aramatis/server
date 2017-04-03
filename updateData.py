@@ -11,7 +11,7 @@ import urllib
 # GTFSProcessing
 
 # latest updated version
-FILE_VERSION = 'v0.7'
+FILE_VERSION = 'v0.9'
 
 DATA_PATH = './InitialData'
 URL_PREFIX = 'https://raw.githubusercontent.com/InspectorIncognito/GTFSProcessing/master/procesaGTFS/x64/Release'
