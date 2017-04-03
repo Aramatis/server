@@ -6,7 +6,7 @@ from django.db import models, migrations
 """
 PROCEDURE
 - Create stopCode column in eventforbusstop model
-- Assign bus stop code to stopCode column in eventforbusstop model
+- Assign stop code to stopCode column in eventforbusstop model
 """
 def fillStopCodeColumnInEventforbusstop(apps, schema_editor):
     ''' '''
@@ -31,12 +31,4 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.RunPython(fillStopCodeColumnInEventforbusstop),
-        migrations.RemoveField(
-            model_name='busstop',
-            name='events',
-        ),
-        migrations.RemoveField(
-            model_name='eventforbusstop',
-            name='busStop',
-        ),
     ]
