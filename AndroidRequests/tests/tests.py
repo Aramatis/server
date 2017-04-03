@@ -232,7 +232,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         # change manualy the timeStamp to simulate an event that has expired
         busStop = BusStop.objects.get(code=busStopCode, gtfs__version=settings.GTFS_VERSION)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBusStop.objects.get(busStop=busStop, event=event)
+        anEvent = EventForBusStop.objects.get(stopCode=busStopCode, event=event)
 
         anEvent.timeStamp = anEvent.timeCreation - \
             timezone.timedelta(minutes=event.lifespam)

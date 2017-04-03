@@ -381,9 +381,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(response0['events'][0]['eventcode'], eventCode)
 
         # change manualy the timeStamp to simulate an event that has expired
-        busStop = BusStop.objects.get(code=busStopCode)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBusStop.objects.get(busStop=busStop, event=event)
+        anEvent = EventForBusStop.objects.get(stopCode=busStopCode, event=event)
 
         anEvent.timeStamp = anEvent.timeCreation - \
             timezone.timedelta(minutes=event.lifespam)

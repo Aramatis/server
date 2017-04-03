@@ -164,7 +164,7 @@ class EventRegistration(models.Model):
 
 class EventForBusStop(EventRegistration):
     '''This model stores the reported events for the busStop'''
-    busStop = models.ForeignKey('BusStop', verbose_name='Bus Stop')
+    stopCode = models.CharField(max_length=6, db_index=True, verbose_name='Stop Code')
     '''Indicates the bus stop to which the event refers'''
     aditionalInfo = models.CharField(
         'Additional Information',
@@ -213,11 +213,6 @@ class BusStop(Location):
     """ Code that identifies the bus stop """
     name = models.CharField('Name', max_length=70, null=False, blank=False)
     """ Name of the bus stop, indicating the streets """
-    events = models.ManyToManyField(
-        Event,
-        verbose_name='Events',
-        through=EventForBusStop)
-    """ events associated to bus stop """
     gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 

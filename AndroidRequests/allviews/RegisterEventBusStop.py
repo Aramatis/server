@@ -16,14 +16,13 @@ class RegisterEventBusStop(View):
             self,
             request,
             pUserId,
-            pBusStopCode,
+            stopCode,
             pEventID,
             pConfirmDecline,
             pLatitud=500,
             pLongitud=500):
 
         theEvent = Event.objects.get(id=pEventID)
-        theBusStop = BusStop.objects.get(code=pBusStopCode, gtfs__version=settings.GTFS_VERSION)
 
         aTimeStamp = timezone.now()
 
@@ -32,10 +31,10 @@ class RegisterEventBusStop(View):
 
         if EventForBusStop.objects.filter(
                 timeStamp__gt=oldestAlertedTime,
-                busStop=theBusStop,
+                stopCode=stopCode,
                 event=theEvent).exists():
             eventsReport = EventForBusStop.objects.filter(
-                timeStamp__gt=oldestAlertedTime, busStop=theBusStop, event=theEvent)
+                timeStamp__gt=oldestAlertedTime, stopCode=stopCode, event=theEvent)
             eventReport = self.getLastEvent(eventsReport)
             # updates to the event reported
             eventReport.timeStamp = aTimeStamp
@@ -55,7 +54,7 @@ class RegisterEventBusStop(View):
                 userId=pUserId)
         else:
             aEventReport = EventForBusStop.objects.create(
-                busStop=theBusStop,
+                stopCode=stopCode,
                 event=theEvent,
                 timeStamp=aTimeStamp,
                 timeCreation=aTimeStamp,
@@ -77,7 +76,7 @@ class RegisterEventBusStop(View):
 
         # Returns updated event list for a busstop
         eventsByBusStop = EventsByBusStop()
-        return eventsByBusStop.get(request, pBusStopCode)
+        return eventsByBusStop.get(request, stopCode)
 
     def getLastEvent(self, querySet):
         toReturn = querySet[0]

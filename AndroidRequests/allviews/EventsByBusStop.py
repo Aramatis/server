@@ -12,22 +12,21 @@ class EventsByBusStop(View):
     """This class handles requests for the current reported events
     for a given bus stop."""
 
-    def get(self, resquest, pBusStopCode):
+    def get(self, resquest, stopCode):
         """Only the bus stop code is needed."""
 
         timestamp = timezone.now()
-        #theBusStop = BusStop.objects.get(code=pBusStopCode, gtfs__version=settings.GTFS_VERSION)
-        busStop = BusStop.objects.filter(code=pBusStopCode)
+        stopObj = BusStop.objects.get(code=stopCode, gtfs__version=settings.GTFS_VERSION)
 
         # ask for the events
-        eventsData = self.getEventsForBusStop(busStop, timestamp)
+        eventsData = self.getEventsForStop(stopCode, timestamp)
 
-        eventeDictionary = busStop.getDictionary()
+        eventeDictionary = stopObj.getDictionary()
         eventeDictionary['events'] = eventsData
 
         return JsonResponse(eventeDictionary, safe=False)
 
-    def getEventsForBusStop(self, pBusStop, pTimeStamp):
+    def getEventsForStop(self, stopCode, timeStamp):
         '''this method returns all the events that are active given their timestamp.'''
 
         currentEventReport = []
@@ -36,10 +35,10 @@ class EventsByBusStop(View):
 
         # this will discart all the events that have expired
         for event in events:
-            eventTime = pTimeStamp - timezone.timedelta(minutes=event.lifespam)
+            eventTime = timeStamp - timezone.timedelta(minutes=event.lifespam)
             # ask for events that ocured between now and the lifeSpam of it
             aux = EventForBusStop.objects.filter(
-                busStop=pBusStop, event=event, timeStamp__gt=eventTime).order_by('-timeStamp')
+                stopCode=stopCode, event=event, timeStamp__gt=eventTime).order_by('-timeStamp')
 
             # check if there exist one event that fit descritions and
             if aux.exists():

@@ -56,8 +56,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     BUS STOP EVENTS
     """
-    getEventsBusStop = EventsByBusStop()
-    busStopEvent = getEventsBusStop.getEventsForBusStop(busStopObj, timeNow)
+    busStopEvent = EventsByBusStop().getEventsForStop(pBusStop, timeNow)
     answer["eventos"] = busStopEvent
 
     """
