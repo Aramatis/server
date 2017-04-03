@@ -6,6 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 from AndroidRequests.models import DevicePositionInTime, Bus, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment
 # views
 import AndroidRequests.views as views
+from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
 
 # Create your tests here.
@@ -34,7 +35,8 @@ class EvaluateTripTest(TestCase):
         evaluation = 1
         jsonResponse = self.test.evaluateTrip(self.token, evaluation)
 
-        self.assertEqual(jsonResponse['status'], 200)
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, evaluation)
 
     def test_tripEvaluationWithBadEvaluationFormat(self):
@@ -43,7 +45,8 @@ class EvaluateTripTest(TestCase):
         evaluation = "asd"
         jsonResponse = self.test.evaluateTrip(self.token, evaluation)
 
-        self.assertEqual(jsonResponse['status'], 404)
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
 
     def test_tripEvaluationWithWrongToken(self):
@@ -52,6 +55,7 @@ class EvaluateTripTest(TestCase):
         evaluation = 5
         jsonResponse = self.test.evaluateTrip('aasd', evaluation)
 
-        self.assertEqual(jsonResponse['status'], 403)
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
 

@@ -14,6 +14,7 @@ import re
 import json
 
 from AndroidRequests.models import Token
+from AndroidRequests.statusResponse import Status
 
 # Create your views here.
 
@@ -34,15 +35,12 @@ class EvaluateTrip(View):
         evaluation = request.POST.get('evaluation', '') 
         
         response = {}
-        response['status'] = 403
-        response['message'] = 'Trip token does not exist'
+        Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, response)
         try:
             if Token.objects.filter(token=token).update(userEvaluation=int(evaluation)):
-                response['status'] = 200
-                response['message'] = 'ok'
+                Status.getJsonStatus(Status.OK, response)
         except:
-            response['status'] = 404
-            response['message'] = 'Evaluation format is wrong'
+            Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, response)
 
         return JsonResponse(response, safe=False)
 

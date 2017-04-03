@@ -6,6 +6,8 @@ class Status():
     INVALID_PARAMS = 4
     INVALID_ACCESS_TOKEN = 5
     INTERNAL_ERROR = 6
+    TRIP_EVALUATION_FORMAT_ERROR = 7
+    TRIP_TOKEN_DOES_NOT_EXIST = 8
 
     statusDict = {
             OK: {'status':200, 'message': 'ok'},
@@ -15,6 +17,8 @@ class Status():
             # facebook or google access token
             INVALID_ACCESS_TOKEN: {'status':403, 'message': 'access token is not valid'},
             INTERNAL_ERROR: {'status':404, 'message': 'something in the code exploded'},
+            TRIP_EVALUATION_FORMAT_ERROR: {'status':405, 'message': 'evaluation format is wrong'},
+            TRIP_TOKEN_DOES_NOT_EXIST: {'status':406, 'message': 'trip token does not exist'},
             }
 
     @staticmethod
