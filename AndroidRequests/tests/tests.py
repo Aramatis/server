@@ -260,9 +260,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(len(jsonResponse['events']), 0)
 
         # event exists in database with aditional info saved
-        busStop = BusStop.objects.get(code=busStopCode)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBusStop.objects.get(busStop=busStop, event=event)
+        anEvent = EventForBusStop.objects.get(stopCode=busStopCode, event=event)
 
         self.assertEqual(anEvent.aditionalInfo, aditionalInfo)
 
@@ -283,9 +282,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(len(jsonResponse['events']), 0)
 
         # event exists in database with aditional info saved
-        busStop = BusStop.objects.get(code=busStopCode)
         event = Event.objects.get(id=eventCode1)
-        event = EventForBusStop.objects.get(busStop=busStop, event=event)
+        event = EventForBusStop.objects.get(stopCode=busStopCode, event=event)
 
         self.assertEqual(event.aditionalInfo, aditionalInfo1)
 
@@ -299,9 +297,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(len(jsonResponse['events']), 0)
 
         # event exists in database with aditional info saved
-        busStop = BusStop.objects.get(code=busStopCode)
         event = Event.objects.get(id=eventCode2)
-        events = EventForBusStop.objects.filter(busStop=busStop, event=event).order_by('timeCreation')
+        events = EventForBusStop.objects.filter(stopCode=busStopCode, event=event).order_by('timeCreation')
 
         self.assertEqual(len(events), 2)
         self.assertEqual(events[0].aditionalInfo, aditionalInfo1)
