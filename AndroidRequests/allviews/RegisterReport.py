@@ -21,8 +21,8 @@ class EmptyTextMessageError(Exception):
     """ Text message is empty """
 
 
-class EmptyUserIdError(Exception):
-    """ UserId is empty """
+class EmptyPhoneIdError(Exception):
+    """ PhoneId is empty """
 
 
 class RegisterReport(View):
@@ -50,23 +50,23 @@ class RegisterReport(View):
                 stringImage = stringImage.decode('base64')
             extension = request.POST.get('ext', '')
             aditionalInfo = request.POST.get('reportInfo', '')
-            pUserId = request.POST.get('userId', '')
+            pPhoneId = request.POST.get('userId', '')
             pTimeStamp = timezone.now()
 
             try:
                 if text == '':
                     raise EmptyTextMessageError
-                if pUserId == '':
-                    raise EmptyUserIdError
+                if pPhoneId == '':
+                    raise EmptyPhoneIdError
 
                 report = Report.objects.create(
                     timeStamp=pTimeStamp,
-                    userId=pUserId,
+                    phoneId=pPhoneId,
                     message=text,
                     reportInfo=aditionalInfo,
                     imageName=None)
                 fine = True
-            except EmptyUserIdError as e:
+            except EmptyPhoneIdError as e:
                 message = 'Has to exist a user id.'
                 logger.error(str(e))
             except EmptyTextMessageError as e:

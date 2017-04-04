@@ -42,7 +42,7 @@ class DevicePositionInTime(Location):
     """Helps storing the position of active users"""
     timeStamp = models.DateTimeField("Time Stamp", null=False, blank=False)
     """ Specific date time when the server received the device's position """
-    userId = models.UUIDField()
+    phoneId = models.UUIDField()
     """ To identify the data owner """
 
 
@@ -98,7 +98,7 @@ class StadisticDataFromRegistration(Location):
     """ Specific date time when the server received the event registration """
     confirmDecline = models.CharField('Confirm - Decline', max_length=10)
     """ Represents if the event was confirmed or declined """
-    userId = models.UUIDField()
+    phoneId = models.UUIDField()
     """ To identify the data owner """
 
     class Meta:
@@ -140,7 +140,7 @@ class EventRegistration(models.Model):
     """ Amount of confirmations for this event """
     eventDecline = models.IntegerField('Declines', default=0)
     """ amount of declinations for this event """
-    userId = models.UUIDField()
+    phoneId = models.UUIDField()
     """ To identify the data owner """
 
     class Meta:
@@ -489,7 +489,7 @@ class Token(models.Model):
     ''' route direction that the bus is doing. It can be 'R' or 'I' '''
     color = models.CharField("Icon's color", max_length=7, default='#00a0f0')
     '''Color to paint the travel icon'''
-    userId = models.UUIDField()
+    phoneId = models.UUIDField()
     """ To identify the data owner """
     timeCreation = models.DateTimeField('Time Creation', null=True, blank=False)
     """ creation time of token """
@@ -527,7 +527,7 @@ class Report(models.Model):
     """ image name that was saved """
     reportInfo = models.TextField()
     """ Aditinal information regarding the report. For example the user location."""
-    userId = models.UUIDField()
+    phoneId = models.UUIDField()
     """ To identify the data owner """
 
 
@@ -552,7 +552,7 @@ class NearByBusesLog(models.Model):
     """ Specific date time when the server received the request """
     busStop = models.ForeignKey(BusStop, verbose_name='Bus Stop')
     """ Bus stops where the service is stopped """
-    userId = models.UUIDField()
+    phoneId = models.UUIDField()
     """ To identify the data owner """
 
 

@@ -31,8 +31,8 @@ class BusDirectionTestCase(TestCase):
         self.test.insertServicesByBusstopsOnDatabase([self.busStopCode])
 
         # create bus
-        userId = 'dec51b413a954765abb415524c04c807'
-        self.test.createBusAndAssignmentOnDatabase(userId, self.service, self.registrationPlate)
+        phoneId = 'dec51b413a954765abb415524c04c807'
+        self.test.createBusAndAssignmentOnDatabase(phoneId, self.service, self.registrationPlate)
 
         self.gtfs = GTFS.objects.get(version=settings.GTFS_VERSION)
 

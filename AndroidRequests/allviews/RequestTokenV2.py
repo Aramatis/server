@@ -19,7 +19,7 @@ class RequestTokenV2(View):
     def __init__(self):
         self.context = {}
 
-    def get(self, request, pUserId, pBusService, pUUID, data=timezone.now()):
+    def get(self, request, pPhoneId, pBusService, pUUID, data=timezone.now()):
         """ the token is primary a hash of the time stamp plus a random salt """
         salt = os.urandom(20)
         hashToken = hashlib.sha512(str(data) + salt).hexdigest()
@@ -31,7 +31,7 @@ class RequestTokenV2(View):
         busassignment = Busassignment.objects.get_or_create(
             uuid=busv2, service=pBusService)[0]
         aToken = Token.objects.create(
-            userId=pUserId,
+            phoneId=pPhoneId,
             token=hashToken,
             busassignment=busassignment,
             color=self.getRandomColor(),

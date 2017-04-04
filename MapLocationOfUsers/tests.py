@@ -16,20 +16,20 @@ import json
 class GetMapPositionsTest(TestCase):
 
     def setUp(self):
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         DevicePositionInTime.objects.create(
-            userId=self.userId,
+            phoneId=self.phoneId,
             longitud=3.4,
             latitud=5.2,
             timeStamp=timezone.now())
         DevicePositionInTime.objects.create(
-            userId=self.userId,
+            phoneId=self.phoneId,
             longitud=3.4,
             latitud=5.2,
             timeStamp=timezone.now())
         # this should not be answered
-        DevicePositionInTime.objects.create(userId=self.userId, longitud=3.3, latitud=4.2, timeStamp=timezone.now()
+        DevicePositionInTime.objects.create(phoneId=self.phoneId, longitud=3.3, latitud=4.2, timeStamp=timezone.now()
                                             - timezone.timedelta(minutes=11))
         self.factory = RequestFactory()
 
@@ -108,7 +108,7 @@ class GetMapPositionsTest(TestCase):
 
         for cont in range(6):
             reponseView = RequestToken()
-            response = reponseView.get(request, self.userId, '503', 'ZZZZ00')
+            response = reponseView.get(request, self.phoneId, '503', 'ZZZZ00')
 
             jsonContent = json.loads(response.content)
             testToken = jsonContent['token']

@@ -24,7 +24,7 @@ class CronTasksTestCase(TransactionTestCase):
         self.stopEventCode = 'evn00010'
         self.busEventCode = 'evn00200'
 
-        self.userId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
+        self.phoneId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
         self.service = '506'
         self.registrationPlate = 'XXYY25'
         self.machineId = self.test.askForMachineId(self.registrationPlate)
@@ -34,12 +34,12 @@ class CronTasksTestCase(TransactionTestCase):
 
         import time
         time.sleep(60)
-        self.test.reportStopEvent(self.userId, self.stop, self.stopEventCode)
+        self.test.reportStopEvent(self.phoneId, self.stop, self.stopEventCode)
 
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES - 2):
             self.test.confirmOrDeclineStopEvent(
-                self.userId, self.stop, self.stopEventCode, 'decline')
+                self.phoneId, self.stop, self.stopEventCode, 'decline')
         # decline isn't 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -55,17 +55,17 @@ class CronTasksTestCase(TransactionTestCase):
     def test_does_not_have_the_percentage_of_declines_for_bus_stop(self):
         """ it has the minimum number of declines but not the percentage of declines over confirms for bus stop"""
 
-        self.test.reportStopEvent(self.userId, self.stop, self.stopEventCode)
+        self.test.reportStopEvent(self.phoneId, self.stop, self.stopEventCode)
 
         # report events for bus stop
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES + 1):
             self.test.confirmOrDeclineStopEvent(
-                self.userId, self.stop, self.stopEventCode, 'confirm')
+                self.phoneId, self.stop, self.stopEventCode, 'confirm')
 
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES + 1):
             self.test.confirmOrDeclineStopEvent(
-                self.userId, self.stop, self.stopEventCode, 'decline')
+                self.phoneId, self.stop, self.stopEventCode, 'decline')
         # decline isn't 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -82,17 +82,17 @@ class CronTasksTestCase(TransactionTestCase):
             self):
         """ it has the minimum number of declines and the percentage of declines over confirms for bus stop"""
 
-        self.test.reportStopEvent(self.userId, self.stop, self.stopEventCode)
+        self.test.reportStopEvent(self.phoneId, self.stop, self.stopEventCode)
 
         # report events for bus stop
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES):
             self.test.confirmOrDeclineStopEvent(
-                self.userId, self.stop, self.stopEventCode, 'confirm')
+                self.phoneId, self.stop, self.stopEventCode, 'confirm')
 
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES * 3):
             self.test.confirmOrDeclineStopEvent(
-                self.userId, self.stop, self.stopEventCode, 'decline')
+                self.phoneId, self.stop, self.stopEventCode, 'decline')
         # decline isn't 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -105,10 +105,10 @@ class CronTasksTestCase(TransactionTestCase):
         """ it does not have the minimum number of declines for bus  """
         # create assignment
         self.test.createBusAndAssignmentOnDatabase(
-            self.userId, self.service, self.registrationPlate)
+            self.phoneId, self.service, self.registrationPlate)
 
         self.test.reportEventV2(
-            self.userId,
+            self.phoneId,
             self.machineId,
             self.service,
             self.busEventCode)
@@ -116,7 +116,7 @@ class CronTasksTestCase(TransactionTestCase):
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES - 1):
             self.test.confirmOrDeclineEventV2(
-                self.userId,
+                self.phoneId,
                 self.machineId,
                 self.service,
                 self.busEventCode,
@@ -142,11 +142,11 @@ class CronTasksTestCase(TransactionTestCase):
 
         # create assignment
         self.test.createBusAndAssignmentOnDatabase(
-            self.userId, self.service, self.registrationPlate)
+            self.phoneId, self.service, self.registrationPlate)
         # generate report events for bus
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES + 1):
             self.test.confirmOrDeclineEventV2(
-                self.userId,
+                self.phoneId,
                 self.machineId,
                 self.service,
                 self.busEventCode,
@@ -154,7 +154,7 @@ class CronTasksTestCase(TransactionTestCase):
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES + 1):
             self.test.confirmOrDeclineEventV2(
-                self.userId,
+                self.phoneId,
                 self.machineId,
                 self.service,
                 self.busEventCode,
@@ -180,10 +180,10 @@ class CronTasksTestCase(TransactionTestCase):
         """ it has the minimum number of declines and the percentage of declines over confirms for bus """
         # create assignment
         self.test.createBusAndAssignmentOnDatabase(
-            self.userId, self.service, self.registrationPlate)
+            self.phoneId, self.service, self.registrationPlate)
 
         self.test.reportEventV2(
-            self.userId,
+            self.phoneId,
             self.machineId,
             self.service,
             self.busEventCode)
@@ -191,7 +191,7 @@ class CronTasksTestCase(TransactionTestCase):
         # generate report events for bus
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES):
             self.test.confirmOrDeclineEventV2(
-                self.userId,
+                self.phoneId,
                 self.machineId,
                 self.service,
                 self.busEventCode,
@@ -200,7 +200,7 @@ class CronTasksTestCase(TransactionTestCase):
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES * 3):
             self.test.confirmOrDeclineEventV2(
-                self.userId,
+                self.phoneId,
                 self.machineId,
                 self.service,
                 self.busEventCode,

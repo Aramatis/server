@@ -26,7 +26,7 @@ class RegisterReportTestCase(TestCase):
         self.reponseView = RegisterReport()
 
         # inputs
-        self.userId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
+        self.phoneId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
         self.textMessage = 'this is a comment for testing purpose'
         with open(os.path.join(os.path.dirname(__file__), 'registerReportTestImage.jpg')) as imageFile:
             self.image = base64.b64encode(imageFile.read())
@@ -37,7 +37,7 @@ class RegisterReportTestCase(TestCase):
         POST['text'] = self.textMessage
         POST['img'] = self.image
         POST['ext'] = self.formatImage
-        POST['userId'] = self.userId
+        POST['userId'] = self.phoneId
         POST['report_info'] = self.reportInfo
 
         self.request.POST = POST
@@ -52,7 +52,7 @@ class RegisterReportTestCase(TestCase):
         self.assertEqual(Report.objects.all().count(), 1)
 
         # delete image file saved
-        report = Report.objects.get(userId=self.userId)
+        report = Report.objects.get(phoneId=self.phoneId)
         path = os.path.join(settings.MEDIA_IMAGE, report.imageName)
         os.remove(path)
 
@@ -129,6 +129,6 @@ class RegisterReportTestCase(TestCase):
         self.assertEqual(Report.objects.all().count(), 1)
 
         # delete image file saved
-        report = Report.objects.get(userId=self.userId)
+        report = Report.objects.get(phoneId=self.phoneId)
         path = os.path.join(settings.MEDIA_IMAGE, report.imageName)
         os.remove(path)

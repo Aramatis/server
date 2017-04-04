@@ -24,7 +24,7 @@ class RequestToken(View):
     def get(
             self,
             request,
-            pUserId,
+            pPhoneId,
             pBusService,
             pRegistrationPlate,
             data=timezone.now()):
@@ -37,7 +37,7 @@ class RequestToken(View):
 
         # bus = Bus.objects.get_or_create(registrationPlate = pRegistrationPlate, \
         #        service = pBusService)[0]
-        # aToken = Token.objects.create(userId=pUserId, token=hashToken, bus=bus, \
+        # aToken = Token.objects.create(phoneId=pPhoneId, token=hashToken, bus=bus, \
         #        color=self.getRandomColor(), direction = None)
         if pRegistrationPlate == Constants.DUMMY_LICENSE_PLATE:
             puuid = uuid.uuid4()
@@ -52,7 +52,7 @@ class RequestToken(View):
                 uuid=bus, service=pBusService)[0]
 
         aToken = Token.objects.create(
-            userId=pUserId,
+            phoneId=pPhoneId,
             token=hashToken,
             busassignment=assignment,
             color=self.getRandomColor(),

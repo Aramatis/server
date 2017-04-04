@@ -17,8 +17,8 @@ class NearbyBusTest(TransactionTestCase):
         # for testing requests inside the project
         self.factory = RequestFactory()
 
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
-        self.userId2 = "971087e3-b64c-4c22-88c2-2e1300ffd855"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId2 = "971087e3-b64c-4c22-88c2-2e1300ffd855"
 
         self.helper = TestHelper(self)
 
@@ -36,7 +36,7 @@ class NearbyBusTest(TransactionTestCase):
         busStopCodeThis = 'PA459'
         self.helper.insertServicesByBusstopsOnDatabase([busStopCodeThis])
 
-        response = views.nearbyBuses(request, self.userId, busStopCodeThis)
+        response = views.nearbyBuses(request, self.phoneId, busStopCodeThis)
 
         self.assertEqual(response.status_code, 200)
 
@@ -62,7 +62,7 @@ class NearbyBusTest(TransactionTestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(busStopCode, self.userId2)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
 
         buses = views.mergeBuses(userBuses, authBuses)
@@ -89,7 +89,7 @@ class NearbyBusTest(TransactionTestCase):
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
 
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, self.service, Constants.DUMMY_LICENSE_PLATE)
+            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, direction)
 
@@ -97,7 +97,7 @@ class NearbyBusTest(TransactionTestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(busStopCode, self.userId2)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
 
@@ -144,14 +144,14 @@ class NearbyBusTest(TransactionTestCase):
         # first user
         direction1 = "I"
         travelKey1 = self.helper.getInBusWithLicencePlate(
-            self.userId, self.service, Constants.DUMMY_LICENSE_PLATE)
+            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey1)
         self.helper.setDirection(travelKey1, direction1)
         # second user
-        userId2 = 'ce102dcd-0670-4086-a543-b3e6e58e8f58'
+        phoneId2 = 'ce102dcd-0670-4086-a543-b3e6e58e8f58'
         direction2 = "I"
         travelKey2 = self.helper.getInBusWithLicencePlate(
-            userId2, self.service, Constants.DUMMY_LICENSE_PLATE)
+            phoneId2, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey2)
         self.helper.setDirection(travelKey2, direction2)
 
@@ -159,7 +159,7 @@ class NearbyBusTest(TransactionTestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(busStopCode, self.userId2)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
 
@@ -212,20 +212,20 @@ class NearbyBusTest(TransactionTestCase):
         service = '506'
         # first user
         travelKey1 = self.helper.getInBusWithLicencePlate(
-            self.userId, service, licencePlate)
+            self.phoneId, service, licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey1)
         self.helper.setDirection(travelKey1, direction1)
         # second user
-        userId2 = 'ce102dcd-0670-4086-a543-b3e6e58e8f58'
+        phoneId2 = 'ce102dcd-0670-4086-a543-b3e6e58e8f58'
         travelKey2 = self.helper.getInBusWithLicencePlate(
-            userId2, service, licencePlate)
+            phoneId2, service, licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey2)
         self.helper.setDirection(travelKey2, direction2)
 
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
-        userBuses = views.getUserBuses(busStopCode, self.userId2)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
         self.assertEqual(len(buses), 9)
@@ -274,7 +274,7 @@ class NearbyBusTest(TransactionTestCase):
         licencePlate = 'bjFb28'
         service = '506'
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, service, licencePlate)
+            self.phoneId, service, licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, direction)
 
@@ -282,7 +282,7 @@ class NearbyBusTest(TransactionTestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(busStopCode, self.userId2)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
 
@@ -327,7 +327,7 @@ class NearbyBusTest(TransactionTestCase):
         # licencePlate = 'bjFb28'
         service = '506'
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, service, Constants.DUMMY_LICENSE_PLATE)
+            self.phoneId, service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         # self.helper.setDirection(travelKey, direction)
 
@@ -335,7 +335,7 @@ class NearbyBusTest(TransactionTestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(busStopCode, self.userId2)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId2)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
 
@@ -381,7 +381,7 @@ class NearbyBusTest(TransactionTestCase):
         licencePlate = 'bjFb28'
         service = '506'
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, service, licencePlate)
+            self.phoneId, service, licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, direction)
 
@@ -389,7 +389,7 @@ class NearbyBusTest(TransactionTestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(busStopCode, self.userId)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
 
@@ -432,7 +432,7 @@ class NearbyBusTest(TransactionTestCase):
         # licencePlate = 'bjFb28'
         service = '506'
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, service, Constants.DUMMY_LICENSE_PLATE)
+            self.phoneId, service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, direction)
 
@@ -440,7 +440,7 @@ class NearbyBusTest(TransactionTestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(busStopCode, self.userId)
+        userBuses = views.getUserBuses(busStopCode, self.phoneId)
         authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
         buses = views.mergeBuses(userBuses, authBuses)
 

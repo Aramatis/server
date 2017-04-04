@@ -42,12 +42,12 @@ class GetMapPositions(View):
 
         # TODO: get unique users from query and not fiter here
         response = []
-        users = []
+        phones = []
         for aPosition in postions:
-            if not (aPosition.userId in users):
+            if not (aPosition.phoneId in phones):
                 response.append({'latitud': aPosition.latitud,
                                  'longitud': aPosition.longitud})
-                users.append(aPosition.userId)
+                phones.append(aPosition.phoneId)
 
         return JsonResponse(response, safe=False)
 

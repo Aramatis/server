@@ -18,21 +18,21 @@ from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 import AndroidRequests.constants as Constants
 
 
-def userPosition(request, pUserId, pLat, pLon):
+def userPosition(request, pPhoneId, pLat, pLon):
     '''This function stores the pose of an active user'''
     # the pose is stored
     currPose = DevicePositionInTime(
         longitud=pLon,
         latitud=pLat,
         timeStamp=timezone.now(),
-        userId=pUserId)
+        phoneId=pPhoneId)
     currPose.save()
 
     response = {'response': 'Pose registered.'}
     return JsonResponse(response, safe=False)
 
 
-def nearbyBuses(request, pUserId, pBusStop):
+def nearbyBuses(request, pPhoneId, pBusStop):
     """ return all information about bus stop: events and buses """
 
     logger = logging.getLogger(__name__)
@@ -43,10 +43,10 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     This is temporal, it has to be deleted in the future
     """
-    if pUserId != 'null':
+    if pPhoneId != 'null':
         # Register user request
         NearByBusesLog.objects.create(
-            userId=pUserId,
+            phoneId=pPhoneId,
             busStop=busStopObj,
             timeStamp=timeNow)
     else:
@@ -62,7 +62,7 @@ def nearbyBuses(request, pUserId, pBusStop):
     """
     USER BUSES
     """
-    userBuses = getUserBuses(pBusStop, pUserId)
+    userBuses = getUserBuses(pBusStop, pPhoneId)
 
     """
     DTPM BUSES
@@ -196,7 +196,7 @@ def getUserBuses(busStopCode, questioner):
             bus['busId'] = uuid
             bus['direction'] = user.direction
             bus['isTheSameUser'] = True if str(
-                user.userId) == questioner else False
+                user.phoneId) == questioner else False
             # assume that bus is 30 meters from bus stop to predict direction
             if not bus['random']:
                 userBuses.append(bus)

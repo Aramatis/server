@@ -18,7 +18,7 @@ class BusEventTest(TransactionTestCase):
         # for testing requests inside the project
         self.factory = RequestFactory()
 
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         self.service = '507'
         self.stop = 'PA459'
@@ -33,12 +33,12 @@ class BusEventTest(TransactionTestCase):
 
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         self.test.getInBusWithLicencePlate(
-            self.userId, self.service, licencePlate)
+            self.phoneId, self.service, licencePlate)
         eventCode = 'evn00202'
 
         # submitting one event to the server
         jsonResponse = self.test.reportEvent(
-            self.userId, self.service, licencePlate, eventCode)
+            self.phoneId, self.service, licencePlate, eventCode)
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['service'], self.service)
@@ -54,11 +54,11 @@ class BusEventTest(TransactionTestCase):
         licencePlate = 'AA0000'
         eventCode = 'evn00202'
         self.test.getInBusWithLicencePlate(
-            self.userId, self.service, licencePlate)
+            self.phoneId, self.service, licencePlate)
 
         # submitting one event to the server
         jsonResponse = self.test.reportEvent(
-            self.userId, self.service, licencePlate, eventCode)
+            self.phoneId, self.service, licencePlate, eventCode)
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -68,7 +68,7 @@ class BusEventTest(TransactionTestCase):
         # ===================================================================================
         # do event +1 to the event
         jsonResponse = self.test.confirmOrDeclineEvent(
-            self.userId, self.service, licencePlate, eventCode, 'confirm')
+            self.phoneId, self.service, licencePlate, eventCode, 'confirm')
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -77,7 +77,7 @@ class BusEventTest(TransactionTestCase):
 
         # do event -1 to the event
         jsonResponse = self.test.confirmOrDeclineEvent(
-            self.userId, self.service, licencePlate, eventCode, 'decline')
+            self.phoneId, self.service, licencePlate, eventCode, 'decline')
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
@@ -107,7 +107,7 @@ class BusEventTest(TransactionTestCase):
 
         # ask for ecents and the answere should be none
         jsonResponse = self.test.reportEvent(
-            self.userId, self.service, licencePlate, eventCode)
+            self.phoneId, self.service, licencePlate, eventCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
         self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 1)
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)

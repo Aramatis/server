@@ -25,8 +25,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # for testing requests inside the project
         self.factory = RequestFactory()
 
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
-        self.userId2 = "4f20c8f4-ddea-4c6c-87bb-c7bd3d435a51"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId2 = "4f20c8f4-ddea-4c6c-87bb-c7bd3d435a51"
 
         # loads the events
         self.helper = TestHelper(self)
@@ -38,7 +38,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         self.machineId = self.helper.askForMachineId(self.licencePlate)
         self.helper.getInBusWithMachineId(
-            self.userId, self.service, self.machineId)
+            self.phoneId, self.service, self.machineId)
 
         # add dummy bus stop
         self.helper.insertBusstopsOnDatabase(['PA459'])
@@ -66,7 +66,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(Busv2.objects.filter(uuid=machineId).exists(), True)
 
         testToken = self.helper.getInBusWithMachineId(
-            self.userId, busService, machineId)
+            self.phoneId, busService, machineId)
 
         # the created token is an active token
         self.assertEqual(
@@ -91,7 +91,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(Busv2.objects.filter(uuid=machineId).exists(), True)
 
         testToken = self.helper.getInBusWithMachineId(
-            self.userId, busService, machineId)
+            self.phoneId, busService, machineId)
 
         # the created token is an active token
         self.assertEqual(
@@ -118,7 +118,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(Busv2.objects.filter(uuid=machineId).exists(), True)
 
         testToken = self.helper.getInBusWithMachineId(
-            self.userId, busService, machineId)
+            self.phoneId, busService, machineId)
 
         # the created token is an active token
         self.assertEqual(
@@ -131,7 +131,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # submitting one event to the server
         jsonResponse = self.helper.reportEventV2(
-            self.userId, machineId, busService, eventCode)
+            self.phoneId, machineId, busService, eventCode)
 
         self.assertEqual(jsonResponse['uuid'], machineId)
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
@@ -152,7 +152,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # ===================================================================================
         # do event +1 to the event
-        jsonResponse = self.helper.confirmOrDeclineEventV2(self.userId, machineId, busService,
+        jsonResponse = self.helper.confirmOrDeclineEventV2(self.phoneId, machineId, busService,
                                                            eventCode, 'confirm')
 
         self.assertEqual(jsonResponse['uuid'], machineId)
@@ -173,7 +173,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
         # do event -1 to the event
-        jsonResponse = self.helper.confirmOrDeclineEventV2(self.userId, machineId, busService,
+        jsonResponse = self.helper.confirmOrDeclineEventV2(self.phoneId, machineId, busService,
                                                            eventCode, 'decline')
 
         self.assertEqual(jsonResponse['uuid'], machineId)
@@ -221,7 +221,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # submitting one event to the server
         jsonResponse = self.helper.reportEventV2(
-            self.userId, machineId, busService, eventCode)
+            self.phoneId, machineId, busService, eventCode)
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -254,7 +254,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # ===================================================================================
         # do event +1 to the event
         jsonResponse = self.helper.confirmOrDeclineEventV2(
-            self.userId, machineId, busService, eventCode, 'confirm')
+            self.phoneId, machineId, busService, eventCode, 'confirm')
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -277,7 +277,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # do event -1 to the event
         jsonResponse = self.helper.confirmOrDeclineEventV2(
-            self.userId, machineId, busService, eventCode, 'decline')
+            self.phoneId, machineId, busService, eventCode, 'decline')
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
@@ -335,7 +335,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # make a report
         reponseView.get(
             request,
-            self.userId,
+            self.phoneId,
             busStopCode,
             eventCode,
             'confirm')
@@ -353,7 +353,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # do event +1 to the event
         reponseView.get(
             request,
-            self.userId,
+            self.phoneId,
             busStopCode,
             eventCode,
             'confirm')
@@ -368,7 +368,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # do event -1 to the event
         reponseView.get(
             request,
-            self.userId,
+            self.phoneId,
             busStopCode,
             eventCode,
             'decline')
@@ -476,14 +476,14 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         request = self.factory.get('/android/requestToken/v2/')
         request.user = AnonymousUser()
         reponseView = RequestTokenV2()
-        response = reponseView.get(request, self.userId, busService1, testUUID)
+        response = reponseView.get(request, self.phoneId, busService1, testUUID)
         self.assertEqual(response.status_code, 200)
 
         # creat bus to create an assignment
         request = self.factory.get('/android/requestToken/v2/')
         request.user = AnonymousUser()
         reponseView = RequestTokenV2()
-        response = reponseView.get(request, self.userId, busService2, testUUID)
+        response = reponseView.get(request, self.phoneId, busService2, testUUID)
         self.assertEqual(response.status_code, 200)
 
         # submitting some events to the server
@@ -494,7 +494,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # send first report with service 1
         reportEventBusView = RegisterEventBusV2()
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.userId, testUUID, busService1, eventCode1, 'confirm')
+                                                          self.phoneId, testUUID, busService1, eventCode1, 'confirm')
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
@@ -512,7 +512,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # send second report with service 2- We declien the previous event
         # reportd
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.userId, testUUID, busService2, eventCode1, 'decline')
+                                                          self.phoneId, testUUID, busService2, eventCode1, 'decline')
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
@@ -529,7 +529,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # report second event to service
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.userId, testUUID, busService1, eventCode2, 'confirm')
+                                                          self.phoneId, testUUID, busService1, eventCode2, 'confirm')
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
@@ -552,7 +552,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # report third event to service
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.userId, testUUID, busService2, eventCode3, 'confirm')
+                                                          self.phoneId, testUUID, busService2, eventCode3, 'confirm')
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 

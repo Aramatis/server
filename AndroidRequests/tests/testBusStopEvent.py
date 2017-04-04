@@ -25,10 +25,10 @@ class BusStopEventTestCase(TransactionTestCase):
         self.test.insertBusstopsOnDatabase([self.busStopCode])
 
         # report bus stop event
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
         self.eventCode = 'evn00010'
        
-        jsonResponse = self.test.reportStopEvent(self.userId, self.busStopCode, self.eventCode) 
+        jsonResponse = self.test.reportStopEvent(self.phoneId, self.busStopCode, self.eventCode) 
 
         self.assertEqual(jsonResponse['codeBusStop'], self.busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -63,7 +63,7 @@ class BusStopEventTestCase(TransactionTestCase):
         # ask bus stop events with new bus stop version
         with self.settings(GTFS_VERSION=self.newGtfsVersion):
             jsonResponse = self.test.confirmOrDeclineStopEvent(
-                self.userId, self.busStopCode, self.eventCode, 'confirm')
+                self.phoneId, self.busStopCode, self.eventCode, 'confirm')
 
         self.assertEqual(jsonResponse['codeBusStop'], self.busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -75,7 +75,7 @@ class BusStopEventTestCase(TransactionTestCase):
         # ask bus stop events with new bus stop version
         with self.settings(GTFS_VERSION=self.newGtfsVersion):
             jsonResponse = self.test.confirmOrDeclineStopEvent(
-                self.userId, self.busStopCode, self.eventCode, 'decline')
+                self.phoneId, self.busStopCode, self.eventCode, 'decline')
 
         self.assertEqual(jsonResponse['codeBusStop'], self.busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)

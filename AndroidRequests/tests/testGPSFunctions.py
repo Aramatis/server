@@ -11,7 +11,7 @@ import AndroidRequests.constants as Constants
 class TestGPSFunctions(TestCase):
 
     def setUp(self):
-        # self.userId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
+        # self.phoneId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
         # self.busService = '506'
         # self.registrationPlate = 'XXYY25'
         self.error = 0.05

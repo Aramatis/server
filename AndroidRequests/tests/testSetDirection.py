@@ -14,7 +14,7 @@ class SetDirectionTest(TestCase):
         # for testing requests inside the project
         self.factory = RequestFactory()
 
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         self.helper = TestHelper(self)
 
@@ -30,7 +30,7 @@ class SetDirectionTest(TestCase):
         """ set direction of travel has not been finished with dummy licence plate """
 
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, self.service, Constants.DUMMY_LICENSE_PLATE)
+            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
         directions = ["I", "R"]
@@ -48,7 +48,7 @@ class SetDirectionTest(TestCase):
         """ set direction of travel has not been finished """
 
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, self.service, self.licencePlate)
+            self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
         directions = ["I", "R"]
@@ -66,7 +66,7 @@ class SetDirectionTest(TestCase):
         """ set direction of travel has been finished """
 
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, self.service, self.licencePlate)
+            self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.endRoute(travelKey)
 
@@ -81,7 +81,7 @@ class SetDirectionTest(TestCase):
         """ set direction of travel has been finished """
 
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, self.service, Constants.DUMMY_LICENSE_PLATE)
+            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.endRoute(travelKey)
 
@@ -96,7 +96,7 @@ class SetDirectionTest(TestCase):
         """ set direction of travel has been finished """
 
         travelKey = self.helper.getInBusWithLicencePlate(
-            self.userId, self.service, self.licencePlate)
+            self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
         directions = ["Z", "S", "other things"]

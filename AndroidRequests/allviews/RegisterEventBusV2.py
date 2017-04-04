@@ -16,7 +16,7 @@ class RegisterEventBusV2(View):
     def get(
             self,
             request,
-            pUserId,
+            pPhoneId,
             pUuid,
             pBusService,
             pEventID,
@@ -79,7 +79,7 @@ class RegisterEventBusV2(View):
                 reportOfEvent=eventReport,
                 longitud=pLongitud,
                 latitud=pLatitud,
-                userId=pUserId,
+                phoneId=pPhoneId,
                 gpsLongitud=responseLongitud,
                 gpsLatitud=responseLatitud,
                 gpsTimeStamp=responseTimeStamp,
@@ -87,7 +87,7 @@ class RegisterEventBusV2(View):
         else:
             # if an event was not found, create a new one
             aEventReport = EventForBusv2.objects.create(
-                userId=pUserId,
+                phoneId=pPhoneId,
                 busassignment=theAsignment,
                 event=theEvent,
                 timeStamp=aTimeStamp,
@@ -106,7 +106,7 @@ class RegisterEventBusV2(View):
                 reportOfEvent=aEventReport,
                 longitud=pLongitud,
                 latitud=pLatitud,
-                userId=pUserId,
+                phoneId=pPhoneId,
                 gpsLongitud=responseLongitud,
                 gpsLatitud=responseLatitud,
                 gpsTimeStamp=responseTimeStamp,

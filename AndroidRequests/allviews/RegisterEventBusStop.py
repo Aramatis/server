@@ -15,7 +15,7 @@ class RegisterEventBusStop(View):
     def get(
             self,
             request,
-            pUserId,
+            pPhoneId,
             stopCode,
             pEventID,
             pConfirmDecline,
@@ -52,14 +52,14 @@ class RegisterEventBusStop(View):
                 reportOfEvent=eventReport,
                 longitud=pLongitud,
                 latitud=pLatitud,
-                userId=pUserId)
+                phoneId=pPhoneId)
         else:
             aEventReport = EventForBusStop.objects.create(
                 stopCode=stopCode,
                 event=theEvent,
                 timeStamp=aTimeStamp,
                 timeCreation=aTimeStamp,
-                userId=pUserId,
+                phoneId=pPhoneId,
                 aditionalInfo=pService)
 
             if pConfirmDecline == 'decline':
@@ -74,7 +74,7 @@ class RegisterEventBusStop(View):
                 reportOfEvent=aEventReport,
                 longitud=pLongitud,
                 latitud=pLatitud,
-                userId=pUserId)
+                phoneId=pPhoneId)
 
         # Returns updated event list for a busstop
         eventsByBusStop = EventsByBusStop()
