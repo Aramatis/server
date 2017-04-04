@@ -20,7 +20,8 @@ class RegisterEventBusStop(View):
             pEventID,
             pConfirmDecline,
             pLatitud=500,
-            pLongitud=500):
+            pLongitud=500,
+            pService=''):
 
         theEvent = Event.objects.get(id=pEventID)
 
@@ -58,7 +59,8 @@ class RegisterEventBusStop(View):
                 event=theEvent,
                 timeStamp=aTimeStamp,
                 timeCreation=aTimeStamp,
-                userId=pUserId)
+                userId=pUserId,
+                aditionalInfo=pService)
 
             if pConfirmDecline == 'decline':
                 aEventReport.eventDecline = 1

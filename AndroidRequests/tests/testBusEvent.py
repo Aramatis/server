@@ -34,7 +34,7 @@ class BusEventTest(TransactionTestCase):
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         self.test.getInBusWithLicencePlate(
             self.userId, self.service, licencePlate)
-        eventCode = 'evn00101'
+        eventCode = 'evn00202'
 
         # submitting one event to the server
         jsonResponse = self.test.reportEvent(
@@ -52,7 +52,7 @@ class BusEventTest(TransactionTestCase):
         the events for the specific bus'''
 
         licencePlate = 'AA0000'
-        eventCode = 'evn00101'
+        eventCode = 'evn00202'
         self.test.getInBusWithLicencePlate(
             self.userId, self.service, licencePlate)
 

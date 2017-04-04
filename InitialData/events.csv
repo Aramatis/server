@@ -8,9 +8,9 @@ evn00013;busStop;estado físico;o;Falta info de recorridos;No se informa que ser
 evn00020;busStop;ambiente;o;Robos o desordenes;Se presencian robos o disturbios;30
 evn00021;busStop;ambiente;o;Ebrio;Personas ebrias en el paradero;30
 evn00022;busStop;ambiente;o;Paradero lleno;Paradero está lleno de personas;30
-evn00100;bus;desde paradero;o;Bus en tránsito;El bus pasó en tránsito;720
-evn00101;bus;desde paradero;o;Bus vacío no se detuvo;Bus con pocos pasajeros y no para;720
-evn00102;bus;desde paradero;o;Bus lleno no se detuvo;Bus con muchos pasajeros y no para;720
+evn00100;bus;desde paradero;o;Bus en tránsito;El bus pasó en tránsito;0
+evn00101;bus;desde paradero;o;Bus vacío no se detuvo;Bus con pocos pasajeros y no para;0
+evn00102;bus;desde paradero;o;Bus lleno no se detuvo;Bus con muchos pasajeros y no para;0
 evn00200;bus;hacinamiento;i;Imposible moverse;No se puede transitar por el bus;20
 evn00201;bus;hacinamiento;i;Se camina con dificultad;Es difícil transitar por el bus;20
 evn00202;bus;hacinamiento;i;No hay asientos disponibles;No hay asientos disponibles;20

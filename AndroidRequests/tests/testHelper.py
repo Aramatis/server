@@ -392,7 +392,7 @@ class TestHelper():
         STOP METHODS
     """
 
-    def reportStopEvent(self, userId, stopCode, eventCode):
+    def reportStopEvent(self, userId, stopCode, eventCode, aditionalInfo = None):
         """ report an event for stop """
         URL = '/android/reportEventBusStop/'
         """
@@ -403,7 +403,11 @@ class TestHelper():
         response = view.get(request, userId, stopCode, eventCode, 'confirm')
         """
         c = Client()
-        URL = URL + '/'.join([userId, stopCode, eventCode, 'confirm'])
+        if aditionalInfo is None:
+            params = [userId, stopCode, eventCode, 'confirm']
+        else:
+            params = [userId, stopCode, aditionalInfo, eventCode, 'confirm']
+        URL = URL + '/'.join(params)
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
