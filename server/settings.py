@@ -37,6 +37,8 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as file:
         admin = (user['name'], user['email'])
         ADMINS.append(admin)
 
+    del adminsJson
+
 # Set email configuration to report errors
 with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as file:
     emailConfigJson = json.load(file)
@@ -49,6 +51,16 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as 
     SERVER_EMAIL = emailConfigJson["SERVER_EMAIL"]
 
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    del emailConfigJson
+
+# facebook keys to log in users
+with open(os.path.join(os.path.dirname(__file__), 'keys/facebook_config.json')) as file:
+    facebookConfig = json.load(file)
+    FACEBOOK_APP_ID = facebookConfig['APP_ID']
+    FACEBOOK_APP_SECRET = facebookConfig['APP_SECRET']
+    FACEBOOK_APP_ACCESS_TOKEN = facebookConfig['APP_ACCESS_TOKEN']
+    del facebookConfig
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

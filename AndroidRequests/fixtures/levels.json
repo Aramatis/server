@@ -1,0 +1,22 @@
+[
+    {
+        "model": "AndroidRequests.level",
+        "pk": 1,
+        "fields": {
+            "name": "Uber lover",
+            "minScore": "0",
+            "maxScore": "1000",
+            "position": 1
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 2,
+        "fields": {
+            "name": "Me gustan las micros amarillas",
+            "minScore": "1000",
+            "maxScore": "3000",
+            "position": 2
+        }
+    }
+]

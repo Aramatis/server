@@ -6,7 +6,7 @@ import urllib2
 import json
 
 
-def haversine(lon1, lat1, lon2, lat2):
+def haversine(lon1, lat1, lon2, lat2, measure='m'):
     """
     Calculate the great circle distance between two points
     on the earth (specified in decimal degrees)
@@ -19,8 +19,9 @@ def haversine(lon1, lat1, lon2, lat2):
     a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
     c = 2 * asin(sqrt(a))
     km = 6367 * c
-    m = km * 1000
-    return m
+    if measure == 'm':
+        return km * 1000
+    return km
 
 
 def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):

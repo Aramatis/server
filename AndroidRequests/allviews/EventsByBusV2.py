@@ -14,17 +14,17 @@ class EventsByBusV2(View):
     def __init__(self):
         self.context = {}
 
-    def get(self, request, pUuid):
+    def get(self, request, pPhoneId):
         """The UUID field can identify the bus, and the service can identify
         the bus assignment"""
         logger = logging.getLogger(__name__)
 
         response = {}
         # response['registrationPlate'] = pRegistrationPlate
-        response['uuid'] = pUuid
+        response['uuid'] = pPhoneId
 
         try:
-            bus = Busv2.objects.get(uuid=pUuid)
+            bus = Busv2.objects.get(uuid=pPhoneId)
             pRegistrationPlate = bus.registrationPlate
             assignments = Busassignment.objects.filter(uuid=bus)
             events = self.getEventsForBus(assignments)

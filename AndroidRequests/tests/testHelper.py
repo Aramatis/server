@@ -169,7 +169,7 @@ class TestHelper():
 
         return jsonResponse
 
-    def sendFakeTrajectoryOfToken(self, travelToken, poses=None):
+    def sendFakeTrajectoryOfToken(self, travelToken, poses=None, userId='', sessionToken=''):
         """ send fake positions for user travel """
 
         URL = '/android/sendTrajectory'
@@ -221,7 +221,9 @@ class TestHelper():
         c = Client()
         URL = URL
         response = c.post(URL, {'pToken': travelToken,
-                                'pTrajectory': json.dumps(poses)})
+                                'pTrajectory': json.dumps(poses),
+                                'userId': userId, 
+                                'sessionToken': sessionToken})
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -247,6 +249,23 @@ class TestHelper():
         c = Client()
         URL = URL
         response = c.post(URL, {'pToken': travelKey, 'pDirection': direction})
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+    def evaluateTrip(self, travelToken, evaluation):
+        """ send trip evaluation """
+
+        URL = '/android/evaluateTrip'
+        request = self.factory.post(URL)
+        request.user = AnonymousUser()
+
+        c = Client()
+        response = c.post(URL, {'token': travelToken,
+                                'evaluation': evaluation})
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -456,3 +475,88 @@ class TestHelper():
         jsonResponse = json.loads(response.content)
 
         return jsonResponse
+
+
+    """
+        BUS EVENT METHODS BY POST
+    """
+    def reportEventV2ByPost(self, phoneId, machineId, service, eventCode, userId, sessionToken):
+        """ report an event with the new version  """
+        URL = '/android/reportEventBus/v2'
+        c = Client()
+        data = {'phoneId': phoneId, 
+                'machineId': machineId, 
+                'service': service,
+                'eventId': eventCode, 
+                'vote': 'confirm', 
+                'userId': userId, 
+                'sessionToken': sessionToken}
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+    def confirmOrDeclineEventV2ByPost(
+            self, phoneId, machineId, service, eventCode, confirmOrDecline, userId, sessionToken):
+        """ confirm or decline an event with the new version  """
+        URL = '/android/reportEventBus/v2'
+        c = Client()
+        data = {'phoneId': phoneId, 
+                'machineId': machineId, 
+                'service': service,
+                'eventId': eventCode, 
+                'vote': confirmOrDecline, 
+                'userId': userId, 
+                'sessionToken': sessionToken}
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+
+    def reportStopEventByPost(self, phoneId, stopCode, eventCode, userId, sessionToken):
+        """ report an event for stop """
+        URL = '/android/reportEventBusStop'
+        c = Client()
+        data = {'phoneId': phoneId, 
+                'stopCode': stopCode, 
+                'eventId': eventCode, 
+                'vote': 'confirm',
+                'userId': userId, 
+                'sessionToken': sessionToken}
+
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+    def confirmOrDeclineStopEventByPost(
+            self, phoneId, stopCode, eventCode, confirmOrDecline, userId, sessionToken):
+        """ confirm or decline an event for stop """
+        URL = '/android/reportEventBusStop'
+        c = Client()
+        data = {'phoneId': phoneId, 
+                'stopCode': stopCode, 
+                'eventId': eventCode, 
+                'vote': confirmOrDecline,
+                'userId': userId, 
+                'sessionToken': sessionToken}
+
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
+

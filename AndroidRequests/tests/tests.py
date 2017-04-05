@@ -7,6 +7,7 @@ from django.conf import settings
 from AndroidRequests.models import DevicePositionInTime, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
 # views
 import AndroidRequests.views as views
+from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
 
 # Create your tests here.
@@ -172,14 +173,16 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken)
 
-        self.assertEqual(jsonResponse['response'], 'Poses were register.')
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
 
         # remove the token
         self.test.endRoute(testToken)
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken)
 
-        self.assertEqual(jsonResponse['response'], 'Token doesn\'t exist.')
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['message'])
 
     def test_EventsByBusStopReportNegativelyForFistTime(self):
         """ report stop event negatively for fist time """
@@ -349,7 +352,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
         jsonResponse = self.test.sendFakeTrajectoryOfToken(
             testToken, testPoses)
 
-        self.assertEqual(jsonResponse['response'], 'Poses were register.')
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
 
         # ask the position of the bus whit a passanger
         bus = Busv2.objects.get(registrationPlate=licencePlate)

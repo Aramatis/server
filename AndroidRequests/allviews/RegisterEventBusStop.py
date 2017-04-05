@@ -1,16 +1,47 @@
 from django.views.generic import View
 from django.utils import timezone
+<<<<<<< HEAD
 from django.conf import settings
+=======
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+>>>>>>> feature/usersAndScore
 
+import json
 # my stuff
 # import DB's models
 from AndroidRequests.models import Event, BusStop, EventForBusStop, StadisticDataFromRegistrationBusStop
 
 from EventsByBusStop import EventsByBusStop
 
+import AndroidRequests.scoreFunctions as score
 
 class RegisterEventBusStop(View):
     '''This class handles the requests that report events of a bus stop'''
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RegisterEventBusStop, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        """ """
+        phoneId = request.POST.get('phoneId', '')
+        stopCode = request.POST.get('stopCode', '')
+
+        eventCode = request.POST.get('eventId', '')
+        vote = request.POST.get('vote', '')
+        # user position
+        userLatitude = float(request.POST.get('latitude', '500'))
+        userLongitude = float(request.POST.get('longitude', '500'))
+        
+        userId = request.POST.get('userId', '')
+        sessionToken = request.POST.get('sessionToken', '')
+
+        service = request.POST.get('service', '')
+
+        return self.get(request, phoneId, stopCode,  
+                eventCode, vote, userLatitude, userLongitude, service)
 
     def get(
             self,
@@ -43,42 +74,36 @@ class RegisterEventBusStop(View):
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
-
-            eventReport.save()
-
-            StadisticDataFromRegistrationBusStop.objects.create(
-                timeStamp=aTimeStamp,
-                confirmDecline=pConfirmDecline,
-                reportOfEvent=eventReport,
-                longitud=pLongitud,
-                latitud=pLatitud,
-                phoneId=pPhoneId)
         else:
-            aEventReport = EventForBusStop.objects.create(
-                stopCode=stopCode,
+            eventReport = EventForBusStop.objects.create(
+                busStop=theBusStop,
                 event=theEvent,
                 timeStamp=aTimeStamp,
                 timeCreation=aTimeStamp,
-                phoneId=pPhoneId,
+                userId=pPhoneId,
                 aditionalInfo=pService)
 
             if pConfirmDecline == 'decline':
-                aEventReport.eventDecline = 1
-                aEventReport.eventConfirm = 0
+                eventReport.eventDecline = 1
+                eventReport.eventConfirm = 0
 
-            aEventReport.save()
+        eventReport.save()
 
-            StadisticDataFromRegistrationBusStop.objects.create(
-                timeStamp=aTimeStamp,
-                confirmDecline=pConfirmDecline,
-                reportOfEvent=aEventReport,
-                longitud=pLongitud,
-                latitud=pLatitud,
-                phoneId=pPhoneId)
+        StadisticDataFromRegistrationBusStop.objects.create(
+            timeStamp=aTimeStamp,
+            confirmDecline=pConfirmDecline,
+            reportOfEvent=eventReport,
+            longitud=pLongitud,
+            latitud=pLatitud,
+            userId=pPhoneId)
 
-        # Returns updated event list for a busstop
-        eventsByBusStop = EventsByBusStop()
-        return eventsByBusStop.get(request, stopCode)
+        # update score
+        jsonScoreResponse = score.calculateEventScore(request, pEventID)
+        # Returns updated event list for a bus stop
+        jsonEventResponse = json.loads(EventsByBusStop().get(request, pBusStopCode).content)
+        jsonEventResponse["gamificationData"] = jsonScoreResponse
+
+        return JsonResponse(jsonEventResponse)
 
     def getLastEvent(self, querySet):
         toReturn = querySet[0]

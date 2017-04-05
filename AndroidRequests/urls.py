@@ -17,6 +17,9 @@ from AndroidRequests.allviews.RegisterReport import RegisterReport
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
 from AndroidRequests.allviews.SetDirection import SetDirection
 from AndroidRequests.allviews.RequestUUID import RequestUUID
+from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin
+from AndroidRequests.allviews.UserScoreSession import TranSappUserLogout
+from AndroidRequests.allviews.EvaluateTrip import EvaluateTrip
 
 urlpatterns = [
     url(r'^nearbyBuses/(?P<pPhoneId>[0-9a-z-]+)/(?P<pBusStop>\w+)$',
@@ -80,11 +83,23 @@ urlpatterns = [
         r'^requestToken/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pBusService>[0-9,\w]*)/(?P<pUUID>[0-9a-z-]+)$',
         RequestTokenV2.as_view()),
     url(
-        r'^reportEventBus/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pUuid>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBus/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pMachineId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pLatitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitud>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$',
         RegisterEventBusV2.as_view()),
     url(
-        r'^reportEventBus/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pUuid>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBus/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pMachineId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$',
         RegisterEventBusV2.as_view()),
-    url(r'^requestEventsForBus/v2/(?P<pUuid>[0-9a-z-]+)$',
+    url(r'^requestEventsForBus/v2/(?P<pPhoneId>[0-9a-z-]+)$',
         EventsByBusV2.as_view()),
+
+    # =====================================================
+    # SCORE SESSION
+    # =====================================================
+    url(r'^login$', TranSappUserLogin.as_view()),
+    url(r'^logout$', TranSappUserLogout.as_view()),
+    # =====================================================
+    # EVALUATE TRIP
+    # =====================================================
+    url(r'^evaluateTrip$', EvaluateTrip.as_view()),
+    url(r'^reportEventBus/v2$', RegisterEventBusV2.as_view()),
+    url(r'^reportEventBusStop$', RegisterEventBusStop.as_view()),
 ]

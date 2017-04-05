@@ -7,7 +7,9 @@ from django.utils.decorators import method_decorator
 # python utilities
 import json
 
-# my stuff
+from AndroidRequests.statusResponse import Status
+import AndroidRequests.scoreFunctions as score
+
 # import DB's models
 from AndroidRequests.models import ActiveToken, Token, PoseInTrajectoryOfToken
 
@@ -39,7 +41,7 @@ class SendPoses(View):
                 aToken.save()
 
                 theToken = Token.objects.get(token=pToken)
-
+                
                 for pose in trajectory:
                     # set awareness to time stamp, to the server UTC
                     aTimeStamp = dateparse.parse_datetime(pose['timeStamp'])
@@ -52,8 +54,14 @@ class SendPoses(View):
                         inVehicleOrNot=pose["inVehicleOrNot"],
                         token=theToken)
 
-                response['response'] = 'Poses were register.'
+                # update score
+                EVENT_ID = 'evn00300'
+                metaData = {'poses': trajectory, 'tripToken': pToken}
+                jsonScoreResponse = score.calculateDistanceScore(request, EVENT_ID, metaData)
+                response["gamificationData"] = jsonScoreResponse
+   
+                Status.getJsonStatus(Status.OK, response)
             else:  # if the token was not found alert
-                response['response'] = 'Token doesn\'t exist.'
+                Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, response)
 
         return JsonResponse(response, safe=False)
