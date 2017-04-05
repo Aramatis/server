@@ -776,6 +776,6 @@ class ScoreHistory(models.Model):
     ''' time when event was generated '''
     score = models.FloatField(default=0, null=False)
     ''' winned score '''
-    meta = models.CharField(max_length=100, null=True)
+    meta = models.CharField(max_length=10000, null=True)
     ''' addional data to score '''
 

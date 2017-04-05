@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('timeCreation', models.DateTimeField(null=False)),
                 ('scoreEvent', models.ForeignKey(to='AndroidRequests.ScoreEvent')),
-                ('meta', models.CharField(max_length=100, null=True)),
+                ('meta', models.CharField(max_length=10000, null=True)),
                 ('score', models.FloatField(default=0)),
             ],
         ),

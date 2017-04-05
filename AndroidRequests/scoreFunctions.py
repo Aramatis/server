@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
+from django.utils import timezone, dateparse
+
 import abc
 import uuid
 import logging
-from django.utils import timezone
+import json
+
+import AndroidRequests.gpsFunctions as gpsFunctions
 
 from AndroidRequests.statusResponse import Status
-from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level
+from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level, PoseInTrajectoryOfToken
 
 
 class CalculateScore():
@@ -100,6 +104,34 @@ class DistanceScore(CalculateScore):
 
     def getScore(self, eventCode, metaData):
         """ It calculates score """
+
+        points = metaData['poses']
+        tripToken = metaData['tripToken']
+        
+        firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
+        firstPointTime = timezone.make_aware(firstPointTime)
+        distance = 0
+        try:
+            previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, 
+                timeStamp__lt=firstPointTime).order_by('-timeStamp')[0]
+            distance += gpsFunctions.haversine(previousPoint.longitud, previousPoint.latitud, 
+                points[0]['longitud'], points[0]['latitud'], measure='km')
+        except:
+            # there is not previous point
+            pass
+
+        try:
+            score = ScoreEvent.objects.get(code=eventCode).score
+        except:
+            errorMsg = 'event code: {} does not exist in database'.format(eventCode)
+            self.logger.error(errorMsg)
+            score = 0
+
+        for index, point in enumerate(points[:-1]):
+            distance += gpsFunctions.haversine(point['longitud'], point['latitud'], 
+                points[index+1]['longitud'], points[index+1]['latitud'], measure='km')
+        
+        return round(score * distance, 8)
 
 
 def calculateEventScore(request, eventCode):

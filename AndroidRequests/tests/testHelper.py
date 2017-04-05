@@ -180,7 +180,7 @@ class TestHelper():
 
         return jsonResponse
 
-    def sendFakeTrajectoryOfToken(self, travelToken, poses=None):
+    def sendFakeTrajectoryOfToken(self, travelToken, poses=None, userId='', sessionToken=''):
         """ send fake positions for user travel """
 
         URL = '/android/sendTrajectory'
@@ -232,7 +232,9 @@ class TestHelper():
         c = Client()
         URL = URL
         response = c.post(URL, {'pToken': travelToken,
-                                'pTrajectory': json.dumps(poses)})
+                                'pTrajectory': json.dumps(poses),
+                                'userId': userId, 
+                                'sessionToken': sessionToken})
 
         self.test.assertEqual(response.status_code, 200)
 
