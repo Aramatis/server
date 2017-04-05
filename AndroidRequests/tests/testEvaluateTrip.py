@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, Bus, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment
+from AndroidRequests.models import DevicePositionInTime, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment
 # views
 import AndroidRequests.views as views
 from AndroidRequests.statusResponse import Status

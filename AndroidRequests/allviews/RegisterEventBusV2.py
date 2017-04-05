@@ -99,7 +99,7 @@ class RegisterEventBusV2(View):
         else:
             # if an event was not found, create a new one
             eventReport = EventForBusv2.objects.create(
-                userId=pPhoneId,
+                phoneId=pPhoneId,
                 busassignment=theAsignment,
                 event=theEvent,
                 timeStamp=aTimeStamp,
@@ -118,7 +118,7 @@ class RegisterEventBusV2(View):
             reportOfEvent=eventReport,
             longitud=pLongitud,
             latitud=pLatitud,
-            userId=pPhoneId,
+            phoneId=pPhoneId,
             gpsLongitud=responseLongitud,
             gpsLatitud=responseLatitud,
             gpsTimeStamp=responseTimeStamp,

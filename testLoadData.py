@@ -115,31 +115,31 @@ class LoadInitialDataTest(TestCase):
 
         self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
 
-    def test_loadRoutesWithoutProblem(self):
-        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+    #def test_loadRoutesWithoutProblem(self):
+    #    ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+ 
+    #    FILE_NAME = 'routes.csv'
+    #    self.createTestFile(FILE_NAME)
 
-        FILE_NAME = 'routes.csv'
-        self.createTestFile(FILE_NAME)
+    #    loadData([settings.GTFS_VERSION, 'route', self.TEST_FILE_NAME])
 
-        loadData([settings.GTFS_VERSION, 'route', self.TEST_FILE_NAME])
-
-    def test_loadRoutesWithProblem(self):
-        ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
+    #def test_loadRoutesWithProblem(self):
+    #    ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
         
-        FILE_NAME = 'routes.csv'
-        self.createTestFile(FILE_NAME, addBadLine = True)
+    #    FILE_NAME = 'routes.csv'
+    #    self.createTestFile(FILE_NAME, addBadLine = True)
 
-        LOG_FILE_NAME = 'test.log'
-        loadData([settings.GTFS_VERSION, 'route', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
+    #    LOG_FILE_NAME = 'test.log'
+    #    loadData([settings.GTFS_VERSION, 'route', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
-        EXPECTED_LOG = "=========================================\n"\
-        "Exception: value too long for type character varying(11)\n"\
-        "Loader: Route\n"\
-        "Data columns: serviceCode,latitude,longitude,sequence\n"\
-        "Values: HI!IAmAnError101I;-33.406175;-70.623244;1\n"\
-        "=========================================\n"\
+    #    EXPECTED_LOG = "=========================================\n"\
+    #    "Exception: value too long for type character varying(11)\n"\
+    #    "Loader: Route\n"\
+    #    "Data columns: serviceCode,latitude,longitude,sequence\n"\
+    #    "Values: HI!IAmAnError101I;-33.406175;-70.623244;1\n"\
+    #    "=========================================\n"\
 
-        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+    #    self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
 
     def test_loadServiceLocationWithoutProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''

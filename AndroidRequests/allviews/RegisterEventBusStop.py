@@ -1,12 +1,9 @@
 from django.views.generic import View
 from django.utils import timezone
-<<<<<<< HEAD
 from django.conf import settings
-=======
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
->>>>>>> feature/usersAndScore
 
 import json
 # my stuff
@@ -76,11 +73,11 @@ class RegisterEventBusStop(View):
                 eventReport.eventConfirm += 1
         else:
             eventReport = EventForBusStop.objects.create(
-                busStop=theBusStop,
+                stopCode=stopCode,
                 event=theEvent,
                 timeStamp=aTimeStamp,
                 timeCreation=aTimeStamp,
-                userId=pPhoneId,
+                phoneId=pPhoneId,
                 aditionalInfo=pService)
 
             if pConfirmDecline == 'decline':
@@ -95,12 +92,12 @@ class RegisterEventBusStop(View):
             reportOfEvent=eventReport,
             longitud=pLongitud,
             latitud=pLatitud,
-            userId=pPhoneId)
+            phoneId=pPhoneId)
 
         # update score
         jsonScoreResponse = score.calculateEventScore(request, pEventID)
         # Returns updated event list for a bus stop
-        jsonEventResponse = json.loads(EventsByBusStop().get(request, pBusStopCode).content)
+        jsonEventResponse = json.loads(EventsByBusStop().get(request, stopCode).content)
         jsonEventResponse["gamificationData"] = jsonScoreResponse
 
         return JsonResponse(jsonEventResponse)
