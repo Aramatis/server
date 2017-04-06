@@ -41,18 +41,16 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
             self.phoneId, self.service, self.machineId)
 
         # add dummy bus stop
-        self.helper.insertBusstopsOnDatabase(['PA459'])
+        stopCode = 'PA459'
+        self.helper.insertBusstopsOnDatabase([stopCode])
 
         # add dummy service and its patha
         self.service = '507'
         self.direction = 'I'
         self.helper.insertServicesOnDatabase([self.service])
 
-        self.helper.insertServiceStopDistanceOnDatabase(
-            self.service, self.direction)
-
-        self.helper.insertServiceLocationOnDatabase(
-            self.service, self.direction)
+        self.helper.insertServiceStopDistanceOnDatabase([stopCode])
+        self.helper.insertServiceLocationOnDatabase([self.service + self.direction])
 
     def test_RequestTokenWithDummyLicensePlateUUID(self):
         ''' This method will test a token for a dummy license plate bus with uuid '''
