@@ -156,15 +156,14 @@ def getUserBuses(busStopCode, questioner):
         busassignment__service__in=serviceNames,
         activetoken__isnull=False)
     # print "usuarios activos: " + str(len(activeUserBuses))
-
     userBuses = []
     uuids = []
     for user in activeUserBuses:
         serviceIndex = serviceNames.index(user.busassignment.service)
         uuid = user.busassignment.uuid.uuid
         # TODO: consider bus direction
-        if user.direction == serviceDirections[
-                serviceIndex] and (uuid not in uuids):
+        if user.direction == serviceDirections[serviceIndex] and \
+           uuid not in uuids:
             uuids.append(uuid)
             bus = {}
             bus['servicio'] = user.busassignment.service
@@ -177,7 +176,7 @@ def getUserBuses(busStopCode, questioner):
             bus['tienePasajeros'] = busData['passengers']
             try:
                 bus['sentido'] = user.busassignment.getDirection(
-                    busStopObj.code, 30)
+                    busStopCode, 30)
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
@@ -196,9 +195,9 @@ def getUserBuses(busStopCode, questioner):
             # add new param 'uuid'
             bus['busId'] = uuid
             bus['direction'] = user.direction
-            bus['isTheSameUser'] = True if str(
-                user.phoneId) == questioner else False
+            bus['isTheSameUser'] = True if str(user.phoneId) == questioner else False
             # assume that bus is 30 meters from bus stop to predict direction
+            
             if not bus['random']:
                 userBuses.append(bus)
 
@@ -207,7 +206,7 @@ def getUserBuses(busStopCode, questioner):
 
 def getAuthorityBuses(data):
     """ apply json format to authority info """
-
+    
     logger = logging.getLogger(__name__)
     
     authBuses = []

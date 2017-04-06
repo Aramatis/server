@@ -386,15 +386,16 @@ class Busassignment(models.Model):
             if(not hasattr(token, 'activetoken')):
                 continue
             passengers += 1
-            trajectoryQuery = PoseInTrajectoryOfToken.objects.filter(
-                token__token=token)
-            if trajectoryQuery.exists():
-                lastPose = trajectoryQuery.latest('timeStamp')
-                if (lastPose.timeStamp >= lastDate):
-                    lastDate = lastPose.timeStamp
-                    lat = lastPose.latitud
-                    lon = lastPose.longitud
-                    random = False
+            try:
+                lastPose = PoseInTrajectoryOfToken.objects.filter(
+                    token=token, timeStamp__gte=lastDate).latest('timeStamp')
+                lastDate = lastPose.timeStamp
+                lat = lastPose.latitud
+                lon = lastPose.longitud
+                random = False
+            except PoseInTrajectoryOfToken.DoesNotExist:
+                logger = logging.getLogger(__name__)
+                logger.info("There is not geolocation in the last 5 minutes. token: {} | time: {}".format(token.token, timezone.now()))
 
         return {'latitude': lat,
                 'longitude': lon,

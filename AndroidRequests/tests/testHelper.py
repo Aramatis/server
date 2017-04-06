@@ -4,6 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
 import json
+import datetime as dt
 
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
@@ -68,23 +69,23 @@ class TestHelper():
 
         self.__loadData(model, filePath, log, busStopList)
 
-    def insertServiceStopDistanceOnDatabase(self, service, direction):
+    def insertServiceStopDistanceOnDatabase(self, stopList):
         """ load service stop distance data by service with direction """
 
         log = open(self.LOG_FILE_NAME, 'w')
         filePath = self.GTFS_PATH + '/servicestopdistance.csv'
         model = 'servicestopdistance'
 
-        self.__loadData(model, filePath, log, service + direction)
+        self.__loadData(model, filePath, log, stopList)
 
-    def insertServiceLocationOnDatabase(self, service, direction):
+    def insertServiceLocationOnDatabase(self, servicesWithDirection):
         """ load service location data by service with direction """
 
         log = open(self.LOG_FILE_NAME, 'w')
         filePath = self.GTFS_PATH + '/servicelocation.csv'
         model = 'servicelocation'
 
-        self.__loadData(model, filePath, log, service + direction)
+        self.__loadData(model, filePath, log, servicesWithDirection)
 
     def askForMachineId(self, pLicencePlate):
         """ simulate a request to get machine id based on its licence plate """
@@ -176,20 +177,20 @@ class TestHelper():
         request = self.factory.post(URL)
         request.user = AnonymousUser()
 
-        now = timezone.now()
+        now = dt.datetime.now()
         times = [now,
-                 now - timezone.timedelta(0, 5),
-                 now - timezone.timedelta(0, 10),
-                 now - timezone.timedelta(0, 15),
-                 now - timezone.timedelta(0, 20),
-                 now - timezone.timedelta(0, 25),
-                 now - timezone.timedelta(0, 30),
-                 now - timezone.timedelta(0, 35),
-                 now - timezone.timedelta(0, 40)]
+                 now - dt.timedelta(minutes=5),
+                 now - dt.timedelta(minutes=10),
+                 now - dt.timedelta(minutes=15),
+                 now - dt.timedelta(minutes=20),
+                 now - dt.timedelta(minutes=25),
+                 now - dt.timedelta(minutes=30),
+                 now - dt.timedelta(minutes=35),
+                 now - dt.timedelta(minutes=40)]
         fTimes = []
         for time in times:
             fTimes.append(time.strftime("%Y-%m-%dT%X"))
-
+        
         if poses is None:
             poses = {"poses": [
                 {"latitud": -33.458771, "longitud": -70.676266,

@@ -28,15 +28,14 @@ class NearbyBusTest(TransactionTestCase):
         self.helper.insertServicesOnDatabase([self.service])
         self.helper.insertBusstopsOnDatabase([self.busStop])
         self.helper.insertServicesByBusstopsOnDatabase([self.busStop])
+        self.helper.insertServiceStopDistanceOnDatabase([self.busStop])
+        self.helper.insertServiceLocationOnDatabase([self.service + 'R'])
 
     def test_nearbyBuses(self):
         request = self.factory.get('/android/nearbyBuses')
         request.user = AnonymousUser()
 
-        busStopCodeThis = 'PA459'
-        self.helper.insertServicesByBusstopsOnDatabase([busStopCodeThis])
-
-        response = views.nearbyBuses(request, self.phoneId, busStopCodeThis)
+        response = views.nearbyBuses(request, self.phoneId, self.busStop)
 
         self.assertEqual(response.status_code, 200)
 
@@ -56,6 +55,8 @@ class NearbyBusTest(TransactionTestCase):
         busStopCode = 'PA433'
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         # TODO: FALTA TOMAR UNA URL REAL Y LA FORMATEADA
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
@@ -82,11 +83,13 @@ class NearbyBusTest(TransactionTestCase):
     def test_nearbyBusesWithFakeAuthorityInfoWithOneUserBus(self):
         """ test methods that uses nearbyBuses url. case: authority buses with one user bus"""
 
-        direction = "I"
+        direction = 'I'
         busStopCode = 'PA433'
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         travelKey = self.helper.getInBusWithLicencePlate(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
@@ -140,6 +143,8 @@ class NearbyBusTest(TransactionTestCase):
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         # first user
         direction1 = "I"
@@ -207,6 +212,8 @@ class NearbyBusTest(TransactionTestCase):
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         licencePlate = 'bjfb28'
         service = '506'
@@ -264,11 +271,12 @@ class NearbyBusTest(TransactionTestCase):
     def test_nearbyBusesWithFakeAuthorityInfoWithUserBusThatMatchWithAuthorityBus(
             self):
         """ test methods that uses nearbyBuses url. case: authority buses with user bus that match with authority bus """
-
         busStopCode = 'PA433'
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         direction = "I"
         licencePlate = 'bjFb28'
@@ -323,6 +331,8 @@ class NearbyBusTest(TransactionTestCase):
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         # licencePlate = 'bjFb28'
         service = '506'
@@ -376,6 +386,8 @@ class NearbyBusTest(TransactionTestCase):
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         direction = "I"
         licencePlate = 'bjFb28'
@@ -427,6 +439,8 @@ class NearbyBusTest(TransactionTestCase):
         self.helper.insertBusstopsOnDatabase([busStopCode])
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509'])
         self.helper.insertServicesByBusstopsOnDatabase([busStopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([busStopCode])
+        self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
         direction = "I"
         # licencePlate = 'bjFb28'
