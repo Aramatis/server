@@ -295,7 +295,9 @@ class Busassignment(models.Model):
         """ Given a bus stop and the distance from the bus to the bus stop, return the address to which point the bus """
         try:
             serviceCode = ServicesByBusStop.objects.get(
-                busStop__code=pBusStop, service__service=self.service, gtfs__version=settings.GTFS_VERSION).code
+                busStop__code=pBusStop, 
+                service__service=self.service,
+                gtfs__version=settings.GTFS_VERSION).code
         except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException(
                 "Service {} is not present in bus stop {}".format(
@@ -303,7 +305,9 @@ class Busassignment(models.Model):
 
         try:
             serviceDistance = ServiceStopDistance.objects.get(
-                busStop__code=pBusStop, service=serviceCode).distance
+                busStop__code=pBusStop, 
+                service=serviceCode, 
+                gtfs__version=settings.GTFS_VERSION).distance
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(
                 "The distance is not possible getting for bus stop '{}' and service '{}'".format(
@@ -312,11 +316,15 @@ class Busassignment(models.Model):
         distance = serviceDistance - int(pDistance)
         # bus service distance from route origin
         greaters = ServiceLocation.objects.filter(
-            service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__gt=distance).order_by('distance')[:1]
+            service=serviceCode, 
+            gtfs__version=settings.GTFS_VERSION, 
+            distance__gt=distance).order_by('distance')[:1]
         # get 2 locations greater than current location (nearer to the bus
         # stop)
         lowers = ServiceLocation.objects.filter(
-            service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__lte=distance).order_by('-distance')[:1]
+            service=serviceCode, 
+            gtfs__version=settings.GTFS_VERSION, 
+            distance__lte=distance).order_by('-distance')[:1]
         # get 2 locations lower than current location
 
         # we need two point to detect the bus direction (left, right, up, down)
@@ -358,7 +366,8 @@ class Busassignment(models.Model):
                 return "left"
         else:
             # we compare bus location with bus stop location
-            busStopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
+            busStopObj = BusStop.objects.get(code=pBusStop, 
+                    gtfs__version=settings.GTFS_VERSION)
             xBusStop = busStopObj.longitud
             if(x2 - xBusStop > 0):
                 return "left"
@@ -378,7 +387,7 @@ class Busassignment(models.Model):
                 continue
             passengers += 1
             trajectoryQuery = PoseInTrajectoryOfToken.objects.filter(
-                token=token)
+                token_token=token)
             if trajectoryQuery.exists():
                 lastPose = trajectoryQuery.latest('timeStamp')
                 if (lastPose.timeStamp >= lastDate):
@@ -393,27 +402,33 @@ class Busassignment(models.Model):
                 'random': random
                 }
 
-    def getEstimatedLocation(self, busstop, distance):
+    def getEstimatedLocation(self, stopCode, distance):
         '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
         try:
             serviceCode = ServicesByBusStop.objects.get(
-                busStop=busstop, service=self.service, gtfs__version=settings.GTFS_VERSION).code
+                busStop__code=stopCode, service__service=self.service, 
+                gtfs__version=settings.GTFS_VERSION).code
         except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException(
                 "Service {} is not present in bus stop {}".format(
-                    self.service, busstop))
+                    self.service, stopCode))
 
         ssd = ServiceStopDistance.objects.get(
-            busStop=busstop, service=serviceCode).distance - int(distance)
+            busStop__code=stopCode, service=serviceCode, 
+            gtfs__version=settings.GTFS_VERSION).distance - int(distance)
 
         try:
             closest_gt = ServiceLocation.objects.filter(
-                service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__gte=ssd).order_by('distance')[0].distance
+                service=serviceCode, 
+                gtfs__version=settings.GTFS_VERSION, 
+                distance__gte=ssd).order_by('distance')[0].distance
         except:
             closest_gt = 50000
         try:
             closest_lt = ServiceLocation.objects.filter(
-                service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance__lte=ssd).order_by('-distance')[0].distance
+                service=serviceCode, 
+                gtfs__version=settings.GTFS_VERSION, 
+                distance__lte=ssd).order_by('-distance')[0].distance
         except:
             closest_lt = 0
 
@@ -423,7 +438,9 @@ class Busassignment(models.Model):
             closest = closest_lt
 
         location = ServiceLocation.objects.filter(
-            service=serviceCode, gtfs__version=settings.GTFS_VERSION, distance=closest)[0]
+            service=serviceCode, 
+            gtfs__version=settings.GTFS_VERSION, 
+            distance=closest)[0]
 
         return {'latitude': location.latitud,
                 'longitude': location.longitud,
@@ -431,7 +448,7 @@ class Busassignment(models.Model):
                 }
     """
     def getDictionary(self):
-        """" Return a dictionary with useful information about the bus """"
+        ''' Return a dictionary with useful information about the bus '''
         dictionary = {}
 
         dictionary['serviceBus'] = self.service
