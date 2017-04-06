@@ -10,7 +10,7 @@ class LoadInitialDataTest(TestCase):
     def setUp(self):
         ''' this method will automatically call for every single test at the beginning'''
         self.CURRENT_PATH = os.path.dirname(os.path.realpath('__file__'))
-        self.FILE_PATH = os.path.join(self.CURRENT_PATH, 'InitialData/{}/'.format(settings.GTFS_VERSION))
+        self.FILE_PATH = os.path.join(self.CURRENT_PATH, 'InitialData/test/')
         self.TEST_FILE_NAME = os.path.join(self.CURRENT_PATH, 'test.csv')
 
     def tearDown(self):
@@ -49,6 +49,12 @@ class LoadInitialDataTest(TestCase):
         self.assertEqual(logFile, expectedLog)
         os.remove(logFileName)
 
+    def assertLogFileNotEmpty(self, logFileName):
+        ''' compare log file with the expected error '''
+        logFile = open(os.path.join(self.CURRENT_PATH, logFileName)).read()
+        self.assertNotEqual(logFile, "")
+        os.remove(logFileName)
+
     def printFile(self, FileName):
         ''' print on command line the content inside test.csv '''
         print "============= BEGIN TEST FILE  =================="
@@ -80,14 +86,7 @@ class LoadInitialDataTest(TestCase):
         LOG_FILE_NAME = 'test.log'
         loadData([settings.GTFS_VERSION, 'busstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
-        EXPECTED_LOG = "=========================================\n"\
-        "Exception: value too long for type character varying(6)\n"\
-        "Loader: BusStop\n"\
-        "Data columns: code,name,lat,lon\n"\
-        "Values: HI!IAmAnErrorAG;Camino Agrícola;-33.49158577;-70.61753772\n"\
-        "=========================================\n"
-
-        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+        self.assertLogFileNotEmpty(LOG_FILE_NAME)
 
     def test_loadEventsWithoutProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -106,14 +105,7 @@ class LoadInitialDataTest(TestCase):
         LOG_FILE_NAME = 'test.log'
         loadData([settings.GTFS_VERSION, 'event', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
-        EXPECTED_LOG = "=========================================\n"\
-        "Exception: value too long for type character varying(8)\n"\
-        "Loader: Event\n"\
-        "Data columns: id,eventType,category,origin,name,description,lifespam\n"\
-        "Values: HI!IAmAnErrorevn00000;busStop;buses Juntos;o;2 juntos;2 buses pasan juntos ;1440\n"\
-        "=========================================\n"\
-
-        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+        self.assertLogFileNotEmpty(LOG_FILE_NAME)
 
     #def test_loadRoutesWithoutProblem(self):
     #    ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -162,14 +154,7 @@ class LoadInitialDataTest(TestCase):
         LOG_FILE_NAME = 'test.log'
         loadData([settings.GTFS_VERSION, 'servicelocation', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
-        EXPECTED_LOG = "=========================================\n"\
-        "Exception: value too long for type character varying(11)\n"\
-        "Loader: ServiceLocation\n"\
-        "Data columns: serviceName,distance,latitude,longitude\n"\
-        "Values: HI!IAmAnError101I;0;-33.406175;-70.623244\n"\
-        "=========================================\n"\
-
-        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+        self.assertLogFileNotEmpty(LOG_FILE_NAME)
 
     def test_loadServicesWithoutProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -188,14 +173,7 @@ class LoadInitialDataTest(TestCase):
         LOG_FILE_NAME = 'test.log'
         loadData([settings.GTFS_VERSION, 'service', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
 
-        EXPECTED_LOG = "=========================================\n"\
-        "Exception: value too long for type character varying(11)\n"\
-        "Loader: Service\n"\
-        "Data columns: serviceName,origin,destination,color,colorId\n"\
-        "Values: HI!IAmAnError101;RECOLETA;CERRILLOS;00D5FF;4\n"\
-        "=========================================\n"\
-
-        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+        self.assertLogFileNotEmpty(LOG_FILE_NAME)
 
     def test_loadServicesByBusStopWithoutProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -224,92 +202,7 @@ class LoadInitialDataTest(TestCase):
         LOG_FILE_NAME = 'test.log'
         loadData([settings.GTFS_VERSION, 'servicesbybusstop', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
-        EXPECTED_LOG = "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;109I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;406I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;422I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;426I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;505I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;507I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;508I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;513I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;B26I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;B28I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;J01I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;J02I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;J05I\n"\
-                "=========================================\n"\
-                "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServicesByBusStop\n"\
-                "Data columns: busStopCode,ServiceNameWithDirection\n"\
-                "Values: HI!IAmAnErrorPA1;J16I\n"\
-                "=========================================\n"
-
-        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+        self.assertLogFileNotEmpty(LOG_FILE_NAME)
 
     def test_loadServicesStopDistanceWithoutProblem(self):
         ''' Create a little file with a chunck of $FILE_NAME file and use Loader to put into database '''
@@ -332,11 +225,4 @@ class LoadInitialDataTest(TestCase):
         LOG_FILE_NAME = 'test.log'
         loadData([settings.GTFS_VERSION, 'servicestopdistance', self.TEST_FILE_NAME], logFileName = LOG_FILE_NAME)
         
-        EXPECTED_LOG = "=========================================\n"\
-                "Exception: BusStop matching query does not exist.\n"\
-                "Loader: ServiceStopDistance\n"\
-                "Data columns: busStopCode,serviceName,distance\n"\
-                "Values: HI!IAmAnErrorPB1;101I;234\n"\
-                "=========================================\n"
-
-        self.compareLogFile(LOG_FILE_NAME, EXPECTED_LOG)
+        self.assertLogFileNotEmpty(LOG_FILE_NAME)
