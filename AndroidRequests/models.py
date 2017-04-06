@@ -387,7 +387,7 @@ class Busassignment(models.Model):
                 continue
             passengers += 1
             trajectoryQuery = PoseInTrajectoryOfToken.objects.filter(
-                token_token=token)
+                token__token=token)
             if trajectoryQuery.exists():
                 lastPose = trajectoryQuery.latest('timeStamp')
                 if (lastPose.timeStamp >= lastDate):
