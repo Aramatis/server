@@ -280,7 +280,14 @@ CRONJOBS = android_requests_backups_update_jobs(CRONJOBS)
 
 # Configuration for TRAVIS-CI
 # this variables were defined in project settings of travis-ci.org
+# for testing purpose
 if os.environ['TRAVIS']:
+    # set facebook credentials
     FACEBOOK_APP_ID = os.environ['FACEBOOK_APP_ID']
     FACEBOOK_APP_SECRET = os.environ['FACEBOOK_APP_SECRET']
     FACEBOOK_APP_ACCESS_TOKEN = os.environ['FACEBOOK_APP_ACCESS_TOKEN']
+    
+    # set database user and password 
+    DATABASES['default']['NAME'] = os.environ['DATABASE_NAME']
+    DATABASES['default']['USER'] = os.environ['DATABASE_USER']
+    DATABASES['default']['PASSWORD'] = os.environ['DATABASE_PASSWORD']
