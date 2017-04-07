@@ -57,7 +57,8 @@ before_script:
   - cp $TRAVIS_BUILD_DIR/.travis/google_key.json $TRAVIS_BUILD_DIR/server/keys/
   - cp $TRAVIS_BUILD_DIR/.travis/admins.json $TRAVIS_BUILD_DIR/server/keys/
   - cp $TRAVIS_BUILD_DIR/.travis/facebook_config.json $TRAVIS_BUILD_DIR/server/keys/
-  - cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/
+  - cp $TRAVIS_BUILD_DIR/.travis/email_config.json $TRAVIS_BUILD_DIR/server/keys/  
+  - cp $TRAVIS_BUILD_DIR/.travis/database_config.json $TRAVIS_BUILD_DIR/server/keys/
   - mkdir $TRAVIS_BUILD_DIR/server/logs
 
   # copy AndroidRequestsBackups settings, only for demostration purposes.
