@@ -205,9 +205,10 @@ LOGGING = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ghostinspector',
-        'USER': 'inspector',
-        'PASSWORD': '1ghost2inspector',
+        #TODO: you must to define a name, user and password valid to connect database
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
         # Empty for localhost through domain sockets or           '127.0.0.1'
         # for localhost through TCP.
         'HOST': 'localhost',
