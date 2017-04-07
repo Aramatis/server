@@ -58,6 +58,9 @@ then
     python manage.py migrate
     python manage.py collectstatic --noinput
 
+	# load data from fixture
+	python manage.py loaddata levels scoreEvents
+
     # run test
     coverage run --source='.' manage.py test
     coverage report --omit=DataDictionary,server,AndroidRequestsBackups,AndroidRequests/migrations/* -m
