@@ -1,5 +1,5 @@
 {
-    'name': 'fakeName',
-    'user': 'fakeUser',
-    'password': 'fakePassword'
+    "NAME": "fakeName",
+    "USER": "fakeUser",
+    "PASSWORD": "fakePassword"
 }
