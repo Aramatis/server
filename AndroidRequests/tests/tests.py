@@ -47,19 +47,19 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
 
         if django.VERSION == (1, 8, 4, 'final', 0):
             self.assertRaises(ValueError,
-                          DevicePositionInTime.objects.create,
-                          phoneId=phoneId,
-                          longitud=self.latitude[0],
-                          latitud=self.longitude[0],
-                          timeStamp=self.timeStamp[0])
+                    DevicePositionInTime.objects.create,
+                    phoneId=phoneId,
+                    longitud=self.latitude[0],
+                    latitud=self.longitude[0],
+                    timeStamp=self.timeStamp[0])
 
-         if django.VERSION == (1, 11, 0, 'final', 0):
+        elif django.VERSION == (1, 11, 0, 'final', 0):
             self.assertRaises(ValidationError,
-                          DevicePositionInTime.objects.create,
-                          phoneId=phoneId,
-                          longitud=self.latitude[0],
-                          latitud=self.longitude[0],
-                          timeStamp=self.timeStamp[0])
+                    DevicePositionInTime.objects.create,
+                    phoneId=phoneId,
+                    longitud=self.latitude[0],
+                    latitud=self.longitude[0],
+                    timeStamp=self.timeStamp[0])
 
 class DevicePositionInTimeTest(TransactionTestCase):
     """ test for DevicePositionInTime model """
