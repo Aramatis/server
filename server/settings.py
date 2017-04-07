@@ -277,3 +277,10 @@ os.environ['wsgi.url_scheme'] = 'https'
 from server.keys.android_requests_backups import ANDROID_REQUESTS_BACKUPS
 from server.keys.android_requests_backups import android_requests_backups_update_jobs
 CRONJOBS = android_requests_backups_update_jobs(CRONJOBS)
+
+# Configuration for TRAVIS-CI
+# this variables were defined in project settings of travis-ci.org
+if os.environ['TRAVIS']:
+    FACEBOOK_APP_ID = os.environ['FACEBOOK_APP_ID']
+    FACEBOOK_APP_SECRET = os.environ['FACEBOOK_APP_SECRET']
+    FACEBOOK_APP_ACCESS_TOKEN = os.environ['FACEBOOK_APP_ACCESS_TOKEN']
