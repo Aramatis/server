@@ -61,7 +61,6 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/facebook_config.json')) 
     FACEBOOK_APP_ACCESS_TOKEN = facebookConfig['APP_ACCESS_TOKEN']
     del facebookConfig
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -201,25 +200,27 @@ LOGGING = {
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        #TODO: you must to define a name, user and password valid to connect database
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        # Empty for localhost through domain sockets or           '127.0.0.1'
-        # for localhost through TCP.
-        'HOST': 'localhost',
-        'PORT': '',
+with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) as file:
+    databaseConfig = json.load(file)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            #TODO: you must to define a name, user and password valid to connect database
+            'NAME': databaseConfig['NAME'],
+            'USER': databaseConfig['USER'],
+            'PASSWORD': databaseConfig['PASSWORD'],
+            # Empty for localhost through domain sockets or           '127.0.0.1'
+            # for localhost through TCP.
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+        # for development purpuse use SQLite
+        # 'default': {
+        #     'ENGINE': 'django.db.backends.sqlite3',
+        #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # }
     }
-    # for development purpuse use SQLite
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
-}
+    del databaseConfig
 
 # GTFS DATA USED TO PREDICT POSITION AND OTHER THINGS
 GTFS_VERSION =  'v0.9'
@@ -282,7 +283,7 @@ CRONJOBS = android_requests_backups_update_jobs(CRONJOBS)
 # Configuration for TRAVIS-CI
 # this variables were defined in project settings of travis-ci.org
 # for testing purpose
-if os.environ['TRAVIS']:
+if 'TRAVIS' in os.environ:
     # set facebook credentials
     FACEBOOK_APP_ID = os.environ['FACEBOOK_APP_ID']
     FACEBOOK_APP_SECRET = os.environ['FACEBOOK_APP_SECRET']
