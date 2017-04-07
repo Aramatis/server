@@ -1,4 +1,6 @@
+import django
 from django.test import TransactionTestCase, RequestFactory
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
@@ -43,14 +45,21 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
 
         phoneId = "this is a wrong phoneId"
 
-        self.assertRaises(ValueError,
+        if django.VERSION == (1, 8, 4, 'final', 0):
+            self.assertRaises(ValueError,
                           DevicePositionInTime.objects.create,
                           phoneId=phoneId,
                           longitud=self.latitude[0],
                           latitud=self.longitude[0],
                           timeStamp=self.timeStamp[0])
-        # "badly formed hexadecimal UUID string")
 
+         if django.VERSION == (1, 11, 0, 'final', 0):
+            self.assertRaises(ValidationError,
+                          DevicePositionInTime.objects.create,
+                          phoneId=phoneId,
+                          longitud=self.latitude[0],
+                          latitud=self.longitude[0],
+                          timeStamp=self.timeStamp[0])
 
 class DevicePositionInTimeTest(TransactionTestCase):
     """ test for DevicePositionInTime model """
