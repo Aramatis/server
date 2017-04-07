@@ -9,8 +9,8 @@ branches:
 # main language
 language: python
 python: 
-  -"2.7.6"
-  -"2.7.9"
+  - "2.7.6"
+  - "2.7.9"
 
 # machine
 os: "linux"
