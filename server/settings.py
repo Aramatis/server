@@ -293,3 +293,6 @@ if 'TRAVIS' in os.environ:
     DATABASES['default']['NAME'] = os.environ['DATABASE_NAME']
     DATABASES['default']['USER'] = os.environ['DATABASE_USER']
     DATABASES['default']['PASSWORD'] = os.environ['DATABASE_PASSWORD']
+
+    # set google key for route planner requests
+    GOOGLE_KEY = os.environ['GOOGLE_KEY']
