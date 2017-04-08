@@ -2,6 +2,7 @@
 from django.http import JsonResponse
 from django.conf import settings
 from django.views.generic import View
+from django.utils import timezone
 
 # python utilities
 import logging
@@ -35,7 +36,7 @@ class RoutePlanner(View):
 
         return location
 
-    def get(self, request, pUserId, pOrigin, pDestination, language="es"):
+    def get(self, request, pPhoneId, pOrigin, pDestination, language="es"):
         """
         Method to calculate a route between two locations
         You can learn more about this here ->
@@ -44,9 +45,10 @@ class RoutePlanner(View):
         logger = logging.getLogger(__name__)
 
         # Log
-        if pUserId != 'null':
+        if pPhoneId != 'null':
             Log.objects.create(
-                userId=pUserId,
+                timeStamp=timezone.now(),
+                phoneId=pPhoneId,
                 origin=pOrigin,
                 destination=pDestination)
         else:
