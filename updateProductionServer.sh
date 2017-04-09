@@ -39,7 +39,10 @@ done
 #####################################################################
 DB_NAME="ghostinspector"
 DATE=`date +%Y-%m-%d`
-sudo -u postgres pg_dump "$DB_NAME" > "dump$DATE\.sql"
+DUMP_NAME="dump$DATE\.sql"
+sudo -u postgres pg_dump "$DB_NAME" > "$DUMP_NAME"
+tar -zcvf ../"$DUMP_NAME\.tar.gz" "$DUMP_NAME"
+rm "$DUMP_NAME"
 
 #####################################################################
 # Update repository
@@ -47,12 +50,12 @@ sudo -u postgres pg_dump "$DB_NAME" > "dump$DATE\.sql"
 
 git fetch 
 
-# stash changes
-git stash 
-
 # if tag exists -> update code
 if git tag --list | egrep "^$serverVersion$"
 then
+    # stash changes
+    git stash 
+
     git checkout tags/"$serverVersion"
     python manage.py makemigrations
     python manage.py migrate
@@ -65,12 +68,13 @@ then
     coverage run --source='.' manage.py test
     coverage report --omit=DataDictionary,server,AndroidRequestsBackups,AndroidRequests/migrations/* -m
     
+	# apply changes not committed
+    git stash apply
+
     service apache2 restart
 else
     echo "FYI: Tag $serverVersion does not exists."
 fi
-
-git stash apply
 
 #####################################################################
 # Update data
