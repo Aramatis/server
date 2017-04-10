@@ -76,15 +76,12 @@ class RegisterEventBus(View):
             theBus.registrationPlate, aTimeStamp, float(pLongitud), float(pLatitud))
 
         # check if there is an event
-        if EventForBusv2.objects.filter(
-                timeStamp__gt=oldestAlertedTime,
-                busassignment=theAssignment,
-                event=theEvent).exists():
-            # get the event
-            eventsReport = EventForBusv2.objects.filter(
-                timeStamp__gt=oldestAlertedTime, busassignment=theAssignment, event=theEvent)
-            eventReport = self.getLastEvent(eventsReport)
+        eventReport = EventForBusv2.objects.filter(
+            timeStamp__gt=oldestAlertedTime, 
+            busassignment=theAssignment, 
+            event=theEvent).order_by('-timeStamp').first()
 
+        if eventReport is not None:
             # updates to the event reported
             eventReport.timeStamp = aTimeStamp
 
@@ -93,23 +90,9 @@ class RegisterEventBus(View):
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
-
-            eventReport.save()
-
-            StadisticDataFromRegistrationBus.objects.create(
-                timeStamp=aTimeStamp,
-                confirmDecline=pConfirmDecline,
-                reportOfEvent=eventReport,
-                longitud=pLongitud,
-                latitud=pLatitud,
-                phoneId=pPhoneId,
-                gpsLongitud=responseLongitud,
-                gpsLatitud=responseLatitud,
-                gpsTimeStamp=responseTimeStamp,
-                distance=responseDistance)
         else:
             # if an event was not found, create a new one
-            aEventReport = EventForBusv2.objects.create(
+            eventReport = EventForBusv2.objects.create(
                 phoneId=pPhoneId,
                 busassignment=theAssignment,
                 event=theEvent,
@@ -118,34 +101,22 @@ class RegisterEventBus(View):
 
             # set the initial values for this fields
             if pConfirmDecline == 'decline':
-                aEventReport.eventDecline = 1
-                aEventReport.eventConfirm = 0
+                eventReport.eventDecline = 1
+                eventReport.eventConfirm = 0
 
-            aEventReport.save()
+        eventReport.save()
 
-            StadisticDataFromRegistrationBus.objects.create(
-                timeStamp=aTimeStamp,
-                confirmDecline=pConfirmDecline,
-                reportOfEvent=aEventReport,
-                longitud=pLongitud,
-                latitud=pLatitud,
-                phoneId=pPhoneId,
-                gpsLongitud=responseLongitud,
-                gpsLatitud=responseLatitud,
-                gpsTimeStamp=responseTimeStamp,
-                distance=responseDistance)
+        StadisticDataFromRegistrationBus.objects.create(
+            timeStamp=aTimeStamp,
+            confirmDecline=pConfirmDecline,
+            reportOfEvent=eventReport,
+            longitud=pLongitud,
+            latitud=pLatitud,
+            phoneId=pPhoneId,
+            gpsLongitud=responseLongitud,
+            gpsLatitud=responseLatitud,
+            gpsTimeStamp=responseTimeStamp,
+            distance=responseDistance)
 
         # Returns updated event list for a bus
-        eventsByBus = EventsByBusV2()
-
-        return eventsByBus.get(request, theBus.uuid)
-
-    def getLastEvent(self, querySet):
-        """if the query has two responses, return the latest one"""
-        toReturn = querySet[0]
-
-        for val in range(len(querySet) - 1):
-            if toReturn.timeStamp < val.timeStamp:
-                toReturn = val
-
-        return toReturn
+        return EventsByBusV2().get(request, theBus.uuid)

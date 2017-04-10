@@ -78,15 +78,12 @@ class RegisterEventBusV2(View):
             theBus.registrationPlate, aTimeStamp, float(pLongitud), float(pLatitud))
 
         # check if there is an event
-        if EventForBusv2.objects.filter(
-                timeStamp__gt=oldestAlertedTime,
-                busassignment=theAsignment,
-                event=theEvent).exists():
-            # get the event
-            eventsReport = EventForBusv2.objects.filter(
-                timeStamp__gt=oldestAlertedTime, busassignment=theAsignment, event=theEvent)
-            eventReport = self.getLastEvent(eventsReport)
+        eventReport = EventForBusv2.objects.filter(
+            timeStamp__gt=oldestAlertedTime, 
+            busassignment=theAsignment, 
+            event=theEvent).order_by('-timeStamp').first()
 
+        if eventReport is not None:
             # updates to the event reported
             eventReport.timeStamp = aTimeStamp
 
@@ -95,7 +92,6 @@ class RegisterEventBusV2(View):
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
-
         else:
             # if an event was not found, create a new one
             eventReport = EventForBusv2.objects.create(
@@ -131,13 +127,3 @@ class RegisterEventBusV2(View):
         jsonEventResponse["gamificationData"] = jsonScoreResponse
 
         return JsonResponse(jsonEventResponse)
-
-    def getLastEvent(self, querySet):
-        """if the query has two responses, return the latest one"""
-        toReturn = querySet[0]
-
-        for val in range(len(querySet) - 1):
-            if toReturn.timeStamp < val.timeStamp:
-                toReturn = val
-
-        return toReturn

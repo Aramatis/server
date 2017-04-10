@@ -58,13 +58,12 @@ class RegisterEventBusStop(View):
         oldestAlertedTime = aTimeStamp - \
             timezone.timedelta(minutes=theEvent.lifespam)
 
-        if EventForBusStop.objects.filter(
-                timeStamp__gt=oldestAlertedTime,
-                stopCode=stopCode,
-                event=theEvent).exists():
-            eventsReport = EventForBusStop.objects.filter(
-                timeStamp__gt=oldestAlertedTime, stopCode=stopCode, event=theEvent)
-            eventReport = self.getLastEvent(eventsReport)
+        eventReport = EventForBusStop.objects.filter(
+            timeStamp__gt=oldestAlertedTime, 
+            stopCode=stopCode, 
+            event=theEvent).order_by('-timeStamp').first()
+
+        if eventReport is not None:
             # updates to the event reported
             eventReport.timeStamp = aTimeStamp
             if pConfirmDecline == 'decline':
@@ -101,12 +100,3 @@ class RegisterEventBusStop(View):
         jsonEventResponse["gamificationData"] = jsonScoreResponse
 
         return JsonResponse(jsonEventResponse)
-
-    def getLastEvent(self, querySet):
-        toReturn = querySet[0]
-
-        for val in range(len(querySet) - 1):
-            if toReturn.timeStamp < val.timeStamp:
-                toReturn = val
-
-        return toReturn
