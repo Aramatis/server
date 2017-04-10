@@ -21,7 +21,7 @@ KEY_FILES=(
     google_key.json
     email_config.json
     secret_key.txt
-	database_config.json
+    database_config.json
     android_requests_backups.py
     )
 
