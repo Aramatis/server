@@ -28,7 +28,7 @@ KEY_FILES=(
 for FILE_NAME in "${KEY_FILES[@]}"
 do
     if [ ! -f $KEY_PATH/$FILE_NAME ]; then
-	    echo "REMEBER TO ADD ALL KEY FILES IN THIS SERVER"
+        echo "REMEBER TO ADD ALL KEY FILES IN THIS SERVER"
         echo "THE NEXT FILE COULD NOT FIND: $FILE_NAME"
         exit
     fi
@@ -61,14 +61,14 @@ then
     python manage.py migrate
     python manage.py collectstatic --noinput
 
-	# load data from fixture
-	python manage.py loaddata levels scoreEvents
+    # load data from fixture
+    python manage.py loaddata levels scoreEvents
 
     # run test
     coverage run --source='.' manage.py test
     coverage report --omit=DataDictionary,server,AndroidRequestsBackups,AndroidRequests/migrations/* -m
     
-	# apply changes not committed
+    # apply changes not committed
     git stash apply
 
     service apache2 restart
@@ -83,17 +83,17 @@ fi
 if [ "$fileVersion" -ne "0" ]
 then
     python updateData.py "$fileVersion"
-	echo "loading stop data ..."
+    echo "loading stop data ..."
     python loadData.py "$fileVersion" busstop InitialData/"$fileVersion"/busstop.csv 
-	echo "loading trip data ..."
+    echo "loading trip data ..."
     python loadData.py "$fileVersion" service InitialData/"$fileVersion"/services.csv 
-	echo "loading services by stop data ..."
+    echo "loading services by stop data ..."
     python loadData.py "$fileVersion" servicesbybusstop InitialData/"$fileVersion"/servicesbybusstop.csv 
-	echo "loading service stop distance data ..."
+    echo "loading service stop distance data ..."
     python loadData.py "$fileVersion" servicestopdistance InitialData/"$fileVersion"/servicestopdistance.csv
-	echo "loading service location data ..."
+    echo "loading service location data ..."
     python loadData.py "$fileVersion" ServiceLocation InitialData/"$fileVersion"/servicelocation.csv
-	echo "lodating events data ..."
+    echo "lodating events data ..."
     python loadData.py "$fileVersion" event InitialData/events.csv
     #python loadData.py "$fileVersion" route InitialData/"$fileVersion"/routes.csv
 else 
