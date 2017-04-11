@@ -211,7 +211,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) 
             'PASSWORD': databaseConfig['PASSWORD'],
             # Empty for localhost through domain sockets or           '127.0.0.1'
             # for localhost through TCP.
-            'HOST': 'localhost',
+            'HOST': databaseConfig['HOST'],
             'PORT': '',
         }
         # for development purpuse use SQLite
@@ -293,6 +293,7 @@ if 'TRAVIS' in os.environ:
     DATABASES['default']['NAME'] = os.environ['DATABASE_NAME']
     DATABASES['default']['USER'] = os.environ['DATABASE_USER']
     DATABASES['default']['PASSWORD'] = os.environ['DATABASE_PASSWORD']
+    DATABASES['default']['HOST'] = 'localhost'
 
     # set google key for route planner requests
     GOOGLE_KEY = os.environ['GOOGLE_KEY']
