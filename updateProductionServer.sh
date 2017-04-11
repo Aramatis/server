@@ -53,6 +53,8 @@ git fetch
 # if tag exists -> update code
 if git tag --list | egrep "^$serverVersion$"
 then
+	# stop server
+	service apache2 stop
     # stash changes
     git stash 
 
@@ -71,7 +73,8 @@ then
     # apply changes not committed
     git stash apply
 
-    service apache2 restart
+	# start server
+    service apache2 start
 else
     echo "FYI: Tag $serverVersion does not exists."
 fi
