@@ -1,5 +1,6 @@
 {
     "NAME": "fakeName",
     "USER": "fakeUser",
-    "PASSWORD": "fakePassword"
+    "PASSWORD": "fakePassword",
+    "HOST": "fakeHost"
 }
