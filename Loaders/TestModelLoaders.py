@@ -78,7 +78,7 @@ class BusStopTestLoader(TestLoader):
 
             try:
                 BusStop.objects.create(code=pCode, gtfs=self.gtfs, name=pName,
-                                       latitud=pLat, longitud=pLon)
+                                       latitude=pLat, longitude=pLon)
             except Exception as e:
                 dataName = "code,name,lat,lon"
                 dataValue = "{};{};{};{}".format(pCode, pName, pLat, pLon)
@@ -264,8 +264,8 @@ class ServiceLocationTestLoader(TestLoader):
                     service=pServiceName,
                     gtfs=self.gtfs,
                     distance=pDistance,
-                    latitud=pLat,
-                    longitud=pLon)
+                    latitude=pLat,
+                    longitude=pLon)
             except Exception as e:
                 dataName = "serviceName,distance,latitude,longitude"
                 dataValue = "{};{};{};{}".format(
@@ -362,7 +362,7 @@ class RouteTestLoader(TestLoader):
 
             try:
                 Route.objects.create(serviceCode=pServiceCode, gtfs=self.gtfs, 
-                                     latitud=pLat, longitud=pLon, sequence=pSequence)
+                                     latitude=pLat, longitude=pLon, sequence=pSequence)
             except Exception as e:
                 dataName = "serviceCode,latitude,longitude,sequence"
                 dataValue = "{};{};{};{}".format(

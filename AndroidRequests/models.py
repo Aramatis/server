@@ -27,9 +27,9 @@ JSONEncoder.default = JSONEncoder_newdefault
 
 class Location(models.Model):
     """ Some of our models require to set a geolocation (coodinates)"""
-    longitud = models.FloatField('Longitude', null=False, blank=False)
+    longitude = models.FloatField('Longitude', null=False, blank=False)
     """ longitude from the geolocation """
-    latitud = models.FloatField('Latitude', null=False, blank=False)
+    latitude = models.FloatField('Latitude', null=False, blank=False)
     """ longitude from the geolocation """
 
     class Meta:
@@ -110,9 +110,9 @@ class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
     reportOfEvent = models.ForeignKey(
         'EventForBusv2', verbose_name='Bus Event')
 
-    gpsLongitud = models.FloatField('GPS Longitude', null=True, blank=False)
+    gpsLongitude = models.FloatField('GPS Longitude', null=True, blank=False)
     """ longitude of the bus GPS """
-    gpsLatitud = models.FloatField('GPS Latitude', null=True, blank=False)
+    gpsLatitude = models.FloatField('GPS Latitude', null=True, blank=False)
     """ latitude of the bus GPS """
     gpsTimeStamp = models.DateTimeField(
         'GPS Time Stamp', null=True, blank=False)
@@ -354,10 +354,10 @@ class Busassignment(models.Model):
             return "left"
 
         epsilon = 0.00008
-        x1 = lower.longitud
-        # y1 = lower.latitud
-        x2 = greater.longitud
-        # y2 = greater.latitud
+        x1 = lower.longitude
+        # y1 = lower.latitude
+        x2 = greater.longitude
+        # y2 = greater.latitude
 
         if(abs(x2 - x1) >= epsilon):
             if(x2 - x1 > 0):
@@ -368,7 +368,7 @@ class Busassignment(models.Model):
             # we compare bus location with bus stop location
             busStopObj = BusStop.objects.get(code=pBusStop, 
                     gtfs__version=settings.GTFS_VERSION)
-            xBusStop = busStopObj.longitud
+            xBusStop = busStopObj.longitude
             if(x2 - xBusStop > 0):
                 return "left"
             else:
@@ -390,8 +390,8 @@ class Busassignment(models.Model):
                 lastPose = PoseInTrajectoryOfToken.objects.filter(
                     token=token, timeStamp__gte=lastDate).latest('timeStamp')
                 lastDate = lastPose.timeStamp
-                lat = lastPose.latitud
-                lon = lastPose.longitud
+                lat = lastPose.latitude
+                lon = lastPose.longitude
                 random = False
             except PoseInTrajectoryOfToken.DoesNotExist:
                 logger = logging.getLogger(__name__)

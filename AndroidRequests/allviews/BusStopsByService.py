@@ -35,8 +35,8 @@ class BusStopsByService(View):
             busStop = sbs.busStop
             data['codigo'] = busStop.code
             data['nombre'] = busStop.name
-            data['latitud'] = busStop.latitud
-            data['longitud'] = busStop.longitud
+            data['latitud'] = busStop.latitude
+            data['longitud'] = busStop.longitude
             getEventsByBusStop = EventsByBusStop()
             data['eventos'] = getEventsByBusStop.getEventsForBusStop(
                 busStop, timezone.now())

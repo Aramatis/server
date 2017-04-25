@@ -57,8 +57,8 @@ class ServiceRoute(View):
                     serviceCode=variantCode).order_by('sequence'):
                 # print "{} {}".format(point.serviceCode, point.sequence)
                 data = {}
-                data['latitude'] = point.latitud
-                data['longitude'] = point.longitud
+                data['latitude'] = point.latitude
+                data['longitude'] = point.longitude
                 data['sequence'] = point.sequence
                 variant['route'].append(data)
             route.append(variant)

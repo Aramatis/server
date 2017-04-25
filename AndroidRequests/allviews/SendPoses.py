@@ -48,8 +48,8 @@ class SendPoses(View):
                     aTimeStamp = timezone.make_aware(aTimeStamp)
 
                     PoseInTrajectoryOfToken.objects.create(
-                        longitud=pose['longitud'],
-                        latitud=pose['latitud'],
+                        longitude=pose['longitud'],
+                        latitude=pose['latitud'],
                         timeStamp=aTimeStamp,
                         inVehicleOrNot=pose["inVehicleOrNot"],
                         token=theToken)

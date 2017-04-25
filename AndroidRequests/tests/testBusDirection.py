@@ -55,8 +55,8 @@ class BusDirectionTestCase(TestCase):
         """
         # set bus stop
         busStop = BusStop.objects.get(code=self.busStopCode, gtfs__version=settings.GTFS_VERSION)
-        busStop.longitud = 100
-        busStop.latitud = 95
+        busStop.longitude = 100
+        busStop.latitude = 95
         busStop.save()
 
         # self.serviceCode stops in  self.busStop
@@ -74,38 +74,38 @@ class BusDirectionTestCase(TestCase):
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=10,
-            longitud=120,
-            latitud=-80)
+            longitude=120,
+            latitude=-80)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=20,
-            longitud=120,
-            latitud=-90)
+            longitude=120,
+            latitude=-90)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=30,
-            longitud=120,
-            latitud=-100)
+            longitude=120,
+            latitude=-100)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=40,
-            longitud=110,
-            latitud=-100)
+            longitude=110,
+            latitude=-100)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=50,
-            longitud=90,
-            latitud=-100)
+            longitude=90,
+            latitude=-100)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=60,
-            longitud=80,
-            latitud=-100)
+            longitude=80,
+            latitude=-100)
 
         distance = 25
 
@@ -133,8 +133,8 @@ class BusDirectionTestCase(TestCase):
         """
         # create bus stop
         busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitud = -70.662800
-        busStop.latitud = -33.447467
+        busStop.longitude= -70.662800
+        busStop.latitude= -33.447467
         busStop.save()
 
         # self.serviceCode stops in  self.busStop
@@ -152,38 +152,38 @@ class BusDirectionTestCase(TestCase):
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=10,
-            longitud=-70.660452,
-            latitud=-33.45992)
+            longitude=-70.660452,
+            latitude=-33.45992)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=20,
-            longitud=-70.660452,
-            latitud=-33.458282)
+            longitude=-70.660452,
+            latitude=-33.458282)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=30,
-            longitud=-70.660452,
-            latitud=-33.456859)
+            longitude=-70.660452,
+            latitude=-33.456859)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=40,
-            longitud=-70.662244,
-            latitud=-33.456859)
+            longitude=-70.662244,
+            latitude=-33.456859)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=50,
-            longitud=-70.663617,
-            latitud=-33.456859)
+            longitude=-70.663617,
+            latitude=-33.456859)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=60,
-            longitud=-70.664776,
-            latitud=-33.456859)
+            longitude=-70.664776,
+            latitude=-33.456859)
 
         distance = 20
 
@@ -211,8 +211,8 @@ class BusDirectionTestCase(TestCase):
         """
         # create bus stop
         busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitud = -70.662800
-        busStop.latitud = -33.457091
+        busStop.longitude= -70.662800
+        busStop.latitude= -33.457091
         busStop.save()
 
         # self.serviceCode stops in  self.busStop
@@ -230,38 +230,38 @@ class BusDirectionTestCase(TestCase):
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=10,
-            longitud=-70.664744,
-            latitud=-33.459839)
+            longitude=-70.664744,
+            latitude=-33.459839)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=20,
-            longitud=-70.664744,
-            latitud=-33.458282)
+            longitude=-70.664744,
+            latitude=-33.458282)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=30,
-            longitud=-70.664744,
-            latitud=-33.457091)
+            longitude=-70.664744,
+            latitude=-33.457091)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=40,
-            longitud=-70.663617,
-            latitud=-33.457091)
+            longitude=-70.663617,
+            latitude=-33.457091)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=50,
-            longitud=-70.662244,
-            latitud=-33.457091)
+            longitude=-70.662244,
+            latitude=-33.457091)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=60,
-            longitud=-70.660871,
-            latitud=-33.457091)
+            longitude=-70.660871,
+            latitude=-33.457091)
 
         distance = 20
         # print "lower_left_corner"
@@ -288,8 +288,8 @@ class BusDirectionTestCase(TestCase):
         """
         # create bus stop
         busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitud = 140
-        busStop.latitud = -33.457199
+        busStop.longitude= 140
+        busStop.latitude= -33.457199
         busStop.save()
 
         # self.serviceCode stops in  self.busStop
@@ -308,38 +308,38 @@ class BusDirectionTestCase(TestCase):
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=10,
-            longitud=120,
-            latitud=-33.454325)
+            longitude=120,
+            latitude=-33.454325)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=20,
-            longitud=120,
-            latitud=-33.4554)
+            longitude=120,
+            latitude=-33.4554)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=30,
-            longitud=120,
-            latitud=-33.457199)
+            longitude=120,
+            latitude=-33.457199)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=40,
-            longitud=130,
-            latitud=-33.457199)
+            longitude=130,
+            latitude=-33.457199)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=50,
-            longitud=150,
-            latitud=-33.457199)
+            longitude=150,
+            latitude=-33.457199)
         ServiceLocation.objects.create(
             service=self.serviceCode,
             gtfs=self.gtfs,
             distance=60,
-            longitud=160,
-            latitud=-33.457199)
+            longitude=160,
+            latitude=-33.457199)
 
         distance = 25
 

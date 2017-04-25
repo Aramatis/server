@@ -83,8 +83,8 @@ class BusStopLoader(Loader):
             try:
                 BusStop.objects.get_or_create(code=pCode, gtfs=self.gtfs, 
                                               defaults={'name': pName,
-                                                        'latitud': pLat, 
-                                                        'longitud': pLon})
+                                                        'latitude': pLat, 
+                                                        'longitude': pLon})
             except Exception as e:
                 dataName = "code,name,lat,lon"
                 dataValue = "{};{};{};{}\n".format(pCode, pName, pLat, pLon)
@@ -268,7 +268,7 @@ class ServiceLocationLoader(Loader):
             dataValue = ""
             for row in rows:
                 dataValue = dataValue + "{};{};{};{}\n".format(
-                    row.service, row.distance, row.latitud, row.longitud)
+                    row.service, row.distance, row.latitude, row.longitude)
             errorMessage = super(
                 ServiceLocationLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
@@ -294,8 +294,8 @@ class ServiceLocationLoader(Loader):
             row = ServiceLocation(
                 service=pServiceName,
                 distance=pDistance,
-                latitud=pLat,
-                longitud=pLon,
+                latitude=pLat,
+                longitude=pLon,
                 gtfs=self.gtfs)
             rows.append(row)
 
@@ -385,7 +385,7 @@ class RouteLoader(Loader):
             dataValue = ""
             for row in rows:
                 dataValue = dataValue + "{};{};{};{}\n".format(
-                    row.serviceCode, row.latitud, row.longitud, row.sequence)
+                    row.serviceCode, row.latitude, row.longitude, row.sequence)
             errorMessage = super(
                 RouteLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
@@ -408,8 +408,8 @@ class RouteLoader(Loader):
             pLon = data[2]
             pSequence = data[3]
             
-            row = Route(serviceCode=pServiceCode, latitud=pLat,
-                        longitud=pLon, sequence=pSequence, gtfs=self.gtfs)
+            row = Route(serviceCode=pServiceCode, latitude=pLat,
+                        longitude=pLon, sequence=pSequence, gtfs=self.gtfs)
             rows.append(row)
 
             i += 1

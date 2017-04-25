@@ -46,8 +46,8 @@ class RegisterEventBusV2(View):
             pBusService,
             pEventID,
             pConfirmDecline,
-            pLatitud=500,
-            pLongitud=500):
+            pLatitude=500,
+            pLongitude=500):
         # here we request all the info needed to proceed
         aTimeStamp = timezone.now()
         theEvent = Event.objects.get(id=pEventID)
@@ -69,13 +69,13 @@ class RegisterEventBusV2(View):
             timezone.timedelta(minutes=theEvent.lifespam)
 
         # get the GPS data from the url
-        responseLongitud = None
-        responseLatitud = None
+        responseLongitude = None
+        responseLatitude = None
         responseTimeStamp = None
         responseDistance = None
 
-        responseLongitud, responseLatitud, responseTimeStamp, responseDistance = Gps.getGPSData(
-            theBus.registrationPlate, aTimeStamp, float(pLongitud), float(pLatitud))
+        responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
+            theBus.registrationPlate, aTimeStamp, float(pLongitude), float(pLatitude))
 
         # check if there is an event
         eventReport = EventForBusv2.objects.filter(
@@ -112,11 +112,11 @@ class RegisterEventBusV2(View):
             timeStamp=aTimeStamp,
             confirmDecline=pConfirmDecline,
             reportOfEvent=eventReport,
-            longitud=pLongitud,
-            latitud=pLatitud,
+            longitude=pLongitude,
+            latitude=pLatitude,
             phoneId=pPhoneId,
-            gpsLongitud=responseLongitud,
-            gpsLatitud=responseLatitud,
+            gpsLongitude=responseLongitude,
+            gpsLatitude=responseLatitude,
             gpsTimeStamp=responseTimeStamp,
             distance=responseDistance)
 

@@ -355,6 +355,7 @@ class EventScoreTest(TransactionTestCase):
         # 1-2: 0.006 km
         # 2-3: 0.177 km
         # 3-4: 0.203 km
+        # 438 m
         poses1 = {"poses": [
             {"latitud": -33.458771, "longitud": -70.676266,
                 "timeStamp": fTimes[0], "inVehicleOrNot":"vehicle"},
@@ -382,6 +383,7 @@ class EventScoreTest(TransactionTestCase):
         # 5-6: 0.221 km
         # 6-7: 0.194 km
         # 7-8: 0.381 km
+        # 1042 = 246 + 796
         poses2 = {"poses": [
             {"latitud": -33.457983, "longitud": -70.669035,
                 "timeStamp": fTimes[5], "inVehicleOrNot":"vehicle"},

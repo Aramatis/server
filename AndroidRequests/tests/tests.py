@@ -31,13 +31,13 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
         """ This method test the database for the DevicePositionInTime model """
 
         for n in range(3):
-            DevicePositionInTime.objects.create(phoneId=self.phoneId, longitud=self.longitude[n],
-                                                latitud=self.latitude[n], timeStamp=self.timeStamp[n])
+            DevicePositionInTime.objects.create(phoneId=self.phoneId, longitude=self.longitude[n],
+                                                latitude=self.latitude[n], timeStamp=self.timeStamp[n])
 
         for n in range(3):
             devicePosition = DevicePositionInTime.objects.get(
-                longitud=self.longitude[n])
-            self.assertEqual(devicePosition.latitud, self.latitude[n])
+                longitude=self.longitude[n])
+            self.assertEqual(devicePosition.latitude, self.latitude[n])
             self.assertEqual(devicePosition.timeStamp, self.timeStamp[n])
 
     def test_wrong_phoneId(self):
@@ -49,16 +49,16 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
             self.assertRaises(ValueError,
                     DevicePositionInTime.objects.create,
                     phoneId=phoneId,
-                    longitud=self.latitude[0],
-                    latitud=self.longitude[0],
+                    longitude=self.longitude[0],
+                    latitude=self.latitude[0],
                     timeStamp=self.timeStamp[0])
 
         elif django.VERSION == (1, 11, 0, 'final', 0):
             self.assertRaises(ValidationError,
                     DevicePositionInTime.objects.create,
                     phoneId=phoneId,
-                    longitud=self.latitude[0],
-                    latitud=self.longitude[0],
+                    longitude=self.longitude[0],
+                    latitude=self.latitude[0],
                     timeStamp=self.timeStamp[0])
 
 class DevicePositionInTimeTest(TransactionTestCase):
@@ -75,16 +75,16 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.time = timezone.now()
         DevicePositionInTime.objects.create(
             phoneId=self.phoneId,
-            longitud=3.5,
-            latitud=5.2,
+            longitude=3.5,
+            latitude=5.2,
             timeStamp=self.time)
         DevicePositionInTime.objects.create(
             phoneId=self.phoneId,
-            longitud=3.4,
-            latitud=5.2,
+            longitude=3.4,
+            latitude=5.2,
             timeStamp=self.time)
         # this should not be answered
-        DevicePositionInTime.objects.create(phoneId=self.phoneId, longitud=3.3, latitud=4.2, timeStamp=self.time
+        DevicePositionInTime.objects.create(phoneId=self.phoneId, longitude=3.3, latitude=4.2, timeStamp=self.time
                                             - timezone.timedelta(minutes=11))
 
         # initial config for ActiveToken
@@ -101,7 +101,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.test.createBusAndAssignmentOnDatabase(phoneId=phoneId, service=service, licencePlate=registrationPlate)
         # add dummy bus stop
         busStop = BusStop.objects.create(
-            code='PA459', gtfs=self.gtfs, name='bla', longitud=0, latitud=0)
+            code='PA459', gtfs=self.gtfs, name='bla', longitude=0, latitude=0)
 
         # add dummy service and its path
         # '#00a0f0'color_id = models.IntegerField(default = 0)
@@ -113,17 +113,17 @@ class DevicePositionInTimeTest(TransactionTestCase):
         ServiceStopDistance.objects.create(
             busStop=busStop, gtfs=self.gtfs, service='507I', distance=5)
         ServiceLocation.objects.create(
-            service='507I', gtfs=self.gtfs, distance=1, longitud=4, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=1, longitude=4, latitude=5)
         ServiceLocation.objects.create(
-            service='507I', gtfs=self.gtfs, distance=2, longitud=5, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=2, longitude=5, latitude=5)
         ServiceLocation.objects.create(
-            service='507I', gtfs=self.gtfs, distance=3, longitud=6, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=3, longitude=6, latitude=5)
         ServiceLocation.objects.create(
-            service='507I', gtfs=self.gtfs, distance=4, longitud=7, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=4, longitude=7, latitude=5)
         ServiceLocation.objects.create(
-            service='507I', gtfs=self.gtfs, distance=5, longitud=8, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=5, longitude=8, latitude=5)
         ServiceLocation.objects.create(
-            service='507I', gtfs=self.gtfs, distance=6, longitud=9, latitud=5)
+            service='507I', gtfs=self.gtfs, distance=6, longitude=9, latitude=5)
 
     def test_consistencyModelDevicePositionInTime(self):
         '''This method test the database for the DevicePositionInTime model'''
@@ -139,8 +139,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         for cont in range(3):
             devicePosition = DevicePositionInTime.objects.get(
-                longitud=longituds[cont])
-            self.assertEqual(devicePosition.latitud, latituds[cont])
+                longitude=longituds[cont])
+            self.assertEqual(devicePosition.latitude, latituds[cont])
             self.assertEqual(devicePosition.timeStamp, timeStamps[cont])
 
     def test_consistencyModelActiveToken(self):
@@ -327,16 +327,16 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         self.assertEqual(
             DevicePositionInTime.objects.filter(
-                longitud=lon,
-                latitud=lat).exists(),
+                longitude=lon,
+                latitude=lat).exists(),
             True)
 
     def test_preferPositionOfPersonInsideABus(self):
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
-        userLatitud = -33.458771
-        userLongitud = -70.676266
+        userLatitude = -33.458771
+        userLongitude= -70.676266
 
         # first we test the position of the bus without passsangers
         thebus = Busv2.objects.create(registrationPlate='AA1112')
@@ -356,7 +356,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
             self.phoneId, service, licencePlate)
 
         testPoses = {"poses": [
-            {"latitud": userLatitud, "longitud": userLongitud, "timeStamp": str(timeStampNow), "inVehicleOrNot": "vehicle"}]}
+            {"latitud": userLatitude, "longitud": userLongitude, "timeStamp": str(timeStampNow), "inVehicleOrNot": "vehicle"}]}
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(
             testToken, testPoses)
@@ -370,8 +370,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         busPose = busassignment.getLocation()
 
-        self.assertEqual(busPose['latitude'], userLatitud)
-        self.assertEqual(busPose['longitude'], userLongitud)
+        self.assertEqual(busPose['latitude'], userLatitude)
+        self.assertEqual(busPose['longitude'], userLongitude)
         self.assertEqual(busPose['random'], False)
         self.assertEqual(busPose['passengers'] > 0, True)
 

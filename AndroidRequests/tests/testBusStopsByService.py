@@ -42,8 +42,8 @@ class BusStopsByServiceTestCase(TestCase):
                 code=codes[index],
                 gtfs=gtfs,
                 name=names[index],
-                latitud=latitudes[index],
-                longitud=longitudes[index]
+                latitude=latitudes[index],
+                longitude=longitudes[index]
             ))
 
         # associate bus stop with service

@@ -33,8 +33,8 @@ def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
     full_url = url + '?licencePlate=' + \
         parameters['licencePlate'] + '&time=' + parameters['time']
 
-    longitud = None
-    latitud = None
+    longitude = None
+    latitude = None
     time = None
     distance = None
 
@@ -46,12 +46,12 @@ def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
             response = json.load(data)
         if response['error'] is False and response['machine'][
                 'licencePlate'] == parameters['licencePlate']:
-            longitud = response['nearestGpsPoint']['longitude']
-            latitud = response['nearestGpsPoint']['latitude']
+            longitude = response['nearestGpsPoint']['longitude']
+            latitude = response['nearestGpsPoint']['latitude']
             time = response['nearestGpsPoint']['time']
             time = parse_datetime(time + Constants.TIMEZONE)
-            distance = haversine(longitud, latitud, plon, plat)
+            distance = haversine(longitude, latitude, plon, plat)
     except:
         pass
 
-    return longitud, latitud, time, distance
+    return longitude, latitude, time, distance

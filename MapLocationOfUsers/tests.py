@@ -20,16 +20,16 @@ class GetMapPositionsTest(TestCase):
 
         DevicePositionInTime.objects.create(
             phoneId=self.phoneId,
-            longitud=3.4,
-            latitud=5.2,
+            longitude=3.4,
+            latitude=5.2,
             timeStamp=timezone.now())
         DevicePositionInTime.objects.create(
             phoneId=self.phoneId,
-            longitud=3.4,
-            latitud=5.2,
+            longitude=3.4,
+            latitude=5.2,
             timeStamp=timezone.now())
         # this should not be answered
-        DevicePositionInTime.objects.create(phoneId=self.phoneId, longitud=3.3, latitud=4.2, timeStamp=timezone.now()
+        DevicePositionInTime.objects.create(phoneId=self.phoneId, longitude=3.3, latitude=4.2, timeStamp=timezone.now()
                                             - timezone.timedelta(minutes=11))
         self.factory = RequestFactory()
 

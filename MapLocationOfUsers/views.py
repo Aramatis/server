@@ -45,8 +45,8 @@ class GetMapPositions(View):
         phones = []
         for aPosition in postions:
             if not (aPosition.phoneId in phones):
-                response.append({'latitud': aPosition.latitud,
-                                 'longitud': aPosition.longitud})
+                response.append({'latitud': aPosition.latitude,
+                                 'longitud': aPosition.longitude})
                 phones.append(aPosition.phoneId)
 
         return JsonResponse(response, safe=False)
@@ -72,7 +72,7 @@ class GetMapTrajectory(View):
 
             aPose = trajectory[0]
 
-            tokenResponse['lastPose'] = (aPose.latitud, aPose.longitud)
+            tokenResponse['lastPose'] = (aPose.latitude, aPose.longitude)
             tokenResponse['token'] = aToken.token
             tokenResponse['myColor'] = aToken.color
             response.append(tokenResponse)

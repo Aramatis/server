@@ -27,63 +27,63 @@ class ServiceRouteTestCase(TestCase):
             serviceCode=self.serviceCodeI,
             gtfs=self.gtfs,
             sequence=1,
-            latitud=1,
-            longitud=1)
+            latitude=1,
+            longitude=1)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
             gtfs=self.gtfs,
             sequence=2,
-            latitud=2,
-            longitud=2)
+            latitude=2,
+            longitude=2)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
             gtfs=self.gtfs,
             sequence=3,
-            latitud=3,
-            longitud=3)
+            latitude=3,
+            longitude=3)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
             gtfs=self.gtfs,
             sequence=4,
-            latitud=4,
-            longitud=4)
+            latitude=4,
+            longitude=4)
         Route.objects.create(
             serviceCode=self.serviceCodeI,
             gtfs=self.gtfs,
             sequence=5,
-            latitud=5,
-            longitud=5)
+            latitude=5,
+            longitude=5)
 
         Route.objects.create(
             serviceCode=self.serviceCodeR,
             gtfs=self.gtfs,
             sequence=6,
-            latitud=6,
-            longitud=6)
+            latitude=6,
+            longitude=6)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
             gtfs=self.gtfs,
             sequence=7,
-            latitud=7,
-            longitud=7)
+            latitude=7,
+            longitude=7)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
             gtfs=self.gtfs,
             sequence=8,
-            latitud=8,
-            longitud=8)
+            latitude=8,
+            longitude=8)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
             gtfs=self.gtfs,
             sequence=9,
-            latitud=9,
-            longitud=9)
+            latitude=9,
+            longitude=9)
         Route.objects.create(
             serviceCode=self.serviceCodeR,
             gtfs=self.gtfs,
             sequence=10,
-            latitud=10,
-            longitud=10)
+            latitude=10,
+            longitude=10)
 
         self.factory = RequestFactory()
 

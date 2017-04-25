@@ -22,8 +22,8 @@ def userPosition(request, pPhoneId, pLat, pLon):
     '''This function stores the pose of an active user'''
     # the pose is stored
     currPose = DevicePositionInTime(
-        longitud=pLon,
-        latitud=pLat,
+        longitude=pLon,
+        latitude=pLat,
         timeStamp=timezone.now(),
         phoneId=pPhoneId)
     currPose.save()

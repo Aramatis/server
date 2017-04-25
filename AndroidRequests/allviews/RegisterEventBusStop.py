@@ -47,8 +47,8 @@ class RegisterEventBusStop(View):
             stopCode,
             pEventID,
             pConfirmDecline,
-            pLatitud=500,
-            pLongitud=500,
+            pLatitude=500,
+            pLongitude=500,
             pService=''):
 
         theEvent = Event.objects.get(id=pEventID)
@@ -89,8 +89,8 @@ class RegisterEventBusStop(View):
             timeStamp=aTimeStamp,
             confirmDecline=pConfirmDecline,
             reportOfEvent=eventReport,
-            longitud=pLongitud,
-            latitud=pLatitud,
+            longitude=pLongitude,
+            latitude=pLatitude,
             phoneId=pPhoneId)
 
         # update score

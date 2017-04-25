@@ -114,7 +114,7 @@ class DistanceScore(CalculateScore):
         try:
             previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, 
                 timeStamp__lt=firstPointTime).order_by('-timeStamp')[0]
-            distance += gpsFunctions.haversine(previousPoint.longitud, previousPoint.latitud, 
+            distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude, 
                 points[0]['longitud'], points[0]['latitud'], measure='km')
         except:
             # there is not previous point
