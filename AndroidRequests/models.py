@@ -443,8 +443,8 @@ class Busassignment(models.Model):
             gtfs__version=settings.GTFS_VERSION, 
             distance=closest)[0]
 
-        return {'latitude': location.latitud,
-                'longitude': location.longitud,
+        return {'latitude': location.latitude,
+                'longitude': location.longitude,
                 'direction': serviceCode[-1]
                 }
     """
