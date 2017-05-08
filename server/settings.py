@@ -223,7 +223,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) 
     del databaseConfig
 
 # GTFS DATA USED TO PREDICT POSITION AND OTHER THINGS
-GTFS_VERSION =  'v0.9'
+GTFS_VERSION =  'v1.0'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
