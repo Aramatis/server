@@ -142,6 +142,8 @@ class EventRegistration(models.Model):
     """ amount of declinations for this event """
     phoneId = models.UUIDField()
     """ To identify the data owner """
+    userId = models.ForeignKey('TranSappUser', null=True)
+    ''' logged user in app that made the report '''
 
     class Meta:
         abstract = True
@@ -636,6 +638,16 @@ class TranSappUser(models.Model):
     ''' level based on score '''
     sessionToken = models.UUIDField(null=False)
     ''' uuid generated each time the user log in '''
+    nickname = models.CharField(max_length=20, null=False)
+    ''' user nick name '''
+    photoUri = models.URLField(null=False)
+    ''' social media photo '''
+    userAvatarId = models.IntegerField(default=1)
+    ''' avatar used to hide identity of user '''
+    showAvatar = models.BooleanField(default=False)
+    ''' to inidicate if system hast to use the avatar or social media photo '''
+    busAvatarId = models.IntegerField(default=1)
+    ''' bus avatar used to show buses on app map '''
 
 
 class ScoreEvent(models.Model):
