@@ -100,6 +100,8 @@ class StadisticDataFromRegistration(Location):
     """ Represents if the event was confirmed or declined """
     phoneId = models.UUIDField()
     """ To identify the data owner """
+    tranSappUser = models.ForeignKey('TranSappUser', null=True)
+    ''' logged user in app that made the report '''
 
     class Meta:
         abstract = True
@@ -142,8 +144,8 @@ class EventRegistration(models.Model):
     """ amount of declinations for this event """
     phoneId = models.UUIDField()
     """ To identify the data owner """
-    userId = models.ForeignKey('TranSappUser', null=True)
-    ''' logged user in app that made the report '''
+    #userId = models.ForeignKey('TranSappUser', null=True)
+    #''' logged user in app that made the report '''
 
     class Meta:
         abstract = True
