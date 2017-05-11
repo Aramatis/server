@@ -6,7 +6,6 @@ import json
 import requests
 
 # Create your tests here.
-from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin, TranSappUserLogout
 from AndroidRequests.allviews import UserScoreSession as uss
 from AndroidRequests.models import TranSappUser, Level
 
@@ -189,7 +188,7 @@ class UserLogTestCase(TestCase):
         # login
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
  
-        url = 'setUserInfo'
+        url = 'updateUserSettings'
 
         sessionToken = jsonResponse['sessionToken']
         userId = self.USER_ID
@@ -217,7 +216,7 @@ class UserLogTestCase(TestCase):
     def testFacebookModifyUserInfoWithFakeUserId(self):
         ''' modify user info  '''
  
-        url = 'setUserInfo'
+        url = 'updateUserSettings'
 
         sessionToken = "fakeSessionToken"
         userId = "fakeUserId"
@@ -243,7 +242,7 @@ class UserLogTestCase(TestCase):
         # login
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
 
-        url = 'setUserInfo'
+        url = 'updateUserSettings'
 
         nickname = "new nickname"
         userAvatarId = 2

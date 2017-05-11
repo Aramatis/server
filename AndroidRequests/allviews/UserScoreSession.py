@@ -149,7 +149,7 @@ class TranSappUserLogout(View):
         return JsonResponse(response, safe=False)
 
 
-class SetTranSappUserInfo(View):
+class UpdateTranSappUserSettings(View):
     ''' update user info '''
 
     def __init__(self):
@@ -158,7 +158,7 @@ class SetTranSappUserInfo(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(SetTranSappUserInfo, self).dispatch(request, *args, **kwargs)
+        return super(UpdateTranSappUserSettings, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
         """ register user """
@@ -181,10 +181,10 @@ class SetTranSappUserInfo(View):
 
         try:
             if user:
-                user.showAvatar=showAvatar
+                user.showAvatar=showAvatar in ['True']
                 user.nickname=nickname
-                user.userAvatarId=userAvatarId
-                user.busAvatarId=busAvatarId
+                user.userAvatarId=int(userAvatarId)
+                user.busAvatarId=int(busAvatarId)
                 user.save()
 
                 Status.getJsonStatus(Status.OK, response)
