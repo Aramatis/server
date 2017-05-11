@@ -5,12 +5,12 @@ from django.views.generic import View
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.core.exceptions import ObjectDoesNotExist
 
 # python utilities
 import logging
 import requests
 import uuid
-import re
 import json
 
 from AndroidRequests.statusResponse import Status
@@ -19,12 +19,6 @@ from AndroidRequests.models import TranSappUser, Level
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 # Create your views here.
-
-def isValidUUID(value):
-    ''' '''
-    pattern = re.compile(r'^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')
-    return pattern.match(value)
-
 
 class TranSappUserLogin(View):
     ''' log in transapp user '''
@@ -65,6 +59,8 @@ class TranSappUserLogin(View):
         name = request.POST.get('name')            
         email = request.POST.get('email')          
         userId = request.POST.get('userId') 
+        photoURI = request.POST.get('photoURI')
+        nickname = request.POST.get('nickname')
                
         response = {}
         # access token invalid
@@ -84,6 +80,8 @@ class TranSappUserLogin(View):
                         user = users[0]
                         user.phoneId = phoneId
                         user.sessionToken = sessionToken
+                        user.photoURI = photoURI
+                        user.nickname = nickname
                         user.save()
                     else:
                         # user does not exist
@@ -93,7 +91,9 @@ class TranSappUserLogin(View):
                             name=name,
                             email=email,
                             phoneId=phoneId,
-                            sessionToken=sessionToken, 
+                            photoURI=photoURI,
+                            nickname=nickname,
+                            sessionToken=sessionToken,
                             level=firstLevel)
 
                     # ok
@@ -104,6 +104,11 @@ class TranSappUserLogin(View):
                     response['userData']['level'] = {}
                     response['userData']['level']['name'] = user.level.name
                     response['userData']['level']['maxScore'] = user.level.maxScore
+                    response['userData']['level']['position'] = user.level.position
+                    response['userData']['personalization'] = {}
+                    response['userData']['personalization']['busAvatarId'] = user.busAvatarId
+                    response['userData']['personalization']['userAvatarId'] = user.userAvatarId
+                    response['userData']['personalization']['showAvatar'] = user.showAvatar
                 except Exception as e:
                     Status.getJsonStatus(Status.INTERNAL_ERROR, response)
                     self.logger.error(str(e))
@@ -112,11 +117,13 @@ class TranSappUserLogin(View):
         
         return JsonResponse(response, safe=False)
 
+
 class TranSappUserLogout(View):
     """ end session """
 
     def __init__(self):
         self.context = {}
+        self.logger = logging.getLogger(__name__)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -128,23 +135,62 @@ class TranSappUserLogout(View):
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
         
-        
-        if isValidUUID(sessionToken): 
-            users = TranSappUser.objects.filter(userId=userId, sessionToken=sessionToken)
-        else:
-            users = []
-
         response = {}
-        if users:
-            # user exists
-            user = users[0]
+        try:
+            user = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
             user.sessionToken = NULL_SESSION_TOKEN
             user.save()
 
             Status.getJsonStatus(Status.OK, response)
-        else:
+        except (ObjectDoesNotExist, ValueError) as e:
             Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
-        
+            self.logger.error(str(e))
+
         return JsonResponse(response, safe=False)
 
+
+class SetTranSappUserInfo(View):
+    ''' update user info '''
+
+    def __init__(self):
+        self.context = {}
+        self.logger = logging.getLogger(__name__)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(SetTranSappUserInfo, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        """ register user """
+
+        sessionToken = request.POST.get('sessionToken') 
+        userId = request.POST.get('userId') 
+
+        nickname = request.POST.get('nickname')
+        userAvatarId = request.POST.get('userAvatarId')
+        busAvatarId = request.POST.get('busAvatarId')
+        showAvatar = request.POST.get('showAvatar')
+        
+        response = {}
+        user = None
+        try:
+            user = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
+        except (ObjectDoesNotExist, ValueError) as e:
+            Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
+            self.logger.error(str(e))
+
+        try:
+            if user:
+                user.showAvatar=False
+                user.nickname=nickname
+                user.userAvatarId=userAvatarId
+                user.busAvatarId=busAvatarId
+                user.save()
+
+                Status.getJsonStatus(Status.OK, response)
+        except Exception as e:
+            Status.getJsonStatus(Status.INTERNAL_ERROR, response)
+            self.logger.error(str(e))
+
+        return JsonResponse(response, safe=False)
 

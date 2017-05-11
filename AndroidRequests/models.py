@@ -640,11 +640,11 @@ class TranSappUser(models.Model):
     ''' uuid generated each time the user log in '''
     nickname = models.CharField(max_length=20, null=False)
     ''' user nick name '''
-    photoUri = models.URLField(null=False)
+    photoURI = models.URLField(null=False)
     ''' social media photo '''
     userAvatarId = models.IntegerField(default=1)
     ''' avatar used to hide identity of user '''
-    showAvatar = models.BooleanField(default=False)
+    showAvatar = models.BooleanField(default=True)
     ''' to inidicate if system hast to use the avatar or social media photo '''
     busAvatarId = models.IntegerField(default=1)
     ''' bus avatar used to show buses on app map '''

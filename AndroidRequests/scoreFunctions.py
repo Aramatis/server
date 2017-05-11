@@ -34,6 +34,7 @@ class CalculateScore():
         response['userData']['score'] = -1
         response['userData']['level'] = {}
         response['userData']['level']['name'] = ''
+        response['userData']['level']['position'] = -1
         response['userData']['level']['maxScore'] = ''
 
         if userId and sessionToken:
@@ -75,6 +76,7 @@ class CalculateScore():
             self.response['userData']['score'] = self.user.globalScore
             self.response['userData']['level']['name'] = self.user.level.name
             self.response['userData']['level']['maxScore'] = self.user.level.maxScore
+            self.response['userData']['level']['position'] = self.user.level.position
 
         return self.response
         
