@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 import json
 # my stuff
 # import DB's models
-from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment
+from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment, TranSappUser
 
 from EventsByBusV2 import EventsByBusV2
 import AndroidRequests.gpsFunctions as Gps
@@ -32,11 +32,11 @@ class RegisterEventBusV2(View):
         latitude = float(request.POST.get('latitude', '500'))
         longitude = float(request.POST.get('longitude', '500'))
         
-        userId = request.POST.get('userId', '')
-        sessionToken = request.POST.get('sessionToken', '')
+        userId = request.POST.get('userId')
+        sessionToken = request.POST.get('sessionToken')
 
         return self.get(request, phoneId, machineId, service, 
-                eventCode, vote, latitude, longitude)
+                eventCode, vote, latitude, longitude, userId, sessionToken)
 
     def get(
             self,
@@ -47,7 +47,9 @@ class RegisterEventBusV2(View):
             pEventID,
             pConfirmDecline,
             pLatitude=500,
-            pLongitude=500):
+            pLongitude=500, 
+            userId=None, 
+            sessionToken=None):
         # here we request all the info needed to proceed
         aTimeStamp = timezone.now()
         theEvent = Event.objects.get(id=pEventID)
@@ -108,6 +110,12 @@ class RegisterEventBusV2(View):
 
         eventReport.save()
 
+        tranSappUser = None
+        try:
+            tranSappUser = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
+        except Exception:
+            pass
+
         StadisticDataFromRegistrationBus.objects.create(
             timeStamp=aTimeStamp,
             confirmDecline=pConfirmDecline,
@@ -118,7 +126,8 @@ class RegisterEventBusV2(View):
             gpsLongitude=responseLongitude,
             gpsLatitude=responseLatitude,
             gpsTimeStamp=responseTimeStamp,
-            distance=responseDistance)
+            distance=responseDistance,
+            tranSappUser=tranSappUser)
 
         # update score
         jsonScoreResponse = score.calculateEventScore(request, pEventID)

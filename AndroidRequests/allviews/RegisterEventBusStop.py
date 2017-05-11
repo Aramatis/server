@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 import json
 # my stuff
 # import DB's models
-from AndroidRequests.models import Event, BusStop, EventForBusStop, StadisticDataFromRegistrationBusStop
+from AndroidRequests.models import Event, BusStop, EventForBusStop, StadisticDataFromRegistrationBusStop, TranSappUser
 
 from EventsByBusStop import EventsByBusStop
 
@@ -32,13 +32,13 @@ class RegisterEventBusStop(View):
         userLatitude = float(request.POST.get('latitude', '500'))
         userLongitude = float(request.POST.get('longitude', '500'))
         
-        userId = request.POST.get('userId', '')
-        sessionToken = request.POST.get('sessionToken', '')
+        userId = request.POST.get('userId')
+        sessionToken = request.POST.get('sessionToken')
 
         service = request.POST.get('service', '')
 
         return self.get(request, phoneId, stopCode,  
-                eventCode, vote, userLatitude, userLongitude, service)
+                eventCode, vote, userLatitude, userLongitude, service, userId, sessionToken)
 
     def get(
             self,
@@ -49,7 +49,9 @@ class RegisterEventBusStop(View):
             pConfirmDecline,
             pLatitude=500,
             pLongitude=500,
-            pService=''):
+            pService='',
+            userId=None,
+            sessionToken=None):
 
         theEvent = Event.objects.get(id=pEventID)
 
@@ -85,13 +87,20 @@ class RegisterEventBusStop(View):
 
         eventReport.save()
 
+        tranSappUser = None
+        try:
+            tranSappUser = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
+        except Exception:
+            pass
+
         StadisticDataFromRegistrationBusStop.objects.create(
             timeStamp=aTimeStamp,
             confirmDecline=pConfirmDecline,
             reportOfEvent=eventReport,
             longitude=pLongitude,
             latitude=pLatitude,
-            phoneId=pPhoneId)
+            phoneId=pPhoneId,
+            tranSappUser=tranSappUser)
 
         # update score
         jsonScoreResponse = score.calculateEventScore(request, pEventID)
