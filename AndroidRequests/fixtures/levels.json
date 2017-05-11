@@ -4,8 +4,8 @@
         "pk": 1,
         "fields": {
             "name": "Uber lover",
-            "minScore": "0",
-            "maxScore": "1000",
+            "minScore": 0,
+            "maxScore": 3816,
             "position": 1
         }
     },
@@ -13,10 +13,90 @@
         "model": "AndroidRequests.level",
         "pk": 2,
         "fields": {
-            "name": "Me gustan las micros amarillas",
-            "minScore": "1000",
-            "maxScore": "3000",
+            "name": "Soy el nivel 2",
+            "minScore": 3816,
+            "maxScore": 19080,
             "position": 2
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 3,
+        "fields": {
+            "name": "Soy el nivel 3",
+            "minScore": 19080,
+            "maxScore": 68688,
+            "position": 3
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 4,
+        "fields": {
+            "name": "Soy el nivel 4",
+            "minScore": 68688,
+            "maxScore": 114480,
+            "position": 4
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 5,
+        "fields": {
+            "name": "Soy el nivel 5",
+            "minScore": 114480,
+            "maxScore": 190800,
+            "position": 5
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 6,
+        "fields": {
+            "name": "Soy el nivel 6",
+            "minScore": 190800,
+            "maxScore": 286200,
+            "position": 6
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 7,
+        "fields": {
+            "name": "Soy el nivel 7",
+            "minScore": 286200,
+            "maxScore": 343440,
+            "position": 7
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 8,
+        "fields": {
+            "name": "Soy el nivel 8",
+            "minScore": 343440,
+            "maxScore": 534240,
+            "position": 8
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 9,
+        "fields": {
+            "name": "Soy el nivel 9",
+            "minScore": 534240,
+            "maxScore": 763200,
+            "position": 9
+        }
+    },
+    {
+        "model": "AndroidRequests.level",
+        "pk": 10,
+        "fields": {
+            "name": "Soy el nivel 10",
+            "minScore": 763200,
+            "maxScore": 1000000,
+            "position": 10
         }
     }
 ]
