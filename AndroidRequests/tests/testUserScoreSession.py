@@ -124,9 +124,9 @@ class UserLogTestCase(TestCase):
         self.assertEqual(jsonResponse['userData']['level']['name'], 'firstLevel')
         self.assertEqual(jsonResponse['userData']['level']['position'], 1)
         self.assertEqual(jsonResponse['userData']['level']['maxScore'], 1000)
-        self.assertEqual(jsonResponse['userData']['personalization']['busAvatarId'], 1)
-        self.assertEqual(jsonResponse['userData']['personalization']['userAvatarId'], 1)
-        self.assertEqual(jsonResponse['userData']['personalization']['showAvatar'], True)
+        self.assertEqual(jsonResponse['userSettings']['busAvatarId'], 1)
+        self.assertEqual(jsonResponse['userSettings']['userAvatarId'], 1)
+        self.assertEqual(jsonResponse['userSettings']['showAvatar'], True)
         uuid.UUID(jsonResponse['sessionToken'])
 
         # verify database

@@ -105,10 +105,10 @@ class TranSappUserLogin(View):
                     response['userData']['level']['name'] = user.level.name
                     response['userData']['level']['maxScore'] = user.level.maxScore
                     response['userData']['level']['position'] = user.level.position
-                    response['userData']['personalization'] = {}
-                    response['userData']['personalization']['busAvatarId'] = user.busAvatarId
-                    response['userData']['personalization']['userAvatarId'] = user.userAvatarId
-                    response['userData']['personalization']['showAvatar'] = user.showAvatar
+                    response['userSettings'] = {}
+                    response['userSettings']['busAvatarId'] = user.busAvatarId
+                    response['userSettings']['userAvatarId'] = user.userAvatarId
+                    response['userSettings']['showAvatar'] = user.showAvatar
                 except Exception as e:
                     Status.getJsonStatus(Status.INTERNAL_ERROR, response)
                     self.logger.error(str(e))
@@ -181,7 +181,7 @@ class SetTranSappUserInfo(View):
 
         try:
             if user:
-                user.showAvatar=False
+                user.showAvatar=showAvatar
                 user.nickname=nickname
                 user.userAvatarId=userAvatarId
                 user.busAvatarId=busAvatarId
