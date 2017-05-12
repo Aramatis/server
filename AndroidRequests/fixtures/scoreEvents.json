@@ -1,276 +1,106 @@
-[
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 1,
-        "fields": {
-            "code": "evn00100",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 2,
-        "fields": {
-            "code": "evn00101",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 3,
-        "fields": {
-            "code": "evn00102",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 4,
-        "fields": {
-            "code": "evn00000",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 5,
-        "fields": {
-            "code": "evn00001",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 6,
-        "fields": {
-            "code": "evn00010",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 7,
-        "fields": {
-            "code": "evn00011",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 8,
-        "fields": {
-            "code": "evn00012",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 9,
-        "fields": {
-            "code": "evn00013",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 10,
-        "fields": {
-            "code": "evn00020",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 11,
-        "fields": {
-            "code": "evn00021",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 12,
-        "fields": {
-            "code": "evn00022",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 13,
-        "fields": {
-            "code": "evn00200",
-            "score": "20"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 14,
-        "fields": {
-            "code": "evn00201",
-            "score": "20"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 15,
-        "fields": {
-            "code": "evn00202",
-            "score": "20"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 16,
-        "fields": {
-            "code": "evn00203",
-            "score": "20"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 17,
-        "fields": {
-            "code": "evn00210",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 18,
-        "fields": {
-            "code": "evn00211",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 19,
-        "fields": {
-            "code": "evn00213",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 20,
-        "fields": {
-            "code": "evn00220",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 21,
-        "fields": {
-            "code": "evn00221",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 22,
-        "fields": {
-            "code": "evn00222",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 23,
-        "fields": {
-            "code": "evn00223",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 24,
-        "fields": {
-            "code": "evn00224",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 25,
-        "fields": {
-            "code": "evn00225",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 26,
-        "fields": {
-            "code": "evn00230",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 27,
-        "fields": {
-            "code": "evn00231",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 28,
-        "fields": {
-            "code": "evn00232",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 29,
-        "fields": {
-            "code": "evn00233",
-            "score": "10"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 30,
-        "fields": {
-            "code": "evn00240",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 31,
-        "fields": {
-            "code": "evn00241",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 32,
-        "fields": {
-            "code": "evn00242",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 33,
-        "fields": {
-            "code": "evn00212",
-            "score": "5"
-        }
-    },
-    {
-        "model": "AndroidRequests.scoreEvent",
-        "pk": 34,
-        "fields": {
-            "code": "evn00300",
-            "score": "8"
-        },
-	"_comment": "score by kilometer"
-    }
-]
-
+[{"model": "AndroidRequests.scoreEvent","pk": 1,
+  "fields": {"code": "evn00100","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 2,
+  "fields": {"code": "evn00101","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 3,
+  "fields": {"code": "evn00102","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 4,
+  "fields": {"code": "evn00000","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 5,
+  "fields": {"code": "evn00001","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 6,
+  "fields": {"code": "evn00010","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 7,
+  "fields": {"code": "evn00011","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 8,
+  "fields": {"code": "evn00012","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 9,
+  "fields": {"code": "evn00013","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 10,
+  "fields": {"code": "evn00020","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 11,
+  "fields": {"code": "evn00021","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 12,
+  "fields": {"code": "evn00022","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 13,
+  "fields": {"code": "evn00200","score": 10}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 14,
+  "fields": {"code": "evn00201","score": 5},
+  "_comment":"deleted"
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 15,
+  "fields": {"code": "evn00202","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 16,
+  "fields": {"code": "evn00203","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 17,
+  "fields": {"code": "evn00210","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 18,
+  "fields": {"code": "evn00211","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 19,
+  "fields": {"code": "evn00213","score": 5},
+  "_comment": "deleted"
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 20,
+  "fields": {"code": "evn00220","score": 10}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 21,
+  "fields": {"code": "evn00221","score": 10}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 22,
+  "fields": {"code": "evn00222","score": 10}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 23,
+  "fields": {"code": "evn00223","score": 10}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 24,
+  "fields": {"code": "evn00224","score": 10}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 25,
+  "fields": {"code": "evn00225","score": 10}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 26,
+  "fields": {"code": "evn00230","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 27,
+  "fields": {"code": "evn00231","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 28,
+  "fields": {"code": "evn00232","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 29,
+  "fields": {"code": "evn00233","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 30,
+  "fields": {"code": "evn00240","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 31,
+  "fields": {"code": "evn00241","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 32,
+  "fields": {"code": "evn00242","score": 5},
+  "_comment": "deleted"
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 33,
+  "fields": {"code": "evn00212","score": 5}
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 34,
+  "fields": {"code": "evn00300","score": "8"},
+  "_comment": "score by kilometer"
+ }]
