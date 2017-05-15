@@ -106,6 +106,19 @@ class StadisticDataFromRegistration(Location):
     class Meta:
         abstract = True
 
+    def getDictionary(self):
+        ''' return two list: one with confirm users and another with decline users '''
+        result = {}
+        keyName = 'declineUser'
+        if self.confirmDecline == 'confirm':
+            keyName = 'confirmUser'
+
+        if self.tranSappUser is not None:
+            result[keyName] = self.tranSappUser.getDictionary()
+        else:
+            result[keyName] = None
+
+        return result
 
 class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus event """
@@ -125,8 +138,7 @@ class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
 
 class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus stop event """
-    reportOfEvent = models.ForeignKey(
-        'EventForBusStop',
+    reportOfEvent = models.ForeignKey('EventForBusStop',
         verbose_name='Bus Stop Event')
 
 
@@ -134,9 +146,10 @@ class EventRegistration(models.Model):
     '''This model stores the reports of events coming from the passagers of the system of public transport buses.'''
     timeStamp = models.DateTimeField('Time Stamp')  # lastime it was updated
     """ Specific date time when the server received the event registration """
-    timeCreation = models.DateTimeField(
-        'Creation Time')  # the date and time when it was first reported
+    timeCreation = models.DateTimeField('Creation Time')
     """ Specific date time when the server received for the first time the event registration """
+    expireTime = models.DateTimeField(null=True)
+    ''' Specific date time when event expired '''
     event = models.ForeignKey(Event, verbose_name='The event information')
     eventConfirm = models.IntegerField('Confirmations', default=1)
     """ Amount of confirmations for this event """
@@ -144,8 +157,12 @@ class EventRegistration(models.Model):
     """ amount of declinations for this event """
     phoneId = models.UUIDField()
     """ To identify the data owner """
-    #userId = models.ForeignKey('TranSappUser', null=True)
-    #''' logged user in app that made the report '''
+    broken = models.BooleanField(default=False)
+    ''' to indecate that event expired by some brokenType '''
+    # list  of criterion of broken type
+    PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE = 'percentage'
+    brokenType = models.CharField(max_length=50, default=None, null=True)
+    ''' indicate why event is broken '''
 
     class Meta:
         abstract = True
@@ -164,7 +181,6 @@ class EventRegistration(models.Model):
         dictionary.update(eventDictionay)
 
         return dictionary
-
 
 class EventForBusStop(EventRegistration):
     '''This model stores the reported events for the busStop'''
@@ -651,6 +667,20 @@ class TranSappUser(models.Model):
     busAvatarId = models.IntegerField(default=1)
     ''' bus avatar used to show buses on app map '''
 
+    def getDictionary():
+        ''' get dictionary of public data '''
+        data = {
+            "nickname": self.nickname,
+            "globalScore": self.globalScore,
+            "showAvatar": self.showAvatar,
+            "levelName": self.level.name
+        }
+        if self.showAvatar:
+            data["photoURI"] = self.photoURI
+        else:
+            data['userAvatarId'] = self.userAvatarId
+
+        return data
 
 class ScoreEvent(models.Model):
     ''' score given by action '''

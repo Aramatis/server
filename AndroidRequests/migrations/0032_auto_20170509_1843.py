@@ -12,13 +12,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='eventforbusstop',
-            name='userId',
+            model_name='stadisticdatafromregistrationbusstop',
+            name='tranSappUser',
             field=models.ForeignKey(to='AndroidRequests.TranSappUser', null=True),
         ),
         migrations.AddField(
-            model_name='eventforbusv2',
-            name='userId',
+            model_name='stadisticdatafromregistrationbus',
+            name='tranSappUser',
             field=models.ForeignKey(to='AndroidRequests.TranSappUser', null=True),
         ),
         migrations.AddField(
@@ -34,18 +34,27 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='transappuser',
-            name='photoUri',
+            name='photoURI',
             field=models.URLField(default=''),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='transappuser',
             name='showAvatar',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(default=True),
         ),
         migrations.AddField(
             model_name='transappuser',
             name='userAvatarId',
             field=models.IntegerField(default=1),
+        ),
+        migrations.AddField(
+            model_name='eventforbusstop',
+            name='expireTime',
+            field=models.DateTimeField(null=True),
+        ),
+        migrations.AddField(
+            model_name='eventforbusv2',
+            name='expireTime',field=models.DateTimeField(null=True),
         ),
     ]
