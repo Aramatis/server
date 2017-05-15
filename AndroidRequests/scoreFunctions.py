@@ -11,35 +11,21 @@ import AndroidRequests.gpsFunctions as gpsFunctions
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level, PoseInTrajectoryOfToken
 
+class UserValidation():
+    ''' it validates  user session '''
+    def __init__(self):
+        pass
 
-class CalculateScore():
-    """ Abstract class  """
-    __metaclass__ = abc.ABCMeta
-
-    def __init__(self, request):
-        """
-        @request django.http.request
-        """
-        self.logger = logging.getLogger(__name__)
-        self.isUpdatedScore, self.user, self.response = self.validateParams(request)
-
-    def validateParams(self, request):
-
-        userId = request.POST.get('userId', '')
-        sessionToken = request.POST.get('sessionToken', '')
+    def validateUser(self, userId, sessionToken):
+        ''' validate user session '''
 
         response = {}
         Status.getJsonStatus(Status.OK, response)
-        response['userData'] = {}
-        response['userData']['score'] = -1
-        response['userData']['level'] = {}
-        response['userData']['level']['name'] = ''
-        response['userData']['level']['position'] = -1
-        response['userData']['level']['maxScore'] = ''
 
         if userId and sessionToken:
             try:
-                user = TranSappUser.objects.get(userId=userId)
+                user = TranSappUser.objects.select_related('level').\
+                        get(userId=userId)
 
                 if user.sessionToken == uuid.UUID(sessionToken):
                     return True, user, response
@@ -52,12 +38,42 @@ class CalculateScore():
 
         return False, None, response
 
+
+class CalculateScore():
+    """ Abstract class  """
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, request):
+        """
+        @request django.http.request
+        """
+        self.logger = logging.getLogger(__name__)
+        self.loggedUser, self.user, self.response = self.validateParams(request)
+
+    def validateParams(self, request):
+
+        userId = request.POST.get('userId', None)
+        sessionToken = request.POST.get('sessionToken', None)
+
+        response = {}
+        response['userData'] = {}
+        response['userData']['score'] = -1
+        response['userData']['level'] = {}
+        response['userData']['level']['name'] = ''
+        response['userData']['level']['position'] = -1
+        response['userData']['level']['maxScore'] = ''
+
+        loggedUser, user, statusResponse = UserValidation().validateUser(userId, sessionToken)
+        response.update(statusResponse)
+
+        return loggedUser, user, response
+
     @abc.abstractmethod
     def getScore(self, eventCode, metaData):
         return
 
     def updateScore(self, scoreEvent, meta=None):
-        if self.isUpdatedScore:
+        if self.loggedUser:
             additionalScore = self.getScore(scoreEvent, meta)
 
             self.user.globalScore += additionalScore
