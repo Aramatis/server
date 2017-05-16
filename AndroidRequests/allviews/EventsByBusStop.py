@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
 from django.conf import settings
+from django.db.models.expressions import F
 
 # my stuff
 # import DB's models
@@ -21,28 +22,22 @@ class EventsByBusStop(View):
         # ask for the events
         eventsData = self.getEventsForStop(stopCode, timestamp)
 
-        eventeDictionary = stopObj.getDictionary()
-        eventeDictionary['events'] = eventsData
+        eventDictionary = stopObj.getDictionary()
+        eventDictionary['events'] = eventsData
 
-        return JsonResponse(eventeDictionary, safe=False)
+        return JsonResponse(eventDictionary, safe=False)
 
     def getEventsForStop(self, stopCode, timeStamp):
         '''this method returns all the events that are active given their timestamp.'''
 
         currentEventReport = []
 
-        events = Event.objects.filter(eventType='busStop')
-
-        # this will discart all the events that have expired
+        # ask for events that ocured between now and the lifeSpam of it
+        events = EventForBusStop.objects.prefetch_related('stadisticdatafromregistrationbusstop_set').filter(
+            stopCode=stopCode, event__eventType='busStop', broken=False,
+            expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+        
         for event in events:
-            eventTime = timeStamp - timezone.timedelta(minutes=event.lifespam)
-            # ask for events that ocured between now and the lifeSpam of it
-            aux = EventForBusStop.objects.filter(
-                stopCode=stopCode, event=event, timeStamp__gt=eventTime).order_by('-timeStamp')
-
-            # check if there exist one event that fit descritions and
-            if aux.exists():
-                # add the add the info as a dictionry to a list of events
-                currentEventReport.append(aux[0].getDictionary())
-
+            currentEventReport.append(event.getDictionary())
+        
         return currentEventReport

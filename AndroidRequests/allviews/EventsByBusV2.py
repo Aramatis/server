@@ -13,11 +13,11 @@ class EventsByBusV2(View):
 
     def __init__(self):
         self.context = {}
+        self.logger = logging.getLogger(__name__)
 
     def get(self, request, pPhoneId):
         """The UUID field can identify the bus, and the service can identify
         the bus assignment"""
-        logger = logging.getLogger(__name__)
 
         response = {}
         # response['registrationPlate'] = pRegistrationPlate
@@ -27,9 +27,9 @@ class EventsByBusV2(View):
             bus = Busv2.objects.get(uuid=pPhoneId)
             pRegistrationPlate = bus.registrationPlate
             assignments = Busassignment.objects.filter(uuid=bus)
-            events = self.getEventsForBus(assignments)
+            events = self.getEventsForBus(assignments, timezone.now())
         except Exception as e:
-            logger.error(str(e))
+            self.logger.error(str(e))
             events = []
             pRegistrationPlate = ''
 
@@ -38,29 +38,25 @@ class EventsByBusV2(View):
 
         return JsonResponse(response, safe=False)
 
-    def getEventsForBus(self, pBusassignments):
+    def getEventsForBus(self, busassignments, timeStamp):
         """this method look for the active events of a bus, those whose lifespan hasn't expired
         since the last time there were reported"""
-        events = []
+        aggregatedEvents = {}
+        result = []
 
-        eventsToAsk = Event.objects.filter(eventType='bus')
-
-        for event in eventsToAsk:
-            eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
-
-            registry = EventForBusv2.objects.filter(
-                busassignment__in=pBusassignments,
-                event=event,
-                timeStamp__gt=eventTime).order_by('-timeStamp')
-
-            # checks if the event is active
-            if registry.exists():
-                newEvent = registry[0].getDictionary()
-                for it in registry[1:]:
-                    otherEvent = it.getDictionary()
-                    newEvent['eventConfirm'] = newEvent[
-                        'eventConfirm'] + otherEvent['eventConfirm']
-                    newEvent['eventDecline'] = newEvent[
-                        'eventDecline'] + otherEvent['eventDecline']
-                events.append(newEvent)
-        return events
+        events = EventForBusv2.objects.prefetch_related('stadisticdatafromregistrationbus_set').filter(
+                busassignment__in=busassignments, event__eventType='bus', broken=False,
+                expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+        
+        for event in events:
+            event = event.getDictionary()
+            
+            if event['eventcode'] in aggregatedEvents:
+                position = aggregatedEvents[event['eventcode']]
+                result[position]['eventConfirm'] += event['eventConfirm']
+                result[position]['eventDecline'] += event['eventDecline']
+            else:
+                aggregatedEvents[event['eventcode']] = len(result)
+                result.append(event)
+        
+        return result

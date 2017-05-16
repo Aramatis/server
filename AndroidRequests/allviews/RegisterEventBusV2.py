@@ -51,8 +51,9 @@ class RegisterEventBusV2(View):
             userId=None, 
             sessionToken=None):
         # here we request all the info needed to proceed
-        aTimeStamp = timezone.now()
-        theEvent = Event.objects.get(id=pEventID)
+        event = Event.objects.get(id=pEventID)
+        timeStamp = timezone.now()
+        expireTime = timeStamp + timezone.timedelta(minutes=event.lifespam)
 
         # remove hyphen and convert to uppercase
         # pBusPlate = pBusPlate.replace('-', '').upper()
@@ -64,11 +65,6 @@ class RegisterEventBusV2(View):
                 uuid=theBus, service=pBusService)
         except:
             return JsonResponse({}, safe=False)
-        # theBus = Bus.objects.get(service=pBusService, uuid=pMachineId)
-        # estimate the oldest time where the reported event can be usefull
-        # if there is no event here a new one is created
-        oldestAlertedTime = aTimeStamp - \
-            timezone.timedelta(minutes=theEvent.lifespam)
 
         # get the GPS data from the url
         responseLongitude = None
@@ -77,17 +73,20 @@ class RegisterEventBusV2(View):
         responseDistance = None
 
         responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
-            theBus.registrationPlate, aTimeStamp, float(pLongitude), float(pLatitude))
+            theBus.registrationPlate, timeStamp, float(pLongitude), float(pLatitude))
 
         # check if there is an event
         eventReport = EventForBusv2.objects.filter(
-            timeStamp__gt=oldestAlertedTime, 
+            expireTime__gte=timeStamp, 
+            timeCreation__lte=timeStamp, 
             busassignment=theAsignment, 
-            event=theEvent).order_by('-timeStamp').first()
+            broken=False,
+            event=event).order_by('-timeStamp').first()
 
         if eventReport is not None:
             # updates to the event reported
-            eventReport.timeStamp = aTimeStamp
+            eventReport.timeStamp = timeStamp
+            eventReport.expireTime = expireTime
 
             # update the counters
             if pConfirmDecline == 'decline':
@@ -99,9 +98,10 @@ class RegisterEventBusV2(View):
             eventReport = EventForBusv2.objects.create(
                 phoneId=pPhoneId,
                 busassignment=theAsignment,
-                event=theEvent,
-                timeStamp=aTimeStamp,
-                timeCreation=aTimeStamp)
+                event=event,
+                timeStamp=timeStamp,
+                expireTime=expireTime,
+                timeCreation=timeStamp)
 
             # set the initial values for this fields
             if pConfirmDecline == 'decline':
@@ -117,7 +117,7 @@ class RegisterEventBusV2(View):
             pass
 
         StadisticDataFromRegistrationBus.objects.create(
-            timeStamp=aTimeStamp,
+            timeStamp=timeStamp,
             confirmDecline=pConfirmDecline,
             reportOfEvent=eventReport,
             longitude=pLongitude,

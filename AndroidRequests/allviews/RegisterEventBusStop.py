@@ -53,21 +53,21 @@ class RegisterEventBusStop(View):
             userId=None,
             sessionToken=None):
 
-        theEvent = Event.objects.get(id=pEventID)
-
-        aTimeStamp = timezone.now()
-
-        oldestAlertedTime = aTimeStamp - \
-            timezone.timedelta(minutes=theEvent.lifespam)
+        event = Event.objects.get(id=pEventID)
+        timeStamp = timezone.now()
+        expireTime = timeStamp + timezone.timedelta(minutes=event.lifespam)
 
         eventReport = EventForBusStop.objects.filter(
-            timeStamp__gt=oldestAlertedTime, 
+            expireTime__gte=timeStamp, 
+            timeCreation__lte=timeStamp, 
             stopCode=stopCode, 
-            event=theEvent).order_by('-timeStamp').first()
+            broken = False,
+            event=event).order_by('-timeStamp').first()
 
         if eventReport is not None:
             # updates to the event reported
-            eventReport.timeStamp = aTimeStamp
+            eventReport.timeStamp = timeStamp
+            eventReport.expireTime = expireTime
             if pConfirmDecline == 'decline':
                 eventReport.eventDecline += 1
             else:
@@ -75,9 +75,10 @@ class RegisterEventBusStop(View):
         else:
             eventReport = EventForBusStop.objects.create(
                 stopCode=stopCode,
-                event=theEvent,
-                timeStamp=aTimeStamp,
-                timeCreation=aTimeStamp,
+                event=event,
+                timeStamp=timeStamp,
+                expireTime=expireTime,
+                timeCreation=timeStamp,
                 phoneId=pPhoneId,
                 aditionalInfo=pService)
 
@@ -94,7 +95,7 @@ class RegisterEventBusStop(View):
             pass
 
         StadisticDataFromRegistrationBusStop.objects.create(
-            timeStamp=aTimeStamp,
+            timeStamp=timeStamp,
             confirmDecline=pConfirmDecline,
             reportOfEvent=eventReport,
             longitude=pLongitude,
