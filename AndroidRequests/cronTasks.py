@@ -36,44 +36,30 @@ def clearEventsThatHaveBeenDecline():
     '''This clears the events that have lost credibility'''
     percentageOverConfirm = 1 + PORCENTAGE_OF_DECLINE_OVER_CONFIRM / 100.0
 
+    timeStamp = timezone.now()
+
     # Events for bus stop
-    events = Event.objects.filter(eventType='busStop')
+    events = EventForBusStop.objects.filter(
+            event__eventType='busStop', broken=False,
+            expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+
+    for event in events:
+        if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
+           event.eventConfirm * percentageOverConfirm < event.eventDecline:
+            event.broken = True
+            event.brokenType = EventForBusStop.PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE
+            event.save()
+
+    # Event for buses
+    events = EventForBusv2.objects.filter(event__eventType='bus', broken=False,
+            expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
     currentEventReport = []
 
     for event in events:
-        eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
-        aux = EventForBusStop.objects.\
-            filter(event=event, timeStamp__gt=eventTime)\
-            .order_by('-timeStamp')
+        if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
+           event.eventConfirm * percentageOverConfirm < event.eventDecline:
+            event.broken = True
+            event.brokenType = EventForBusv2.PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE
+            event.save()
 
-        for evnt in aux:
-            currentEventReport.append(evnt)
 
-        for event in currentEventReport:
-            if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
-               event.eventConfirm * percentageOverConfirm < event.eventDecline:
-                theEvent = event.event
-                event.timeStamp = event.timeCreation - \
-                    timezone.timedelta(minutes=theEvent.lifespam + 10)
-                event.save()
-
-    # Event for buses
-    eventsToAsk = Event.objects.filter(eventType='bus')
-    currentEventReport = []
-
-    for event in eventsToAsk:
-        eventTime = timezone.now() - timezone.timedelta(minutes=event.lifespam)
-        registry = EventForBusv2.objects.\
-            filter(event=event, timeStamp__gt=eventTime).\
-            order_by('-timeStamp')
-
-        for aux in registry:
-            currentEventReport.append(aux)
-
-        for event in currentEventReport:
-            if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
-               event.eventConfirm * percentageOverConfirm < event.eventDecline:
-                theEvent = event.event
-                event.timeStamp = event.timeCreation - \
-                    timezone.timedelta(minutes=theEvent.lifespam + 10)
-                event.save()
