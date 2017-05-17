@@ -181,7 +181,7 @@ class UpdateTranSappUserSettings(View):
 
         try:
             if user:
-                user.showAvatar=showAvatar in ['True']
+                user.showAvatar=showAvatar in ['True', 'true', 1]
                 user.nickname=nickname
                 user.userAvatarId=int(userAvatarId)
                 user.busAvatarId=int(busAvatarId)

@@ -213,6 +213,13 @@ class UserLogTestCase(TestCase):
         self.assertEqual(user.busAvatarId, busAvatarId)
         self.assertEqual(user.showAvatar, showAvatar)
 
+        # change avatar id
+        data['showAvatar'] = True
+        jsonResponse = self.makePostRequest(url, data)
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        user = TranSappUser.objects.get(userId=self.USER_ID);
+        self.assertEqual(user.showAvatar, True)
+
     def testFacebookModifyUserInfoWithFakeUserId(self):
         ''' modify user info  '''
  
