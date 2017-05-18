@@ -21,7 +21,8 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
     def setUp(self):
         """ this method will automatically call for every single test """
 
-        self.timeStamp = [timezone.now(), timezone.now(), timezone.now()]
+        minutes = timezone.timedelta(minutes=1)
+        self.timeStamp = [timezone.now(), timezone.now() + minutes, timezone.now() + minutes + minutes]
         self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
         self.latitude = [-33.4577491104941, -
                          33.4445256604888, -33.4402777996082]
@@ -242,13 +243,11 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
         # change manualy the timeStamp to simulate an event that has expired
-        busStop = BusStop.objects.get(code=busStopCode, gtfs__version=settings.GTFS_VERSION)
         event = Event.objects.get(id=eventCode)
-        anEvent = EventForBusStop.objects.get(stopCode=busStopCode, event=event)
-
-        anEvent.timeStamp = anEvent.timeCreation - \
-            timezone.timedelta(minutes=event.lifespam)
-        anEvent.save()
+        stopEvent = EventForBusStop.objects.get(stopCode=busStopCode, event=event)
+        timeDiff = timezone.timedelta(minutes=event.lifespam)
+        stopEvent.expireTime = stopEvent.timeCreation - timeDiff
+        stopEvent.save()
 
         # ask for ecents and the answere should be none
         jsonResponse = self.test.reportStopEvent(

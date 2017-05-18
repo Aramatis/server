@@ -72,9 +72,6 @@ class UserRanking(View):
             ranking.append(lowerUser)
         
         ranking = sorted(ranking, key=lambda el: el['position'])
-        print "==============================================="
-        print ranking
-        print "==============================================="
         return ranking
 
     def get(self, request):

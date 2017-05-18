@@ -206,7 +206,7 @@ class CronTasksTestCase(TransactionTestCase):
                 self.busEventCode,
                 'decline')
         # decline is 100% over confirm
-
+        
         jsonResponse = self.test.requestEventsForBusV2(self.machineId)
         self.assertEqual(len(jsonResponse['events']), 1)
         self.assertEqual(

@@ -101,8 +101,9 @@ class BusEventTest(TransactionTestCase):
         anEvent = EventForBusv2.objects.get(
             busassignment=busassignment, event=event)
 
-        anEvent.timeStamp = anEvent.timeCreation - \
-            timezone.timedelta(minutes=event.lifespam)
+        anEvent.timeStamp = anEvent.timeStamp - timezone.timedelta(minutes=event.lifespam)
+        anEvent.timeCreation = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
+        anEvent.expireTime = anEvent.expireTime - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
 
         # ask for ecents and the answere should be none

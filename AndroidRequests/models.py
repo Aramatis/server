@@ -667,7 +667,7 @@ class TranSappUser(models.Model):
     busAvatarId = models.IntegerField(default=1)
     ''' bus avatar used to show buses on app map '''
 
-    def getDictionary():
+    def getDictionary(self):
         ''' get dictionary of public data '''
         data = {
             "nickname": self.nickname,

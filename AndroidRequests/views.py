@@ -168,7 +168,7 @@ def getUserBuses(busStopCode, questioner):
             bus = {}
             bus['servicio'] = user.busassignment.service
             bus['patente'] = user.busassignment.uuid.registrationPlate
-            busEvents = EventsByBusV2().getEventsForBus([user.busassignment])
+            busEvents = EventsByBusV2().getEventsForBus([user.busassignment], timezone.now())
             bus['eventos'] = busEvents
             busData = user.busassignment.getLocation()
             bus['lat'] = busData['latitude']
@@ -255,8 +255,7 @@ def getAuthorityBuses(data):
             logger.error(str(e))
             service['sentido'] = "left"
 
-        getEventBus = EventsByBusV2()
-        busEvents = getEventBus.getEventsForBus([busassignment])
+        busEvents = EventsByBusV2().getEventsForBus([busassignment], timezone.now())
         service['eventos'] = busEvents
         # add uuid parameter
         service['busId'] = bus.uuid

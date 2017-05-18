@@ -18,7 +18,6 @@ class UserValidation():
 
     def validateUser(self, userId, sessionToken):
         ''' validate user session '''
-
         response = {}
         Status.getJsonStatus(Status.OK, response)
 
