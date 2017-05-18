@@ -19,6 +19,7 @@ from AndroidRequests.allviews.SetDirection import SetDirection
 from AndroidRequests.allviews.RequestUUID import RequestUUID
 from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin
 from AndroidRequests.allviews.UserScoreSession import TranSappUserLogout
+from AndroidRequests.allviews.UserRanking import UserRanking
 from AndroidRequests.allviews.UserScoreSession import UpdateTranSappUserSettings
 from AndroidRequests.allviews.EvaluateTrip import EvaluateTrip
 
@@ -98,6 +99,7 @@ urlpatterns = [
     url(r'^login$', TranSappUserLogin.as_view()),
     url(r'^logout$', TranSappUserLogout.as_view()),
     url(r'^updateUserSettings$', UpdateTranSappUserSettings.as_view()),
+    url(r'^getRanking$', UserRanking.as_view()),
     # =====================================================
     # EVALUATE TRIP
     # =====================================================
