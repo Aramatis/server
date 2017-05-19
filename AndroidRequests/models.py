@@ -173,12 +173,23 @@ class EventRegistration(models.Model):
 
         dictionary['eventConfirm'] = self.eventConfirm
         dictionary['eventDecline'] = self.eventDecline
+
         creation = timezone.localtime(self.timeCreation)
         stamp = timezone.localtime(self.timeStamp)
         dictionary['timeCreation'] = creation.strftime("%d-%m-%Y %H:%M:%S")
         dictionary['timeStamp'] = stamp.strftime("%d-%m-%Y %H:%M:%S")
+
         eventDictionay = self.event.getDictionary()
         dictionary.update(eventDictionay)
+        print "hola hola "
+        print "largo: {}".format(self.stadisticdatafromregistrationbus_set)
+        print StadisticDataFromRegistrationBus.objects.count()
+        print StadisticDataFromRegistrationBus.objects.first().tranSappUser.name
+        b = []
+        for a in self.stadisticdatafromregistrationbus_set:
+            print a
+        dictionary['confirmedUsers'] = 0
+        dictionary['declinedUsers'] = 0
 
         return dictionary
 
@@ -676,9 +687,9 @@ class TranSappUser(models.Model):
             "levelName": self.level.name
         }
         if self.showAvatar:
-            data["photoURI"] = self.photoURI
-        else:
             data['userAvatarId'] = self.userAvatarId
+        else:
+            data["photoURI"] = self.photoURI
 
         return data
 

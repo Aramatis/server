@@ -3,6 +3,7 @@ from django.conf import settings
 
 import uuid
 import json
+import random
 
 # Create your tests here.
 from AndroidRequests.allviews import UserScoreSession as uss
@@ -36,11 +37,14 @@ class UserRankingTestCase(TestCase):
                 name = "name{}".format(index+1)
                 nickname = "nickname{}".format(index+1)
                 userId = "userId{}".format(index+1)
+                showAvatar = bool(random.getrandbits(1))
+                photoURI = 'thisIsAPhotoURI'
                 sessionToken = uuid.uuid4()
                 TranSappUser.objects.create(userId=userId, 
                         sessionToken=sessionToken, name=name, nickname=nickname,
                         phoneId=phoneId, accountType=TranSappUser.FACEBOOK, 
-                        level=self.level, globalScore=score)
+                        level=self.level, globalScore=score, showAvatar=showAvatar, 
+                        photoURI=photoURI)
 
             score -= 100
 
@@ -65,8 +69,14 @@ class UserRankingTestCase(TestCase):
             if index == userPosition-1:
                 self.assertEqual(user['nickname'], self.NICKNAME)
                 self.assertEqual(user['showAvatar'], self.SHOW_AVATAR)
-                self.assertEqual(user['photoURI'], self.PHOTO_URI)
+                if not user['showAvatar']:
+                    self.assertEqual(user['photoURI'], self.PHOTO_URI)
             
+            if user['showAvatar']:
+                self.assertTrue(user['userAvatarId'])
+            else:
+                self.assertTrue(user['photoURI'])
+
             if previousScore is not None:
                 self.assertTrue(previousScore>user['globalScore'])
             if previousPosition is not None:
