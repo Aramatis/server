@@ -11,7 +11,7 @@ import re
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, ServicesByBusStop, Token
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, ServicesByBusStop, Token, TranSappUser 
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 # constants
@@ -152,28 +152,29 @@ def getUserBuses(busStopCode, questioner):
         serviceDirections.append(s.code.replace(s.service.service, ""))
 
     # active user buses that stop in the bus stop
-    activeUserBuses = Token.objects.filter(
+    activeUserBuses = Token.objects.select_related('tranSappUser').filter(
         busassignment__service__in=serviceNames,
         activetoken__isnull=False)
     # print "usuarios activos: " + str(len(activeUserBuses))
     userBuses = []
     uuids = []
-    for user in activeUserBuses:
-        serviceIndex = serviceNames.index(user.busassignment.service)
-        uuid = user.busassignment.uuid.uuid
+    for tokenObj in activeUserBuses:
+        serviceIndex = serviceNames.index(tokenObj.busassignment.service)
+        uuid = tokenObj.busassignment.uuid.uuid
         # TODO: consider bus direction
-        if user.direction == serviceDirections[serviceIndex] and \
+        if tokenObj.direction == serviceDirections[serviceIndex] and \
            uuid not in uuids:
             uuids.append(uuid)
             bus = {}
-            bus['servicio'] = user.busassignment.service
-            bus['patente'] = user.busassignment.uuid.registrationPlate
-            busEvents = EventsByBusV2().getEventsForBus([user.busassignment], timezone.now())
+            bus['servicio'] = tokenObj.busassignment.service
+            bus['patente'] = tokenObj.busassignment.uuid.registrationPlate
+            busEvents = EventsByBusV2().getEventsForBus([tokenObj.busassignment], timezone.now())
             bus['eventos'] = busEvents
-            busData = user.busassignment.getLocation()
+            busData = tokenObj.busassignment.getLocation()
             bus['lat'] = busData['latitude']
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
+            bus['avatarId'] = tokenObj.tranSappUser.busAvatarId if tokenObj.tranSappUser is not None else -1
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
                 bus['sentido'] = user.busassignment.getDirection(
