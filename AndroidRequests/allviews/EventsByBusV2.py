@@ -29,6 +29,7 @@ class EventsByBusV2(View):
             assignments = Busassignment.objects.filter(uuid=bus)
             events = self.getEventsForBus(assignments, timezone.now())
         except Exception as e:
+            print e
             self.logger.error(str(e))
             events = []
             pRegistrationPlate = ''
@@ -44,7 +45,7 @@ class EventsByBusV2(View):
         aggregatedEvents = {}
         result = []
 
-        events = EventForBusv2.objects.prefetch_related('stadisticdatafromregistrationbus_set').filter(
+        events = EventForBusv2.objects.prefetch_related('stadisticdatafromregistrationbus_set__tranSappUser').filter(
                 busassignment__in=busassignments, event__eventType='bus', broken=False,
                 expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
         
@@ -55,6 +56,8 @@ class EventsByBusV2(View):
                 position = aggregatedEvents[event['eventcode']]
                 result[position]['eventConfirm'] += event['eventConfirm']
                 result[position]['eventDecline'] += event['eventDecline']
+                result[position]['confirmedVoteList'] += event['confirmedVoteList']
+                result[position]['declinedVoteList'] += event['declinedVoteList']
             else:
                 aggregatedEvents[event['eventcode']] = len(result)
                 result.append(event)

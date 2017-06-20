@@ -115,7 +115,7 @@ class StadisticDataFromRegistration(Location):
             dictionary['user'] = {}
         dictionary['vote'] = self.confirmDecline
         timeStamp = timezone.localtime(self.timeStamp)
-        dictionary['timeStamp'] = stamp.strftime("%d-%m-%Y %H:%M:%S")
+        dictionary['timeStamp'] = timeStamp.strftime("%d-%m-%Y %H:%M:%S")
 
         return dictionary
 
@@ -193,6 +193,21 @@ class EventForBusStop(EventRegistration):
         default='nothing')
     ''' Saves additional information required by the event '''
 
+    def getDictionary(self):
+        dictionary = super(EventForBusStop, self).getDictionary()
+        
+        dictionary['confirmedVoteList'] = []
+        dictionary['declinedVoteList'] = []
+
+        for record in self.stadisticdatafromregistrationbusstop_set.all():
+            record = record.getDictionary()
+            if record['vote'] == 'confirm':
+                dictionary['confirmedVoteList'].append(record['user'])
+            else:
+                dictionary['declinedVoteList'].append(record['user'])
+        
+        return dictionary
+
 
 class EventForBusv2(EventRegistration):
     '''This model stores the reported events for the Bus'''
@@ -205,12 +220,13 @@ class EventForBusv2(EventRegistration):
         dictionary['confirmedVoteList'] = []
         dictionary['declinedVoteList'] = []
 
-        for user in self.stadisticdatafromregistrationbus_set.all():
-            if user['vote'] == 'confirm':
-                dictionary['confirmedVoteList'].append(user.getDictionary())
+        for record in self.stadisticdatafromregistrationbus_set.all():
+            record = record.getDictionary()
+            if record['vote'] == 'confirm':
+                dictionary['confirmedVoteList'].append(record['user'])
             else:
-                dictionary['declinedVoteList'].append(user.getDictionary())
-        print dictionary
+                dictionary['declinedVoteList'].append(record['user'])
+        
         return dictionary
 
 ##

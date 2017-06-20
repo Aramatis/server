@@ -175,6 +175,7 @@ def getUserBuses(busStopCode, questioner):
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
             try:
+                # assume that bus is 30 meters from bus stop to predict direction
                 bus['sentido'] = user.busassignment.getDirection(
                     busStopCode, 30)
             except Exception as e:
@@ -195,8 +196,7 @@ def getUserBuses(busStopCode, questioner):
             # add new param 'uuid'
             bus['busId'] = uuid
             bus['direction'] = user.direction
-            bus['isTheSameUser'] = True if str(user.phoneId) == questioner else False
-            # assume that bus is 30 meters from bus stop to predict direction
+            bus['isSameUser'] = True if str(user.phoneId) == questioner else False
             
             if not bus['random']:
                 userBuses.append(bus)

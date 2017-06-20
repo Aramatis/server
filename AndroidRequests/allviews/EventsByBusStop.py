@@ -33,8 +33,8 @@ class EventsByBusStop(View):
         currentEventReport = []
 
         # ask for events that ocured between now and the lifeSpam of it
-        events = EventForBusStop.objects.prefetch_related('stadisticdatafromregistrationbusstop_set').filter(
-            stopCode=stopCode, event__eventType='busStop', broken=False,
+        events = EventForBusStop.objects.prefetch_related('stadisticdatafromregistrationbusstop_set__tranSappUser').\
+                filter(stopCode=stopCode, event__eventType='busStop', broken=False,
             expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
         
         for event in events:
