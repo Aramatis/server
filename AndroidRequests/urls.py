@@ -106,4 +106,9 @@ urlpatterns = [
     url(r'^evaluateTrip$', EvaluateTrip.as_view()),
     url(r'^reportEventBus/v2$', RegisterEventBusV2.as_view()),
     url(r'^reportEventBusStop$', RegisterEventBusStop.as_view()),
+    # =====================================================
+    # GET IN THE BUS   
+    # =====================================================
+    url(r'^requestToken/v2$', RequestTokenV2.as_view()),
+
 ]
