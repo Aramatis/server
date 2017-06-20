@@ -108,17 +108,16 @@ class StadisticDataFromRegistration(Location):
 
     def getDictionary(self):
         ''' return two list: one with confirm users and another with decline users '''
-        result = {}
-        keyName = 'declineUser'
-        if self.confirmDecline == 'confirm':
-            keyName = 'confirmUser'
-
+        dictionary = {}
         if self.tranSappUser is not None:
-            result[keyName] = self.tranSappUser.getDictionary()
+            dictionary['user'] = self.tranSappUser.getDictionary()
         else:
-            result[keyName] = None
+            dictionary['user'] = {}
+        dictionary['vote'] = self.confirmDecline
+        timeStamp = timezone.localtime(self.timeStamp)
+        dictionary['timeStamp'] = stamp.strftime("%d-%m-%Y %H:%M:%S")
 
-        return result
+        return dictionary
 
 class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus event """
@@ -181,15 +180,6 @@ class EventRegistration(models.Model):
 
         eventDictionay = self.event.getDictionary()
         dictionary.update(eventDictionay)
-        print "hola hola "
-        print "largo: {}".format(self.stadisticdatafromregistrationbus_set)
-        print StadisticDataFromRegistrationBus.objects.count()
-        print StadisticDataFromRegistrationBus.objects.first().tranSappUser.name
-        b = []
-        for a in self.stadisticdatafromregistrationbus_set:
-            print a
-        dictionary['confirmedUsers'] = 0
-        dictionary['declinedUsers'] = 0
 
         return dictionary
 
@@ -208,6 +198,20 @@ class EventForBusv2(EventRegistration):
     '''This model stores the reported events for the Bus'''
     busassignment = models.ForeignKey('Busassignment', verbose_name='the bus')
     '''Indicates the bus to which the event refers'''
+
+    def getDictionary(self):
+        dictionary = super(EventForBusv2, self).getDictionary()
+        
+        dictionary['confirmedVoteList'] = []
+        dictionary['declinedVoteList'] = []
+
+        for user in self.stadisticdatafromregistrationbus_set.all():
+            if user['vote'] == 'confirm':
+                dictionary['confirmedVoteList'].append(user.getDictionary())
+            else:
+                dictionary['declinedVoteList'].append(user.getDictionary())
+        print dictionary
+        return dictionary
 
 ##
 #
