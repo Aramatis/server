@@ -564,8 +564,8 @@ class Token(models.Model):
     """ creation time of token """
     userEvaluation = models.IntegerField(null=True)
     """ User evaluation does at the end of trip """
-    # uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    # ''' UUID to identify a dummy bus'''
+    tranSappUser = models.ForeignKey('TranSappUser', null=True)
+    ''' Logged user with social media (if exists) '''
 
     def getBusesIn(self, pListOfServices):
         """ return a list of buses that match with buses given as parameter """
