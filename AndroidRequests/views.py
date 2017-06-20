@@ -272,7 +272,7 @@ def mergeBuses(userBuses, authorityBuses):
     for userBus in userBuses:
         # print "user bus: " + str(userBus['patente'])
         if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE and not userBus[
-                'isTheSameUser']:
+                'isSameUser']:
             # print "added dummy bus to list"
             buses.append(userBus)
         else:
@@ -287,7 +287,7 @@ def mergeBuses(userBuses, authorityBuses):
                     userBus['distanciaV2'] = authBus['distanciaV2']
                     userBus['distanciaMts'] = authBus['distanciaMts']
                     userBus['sentido'] = authBus['sentido']
-                    if not userBus['isTheSameUser']:
+                    if not userBus['isSameUser']:
                         buses.append(userBus)
                     authorityBuses.remove(authBus)
                     # p rint "son iguales"
