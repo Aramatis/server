@@ -9,7 +9,7 @@ from random import random
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken
+from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser
 
 
 class RequestTokenV2(View):
@@ -19,27 +19,46 @@ class RequestTokenV2(View):
     def __init__(self):
         self.context = {}
 
-    def get(self, request, pPhoneId, pBusService, pUUID, data=timezone.now()):
-        """ the token is primary a hash of the time stamp plus a random salt """
+    def post(self, request):
+        ''' get in the bus '''
+
+        phoneId = request.POST.get('phoneId')
+        busService = request.POST.get('busService')
+        machineId = request.POST.get('machineId')
+        userId = request.POST.get('userId')
+        sessionToken = request.POST.get('sessionToken')
+
+        return self.get(request, phoneId, busService, machineId, userId, sessionToken)
+
+    def get(self, request, pPhoneId, pBusService, pUUID, pUserId=None, pSessionToken=None, data=timezone.now()):
+        '''  '''
+
         salt = os.urandom(20)
         hashToken = hashlib.sha512(str(data) + salt).hexdigest()
-
-        # remove hyphen and convert to uppercase
-        response = {}
+        """ the token is primary a hash of the time stamp plus a random salt """
 
         busv2 = Busv2.objects.get(uuid=pUUID)
         busassignment = Busassignment.objects.get_or_create(
             uuid=busv2, service=pBusService)[0]
-        aToken = Token.objects.create(
+
+        tranSappUser = None
+        try:
+            tranSappUser = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
+        except Exception:
+            pass
+
+        tokenObj = Token.objects.create(
             phoneId=pPhoneId,
             token=hashToken,
             busassignment=busassignment,
             color=self.getRandomColor(),
+            tranSappUser=tranSappUser,
             direction=None)
 
-        ActiveToken.objects.create(timeStamp=data, token=aToken)
+        ActiveToken.objects.create(timeStamp=data, token=tokenObj)
 
         # we store the active token
+        response = {}
         response['token'] = hashToken
 
         return JsonResponse(response, safe=False)
