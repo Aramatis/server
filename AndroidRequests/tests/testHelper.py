@@ -90,12 +90,6 @@ class TestHelper():
     def askForMachineId(self, pLicencePlate):
         """ simulate a request to get machine id based on its licence plate """
         URL = '/android/getUUID/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-        view = RequestUUID()
-        response = view.get(request, pLicencePlate)
-        """
         c = Client()
         URL = URL + '/'.join([pLicencePlate])
         response = c.get(URL, {})
@@ -132,13 +126,6 @@ class TestHelper():
     def getInBusWithMachineId(self, phoneId, service, machineId):
         """ create a user on bus in database """
         URL = '/android/requestToken/v2/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        view = RequestTokenV2()
-        response = view.get(request, phoneId, service, machineId)
-        """
         c = Client()
         URL = URL + '/'.join([phoneId, service, machineId])
         response = c.get(URL, {})
@@ -150,16 +137,54 @@ class TestHelper():
 
         return token
 
+    def getInBusWithLicencePlateByPost(
+            self, phoneId, service, licencePlate, 
+            time=timezone.now(), userId=None, sessionToken=None):
+        """ create a user on bus in database """
+        machineId = self.askForMachineId(licencePlate)
+        URL = '/android/requestToken/v2/'
+        c = Client()
+
+        data = {}
+        data['phoneId'] = phoneId
+        data['busService'] = service 
+        data['machineId'] = machineId
+        data['userId'] = userId
+        data['sessionToken'] = sessionToken
+
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+        token = jsonResponse['token']
+
+        return token
+
+    def getInBusWithMachineIdByPost(self, phoneId, service, machineId, 
+            userId=None, sessionToken=None):
+        """ create a user on bus in database """
+        URL = '/android/requestToken/v2/'
+        c = Client()
+
+        data = {}
+        data['phoneId'] = phoneId
+        data['busService'] = service 
+        data['machineId'] = machineId
+        data['userId'] = userId
+        data['sessionToken'] = sessionToken
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+        token = jsonResponse['token']
+
+        return token
+
     def endRoute(self, token):
         """ revoke token used to identify a trip """
         URL = '/android/endRoute/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        reponseView = EndRoute()
-        response = reponseView.get(request, token)
-        """
         c = Client()
         URL = URL + token
         response = c.get(URL, {})
@@ -211,14 +236,6 @@ class TestHelper():
                     "timeStamp": fTimes[7], "inVehicleOrNot":"vehicle"},
                 {"latitud": -33.457070, "longitud": -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot":"vehicle"}]}
 
-        """
-        view = SendPoses()
-        request.POST = {}
-        request.POST['pToken'] = travelToken
-        request.POST['pTrajectory'] = json.dumps(poses)
-        request.method = 'POST'
-        response = view.post(request)
-        """
         c = Client()
         URL = URL
         response = c.post(URL, {'pToken': travelToken,
@@ -235,18 +252,6 @@ class TestHelper():
     def setDirection(self, travelKey, direction):
         """ set direction of trip """
         URL = '/android/setDirection'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        request.POST = {}
-        request.POST['pToken'] = travelKey
-        request.POST['pDirection'] = direction
-        request.method = 'POST'
-
-        view = SetDirection()
-        response = view.post(request)
-        """
         c = Client()
         URL = URL
         response = c.post(URL, {'pToken': travelKey, 'pDirection': direction})
@@ -281,13 +286,6 @@ class TestHelper():
     def reportEvent(self, phoneId, service, licencePlate, eventCode):
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        view = RegisterEventBus()
-        response = view.get(request, phoneId, service, licencePlate, eventCode, 'confirm')
-        """
         c = Client()
         URL = URL + \
             '/'.join([phoneId, service, licencePlate, eventCode, 'confirm'])
@@ -303,13 +301,6 @@ class TestHelper():
                               licencePlate, eventCode, confirmOrDecline):
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        view = RegisterEventBus()
-        response = view.get(request, phoneId, service, licencePlate, eventCode, confirmOrDecline)
-        """
         c = Client()
         URL = URL + '/'.join([phoneId, service, licencePlate,
                               eventCode, confirmOrDecline])
@@ -324,13 +315,6 @@ class TestHelper():
     def requestEventsForBus(self, service, licencePlate):
         """ ask for events related to machine id """
         URL = '/android/requestEventsForBus/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        reponseView = EventsByBus()
-        response = reponseView.get(request, licencePlate, service)
-        """
         c = Client()
         URL = URL + '/'.join([licencePlate, service])
         response = c.get(URL, {})
@@ -348,13 +332,6 @@ class TestHelper():
     def reportEventV2(self, phoneId, machineId, service, eventCode):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        view = RegisterEventBusV2()
-        response = view.get(request, phoneId, machineId, service, eventCode, 'confirm')
-        """
         c = Client()
         URL = URL + '/'.join([phoneId, machineId, service,
                               eventCode, 'confirm'])
@@ -370,13 +347,6 @@ class TestHelper():
             self, phoneId, machineId, service, eventCode, confirmOrDecline):
         """ confirm or decline an event with the new version  """
         URL = '/android/reportEventBus/v2/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        view = RegisterEventBusV2()
-        response = view.get(request, phoneId, machineId, service, eventCode, confirmOrDecline)
-        """
         c = Client()
         URL = URL + '/'.join([phoneId, machineId, service,
                               eventCode, confirmOrDecline])
@@ -391,13 +361,6 @@ class TestHelper():
     def requestEventsForBusV2(self, machineId):
         """ ask for events related to machine id """
         URL = '/android/requestEventsForBus/v2/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        reponseView = EventsByBusV2()
-        response = reponseView.get(request, machineId)
-        """
         c = Client()
         URL = URL + '/'.join([machineId])
         response = c.get(URL, {})
@@ -415,13 +378,6 @@ class TestHelper():
     def reportStopEvent(self, phoneId, stopCode, eventCode, aditionalInfo = None):
         """ report an event for stop """
         URL = '/android/reportEventBusStop/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        view = RegisterEventBusStop()
-        response = view.get(request, phoneId, stopCode, eventCode, 'confirm')
-        """
         c = Client()
         if aditionalInfo is None:
             params = [phoneId, stopCode, eventCode, 'confirm']
@@ -440,13 +396,6 @@ class TestHelper():
             self, phoneId, stopCode, eventCode, confirmOrDecline):
         """ confirm or decline an event for stop """
         URL = '/android/reportEventBusStop/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        view = RegisterEventBusStop()
-        response = view.get(request, phoneId, stopCode, eventCode, confirmOrDecline)
-        """
         c = Client()
         URL = URL + '/'.join([phoneId, stopCode, eventCode, confirmOrDecline])
         response = c.get(URL, {})
@@ -460,13 +409,6 @@ class TestHelper():
     def requestEventsForBusStop(self, code):
         """ ask for events related to bus stop """
         URL = '/android/requestEventsForBusStop/'
-        """
-        request = self.factory.get(URL)
-        request.user = AnonymousUser()
-
-        reponseView = EventsByBusStop()
-        response = reponseView.get(request, code)
-        """
         c = Client()
         URL = URL + code
         response = c.get(URL, {})
