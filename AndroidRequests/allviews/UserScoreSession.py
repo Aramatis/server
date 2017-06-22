@@ -31,9 +31,9 @@ class TranSappUserLogin(View):
     def dispatch(self, request, *args, **kwargs):
         return super(TranSappUserLogin, self).dispatch(request, *args, **kwargs)
 
-    def checkGoogleId(self, googleId):
-        ''' ask to facebook if tokenId is valid '''
-        pass
+    #def checkGoogleId(self, googleId):
+    #    ''' ask to facebook if tokenId is valid '''
+    #    pass
     
     def checkFacebookId(self, accessToken):
         ''' ask to facebook if accessToken is valid '''
@@ -112,8 +112,8 @@ class TranSappUserLogin(View):
                 except Exception as e:
                     Status.getJsonStatus(Status.INTERNAL_ERROR, response)
                     self.logger.error(str(e))
-        elif accountType == TranSappUser.GOOGLE:
-            googleUserId = self.checkGoogleId(tokenId)
+        #elif accountType == TranSappUser.GOOGLE:
+        #    googleUserId = self.checkGoogleId(tokenId)
         
         return JsonResponse(response, safe=False)
 
