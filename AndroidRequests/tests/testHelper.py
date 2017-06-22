@@ -5,6 +5,7 @@ from django.conf import settings
 
 import json
 import datetime as dt
+import uuid
 
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
@@ -502,4 +503,21 @@ class TestHelper():
 
         return jsonResponse
 
+    def createTranSappUsers(self, userQuantity):
+        ''' create @quantity users and put the user asked in @userPosition '''
+        users = []
+
+        for index in range(userNumber):
+            name = "name{}".format(index)
+            nickname = "nickname{}".format(index)
+            userId = "userId{}".format(index)
+            sessionToken = uuid.uuid4()
+            phoneId = uuid.uuid4()
+            user = TranSappUser.objects.create(userId=userId,
+                       sessionToken=sessionToken, name=name, nickname=nickname,
+                       phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
+                       level=self.level, globalScore=0)
+            users.append(user)
+
+        return users
 

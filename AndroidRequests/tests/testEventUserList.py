@@ -15,24 +15,6 @@ import datetime as dt
 class BusEventUserListTestCase(TransactionTestCase):
     """ test for user list returned by an event """
     
-    def createUsers(self, userNumber):
-        ''' create @quantity users and put the user asked in @userPosition '''
-
-        users = []
-        phoneId = uuid.UUID('56fbbcbf-e48a-458a-9645-65ab145e35ea')
-        for index in range(userNumber):
-            name = "name{}".format(index)
-            nickname = "nickname{}".format(index)
-            userId = "userId{}".format(index)
-            sessionToken = uuid.uuid4()
-            user = TranSappUser.objects.create(userId=userId, 
-                    sessionToken=sessionToken, name=name, nickname=nickname,
-                    phoneId=phoneId, accountType=TranSappUser.FACEBOOK, 
-                    level=self.level, globalScore=0)
-            users.append(user)
-
-        return users
-
     def setUp(self):
         """ this method will automatically call for every single test """
         # create events
@@ -56,7 +38,7 @@ class BusEventUserListTestCase(TransactionTestCase):
     def test_userReportsBusEventAndGetListUser(self):
         ''' user reports bus event and get list users '''
 
-        user = self.createUsers(1)[0]
+        user = self.test.createTranSappUsers(1)[0]
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId, 
                 self.service, self.eventCode, user.userId, user.sessionToken)
         
@@ -86,7 +68,7 @@ class BusEventUserListTestCase(TransactionTestCase):
         self.test.insertBusstopsOnDatabase([stopCode])
         ScoreEvent.objects.create(code=eventCode, score=100)
 
-        user = self.createUsers(1)[0]
+        user = self.test.createTranSappUsers(1)[0]
         jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode, 
                 eventCode, user.userId, user.sessionToken)
 
