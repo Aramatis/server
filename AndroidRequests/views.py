@@ -187,7 +187,7 @@ def getUserBuses(busStopCode, questioner):
 
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
-                bus['sentido'] = user.busassignment.getDirection(
+                bus['sentido'] = tokenObj.busassignment.getDirection(
                     busStopCode, 30)
             except Exception as e:
                 logger.error(str(e))
