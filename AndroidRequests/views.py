@@ -168,13 +168,23 @@ def getUserBuses(busStopCode, questioner):
             bus = {}
             bus['servicio'] = tokenObj.busassignment.service
             bus['patente'] = tokenObj.busassignment.uuid.registrationPlate
-            busEvents = EventsByBusV2().getEventsForBus([tokenObj.busassignment], timezone.now())
-            bus['eventos'] = busEvents
+            bus['direction'] = tokenObj.direction
+            bus['isSameUser'] = True if str(tokenObj.phoneId) == questioner else False
+            if tokenObj.tranSappUser is not None:
+                bus['avatarId'] = tokenObj.tranSappUser.busAvatarId
+            else:
+                bus['avatarId'] = 1
+                # default bus avatar id
+
             busData = tokenObj.busassignment.getLocation()
+            bus['random'] = busData['random']
             bus['lat'] = busData['latitude']
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
-            bus['avatarId'] = tokenObj.tranSappUser.busAvatarId if tokenObj.tranSappUser is not None else -1
+
+            busEvents = EventsByBusV2().getEventsForBus([tokenObj.busassignment], timezone.now())
+            bus['eventos'] = busEvents
+
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
                 bus['sentido'] = user.busassignment.getDirection(
@@ -182,9 +192,9 @@ def getUserBuses(busStopCode, questioner):
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
-            bus['color'] = Service.objects.get(
-                service=bus['servicio'], gtfs__version=settings.GTFS_VERSION).color_id
-            bus['random'] = busData['random']
+
+            bus['color'] = Service.objects.get(service=bus['servicio'], 
+                    gtfs__version=settings.GTFS_VERSION).color_id
             bus['valido'] = 1
             # extras
             # old version, 1.2.17 and previous
@@ -196,8 +206,6 @@ def getUserBuses(busStopCode, questioner):
             bus['distanciaMts'] = 1
             # add new param 'uuid'
             bus['busId'] = uuid
-            bus['direction'] = user.direction
-            bus['isSameUser'] = True if str(user.phoneId) == questioner else False
             
             if not bus['random']:
                 userBuses.append(bus)
@@ -209,7 +217,7 @@ def getAuthorityBuses(data):
     """ apply json format to authority info """
     
     logger = logging.getLogger(__name__)
-    
+
     authBuses = []
     busStopCode = data['id']
     for service in data['servicios']:
@@ -269,36 +277,36 @@ def getAuthorityBuses(data):
 def mergeBuses(userBuses, authorityBuses):
     """ Join the list of user buses with authority buses """
     buses = []
+    
+    authBusesDict = {}
+    for authBus in authorityBuses:
+        licensePlate = authBus['patente'].upper()
+        authBusesDict[licensePlate] = authBus
 
     for userBus in userBuses:
         # print "user bus: " + str(userBus['patente'])
-        if userBus['patente'] == Constants.DUMMY_LICENSE_PLATE or \
+        licensePlate = userBus['patente'].upper()
+        if licensePlate == Constants.DUMMY_LICENSE_PLATE and \
            not userBus['isSameUser']:
-            # print "added dummy bus to list"
             buses.append(userBus)
-        else:
-            for authBus in authorityBuses:
-                # print "compare {}=={} and {}=={}".format(authBus['servicio'],
-                # userBus['servicio'], authBus['patente'], userBus['patente'])
-                if authBus['servicio'] == userBus['servicio'] and \
-                   authBus['patente'].upper() == userBus['patente'].upper():
-                    userBus['tiempo'] = authBus['tiempo']
-                    userBus['tiempoV2'] = authBus['tiempoV2']
-                    userBus['distancia'] = authBus['distancia']
-                    userBus['distanciaV2'] = authBus['distanciaV2']
-                    userBus['distanciaMts'] = authBus['distanciaMts']
-                    userBus['sentido'] = authBus['sentido']
-                    if not userBus['isSameUser']:
-                        buses.append(userBus)
-                    authorityBuses.remove(authBus)
-                    # p rint "son iguales"
-                    # print str(userBus)
-                else:
-                    pass
-                    # pass
-                    # print "no son iguales"
-                    # answer['servicios'].append(userBus)
+        elif licensePlate in authBusesDict.keys():
+            authBus = authBusesDict[licensePlate]
+            if authBus['servicio'] == userBus['servicio']:
+                userBus['tiempo'] = authBus['tiempo']
+                userBus['distancia'] = authBus['distancia']
 
-    buses.extend(authorityBuses)
+                userBus['tiempoV2'] = authBus['tiempoV2']
+                userBus['distanciaV2'] = authBus['distanciaV2']
+
+                userBus['distanciaMts'] = authBus['distanciaMts']
+                userBus['sentido'] = authBus['sentido']
+
+                # if user who ask is the same of this user bus
+                # will be omitted
+                if not userBus['isSameUser']:
+                    buses.append(userBus)
+                authorityBuses.remove(authBus)
+
+    buses = buses + authorityBuses
 
     return buses
