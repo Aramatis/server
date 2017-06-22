@@ -116,7 +116,7 @@ class TestHelper():
         request.user = AnonymousUser()
 
         view = RequestTokenV2()
-        response = view.get(request, phoneId, service, machineId, time)
+        response = view.get(request, phoneId, service, machineId, None, None, time)
 
         self.test.assertEqual(response.status_code, 200)
 
