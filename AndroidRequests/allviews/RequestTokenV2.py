@@ -27,10 +27,10 @@ class RequestTokenV2(View):
         machineId = request.POST.get('machineId')
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
-
+        
         return self.get(request, phoneId, busService, machineId, userId, sessionToken)
 
-    def get(self, request, pPhoneId, pBusService, pUUID, pUserId=None, pSessionToken=None, data=timezone.now()):
+    def get(self, request, pPhoneId, pBusService, pUUID, userId=None, sessionToken=None, data=timezone.now()):
         '''  '''
 
         salt = os.urandom(20)

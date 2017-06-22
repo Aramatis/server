@@ -102,6 +102,55 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
+    def test_RequestTokenV2WithRealLicencePlateAndTranSappUser(self):
+        ''' This method will test to ask a token with transapp user data '''
+
+        licencePlate = 'AA1111'
+        busService = '507'
+
+        machineId = self.helper.askForMachineId(licencePlate)
+        user = self.helper.createTranSappUsers(1)[0]
+
+        testToken = self.helper.getInBusWithMachineIdByPost(
+            self.phoneId, busService, machineId, user.userId, user.sessionToken)
+
+        # the created token is an active token
+        self.assertEqual(
+            ActiveToken.objects.filter(
+                token__token=testToken, token__tranSappUser=user).exists(), True)
+        # the created token exist in the table of token
+        self.assertEqual(Token.objects.filter(token=testToken, tranSappUser=user).exists(), True)
+
+        jsonResponse = self.helper.endRoute(testToken)
+
+        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+
+    def test_RequestTokenV2WithRealLicencePlateAndFakeTranSappUser(self):
+        ''' This method will test to ask a token with fake transapp user data '''
+
+        licencePlate = 'AA1111'
+        busService = '507'
+
+        machineId = self.helper.askForMachineId(licencePlate)
+        user = self.helper.createTranSappUsers(1)[0]
+
+        # userId is None
+        testToken = self.helper.getInBusWithMachineIdByPost(
+            self.phoneId, busService, machineId, None, user.sessionToken)
+
+        # the created token is an active token
+        self.assertEqual(
+            ActiveToken.objects.filter(
+                token__token=testToken, token__tranSappUser=None).exists(), True)
+        # the created token exist in the table of token
+        self.assertEqual(Token.objects.filter(token=testToken, tranSappUser=None).exists(), True)
+
+        jsonResponse = self.helper.endRoute(testToken)
+
+        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+
+
+
     def test_EventsByBusWithDummyLicensePlateUUID(self):
         '''This method test two thing, the posibility to report an event and asking
         the events for the specific dummy bus'''

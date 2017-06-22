@@ -9,6 +9,7 @@ import uuid
 
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
+from AndroidRequests.models import TranSappUser, Level
 
 from Loaders.TestLoaderFactory import TestLoaderFactory
 
@@ -143,7 +144,7 @@ class TestHelper():
             time=timezone.now(), userId=None, sessionToken=None):
         """ create a user on bus in database """
         machineId = self.askForMachineId(licencePlate)
-        URL = '/android/requestToken/v2/'
+        URL = '/android/requestToken/v2'
         c = Client()
 
         data = {}
@@ -165,7 +166,7 @@ class TestHelper():
     def getInBusWithMachineIdByPost(self, phoneId, service, machineId, 
             userId=None, sessionToken=None):
         """ create a user on bus in database """
-        URL = '/android/requestToken/v2/'
+        URL = '/android/requestToken/v2'
         c = Client()
 
         data = {}
@@ -175,7 +176,7 @@ class TestHelper():
         data['userId'] = userId
         data['sessionToken'] = sessionToken
         response = c.post(URL, data)
-
+        
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
@@ -507,7 +508,9 @@ class TestHelper():
         ''' create @quantity users and put the user asked in @userPosition '''
         users = []
 
-        for index in range(userNumber):
+        level = Level.objects.create(name='level 1', minScore=0, maxScore=1000, position=1)
+
+        for index in range(userQuantity):
             name = "name{}".format(index)
             nickname = "nickname{}".format(index)
             userId = "userId{}".format(index)
@@ -516,7 +519,7 @@ class TestHelper():
             user = TranSappUser.objects.create(userId=userId,
                        sessionToken=sessionToken, name=name, nickname=nickname,
                        phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
-                       level=self.level, globalScore=0)
+                       level=level, globalScore=0)
             users.append(user)
 
         return users
