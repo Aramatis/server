@@ -20,17 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as file:
-    SECRET_KEY = file.read().strip()
+with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as secretFile:
+    SECRET_KEY = secretFile.read().strip()
     # 'cbwz-*ri$u=_v@xa5m(3)qujt8yur&id*j%ps3src9^l+doxx4'
 
 # Google key to ask for google services
-with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as file:
-    GOOGLE_KEY = json.load(file)['key']
+with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as googleFile:
+    GOOGLE_KEY = json.load(googleFile)['key']
 
 # Define the user will receive email when server has an error
-with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as file:
-    adminsJson = json.load(file)['admins']
+with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as adminFile:
+    adminsJson = json.load(adminFile)['admins']
     # print jsonAdmins
     ADMINS = []
     for user in adminsJson:

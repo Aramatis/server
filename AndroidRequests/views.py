@@ -11,7 +11,7 @@ import re
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, ServicesByBusStop, Token, TranSappUser 
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, ServicesByBusStop, Token
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 # constants

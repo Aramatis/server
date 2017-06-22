@@ -45,7 +45,7 @@ class TestLoader:
         return messageError
 
     @abc.abstractmethod
-    def load(self):
+    def load(self, filterList):
         """Read the file given and load the data in the database."""
         return
 

@@ -5,7 +5,7 @@ from django.utils import timezone
 import logging
 # my stuff
 # import DB's models
-from AndroidRequests.models import Busv2, Event, EventForBusv2, Busassignment
+from AndroidRequests.models import Busv2, EventForBusv2, Busassignment
 
 
 class EventsByBusV2(View):

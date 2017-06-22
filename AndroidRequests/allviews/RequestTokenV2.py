@@ -35,7 +35,7 @@ class RequestTokenV2(View):
 
         salt = os.urandom(20)
         hashToken = hashlib.sha512(str(data) + salt).hexdigest()
-        """ the token is primary a hash of the time stamp plus a random salt """
+        # the token is primary a hash of the time stamp plus a random salt 
 
         busv2 = Busv2.objects.get(uuid=pUUID)
         busassignment = Busassignment.objects.get_or_create(

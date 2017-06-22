@@ -1,7 +1,7 @@
 from ModelLoaders import BusStopLoader, ServiceStopDistanceLoader, ServiceLocationLoader, ServicesByBusStopLoader, ServiceLoader, EventLoader, RouteLoader
 
 
-class LoaderFactory():
+class LoaderFactory(object):
     """This class acts like a factory of loaders."""
 
     def getModelLoader(self, model):

@@ -1,18 +1,11 @@
 from django.views.generic import View
-from django.utils import timezone
-from django.conf import settings
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.db.models import Count
 
-import json
-# my stuff
 # import DB's models
 from AndroidRequests.models import TranSappUser
 from AndroidRequests.scoreFunctions import UserValidation
 
-import AndroidRequests.scoreFunctions as score
 
 class UserRanking(View):
     ''' global user ranking '''
@@ -31,7 +24,7 @@ class UserRanking(View):
                 select_related('level').order_by('-globalScore')[:self.TOP_USERS]
         for topUser in topUsers:
             excludedUsers.append(topUser.pk)
-            if previousScore <> topUser.globalScore:
+            if previousScore != topUser.globalScore:
                 previousScore = topUser.globalScore
                 position += 1
             topUser = topUser.getDictionary()
@@ -50,7 +43,7 @@ class UserRanking(View):
             if upperUser.pk in excludedUsers:
                 continue
             excludedUsers.append(upperUser.pk)
-            if previousScore <> upperUser.globalScore:
+            if previousScore != upperUser.globalScore:
                 previousScore = upperUser.globalScore
                 position -= 1
             upperUser = upperUser.getDictionary()
@@ -64,7 +57,7 @@ class UserRanking(View):
         for lowerUser in lowerUsers:
             if lowerUser.pk in excludedUsers:
                 continue
-            if previousScore <> lowerUser.globalScore:
+            if previousScore != lowerUser.globalScore:
                 previousScore = lowerUser.globalScore
                 position += 1
             lowerUser = lowerUser.getDictionary()

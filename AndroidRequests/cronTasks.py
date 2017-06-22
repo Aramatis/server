@@ -3,7 +3,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
 
-from AndroidRequests.models import ActiveToken, Event, EventForBusStop, EventForBusv2
+from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2
 from django.utils import timezone
 
 import logging
@@ -53,7 +53,6 @@ def clearEventsThatHaveBeenDecline():
     # Event for buses
     events = EventForBusv2.objects.filter(event__eventType='bus', broken=False,
             expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
-    currentEventReport = []
 
     for event in events:
         if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \

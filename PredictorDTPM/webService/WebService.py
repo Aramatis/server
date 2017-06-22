@@ -8,10 +8,10 @@ import json
 from PredictorDTPM.models import Log
 
 
-class WebService:
+class WebService(object):
     """ Communicate with TranSantiago predictor service """
 
-    class __WebServiceClient:
+    class __WebServiceClient(object):
         """ Singleton for suds client """
 
         def __init__(self):

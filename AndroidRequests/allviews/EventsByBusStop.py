@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils import timezone
 from django.conf import settings
-from django.db.models.expressions import F
 
 # my stuff
 # import DB's models

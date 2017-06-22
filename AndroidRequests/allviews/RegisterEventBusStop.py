@@ -1,6 +1,5 @@
 from django.views.generic import View
 from django.utils import timezone
-from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -8,7 +7,7 @@ from django.utils.decorators import method_decorator
 import json
 # my stuff
 # import DB's models
-from AndroidRequests.models import Event, BusStop, EventForBusStop, StadisticDataFromRegistrationBusStop, TranSappUser
+from AndroidRequests.models import Event, EventForBusStop, StadisticDataFromRegistrationBusStop, TranSappUser
 
 from EventsByBusStop import EventsByBusStop
 

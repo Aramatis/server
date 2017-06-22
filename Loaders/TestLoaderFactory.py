@@ -1,7 +1,7 @@
 from TestModelLoaders import BusStopTestLoader, ServiceStopDistanceTestLoader, ServiceLocationTestLoader, ServiceTestLoader, EventTestLoader, RouteTestLoader, ServicesByBusStopTestLoader
 
 
-class TestLoaderFactory():
+class TestLoaderFactory(object):
     """This class acts like a factory of loaders."""
 
     def getModelLoader(self, model):

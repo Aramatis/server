@@ -4,14 +4,13 @@ from django.utils import timezone, dateparse
 import abc
 import uuid
 import logging
-import json
 
 import AndroidRequests.gpsFunctions as gpsFunctions
 
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level, PoseInTrajectoryOfToken
 
-class UserValidation():
+class UserValidation(object):
     ''' it validates  user session '''
     def __init__(self):
         pass
@@ -31,7 +30,7 @@ class UserValidation():
                 else:
                     Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             except TranSappUser.DoesNotExist:
-                    Status.getJsonStatus(Status.INVALID_USER, response)
+                Status.getJsonStatus(Status.INVALID_USER, response)
         else:
             Status.getJsonStatus(Status.INVALID_PARAMS, response)
 

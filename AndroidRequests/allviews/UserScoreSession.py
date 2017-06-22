@@ -45,7 +45,7 @@ class TranSappUserLogin(View):
         if response['data'] and \
            response['data']['is_valid'] and \
            response['data']['app_id'] == settings.FACEBOOK_APP_ID:
-             return response['data']['user_id']
+            return response['data']['user_id']
         
         return None
 
