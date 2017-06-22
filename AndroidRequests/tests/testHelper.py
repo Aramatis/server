@@ -508,9 +508,9 @@ class TestHelper():
         ''' create @quantity users and put the user asked in @userPosition '''
         users = []
 
-        level = Level.objects.get_or_create(position=1, 
-                defaults={name:'level 1', minScore:0, maxScore:1000})
-
+        level, created = Level.objects.get_or_create(position=1, 
+                defaults={'name':'level 1', 'minScore':0, 'maxScore':1000})
+        
         for index in range(userQuantity):
             name = "name{}".format(index)
             nickname = "nickname{}".format(index)
