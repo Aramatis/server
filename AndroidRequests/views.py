@@ -152,25 +152,45 @@ def getUserBuses(busStopCode, questioner):
         serviceDirections.append(s.code.replace(s.service.service, ""))
 
     # active user buses that stop in the bus stop
-    activeUserBuses = Token.objects.select_related('tranSappUser').filter(
+    activeUserBuses = Token.objects.select_related('tranSappUser', 'busassignment').filter(
         busassignment__service__in=serviceNames,
         activetoken__isnull=False)
     # print "usuarios activos: " + str(len(activeUserBuses))
+    globalScores = []
+    # used to choose which bus avatar shows. Criteria: user with highest global score
     userBuses = []
     uuids = []
+    # bus identifiers  
     for tokenObj in activeUserBuses:
         serviceIndex = serviceNames.index(tokenObj.busassignment.service)
-        uuid = tokenObj.busassignment.uuid.uuid
-        # TODO: consider bus direction
-        if tokenObj.direction == serviceDirections[serviceIndex] and \
-           uuid not in uuids:
-            uuids.append(uuid)
+        machineId = tokenObj.busassignment.uuid.uuid
+        
+        if machineId in uuids:
+            position = uuids.index(machineId)
+            bus = userBuses[position]
+            if str(tokenObj.phoneId) == questioner:
+                bus['isSameUser'] = True
+            # update avatar id
+            if tokenObj.tranSappUser is not None:
+                globalScore = tokenObj.tranSappUser.globalScore
+                if globalScores[position] < globalScore:
+                    globalScores[position] = globalScore
+                    bus['avatarId'] = tokenObj.tranSappUser.busAvatarId
+
+            userBuses[position] = bus
+
+        elif tokenObj.direction == serviceDirections[serviceIndex]:
+            uuids.append(machineId)
+            globalScores.append(0)
+            
             bus = {}
             bus['servicio'] = tokenObj.busassignment.service
             bus['patente'] = tokenObj.busassignment.uuid.registrationPlate
             bus['direction'] = tokenObj.direction
             bus['isSameUser'] = True if str(tokenObj.phoneId) == questioner else False
             if tokenObj.tranSappUser is not None:
+                position = len(globalScores) - 1
+                globalScores[position] = tokenObj.tranSappUser.globalScore
                 bus['avatarId'] = tokenObj.tranSappUser.busAvatarId
             else:
                 bus['avatarId'] = 1
@@ -205,7 +225,7 @@ def getUserBuses(busStopCode, questioner):
             bus['distanciaV2'] = 'Usuario'
             bus['distanciaMts'] = 1
             # add new param 'uuid'
-            bus['busId'] = uuid
+            bus['busId'] = machineId
             
             if not bus['random']:
                 userBuses.append(bus)

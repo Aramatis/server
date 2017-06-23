@@ -87,21 +87,31 @@ class NearbyBusesResponseTest(TestCase):
 
         return buses
 
+    def getInBus(self, phoneId, service, licensePlate, addTrajectory=False):
+        ''' create a user bus  '''
+        travelKey = self.helper.getInBusWithLicencePlate(
+            phoneId, service, licensePlate)
+        self.helper.sendFakeTrajectoryOfToken(travelKey)
+        self.helper.setDirection(travelKey, self.direction)
+
+        if addTrajectory:
+            self.helper.sendFakeTrajectoryOfToken(travelKey)
+
     def test_nearbyBusesWithFakeAuthorityInfoWithoutUserBuses(self):
-        """ test methods used that uses nearbyBuses url. case: only authority buses """
+        """ user ask by nearbybuses and receives authority buses list """
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
                 (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
         buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
+        self.assertEqual(len(buses), 9)
 
-    def test_nearbyBusesWithFakeAuthorityInfoWithOneUserBus(self):
-        """ test methods that uses nearbyBuses url. case: authority buses with one user bus"""
+    def test_nearbyBusesWithFakeAuthorityInfoPlusOneUserBus(self):
+        """ user ask by nearbybuses and receives authority buses list plus 
+            one dummy bus (10) """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
-            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
-        self.helper.sendFakeTrajectoryOfToken(travelKey)
-        self.helper.setDirection(travelKey, self.direction)
+        # dummy bus
+        self.getInBus(self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
@@ -113,21 +123,15 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(buses[0]['servicio'], self.service)
         self.assertEqual(buses[0]['direction'], self.direction)
 
-    def test_nearbyBusesWithFakeAuthorityInfoWithTwoUserBus(self):
-        """ test methods that uses nearbyBuses url. case: authority buses with two dummy user bus"""
+    def test_nearbyBusesWithFakeAuthorityInfoPlusTwoUserBuses(self):
+        """ user ask by nearbybuses and receives authority buses list plus 
+            two dummy buses of the same service. A third user ask for nearby buses """
 
-        # first user
-        travelKey1 = self.helper.getInBusWithLicencePlate(
-            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
-        self.helper.sendFakeTrajectoryOfToken(travelKey1)
-        self.helper.setDirection(travelKey1, self.direction)
+        # first user creates dummy bus
+        self.getInBus(self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
 
-        # second user
-        direction2 = "I"
-        travelKey2 = self.helper.getInBusWithLicencePlate(
-            self.phoneId2, self.service, Constants.DUMMY_LICENSE_PLATE)
-        self.helper.sendFakeTrajectoryOfToken(travelKey2)
-        self.helper.setDirection(travelKey2, direction2)
+        # second user creates dummy bus of the same service
+        self.getInBus(self.phoneId2, self.service, Constants.DUMMY_LICENSE_PLATE)
 
         # user who ask for stop info
         otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
@@ -138,39 +142,67 @@ class NearbyBusesResponseTest(TestCase):
         buses = self.getBuses(self.stopCode, otherUser, indexPairList)
 
         self.assertEqual(len(buses), 9 + 1 + 1)
+
         self.assertEqual(buses[0]['patente'], Constants.DUMMY_LICENSE_PLATE)
         self.assertEqual(buses[0]['servicio'], self.service)
         self.assertEqual(buses[0]['direction'], self.direction)
+
         self.assertEqual(buses[1]['patente'], Constants.DUMMY_LICENSE_PLATE)
         self.assertEqual(buses[1]['servicio'], self.service)
-        self.assertEqual(buses[1]['direction'], direction2)
+        self.assertEqual(buses[1]['direction'], self.direction)
 
-    def test_nearbyBusesWithFakeAuthorityInfoWithTwoUserInTheSameBus(self):
-        """ test methods that uses nearbyBuses url. case: authority buses with two user in the same bus. 
-            The bus comes in the authority bus list """
+    def test_nearbyBusesWithFakeAuthorityInfoPlusUserInTheSameBus(self):
+        """ user ask by nearbybuses and receives authority buses list plus 
+            the bus comes in the authority bus list. Same user ask by buses so the bus has to be omitted  """
 
-        direction2 = 'I'
-        licencePlate = 'bjfb28'
+        licensePlate = 'bjfb28'
         service = '506'
         # first user get in the bus
-        travelKey1 = self.helper.getInBusWithLicencePlate(
-            self.phoneId, service, licencePlate)
-        self.helper.sendFakeTrajectoryOfToken(travelKey1)
-        self.helper.setDirection(travelKey1, self.direction)
-        # second user get in the same bus 
-        travelKey2 = self.helper.getInBusWithLicencePlate(
-            self.phoneId2, service, licencePlate)
-        self.helper.sendFakeTrajectoryOfToken(travelKey2)
-        self.helper.setDirection(travelKey2, direction2)
+        self.getInBus(self.phoneId, service, licensePlate, addTrajectory=True)
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
-                (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
+            (0, 1), (1, 2), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9)]
+        buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
 
+        self.assertEqual(len(buses), 8)
+
+        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+        indexPairList = [
+            (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
         self.assertEqual(len(buses), 9)
-        # this is the fake bus
-        self.assertEqual(buses[0]['patente'], licencePlate.upper())
+
+    def test_nearbyBusesWithFakeAuthorityInfoPlusTwoUserInTheSameBus(self):
+        """ user ask by nearbybuses and receives authority buses list plus 
+            the bus comes in the authority bus list. One of the user ask by buses so the bus has to be omitted  """
+
+        licensePlate = 'bjfb28'
+        service = '506'
+        # first user get in the bus
+        self.getInBus(self.phoneId, service, licensePlate, addTrajectory=True)
+
+        # second user get in the same bus 
+        self.getInBus(self.phoneId2, service, licensePlate, addTrajectory=True)
+
+        # to compare response given by nearbybuses function and authority (in that order)
+        
+        indexPairList = [
+            (0, 1), (1, 2), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9)]
+        buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
+        self.assertEqual(len(buses), 8)
+
+        buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
+        self.assertEqual(len(buses), 8)
+        
+        # user who ask for stop info
+        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+        indexPairList = [
+            (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
+        self.assertEqual(len(buses), 9)
+
+        self.assertEqual(buses[0]['patente'], licensePlate.upper())
         self.assertEqual(buses[0]['servicio'], service)
         self.assertEqual(buses[0]['tienePasajeros'], 2)
         self.assertEqual(buses[0]['distanciaMts'], 1691)
@@ -178,29 +210,44 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(buses[0]['distanciaV2'], "1.69Km")
         self.assertEqual(buses[0]['direction'], "I")
 
-    def test_nearbyBusesWithFakeAuthorityInfoWithUserBusThatMatchWithAuthorityBus(
-            self):
-        """ test methods that uses nearbyBuses url. case: authority buses with user bus that match with authority bus """
-        licencePlate = 'bjFb28'
+    def test_nearbyBusesWithFakeAuthorityInfoWithTwoUserInTheSameBus(self):
+        """ test methods that uses nearbyBuses url. case: authority buses plus one of them
+            has a user and other is a dummy bus. """
+
+        licensePlate = 'bjfb28'
         service = '506'
-        travelKey = self.helper.getInBusWithLicencePlate(
-            self.phoneId, service, licencePlate)
-        self.helper.sendFakeTrajectoryOfToken(travelKey)
-        self.helper.setDirection(travelKey, self.direction)
+        # first user get in the bus
+        self.getInBus(self.phoneId, service, licensePlate, addTrajectory=True)
+
+        # second user get in the same bus 
+        self.getInBus(self.phoneId2, service, Constants.DUMMY_LICENSE_PLATE, addTrajectory=True)
+
+        # user who ask for stop info
+        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
-                (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
+                (0, 0), (2, 1), (3, 2), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)]
+        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
 
-        self.assertEqual(len(buses), 9)
-        self.assertEqual(buses[0]['patente'], licencePlate.upper())
+        self.assertEqual(len(buses), 10)
+        # this is the fake bus
+        self.assertEqual(buses[0]['patente'], licensePlate.upper())
         self.assertEqual(buses[0]['servicio'], service)
         self.assertEqual(buses[0]['tienePasajeros'], 1)
-        self.assertEqual(buses[0]['direction'], self.direction)
+        self.assertEqual(buses[0]['distanciaMts'], 1691)
+        self.assertEqual(buses[0]['tiempoV2'], "0 a 5 min")
+        self.assertEqual(buses[0]['distanciaV2'], "1.69Km")
+        self.assertEqual(buses[0]['direction'], "I")
 
-    def test_nearbyBusesWithFakeAuthorityInfoWithUserBusWithoutDirection(self):
-        """ test methods that uses nearbyBuses url. case: authority buses with user bus without direction, so the user bus should not see in the list of buses """
+        self.assertEqual(buses[1]['patente'], Constants.DUMMY_LICENSE_PLATE)
+        self.assertEqual(buses[1]['servicio'], service)
+        self.assertEqual(buses[1]['tienePasajeros'], 1)
+        self.assertEqual(buses[1]['direction'], "I")
+
+
+    def test_getFakeAuthorityInfoWithUserBusWithoutDirection(self):
+        """ if dummy bus does not have direction won't be in the buses list """
 
         service = '506'
         travelKey = self.helper.getInBusWithLicencePlate(
@@ -214,41 +261,52 @@ class NearbyBusesResponseTest(TestCase):
 
         self.assertEqual(len(buses), 9)
 
-    def test_nearbyBusesWhenUserIsOnTheBus(self):
-        """ test methods that uses nearbyBuses url.
-        case: ask for buses when the user is in one of bus that goes to the bus stop asked """
+    def test_nearbyBusesCheckAvatarId(self):
+        """ user asked for nearby buses with one of them with avatar id.
+            there are two users inside the bus and the avatar id will be 
+            of user with highest score """
 
-        licencePlate = 'bjFb28'
+        licensePlate = 'bjfb28'
         service = '506'
-        travelKey = self.helper.getInBusWithLicencePlate(
-            self.phoneId, service, licencePlate)
+        # create users and set theirs global scores
+        users = self.helper.createTranSappUsers(2)
+
+        user1 = users[0]
+        user1.globalScore = 100
+        user1.busAvatarId = 3
+        user1.save()
+
+        user2 = users[1]
+        user2.globalScore = 200
+        user2.busAvatarId = 4
+        user2.save()
+
+        # user1 get in bus 
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
+            user1.phoneId, service, licensePlate, userId=user1.userId, sessionToken=user1.sessionToken)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
+        self.helper.sendFakeTrajectoryOfToken(travelKey)
 
-        # to compare response given by nearbybuses function and authority (in that order)
-        indexPairList = [
-                (0, 1), (1, 2), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
-
-        self.assertEqual(len(buses), 8)
-
-    def test_nearbyBusesWhenUserIsOnTheDummyBus(self):
-        """ test methods that uses nearbyBuses url.
-        case: ask for buses when the user is in one of bus that stops in the bus stop asked """
-
-        # licencePlate = 'bjFb28'
-        service = '506'
-        travelKey = self.helper.getInBusWithLicencePlate(
-            self.phoneId, service, Constants.DUMMY_LICENSE_PLATE)
+        # user2 get in bus 
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
+            user2.phoneId, service, licensePlate, userId=user2.userId, sessionToken=user2.sessionToken)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
+        self.helper.sendFakeTrajectoryOfToken(travelKey)
+
+        # user who ask for stop info
+        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
 
         # to compare response given by nearbybuses function and authority (in that order)
-        indexPairList = [
-                (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8)]
-        buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
-
+        indexPairList = []
+        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
         self.assertEqual(len(buses), 9)
+
+        # check avatar Id
+        for bus in buses:
+            if bus['patente'] == licensePlate.upper():
+                self.assertEqual(bus['avatarId'], 4)
 
 
 class FormattersTest(TestCase):
