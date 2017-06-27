@@ -82,7 +82,7 @@ class RegisterReport(View):
                             raise IncorrectExtensionImageError
 
                         imageName = str(
-                            report.pk) + "_" + pTimeStamp.strftime('%X_%Y-%m-%d') + "." + extension
+                            report.pk) + "_" + pTimeStamp.strftime('%H-%M-%S_%Y-%m-%d') + "." + extension
                         path = os.path.join(settings.MEDIA_IMAGE, imageName)
                         imageFile = open(path, "wb")
                         imageFile.write(stringImage)
