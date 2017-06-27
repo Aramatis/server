@@ -40,6 +40,7 @@ before_install:
   - git submodule update --init --recursive
 
 install: 
+  - pip install requests[security]
   - pip install --upgrade requests[security]
   - pip install --upgrade urllib3[secure]
   # Install the dependencies the app itself 
