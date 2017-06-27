@@ -1,5 +1,7 @@
 from django.contrib import admin
-from AndroidRequests.models import DevicePositionInTime, Event, EventForBusStop, EventForBusv2, ServicesByBusStop, BusStop, Busv2, ServiceLocation, ServiceStopDistance, Token, PoseInTrajectoryOfToken, ActiveToken
+
+from AndroidRequests.models import DevicePositionInTime, Event, EventForBusStop, EventForBusv2, ServicesByBusStop, \
+    BusStop, Busv2, ServiceLocation, ServiceStopDistance, Token, PoseInTrajectoryOfToken, ActiveToken
 
 # Register your models here.
 

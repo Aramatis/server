@@ -1,14 +1,14 @@
-from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import AnonymousUser
-from django.utils import timezone
-from django.conf import settings
-
 import json
 
-# my stuff
-from AndroidRequests.models import Route, GTFS
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.test import TestCase, RequestFactory
+from django.utils import timezone
+
 # views
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
+# my stuff
+from AndroidRequests.models import Route, GTFS
 
 
 class ServiceRouteTestCase(TestCase):

@@ -1,10 +1,10 @@
-from django.test import TestCase
-from django.utils import timezone
 from django.conf import settings
+from django.test import TestCase
 
 # my stuff
-from AndroidRequests.models import ServiceLocation, BusStop, ServiceStopDistance, Busv2, Busassignment, Service, ServicesByBusStop, GTFS
+from AndroidRequests.models import ServiceLocation, BusStop, ServiceStopDistance, Busassignment, GTFS
 from AndroidRequests.tests.testHelper import TestHelper
+
 
 # Create your tests here.
 

@@ -1,16 +1,15 @@
+import datetime as dt
+import json
+import uuid
+
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, Client
 from django.utils import timezone
-from django.contrib.auth.models import AnonymousUser
-from django.conf import settings
-
-import json
-import datetime as dt
-import uuid
 
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.models import TranSappUser, Level
-
 from Loaders.TestLoaderFactory import TestLoaderFactory
 
 

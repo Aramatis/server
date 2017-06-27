@@ -1,27 +1,27 @@
 from django.conf.urls import url
-from . import views
 
+from AndroidRequests.allviews.BusStopsByService import BusStopsByService
+from AndroidRequests.allviews.EndRoute import EndRoute
+from AndroidRequests.allviews.EvaluateTrip import EvaluateTrip
+from AndroidRequests.allviews.EventsByBus import EventsByBus
+from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
+from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
+from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
+from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
+from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
+from AndroidRequests.allviews.RegisterReport import RegisterReport
+from AndroidRequests.allviews.RequestEventsToNotified import RequestEventsToNotified
 from AndroidRequests.allviews.RequestToken import RequestToken
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
-from AndroidRequests.allviews.EndRoute import EndRoute
+from AndroidRequests.allviews.RequestUUID import RequestUUID
 from AndroidRequests.allviews.SendPoses import SendPoses
-from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
-from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
-from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
-from AndroidRequests.allviews.EventsByBus import EventsByBus
-from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
-from AndroidRequests.allviews.RequestEventsToNotified import RequestEventsToNotified
-from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-from AndroidRequests.allviews.BusStopsByService import BusStopsByService
-from AndroidRequests.allviews.RegisterReport import RegisterReport
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
 from AndroidRequests.allviews.SetDirection import SetDirection
-from AndroidRequests.allviews.RequestUUID import RequestUUID
+from AndroidRequests.allviews.UserRanking import UserRanking
 from AndroidRequests.allviews.UserScoreSession import TranSappUserLogin
 from AndroidRequests.allviews.UserScoreSession import TranSappUserLogout
-from AndroidRequests.allviews.UserRanking import UserRanking
 from AndroidRequests.allviews.UserScoreSession import UpdateTranSappUserSettings
-from AndroidRequests.allviews.EvaluateTrip import EvaluateTrip
+from . import views
 
 urlpatterns = [
     url(r'^nearbyBuses/(?P<pPhoneId>[0-9a-z-]+)/(?P<pBusStop>\w+)$',

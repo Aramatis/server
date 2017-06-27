@@ -1,15 +1,15 @@
-from django.test import TestCase, Client
-from django.conf import settings
-
-import uuid
 import json
+import uuid
+
 import requests
+from django.conf import settings
+from django.test import TestCase, Client
 
 # Create your tests here.
 from AndroidRequests.allviews import UserScoreSession as uss
 from AndroidRequests.models import TranSappUser, Level
-
 from AndroidRequests.statusResponse import Status
+
 
 class FacebookAPI():
     ''' class to manipulate calls to facebook API '''

@@ -1,16 +1,18 @@
 import django
-from django.test import TransactionTestCase, RequestFactory
-from django.core.exceptions import ValidationError
-from django.utils import timezone
-from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ValidationError
+from django.test import TransactionTestCase, RequestFactory
+from django.utils import timezone
 
-# my stuff
-from AndroidRequests.models import DevicePositionInTime, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
 # views
 import AndroidRequests.views as views
+# my stuff
+from AndroidRequests.models import DevicePositionInTime, BusStop, Service, ServiceStopDistance, ServiceLocation, \
+    ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
+
 
 # Create your tests here.
 

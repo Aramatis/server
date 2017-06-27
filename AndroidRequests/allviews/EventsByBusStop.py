@@ -1,11 +1,11 @@
-from django.http import JsonResponse
-from django.views.generic import View
-from django.utils import timezone
 from django.conf import settings
+from django.http import JsonResponse
+from django.utils import timezone
+from django.views.generic import View
 
 # my stuff
 # import DB's models
-from AndroidRequests.models import BusStop, Event, EventForBusStop
+from AndroidRequests.models import BusStop, EventForBusStop
 
 
 class EventsByBusStop(View):

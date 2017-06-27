@@ -1,11 +1,12 @@
-from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import AnonymousUser
 import json
 
-# my stuff
-from AndroidRequests.models import Event
+from django.contrib.auth.models import AnonymousUser
+from django.test import TestCase, RequestFactory
+
 # views
 from AndroidRequests.allviews.RequestEventsToNotified import RequestEventsToNotified
+# my stuff
+from AndroidRequests.models import Event
 
 
 class RequestEventsToNotifiedTestCase(TestCase):

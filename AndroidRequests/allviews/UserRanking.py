@@ -1,6 +1,6 @@
-from django.views.generic import View
-from django.http import JsonResponse
 from django.db.models import Count
+from django.http import JsonResponse
+from django.views.generic import View
 
 # import DB's models
 from AndroidRequests.models import TranSappUser

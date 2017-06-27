@@ -1,21 +1,21 @@
-from django.http import JsonResponse
-from django.utils import timezone
-from django.conf import settings
-
+import json
 import logging
+import re
 
 # python utilities
 import requests
-import json
-import re
+from django.conf import settings
+from django.http import JsonResponse
+from django.utils import timezone
 
-# my stuff
-# import DB's models
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, ServicesByBusStop, Token
-from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 # constants
 import AndroidRequests.constants as Constants
+from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
+from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
+# my stuff
+# import DB's models
+from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, \
+    ServicesByBusStop, Token
 
 
 def userPosition(request, pPhoneId, pLat, pLon):

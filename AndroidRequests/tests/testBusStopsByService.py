@@ -1,14 +1,14 @@
-from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import AnonymousUser
-from django.conf import settings
-from django.utils import timezone
-
 import json
 
-# my stuff
-from AndroidRequests.models import Service, BusStop, ServicesByBusStop, GTFS
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.test import TestCase, RequestFactory
+from django.utils import timezone
+
 # views
 from AndroidRequests.allviews.BusStopsByService import BusStopsByService
+# my stuff
+from AndroidRequests.models import Service, BusStop, ServicesByBusStop, GTFS
 
 
 class BusStopsByServiceTestCase(TestCase):

@@ -1,20 +1,19 @@
 # encoding=utf-8
-from django.http import JsonResponse
-from django.conf import settings
-from django.views.generic import View
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.core.exceptions import ObjectDoesNotExist
-
+import json
 # python utilities
 import logging
-import requests
 import uuid
-import json
 
-from AndroidRequests.statusResponse import Status
+import requests
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
 
 from AndroidRequests.models import TranSappUser, Level
+from AndroidRequests.statusResponse import Status
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 # Create your views here.

@@ -1,17 +1,17 @@
-from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import AnonymousUser
-from django.db import transaction
-from django.conf import settings
-
+import base64
 # python stuf
 import json
-import base64
 import os
 
-# model
-from AndroidRequests.models import Report
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.db import transaction
+from django.test import TestCase, RequestFactory
+
 # views
 from AndroidRequests.allviews.RegisterReport import RegisterReport
+# model
+from AndroidRequests.models import Report
 
 
 class RegisterReportTestCase(TestCase):

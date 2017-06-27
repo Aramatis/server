@@ -1,17 +1,16 @@
-from django.http import JsonResponse
-from django.views.generic import View
-from django.utils import timezone, dateparse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-
 # python utilities
 import json
 
-from AndroidRequests.statusResponse import Status
-import AndroidRequests.scoreFunctions as score
+from django.http import JsonResponse
+from django.utils import timezone, dateparse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
 
+import AndroidRequests.scoreFunctions as score
 # import DB's models
 from AndroidRequests.models import ActiveToken, Token, PoseInTrajectoryOfToken
+from AndroidRequests.statusResponse import Status
 
 
 class SendPoses(View):

@@ -1,9 +1,9 @@
 from django.test import TestCase
 
-# my stuff
-from AndroidRequests.tests.testHelper import TestHelper
 # views
 import AndroidRequests.constants as Constants
+# my stuff
+from AndroidRequests.tests.testHelper import TestHelper
 
 
 class EndRouteTest(TestCase):

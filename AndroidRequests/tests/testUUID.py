@@ -1,20 +1,19 @@
-from django.test import TransactionTestCase, RequestFactory
-from django.utils import timezone
-from django.contrib.auth.models import AnonymousUser
 import json
 import re
 
-from AndroidRequests.models import Busv2, ActiveToken, Token, Busassignment, Event, EventForBusv2, EventForBusStop, BusStop
+from django.contrib.auth.models import AnonymousUser
+from django.test import TransactionTestCase, RequestFactory
+from django.utils import timezone
 
+import AndroidRequests.constants as Constants
+from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 # views
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
-from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
+from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.allviews.RequestUUID import RequestUUID
-import AndroidRequests.constants as Constants
-
+from AndroidRequests.models import Busv2, ActiveToken, Token, Busassignment, Event, EventForBusv2, EventForBusStop
 from AndroidRequests.tests.testHelper import TestHelper
 
 

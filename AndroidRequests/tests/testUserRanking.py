@@ -1,15 +1,13 @@
-from django.test import TestCase, Client
-from django.conf import settings
-
-import uuid
 import json
 import random
+import uuid
+
+from django.test import TestCase, Client
 
 # Create your tests here.
-from AndroidRequests.allviews import UserScoreSession as uss
 from AndroidRequests.models import TranSappUser, Level
-
 from AndroidRequests.statusResponse import Status
+
 
 class UserRankingTestCase(TestCase):
     '''  '''

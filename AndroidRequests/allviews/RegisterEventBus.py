@@ -1,15 +1,13 @@
 from django.http import JsonResponse
-from django.views.generic import View
 from django.utils import timezone
+from django.views.generic import View
 
+import AndroidRequests.constants as Constants
+import AndroidRequests.gpsFunctions as Gps
 # my stuff
 # import DB's models
 from AndroidRequests.models import Event, Busv2, Busassignment, EventForBusv2, StadisticDataFromRegistrationBus
-
-import AndroidRequests.constants as Constants
-
 from EventsByBusV2 import EventsByBusV2
-import AndroidRequests.gpsFunctions as Gps
 
 
 class RegisterEventBus(View):

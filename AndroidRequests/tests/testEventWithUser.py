@@ -1,14 +1,10 @@
 from django.test import TransactionTestCase
-from django.utils import timezone
 
 from AndroidRequests.models import Level, ScoreEvent, TranSappUser
+from AndroidRequests.models import StadisticDataFromRegistrationBus, StadisticDataFromRegistrationBusStop
 from AndroidRequests.tests.testHelper import TestHelper
 
-from AndroidRequests.models import StadisticDataFromRegistrationBus, StadisticDataFromRegistrationBusStop
 
-import uuid
-import json
-import datetime as dt
 # Create your tests here.
 
 class EventWithUserTestCase(TransactionTestCase):

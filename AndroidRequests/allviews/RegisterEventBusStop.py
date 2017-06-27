@@ -1,17 +1,17 @@
-from django.views.generic import View
-from django.utils import timezone
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-
 import json
+
+from django.http import JsonResponse
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+
+import AndroidRequests.scoreFunctions as score
 # my stuff
 # import DB's models
 from AndroidRequests.models import Event, EventForBusStop, StadisticDataFromRegistrationBusStop, TranSappUser
-
 from EventsByBusStop import EventsByBusStop
 
-import AndroidRequests.scoreFunctions as score
 
 class RegisterEventBusStop(View):
     '''This class handles the requests that report events of a bus stop'''

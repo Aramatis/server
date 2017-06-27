@@ -1,14 +1,14 @@
-from django.http import JsonResponse
-from django.views.generic import View
-from django.utils import timezone
-
 # python utilities
 import hashlib
 import os
-from random import random
 import uuid
-import AndroidRequests.constants as Constants
+from random import random
 
+from django.http import JsonResponse
+from django.utils import timezone
+from django.views.generic import View
+
+import AndroidRequests.constants as Constants
 # my stuff
 # import DB's models
 from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken

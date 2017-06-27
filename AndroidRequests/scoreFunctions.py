@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
+import abc
+import logging
+import uuid
+
 from django.utils import timezone, dateparse
 
-import abc
-import uuid
-import logging
-
 import AndroidRequests.gpsFunctions as gpsFunctions
-
-from AndroidRequests.statusResponse import Status
 from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level, PoseInTrajectoryOfToken
+from AndroidRequests.statusResponse import Status
+
 
 class UserValidation(object):
     ''' it validates  user session '''

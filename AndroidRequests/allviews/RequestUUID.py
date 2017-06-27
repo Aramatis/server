@@ -1,10 +1,10 @@
+# python utilities
+import uuid
+
 from django.http import JsonResponse
 from django.views.generic import View
 
-# python utilities
-import uuid
 import AndroidRequests.constants as Constants
-
 # my stuff
 # import DB's models
 from AndroidRequests.models import Busv2

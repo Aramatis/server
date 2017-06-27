@@ -1,9 +1,9 @@
+import logging
 import uuid
+
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
-
-import logging
 
 '''
 Dealing with no UUID serialization support in json
@@ -410,8 +410,8 @@ class Busassignment(models.Model):
         x2 = greater.longitude
         # y2 = greater.latitude
 
-        if(abs(x2 - x1) >= epsilon):
-            if(x2 - x1 > 0):
+        if abs(x2 - x1) >= epsilon:
+            if x2 - x1 > 0:
                 return "right"
             else:
                 return "left"
@@ -420,7 +420,7 @@ class Busassignment(models.Model):
             busStopObj = BusStop.objects.get(code=pBusStop, 
                     gtfs__version=settings.GTFS_VERSION)
             xBusStop = busStopObj.longitude
-            if(x2 - xBusStop > 0):
+            if x2 - xBusStop > 0:
                 return "left"
             else:
                 return "right"

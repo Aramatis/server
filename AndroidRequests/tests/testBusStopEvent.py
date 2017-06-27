@@ -1,11 +1,11 @@
 from django.test import TransactionTestCase
 from django.utils import timezone
-from django.conf import settings
 
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, BusStop, Service, ServiceStopDistance, ServiceLocation, ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
+from AndroidRequests.models import BusStop, GTFS
 # test helper
 from AndroidRequests.tests.testHelper import TestHelper
+
 
 # Create your tests here.
 

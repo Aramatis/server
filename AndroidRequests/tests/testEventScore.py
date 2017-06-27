@@ -1,15 +1,13 @@
+import datetime as dt
+
 from django.test import TransactionTestCase
 from django.utils import timezone
 
 from AndroidRequests.models import Level, ScoreEvent, TranSappUser, ScoreHistory
-from AndroidRequests.tests.testHelper import TestHelper
 from AndroidRequests.statusResponse import Status
+from AndroidRequests.tests.testHelper import TestHelper
 
-import AndroidRequests.scoreFunctions as scoreFunctions
 
-import uuid
-import json
-import datetime as dt
 # Create your tests here.
 
 class EventScoreTest(TransactionTestCase):

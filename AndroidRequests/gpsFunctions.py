@@ -1,9 +1,10 @@
-import AndroidRequests.constants as Constants
+import json
+import urllib2
+from math import radians, cos, sin, asin, sqrt
+
 from django.utils.dateparse import parse_datetime
 
-from math import radians, cos, sin, asin, sqrt
-import urllib2
-import json
+import AndroidRequests.constants as Constants
 
 
 def haversine(lon1, lat1, lon2, lat2, measure='m'):

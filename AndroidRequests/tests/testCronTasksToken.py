@@ -1,12 +1,12 @@
 from django.test import TestCase
 from django.utils import timezone
 
+# functions to test
+import AndroidRequests.cronTasks as cronTasks
 # model
 from AndroidRequests.models import ActiveToken
 # view
 from AndroidRequests.tests.testHelper import TestHelper
-# functions to test
-import AndroidRequests.cronTasks as cronTasks
 
 
 class CronTasksTestCase(TestCase):

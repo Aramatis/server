@@ -1,11 +1,12 @@
-from django.test import TestCase
-from datetime import datetime
-from django.utils.dateparse import parse_datetime
-from AndroidRequests.tests.testHelper import TestHelper
-import AndroidRequests.gpsFunctions as Gps
 import json
+from datetime import datetime
+
+from django.test import TestCase
+from django.utils.dateparse import parse_datetime
 
 import AndroidRequests.constants as Constants
+import AndroidRequests.gpsFunctions as Gps
+from AndroidRequests.tests.testHelper import TestHelper
 
 
 class TestGPSFunctions(TestCase):

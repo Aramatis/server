@@ -1,12 +1,13 @@
-from django.test import TransactionTestCase, TestCase, RequestFactory
-from django.contrib.auth.models import AnonymousUser
 import json
 
-# my stuff
-from AndroidRequests.tests.testHelper import TestHelper
+from django.contrib.auth.models import AnonymousUser
+from django.test import TestCase, RequestFactory
+
+import AndroidRequests.constants as Constants
 # views
 import AndroidRequests.views as views
-import AndroidRequests.constants as Constants
+# my stuff
+from AndroidRequests.tests.testHelper import TestHelper
 
 
 class NearbyBusesTest(TestCase):

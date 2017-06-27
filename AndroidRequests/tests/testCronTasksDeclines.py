@@ -1,10 +1,9 @@
 from django.test import TransactionTestCase, RequestFactory
 
-# view
-from AndroidRequests.tests.testHelper import TestHelper
-
 # functions to test
 import AndroidRequests.cronTasks as cronTasks
+# view
+from AndroidRequests.tests.testHelper import TestHelper
 
 
 class CronTasksTestCase(TransactionTestCase):

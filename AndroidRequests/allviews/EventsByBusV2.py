@@ -1,8 +1,9 @@
-from django.http import JsonResponse
-from django.views.generic import View
-from django.utils import timezone
-
 import logging
+
+from django.http import JsonResponse
+from django.utils import timezone
+from django.views.generic import View
+
 # my stuff
 # import DB's models
 from AndroidRequests.models import Busv2, EventForBusv2, Busassignment

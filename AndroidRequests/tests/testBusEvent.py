@@ -1,11 +1,12 @@
 from django.test import TransactionTestCase, RequestFactory
 from django.utils import timezone
 
-# my stuff
-from AndroidRequests.models import Busv2, Busassignment, Event, EventForBusv2
 # views
 import AndroidRequests.constants as Constants
+# my stuff
+from AndroidRequests.models import Busv2, Busassignment, Event, EventForBusv2
 from AndroidRequests.tests.testHelper import TestHelper
+
 
 # Create your tests here.
 
