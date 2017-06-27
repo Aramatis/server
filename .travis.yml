@@ -41,8 +41,7 @@ before_install:
 
 install: 
   - pip install requests[security]
-  - pip install --upgrade requests[security]
-  - pip install --upgrade urllib3[secure]
+  - pip install urllib3[secure]
   # Install the dependencies the app itself 
   - pip install -r requirements.txt 
 
