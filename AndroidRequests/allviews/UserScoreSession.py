@@ -6,7 +6,7 @@ import uuid
 
 import requests
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -142,7 +142,7 @@ class TranSappUserLogout(View):
             user.save()
 
             Status.getJsonStatus(Status.OK, response)
-        except (ObjectDoesNotExist, ValueError) as e:
+        except (ObjectDoesNotExist, ValueError, ValidationError) as e:
             Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             self.logger.error(str(e))
 
@@ -175,7 +175,7 @@ class UpdateTranSappUserSettings(View):
         user = None
         try:
             user = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
-        except (ObjectDoesNotExist, ValueError) as e:
+        except (ObjectDoesNotExist, ValueError, ValidationError) as e:
             Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             self.logger.error(str(e))
 
