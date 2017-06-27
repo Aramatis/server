@@ -25,6 +25,7 @@ JSONEncoder.default = JSONEncoder_newdefault
 # Create your models here.
 # Remembre to add new models to admin.py
 
+
 class Location(models.Model):
     """ Some of our models require to set a geolocation (coodinates)"""
     longitude = models.FloatField('Longitude', null=False, blank=False)
@@ -138,7 +139,7 @@ class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
 class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus stop event """
     reportOfEvent = models.ForeignKey('EventForBusStop',
-        verbose_name='Bus Stop Event')
+                                      verbose_name='Bus Stop Event')
 
 
 class EventRegistration(models.Model):
@@ -417,8 +418,7 @@ class Busassignment(models.Model):
                 return "left"
         else:
             # we compare bus location with bus stop location
-            busStopObj = BusStop.objects.get(code=pBusStop, 
-                    gtfs__version=settings.GTFS_VERSION)
+            busStopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
             xBusStop = busStopObj.longitude
             if x2 - xBusStop > 0:
                 return "left"
@@ -694,7 +694,7 @@ class TranSappUser(models.Model):
     userAvatarId = models.IntegerField(default=1)
     ''' avatar used to hide identity of user '''
     showAvatar = models.BooleanField(default=True)
-    ''' to inidicate if system hast to use the avatar or social media photo '''
+    ''' to indicate if system hast to use the avatar or social media photo '''
     busAvatarId = models.IntegerField(default=1)
     ''' bus avatar used to show buses on app map '''
 
@@ -722,7 +722,7 @@ class ScoreEvent(models.Model):
 
 
 class ScoreHistory(models.Model):
-    ''' history of events give score'''
+    """ history of events give score """
     tranSappUser = models.ForeignKey(TranSappUser)
     ''' user '''
     scoreEvent = models.ForeignKey(ScoreEvent)
@@ -730,7 +730,6 @@ class ScoreHistory(models.Model):
     timeCreation = models.DateTimeField(null=False)
     ''' time when event was generated '''
     score = models.FloatField(default=0, null=False)
-    ''' winned score '''
+    ''' wined score '''
     meta = models.CharField(max_length=10000, null=True)
-    ''' addional data to score '''
-
+    ''' additional data to score '''
