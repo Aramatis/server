@@ -93,13 +93,8 @@ class WebService(object):
     def __parserDTPMData(self, dtpmInfo):
         """ separate buses. Each one in an array """
 
-        response = {}
-        response['fechaConsulta'] = dtpmInfo['fechaprediccion']
-        response['horaConsulta'] = dtpmInfo['horaprediccion']
-        response['id'] = dtpmInfo['paradero']
-        response['descripcion'] = dtpmInfo['nomett']
-        response['servicios'] = []
-        response['error'] = None
+        response = {'fechaConsulta': dtpmInfo['fechaprediccion'], 'horaConsulta': dtpmInfo['horaprediccion'],
+                    'id': dtpmInfo['paradero'], 'descripcion': dtpmInfo['nomett'], 'servicios': [], 'error': None}
 
         if (dtpmInfo['respuestaParadero'] is not None):
             response['error'] = dtpmInfo['respuestaParadero']

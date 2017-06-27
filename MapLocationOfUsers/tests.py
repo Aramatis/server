@@ -122,9 +122,7 @@ class GetMapPositionsTest(TestCase):
             request.user = AnonymousUser()
 
             reponseView = SendPoses()
-            request.POST = {}
-            request.POST['pToken'] = testTokens[cont]
-            request.POST['pTrajectory'] = json.dumps(testPoses)
+            request.POST = {'pToken': testTokens[cont], 'pTrajectory': json.dumps(testPoses)}
             request.method = 'POST'
             response = reponseView.post(request)
 

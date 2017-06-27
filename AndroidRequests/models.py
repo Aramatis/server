@@ -22,6 +22,7 @@ def JSONEncoder_newdefault(self, o):
 
 JSONEncoder.default = JSONEncoder_newdefault
 
+
 # Create your models here.
 # Remembre to add new models to admin.py
 
@@ -81,11 +82,9 @@ class Event(models.Model):
 
     def getDictionary(self):
         """ Return a dictionary with the event information """
-        dictionary = {}
-        dictionary['name'] = self.name
-        dictionary['description'] = self.description
-        dictionary['eventcode'] = self.id
+        dictionary = {'name': self.name, 'description': self.description, 'eventcode': self.id}
         return dictionary
+
 
 ##
 #
@@ -119,6 +118,7 @@ class StadisticDataFromRegistration(Location):
         dictionary['timeStamp'] = timeStamp.strftime("%d-%m-%Y %H:%M:%S")
 
         return dictionary
+
 
 class StadisticDataFromRegistrationBus(StadisticDataFromRegistration):
     """ Save the report done for a user to confirm or decline a bus event """
@@ -169,10 +169,7 @@ class EventRegistration(models.Model):
 
     def getDictionary(self):
         '''A dictionary with the event information, just what was of interest to return to the app.'''
-        dictionary = {}
-
-        dictionary['eventConfirm'] = self.eventConfirm
-        dictionary['eventDecline'] = self.eventDecline
+        dictionary = {'eventConfirm': self.eventConfirm, 'eventDecline': self.eventDecline}
 
         creation = timezone.localtime(self.timeCreation)
         stamp = timezone.localtime(self.timeStamp)
@@ -183,6 +180,7 @@ class EventRegistration(models.Model):
         dictionary.update(eventDictionay)
 
         return dictionary
+
 
 class EventForBusStop(EventRegistration):
     '''This model stores the reported events for the busStop'''
@@ -196,7 +194,7 @@ class EventForBusStop(EventRegistration):
 
     def getDictionary(self):
         dictionary = super(EventForBusStop, self).getDictionary()
-        
+
         dictionary['confirmedVoteList'] = []
         dictionary['declinedVoteList'] = []
 
@@ -206,7 +204,7 @@ class EventForBusStop(EventRegistration):
                 dictionary['confirmedVoteList'].append(record['user'])
             else:
                 dictionary['declinedVoteList'].append(record['user'])
-        
+
         return dictionary
 
 
@@ -217,7 +215,7 @@ class EventForBusv2(EventRegistration):
 
     def getDictionary(self):
         dictionary = super(EventForBusv2, self).getDictionary()
-        
+
         dictionary['confirmedVoteList'] = []
         dictionary['declinedVoteList'] = []
 
@@ -227,8 +225,9 @@ class EventForBusv2(EventRegistration):
                 dictionary['confirmedVoteList'].append(record['user'])
             else:
                 dictionary['declinedVoteList'].append(record['user'])
-        
+
         return dictionary
+
 
 ##
 #
@@ -270,15 +269,13 @@ class BusStop(Location):
 
     def getDictionary(self):
         """usefull information regarding the bus."""
-        dictionary = {}
-
-        dictionary['codeBusStop'] = self.code
-        dictionary['nameBusStop'] = self.name
+        dictionary = {'codeBusStop': self.code, 'nameBusStop': self.name}
 
         return dictionary
 
     class Meta:
         unique_together = ('code', 'gtfs')
+
 
 class Service(models.Model):
     """ Represent a Service like '506' and save his data """
@@ -344,10 +341,11 @@ class Busassignment(models.Model):
         unique_together = ('uuid', 'service')
 
     def getDirection(self, pBusStop, pDistance):
-        """ Given a bus stop and the distance from the bus to the bus stop, return the address to which point the bus """
+        """ Given a bus stop and the distance from the bus to the bus stop,
+            return the address to which point the bus """
         try:
             serviceCode = ServicesByBusStop.objects.get(
-                busStop__code=pBusStop, 
+                busStop__code=pBusStop,
                 service__service=self.service,
                 gtfs__version=settings.GTFS_VERSION).code
         except ServicesByBusStop.DoesNotExist:
@@ -357,8 +355,8 @@ class Busassignment(models.Model):
 
         try:
             serviceDistance = ServiceStopDistance.objects.get(
-                busStop__code=pBusStop, 
-                service=serviceCode, 
+                busStop__code=pBusStop,
+                service=serviceCode,
                 gtfs__version=settings.GTFS_VERSION).distance
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(
@@ -368,14 +366,14 @@ class Busassignment(models.Model):
         distance = serviceDistance - int(pDistance)
         # bus service distance from route origin
         greaters = ServiceLocation.objects.filter(
-            service=serviceCode, 
-            gtfs__version=settings.GTFS_VERSION, 
+            service=serviceCode,
+            gtfs__version=settings.GTFS_VERSION,
             distance__gt=distance).order_by('distance')[:1]
         # get 2 locations greater than current location (nearer to the bus
         # stop)
         lowers = ServiceLocation.objects.filter(
-            service=serviceCode, 
-            gtfs__version=settings.GTFS_VERSION, 
+            service=serviceCode,
+            gtfs__version=settings.GTFS_VERSION,
             distance__lte=distance).order_by('-distance')[:1]
         # get 2 locations lower than current location
 
@@ -434,7 +432,7 @@ class Busassignment(models.Model):
         lon = -500
         random = True
         for token in tokens:
-            if(not hasattr(token, 'activetoken')):
+            if not hasattr(token, 'activetoken'):
                 continue
             passengers += 1
             try:
@@ -446,7 +444,8 @@ class Busassignment(models.Model):
                 random = False
             except PoseInTrajectoryOfToken.DoesNotExist:
                 logger = logging.getLogger(__name__)
-                logger.info("There is not geolocation in the last 5 minutes. token: {} | time: {}".format(token.token, timezone.now()))
+                logger.info("There is not geolocation in the last 5 minutes. token: {} | time: {}". \
+                            format(token.token, timezone.now()))
 
         return {'latitude': lat,
                 'longitude': lon,
@@ -458,7 +457,7 @@ class Busassignment(models.Model):
         '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
         try:
             serviceCode = ServicesByBusStop.objects.get(
-                busStop__code=stopCode, service__service=self.service, 
+                busStop__code=stopCode, service__service=self.service,
                 gtfs__version=settings.GTFS_VERSION).code
         except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException(
@@ -466,38 +465,39 @@ class Busassignment(models.Model):
                     self.service, stopCode))
 
         ssd = ServiceStopDistance.objects.get(
-            busStop__code=stopCode, service=serviceCode, 
+            busStop__code=stopCode, service=serviceCode,
             gtfs__version=settings.GTFS_VERSION).distance - int(distance)
 
         try:
             closest_gt = ServiceLocation.objects.filter(
-                service=serviceCode, 
-                gtfs__version=settings.GTFS_VERSION, 
+                service=serviceCode,
+                gtfs__version=settings.GTFS_VERSION,
                 distance__gte=ssd).order_by('distance')[0].distance
         except:
             closest_gt = 50000
         try:
             closest_lt = ServiceLocation.objects.filter(
-                service=serviceCode, 
-                gtfs__version=settings.GTFS_VERSION, 
+                service=serviceCode,
+                gtfs__version=settings.GTFS_VERSION,
                 distance__lte=ssd).order_by('-distance')[0].distance
         except:
             closest_lt = 0
 
-        if(abs(closest_gt - ssd) < abs(closest_lt - ssd)):
+        if abs(closest_gt - ssd) < abs(closest_lt - ssd):
             closest = closest_gt
         else:
             closest = closest_lt
 
         location = ServiceLocation.objects.filter(
-            service=serviceCode, 
-            gtfs__version=settings.GTFS_VERSION, 
+            service=serviceCode,
+            gtfs__version=settings.GTFS_VERSION,
             distance=closest)[0]
 
         return {'latitude': location.latitude,
                 'longitude': location.longitude,
                 'direction': serviceCode[-1]
                 }
+
     """
     def getDictionary(self):
         ''' Return a dictionary with useful information about the bus '''
@@ -544,6 +544,7 @@ class ServiceStopDistance(models.Model):
     """ Distance traveled by the service when it reaches the bus stop """
     gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
+
     class Meta:
         unique_together = ('busStop', 'service', 'gtfs')
 
@@ -645,11 +646,13 @@ class Route(Location):
     class Meta:
         unique_together = ('serviceCode', 'sequence', 'gtfs')
 
+
 ##
 #
 # score and login
 #
 ##
+
 
 class Level(models.Model):
     ''' user level '''
@@ -675,7 +678,7 @@ class TranSappUser(models.Model):
     ''' phone id used to log in '''
     FACEBOOK = 'FACEBOOK'
     GOOGLE = 'GOOGLE'
-    ACCOUNT_TYPES=(
+    ACCOUNT_TYPES = (
         (FACEBOOK, 'Facebook'),
         (GOOGLE, 'Google')
     )
@@ -712,6 +715,7 @@ class TranSappUser(models.Model):
             data["photoURI"] = self.photoURI
 
         return data
+
 
 class ScoreEvent(models.Model):
     ''' score given by action '''

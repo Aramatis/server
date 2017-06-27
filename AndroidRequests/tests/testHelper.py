@@ -13,7 +13,7 @@ from AndroidRequests.models import TranSappUser, Level
 from Loaders.TestLoaderFactory import TestLoaderFactory
 
 
-class TestHelper():
+class TestHelper:
     """ methods that help to create test cases """
     FILE_SOURCE = 'InitialData'
     GTFS_PATH = 'InitialData/{}'.format(settings.GTFS_VERSION)
@@ -23,9 +23,11 @@ class TestHelper():
         self.factory = RequestFactory()
         self.test = testInstance
 
-    def __loadData(self, model, filePath, log, dataFilter=[]):
+    def __loadData(self, model, filePath, log, dataFilter=None):
         """ load data on database """
 
+        if dataFilter is None:
+            dataFilter = []
         csv = open(filePath, 'r')  # path to csv file
         csv.next()
         factory = TestLoaderFactory()
@@ -39,10 +41,10 @@ class TestHelper():
 
         log = open(self.LOG_FILE_NAME, 'w')
         filePath = self.FILE_SOURCE + '/events.csv'
-        model = 'event' 
+        model = 'event'
 
         self.__loadData(model, filePath, log)
- 
+
     def insertServicesOnDatabase(self, serviceList):
         """ load services """
 
@@ -139,19 +141,15 @@ class TestHelper():
         return token
 
     def getInBusWithLicencePlateByPost(
-            self, phoneId, service, licencePlate, 
-            time=timezone.now(), userId=None, sessionToken=None):
+            self, phoneId, service, licencePlate,
+            userId=None, sessionToken=None):
         """ create a user on bus in database """
         machineId = self.askForMachineId(licencePlate)
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {}
-        data['phoneId'] = phoneId
-        data['busService'] = service 
-        data['machineId'] = machineId
-        data['userId'] = userId
-        data['sessionToken'] = sessionToken
+        data = {'phoneId': phoneId, 'busService': service, 'machineId': machineId, 'userId': userId,
+                'sessionToken': sessionToken}
 
         response = c.post(URL, data)
 
@@ -162,20 +160,16 @@ class TestHelper():
 
         return token
 
-    def getInBusWithMachineIdByPost(self, phoneId, service, machineId, 
-            userId=None, sessionToken=None):
+    def getInBusWithMachineIdByPost(self, phoneId, service, machineId,
+                                    userId=None, sessionToken=None):
         """ create a user on bus in database """
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {}
-        data['phoneId'] = phoneId
-        data['busService'] = service 
-        data['machineId'] = machineId
-        data['userId'] = userId
-        data['sessionToken'] = sessionToken
+        data = {'phoneId': phoneId, 'busService': service, 'machineId': machineId, 'userId': userId,
+                'sessionToken': sessionToken}
         response = c.post(URL, data)
-        
+
         self.test.assertEqual(response.status_code, 200)
 
         jsonResponse = json.loads(response.content)
@@ -216,32 +210,32 @@ class TestHelper():
         fTimes = []
         for time in times:
             fTimes.append(time.strftime("%Y-%m-%dT%X"))
-        
+
         if poses is None:
             poses = {"poses": [
                 {"latitud": -33.458771, "longitud": -70.676266,
-                    "timeStamp": fTimes[0], "inVehicleOrNot":"vehicle"},
+                 "timeStamp": fTimes[0], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.458699, "longitud": -70.675708,
-                    "timeStamp": fTimes[1], "inVehicleOrNot":"vehicle"},
+                 "timeStamp": fTimes[1], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.458646, "longitud": -70.674678,
-                    "timeStamp": fTimes[2], "inVehicleOrNot":"vehicle"},
+                 "timeStamp": fTimes[2], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.458646, "longitud": -70.673799,
-                    "timeStamp": fTimes[3], "inVehicleOrNot":"vehicle"},
+                 "timeStamp": fTimes[3], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.458413, "longitud": -70.671631,
-                    "timeStamp": fTimes[4], "inVehicleOrNot":"vehicle"},
+                 "timeStamp": fTimes[4], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.457983, "longitud": -70.669035,
-                    "timeStamp": fTimes[5], "inVehicleOrNot":"vehicle"},
+                 "timeStamp": fTimes[5], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.457518, "longitud": -70.666718,
-                    "timeStamp": fTimes[6], "inVehicleOrNot":"vehicle"},
+                 "timeStamp": fTimes[6], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.457196, "longitud": -70.664636,
-                    "timeStamp": fTimes[7], "inVehicleOrNot":"vehicle"},
-                {"latitud": -33.457070, "longitud": -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot":"vehicle"}]}
+                 "timeStamp": fTimes[7], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.457070, "longitud": -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot": "vehicle"}]}
 
         c = Client()
         URL = URL
         response = c.post(URL, {'pToken': travelToken,
                                 'pTrajectory': json.dumps(poses),
-                                'userId': userId, 
+                                'userId': userId,
                                 'sessionToken': sessionToken})
 
         self.test.assertEqual(response.status_code, 200)
@@ -288,8 +282,7 @@ class TestHelper():
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
         c = Client()
-        URL = URL + \
-            '/'.join([phoneId, service, licencePlate, eventCode, 'confirm'])
+        URL = URL + '/'.join([phoneId, service, licencePlate, eventCode, 'confirm'])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -376,7 +369,7 @@ class TestHelper():
         STOP METHODS
     """
 
-    def reportStopEvent(self, phoneId, stopCode, eventCode, aditionalInfo = None):
+    def reportStopEvent(self, phoneId, stopCode, eventCode, aditionalInfo=None):
         """ report an event for stop """
         URL = '/android/reportEventBusStop/'
         c = Client()
@@ -420,20 +413,20 @@ class TestHelper():
 
         return jsonResponse
 
-
     """
         BUS EVENT METHODS BY POST
     """
+
     def reportEventV2ByPost(self, phoneId, machineId, service, eventCode, userId, sessionToken):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2'
         c = Client()
-        data = {'phoneId': phoneId, 
-                'machineId': machineId, 
+        data = {'phoneId': phoneId,
+                'machineId': machineId,
                 'service': service,
-                'eventId': eventCode, 
-                'vote': 'confirm', 
-                'userId': userId, 
+                'eventId': eventCode,
+                'vote': 'confirm',
+                'userId': userId,
                 'sessionToken': sessionToken}
         response = c.post(URL, data)
 
@@ -448,12 +441,12 @@ class TestHelper():
         """ confirm or decline an event with the new version  """
         URL = '/android/reportEventBus/v2'
         c = Client()
-        data = {'phoneId': phoneId, 
-                'machineId': machineId, 
+        data = {'phoneId': phoneId,
+                'machineId': machineId,
                 'service': service,
-                'eventId': eventCode, 
-                'vote': confirmOrDecline, 
-                'userId': userId, 
+                'eventId': eventCode,
+                'vote': confirmOrDecline,
+                'userId': userId,
                 'sessionToken': sessionToken}
         response = c.post(URL, data)
 
@@ -463,16 +456,15 @@ class TestHelper():
 
         return jsonResponse
 
-
     def reportStopEventByPost(self, phoneId, stopCode, eventCode, userId, sessionToken):
         """ report an event for stop """
         URL = '/android/reportEventBusStop'
         c = Client()
-        data = {'phoneId': phoneId, 
-                'stopCode': stopCode, 
-                'eventId': eventCode, 
+        data = {'phoneId': phoneId,
+                'stopCode': stopCode,
+                'eventId': eventCode,
                 'vote': 'confirm',
-                'userId': userId, 
+                'userId': userId,
                 'sessionToken': sessionToken}
 
         response = c.post(URL, data)
@@ -488,11 +480,11 @@ class TestHelper():
         """ confirm or decline an event for stop """
         URL = '/android/reportEventBusStop'
         c = Client()
-        data = {'phoneId': phoneId, 
-                'stopCode': stopCode, 
-                'eventId': eventCode, 
+        data = {'phoneId': phoneId,
+                'stopCode': stopCode,
+                'eventId': eventCode,
                 'vote': confirmOrDecline,
-                'userId': userId, 
+                'userId': userId,
                 'sessionToken': sessionToken}
 
         response = c.post(URL, data)
@@ -507,9 +499,9 @@ class TestHelper():
         ''' create @quantity users and put the user asked in @userPosition '''
         users = []
 
-        level, created = Level.objects.get_or_create(position=1, 
-                defaults={'name':'level 1', 'minScore':0, 'maxScore':1000})
-        
+        level, created = Level.objects.get_or_create(position=1,
+                                                     defaults={'name': 'level 1', 'minScore': 0, 'maxScore': 1000})
+
         for index in range(userQuantity):
             name = "name{}".format(index)
             nickname = "nickname{}".format(index)
@@ -517,10 +509,9 @@ class TestHelper():
             sessionToken = uuid.uuid4()
             phoneId = uuid.uuid4()
             user = TranSappUser.objects.create(userId=userId,
-                       sessionToken=sessionToken, name=name, nickname=nickname,
-                       phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
-                       level=level, globalScore=0)
+                                               sessionToken=sessionToken, name=name, nickname=nickname,
+                                               phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
+                                               level=level, globalScore=0)
             users.append(user)
 
         return users
-

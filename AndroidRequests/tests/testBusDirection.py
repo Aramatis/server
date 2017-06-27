@@ -13,7 +13,7 @@ class BusDirectionTestCase(TestCase):
 
     def setUp(self):
         """ this method will automatically call for every single test """
-        
+
         self.test = TestHelper(self)
 
         # dummy data
@@ -133,8 +133,8 @@ class BusDirectionTestCase(TestCase):
         """
         # create bus stop
         busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitude= -70.662800
-        busStop.latitude= -33.447467
+        busStop.longitude = -70.662800
+        busStop.latitude = -33.447467
         busStop.save()
 
         # self.serviceCode stops in  self.busStop
@@ -211,8 +211,8 @@ class BusDirectionTestCase(TestCase):
         """
         # create bus stop
         busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitude= -70.662800
-        busStop.latitude= -33.457091
+        busStop.longitude = -70.662800
+        busStop.latitude = -33.457091
         busStop.save()
 
         # self.serviceCode stops in  self.busStop
@@ -288,8 +288,8 @@ class BusDirectionTestCase(TestCase):
         """
         # create bus stop
         busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitude= 140
-        busStop.latitude= -33.457199
+        busStop.longitude = 140
+        busStop.latitude = -33.457199
         busStop.save()
 
         # self.serviceCode stops in  self.busStop

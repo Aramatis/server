@@ -42,12 +42,13 @@ class NearbyBusesTest(TestCase):
 
         jsonResponse = json.loads(response.content)
 
-        if (jsonResponse['DTPMError'] != ""):
+        if jsonResponse['DTPMError'] != "":
             self.assertEqual(jsonResponse['DTPMError'],
-                    "You do not have permission to do this! >:(.")
+                             "You do not have permission to do this! >:(.")
         else:
             self.assertEqual('servicios' in jsonResponse, True)
             self.assertEqual('eventos' in jsonResponse, True)
+
 
 class NearbyBusesResponseTest(TestCase):
     """ test for response of nearbybuses function """
@@ -103,7 +104,7 @@ class NearbyBusesResponseTest(TestCase):
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
-                (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+            (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
         buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
         self.assertEqual(len(buses), 9)
 
@@ -116,7 +117,7 @@ class NearbyBusesResponseTest(TestCase):
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
-                (1, 0), (2, 1), (3, 2), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)]
+            (1, 0), (2, 1), (3, 2), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)]
         buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
 
         self.assertEqual(len(buses), 9 + 1)
@@ -139,7 +140,7 @@ class NearbyBusesResponseTest(TestCase):
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
-                (2, 0), (3, 1), (4, 2), (5, 4), (6, 5), (7, 6), (8, 7), (9, 8), (10, 9)]
+            (2, 0), (3, 1), (4, 2), (5, 4), (6, 5), (7, 6), (8, 7), (9, 8), (10, 9)]
         buses = self.getBuses(self.stopCode, otherUser, indexPairList)
 
         self.assertEqual(len(buses), 9 + 1 + 1)
@@ -187,7 +188,7 @@ class NearbyBusesResponseTest(TestCase):
         self.getInBus(self.phoneId2, service, licensePlate, addTrajectory=True)
 
         # to compare response given by nearbybuses function and authority (in that order)
-        
+
         indexPairList = [
             (0, 1), (1, 2), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9)]
         buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
@@ -195,7 +196,7 @@ class NearbyBusesResponseTest(TestCase):
 
         buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
         self.assertEqual(len(buses), 8)
-        
+
         # user who ask for stop info
         otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
         indexPairList = [
@@ -228,7 +229,7 @@ class NearbyBusesResponseTest(TestCase):
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
-                (0, 0), (2, 1), (3, 2), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)]
+            (0, 0), (2, 1), (3, 2), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)]
         buses = self.getBuses(self.stopCode, otherUser, indexPairList)
 
         self.assertEqual(len(buses), 10)
@@ -246,7 +247,6 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(buses[1]['tienePasajeros'], 1)
         self.assertEqual(buses[1]['direction'], "I")
 
-
     def test_getFakeAuthorityInfoWithUserBusWithoutDirection(self):
         """ if dummy bus does not have direction won't be in the buses list """
 
@@ -257,7 +257,7 @@ class NearbyBusesResponseTest(TestCase):
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
-                (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+            (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
         buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
 
         self.assertEqual(len(buses), 9)

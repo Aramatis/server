@@ -1,6 +1,8 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
+
 django.setup()
 
 from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2
@@ -40,25 +42,23 @@ def clearEventsThatHaveBeenDecline():
 
     # Events for bus stop
     events = EventForBusStop.objects.filter(
-            event__eventType='busStop', broken=False,
-            expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+        event__eventType='busStop', broken=False,
+        expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
 
     for event in events:
         if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
-           event.eventConfirm * percentageOverConfirm < event.eventDecline:
+                                event.eventConfirm * percentageOverConfirm < event.eventDecline:
             event.broken = True
             event.brokenType = EventForBusStop.PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE
             event.save()
 
     # Event for buses
     events = EventForBusv2.objects.filter(event__eventType='bus', broken=False,
-            expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+                                          expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
 
     for event in events:
         if event.eventDecline > MINIMUM_NUMBER_OF_DECLINES and \
-           event.eventConfirm * percentageOverConfirm < event.eventDecline:
+                                event.eventConfirm * percentageOverConfirm < event.eventDecline:
             event.broken = True
             event.brokenType = EventForBusv2.PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE
             event.save()
-
-

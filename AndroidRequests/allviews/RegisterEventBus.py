@@ -62,11 +62,6 @@ class RegisterEventBus(View):
                 service=pBusService, uuid=theBus)
 
         # get the GPS data from the url
-        responseLongitude = None
-        responseLatitude = None
-        responseTimeStamp = None
-        responseDistance = None
-
         responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
             theBus.registrationPlate, timeStamp, float(pLongitude), float(pLatitude))
 

@@ -8,7 +8,7 @@ from AndroidRequests.tests.testHelper import TestHelper
 
 class BusEventUserListTestCase(TransactionTestCase):
     """ test for user list returned by an event """
-    
+
     def setUp(self):
         """ this method will automatically call for every single test """
         # create events
@@ -33,23 +33,25 @@ class BusEventUserListTestCase(TransactionTestCase):
         ''' user reports bus event and get list users '''
 
         user = self.test.createTranSappUsers(1)[0]
-        jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId, 
-                self.service, self.eventCode, user.userId, user.sessionToken)
-        
+        jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
+                                                     self.service, self.eventCode, user.userId, user.sessionToken)
+
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 1)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId, 
-                self.service, self.eventCode, 'confirm', user.userId, user.sessionToken)
- 
+        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
+                                                               self.service, self.eventCode, 'confirm', user.userId,
+                                                               user.sessionToken)
+
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 2)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId, 
-                self.service, self.eventCode, 'decline', user.userId, user.sessionToken)
- 
+        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
+                                                               self.service, self.eventCode, 'decline', user.userId,
+                                                               user.sessionToken)
+
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 2)
             self.assertEqual(len(event['declinedVoteList']), 1)
@@ -63,24 +65,25 @@ class BusEventUserListTestCase(TransactionTestCase):
         ScoreEvent.objects.create(code=eventCode, score=100)
 
         user = self.test.createTranSappUsers(1)[0]
-        jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode, 
-                eventCode, user.userId, user.sessionToken)
+        jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode,
+                                                       eventCode, user.userId, user.sessionToken)
 
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 1)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId, 
-                stopCode, eventCode, 'confirm', user.userId, user.sessionToken)
+        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
+                                                                 stopCode, eventCode, 'confirm', user.userId,
+                                                                 user.sessionToken)
 
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 2)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId, 
-                stopCode, eventCode, 'decline', user.userId, user.sessionToken)
+        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
+                                                                 stopCode, eventCode, 'decline', user.userId,
+                                                                 user.sessionToken)
 
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 2)
             self.assertEqual(len(event['declinedVoteList']), 1)
-

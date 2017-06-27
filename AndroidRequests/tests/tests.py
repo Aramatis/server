@@ -27,7 +27,7 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
         self.timeStamp = [timezone.now(), timezone.now() + minutes, timezone.now() + minutes + minutes]
         self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
         self.latitude = [-33.4577491104941, -
-                         33.4445256604888, -33.4402777996082]
+        33.4445256604888, -33.4402777996082]
         self.longitude = [-70.6634020999999, -70.6509264499999, -70.6433333]
 
     def test_consistency_model_DevicePositionInTime(self):
@@ -50,19 +50,20 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
 
         if django.VERSION == (1, 8, 4, 'final', 0):
             self.assertRaises(ValueError,
-                    DevicePositionInTime.objects.create,
-                    phoneId=phoneId,
-                    longitude=self.longitude[0],
-                    latitude=self.latitude[0],
-                    timeStamp=self.timeStamp[0])
+                              DevicePositionInTime.objects.create,
+                              phoneId=phoneId,
+                              longitude=self.longitude[0],
+                              latitude=self.latitude[0],
+                              timeStamp=self.timeStamp[0])
 
         elif django.VERSION == (1, 11, 0, 'final', 0):
             self.assertRaises(ValidationError,
-                    DevicePositionInTime.objects.create,
-                    phoneId=phoneId,
-                    longitude=self.longitude[0],
-                    latitude=self.latitude[0],
-                    timeStamp=self.timeStamp[0])
+                              DevicePositionInTime.objects.create,
+                              phoneId=phoneId,
+                              longitude=self.longitude[0],
+                              latitude=self.latitude[0],
+                              timeStamp=self.timeStamp[0])
+
 
 class DevicePositionInTimeTest(TransactionTestCase):
     """ test for DevicePositionInTime model """
@@ -88,7 +89,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
             timeStamp=self.time)
         # this should not be answered
         DevicePositionInTime.objects.create(phoneId=self.phoneId, longitude=3.3, latitude=4.2, timeStamp=self.time
-                                            - timezone.timedelta(minutes=11))
+                                                                                                         - timezone.timedelta(
+            minutes=11))
 
         # initial config for ActiveToken
 
@@ -333,11 +335,10 @@ class DevicePositionInTimeTest(TransactionTestCase):
             True)
 
     def test_preferPositionOfPersonInsideABus(self):
-
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
         userLatitude = -33.458771
-        userLongitude= -70.676266
+        userLongitude = -70.676266
 
         # first we test the position of the bus without passsangers
         thebus = Busv2.objects.create(registrationPlate='AA1112')
@@ -357,7 +358,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
             self.phoneId, service, licencePlate)
 
         testPoses = {"poses": [
-            {"latitud": userLatitude, "longitud": userLongitude, "timeStamp": str(timeStampNow), "inVehicleOrNot": "vehicle"}]}
+            {"latitud": userLatitude, "longitud": userLongitude, "timeStamp": str(timeStampNow),
+             "inVehicleOrNot": "vehicle"}]}
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(
             testToken, testPoses)

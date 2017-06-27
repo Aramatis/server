@@ -16,8 +16,7 @@ class BusStopsByService(View):
 
     def get(self, request, pBusService):
         """it receive the bus Service to get all the bus stops where it service stops."""
-        response = {}
-        response['service'] = pBusService
+        response = {'service': pBusService}
 
         # ask for the bus stops for this service
         busStops = self.getBusStopsForService(pBusService)
@@ -38,7 +37,7 @@ class BusStopsByService(View):
             data['latitud'] = busStop.latitude
             data['longitud'] = busStop.longitude
             getEventsByBusStop = EventsByBusStop()
-            data['eventos'] = getEventsByBusStop.getEventsForBusStop(
+            data['eventos'] = getEventsByBusStop.getEventsForStop(
                 busStop, timezone.now())
             busStops.append(data)
 

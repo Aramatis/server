@@ -33,38 +33,43 @@ class EventWithUserTestCase(TransactionTestCase):
         # create TranSappUser
         self.userId = '123456789'
         self.sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
-        TranSappUser.objects.create(userId=self.userId, name='Te st', email='a@b.com', 
-                phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK, 
-                level=level, sessionToken=self.sessionToken)
+        TranSappUser.objects.create(userId=self.userId, name='Te st', email='a@b.com',
+                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
+                                    level=level, sessionToken=self.sessionToken)
 
     def test_userAssignedToBusEvent(self):
         '''This method check that user was assigned to bus event '''
 
-        jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId, 
-                self.service, self.eventBusCode, self.userId, self.sessionToken)
-        
+        self.test.reportEventV2ByPost(self.phoneId, self.machineId,
+                                      self.service, self.eventBusCode, self.userId, self.sessionToken)
+
         eventRecord = StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all()[0]
         self.assertEqual(eventRecord.tranSappUser.userId, self.userId)
 
         # we will vote -1
-        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                self.service, self.eventBusCode, 'decline', self.userId, self.sessionToken)
+        self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
+                                                self.service, self.eventBusCode, 'decline', self.userId,
+                                                self.sessionToken)
 
-        eventRecord = StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
+        eventRecord = \
+            StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
         self.assertEqual(eventRecord.tranSappUser.userId, self.userId)
 
         # we will vote +1
-        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                self.service, self.eventBusCode, 'confirm', self.userId, self.sessionToken)
+        self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
+                                                self.service, self.eventBusCode, 'confirm', self.userId,
+                                                self.sessionToken)
 
-        eventRecord = StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
+        eventRecord = \
+            StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
         self.assertEqual(eventRecord.tranSappUser.userId, self.userId)
 
         # we will vote +1
-        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                self.service, self.eventBusCode, 'confirm', None, None)
-        
-        eventRecord = StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
+        self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
+                                                self.service, self.eventBusCode, 'confirm', None, None)
+
+        eventRecord = \
+            StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
         self.assertEqual(eventRecord.tranSappUser, None)
 
     def test_userAssignedToStopEvent(self):
@@ -75,30 +80,34 @@ class EventWithUserTestCase(TransactionTestCase):
         eventStopCode = 'evn00010'
         ScoreEvent.objects.create(code=eventStopCode, score=100)
 
-        jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode, 
-                eventStopCode, self.userId, self.sessionToken)
-        
+        self.test.reportStopEventByPost(self.phoneId, stopCode,
+                                        eventStopCode, self.userId, self.sessionToken)
+
         eventRecord = StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all()[0]
         self.assertEqual(eventRecord.tranSappUser.userId, self.userId)
 
         # we will vote -1
-        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                eventStopCode, 'decline', self.userId, self.sessionToken)
+        self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
+                                                  eventStopCode, 'decline', self.userId,
+                                                  self.sessionToken)
 
-        eventRecord = StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
+        eventRecord = \
+            StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
         self.assertEqual(eventRecord.tranSappUser.userId, self.userId)
 
         # we will vote +1
-        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                eventStopCode, 'confirm', self.userId, self.sessionToken)
+        self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
+                                                  eventStopCode, 'confirm', self.userId,
+                                                  self.sessionToken)
 
-        eventRecord = StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
+        eventRecord = \
+            StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
         self.assertEqual(eventRecord.tranSappUser.userId, self.userId)
-  
+
         # we will vote +1
-        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                eventStopCode, 'confirm', None, None)
-        
-        eventRecord = StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
+        self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
+                                                  eventStopCode, 'confirm', None, None)
+
+        eventRecord = \
+            StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
         self.assertEqual(eventRecord.tranSappUser, None)
-

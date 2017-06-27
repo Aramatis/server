@@ -20,9 +20,8 @@ class EventsByBusV2(View):
         """The UUID field can identify the bus, and the service can identify
         the bus assignment"""
 
-        response = {}
+        response = {'uuid': pPhoneId}
         # response['registrationPlate'] = pRegistrationPlate
-        response['uuid'] = pPhoneId
 
         try:
             bus = Busv2.objects.get(uuid=pPhoneId)

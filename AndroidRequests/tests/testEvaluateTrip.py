@@ -43,8 +43,10 @@ class EvaluateTripTest(TestCase):
         evaluation = "asd"
         jsonResponse = self.test.evaluateTrip(self.token, evaluation)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, {})['message'])
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(
+            Status.TRIP_EVALUATION_FORMAT_ERROR, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(
+            Status.TRIP_EVALUATION_FORMAT_ERROR, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
 
     def test_tripEvaluationWithWrongToken(self):

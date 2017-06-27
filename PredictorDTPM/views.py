@@ -14,8 +14,7 @@ def busStopInfo(request, pSecretKey, pBusStop):
     """ return dtpm data related to buses of pBusStop """
 
     if settings.SECRET_KEY != pSecretKey:
-        data = {}
-        data['error'] = "You do not have permission to do this! >:(."
+        data = {'error': "You do not have permission to do this! >:(."}
         return JsonResponse(data, safe=False)
 
     # DTPM source

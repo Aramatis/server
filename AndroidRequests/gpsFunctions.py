@@ -26,10 +26,8 @@ def haversine(lon1, lat1, lon2, lat2, measure='m'):
 
 
 def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
-    parameters = {}
-    parameters['licencePlate'] = registrationPlate
-    parameters['time'] = timeStamp.strftime(
-        "%Y-%m-%d %H:%M:%S").replace(" ", "%20")
+    parameters = {'licencePlate': registrationPlate, 'time': timeStamp.strftime(
+        "%Y-%m-%d %H:%M:%S").replace(" ", "%20")}
     url = "http://200.9.100.91:8080/gpsonline/transappBusPosition/getEstimatedPosition"
     full_url = url + '?licencePlate=' + \
         parameters['licencePlate'] + '&time=' + parameters['time']

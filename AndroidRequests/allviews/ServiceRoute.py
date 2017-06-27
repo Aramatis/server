@@ -13,10 +13,7 @@ class ServiceRoute(View):
 
     def get(self, request, pBusService, pLat1, pLon1, pLat2, pLon2):
         """it receive the bus Service to get points that creates service route """
-        response = {}
-        response['statusCode'] = "200"
-        response['statusMessage'] = "ok"
-        response['route'] = []
+        response = {'statusCode': "200", 'statusMessage': "ok", 'route': []}
 
         # ask for the route for this service
         route = self.getRoutesForService(pBusService)
@@ -50,16 +47,11 @@ class ServiceRoute(View):
         for service in Route.objects.values('serviceCode').filter(
                 serviceCode__regex=service).distinct():
             variantCode = service['serviceCode']
-            variant = {}
-            variant['variant'] = variantCode
-            variant['route'] = []
+            variant = {'variant': variantCode, 'route': []}
             for point in Route.objects.filter(
                     serviceCode=variantCode).order_by('sequence'):
                 # print "{} {}".format(point.serviceCode, point.sequence)
-                data = {}
-                data['latitude'] = point.latitude
-                data['longitude'] = point.longitude
-                data['sequence'] = point.sequence
+                data = {'latitude': point.latitude, 'longitude': point.longitude, 'sequence': point.sequence}
                 variant['route'].append(data)
             route.append(variant)
 

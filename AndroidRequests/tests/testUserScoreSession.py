@@ -11,7 +11,7 @@ from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
 
 
-class FacebookAPI():
+class FacebookAPI:
     ''' class to manipulate calls to facebook API '''
     HOST = 'https://graph.facebook.com/v2.8/'
     APP_ACCESS_TOKEN_PARAM = 'access_token={}'.format(settings.FACEBOOK_APP_ACCESS_TOKEN)
@@ -23,10 +23,11 @@ class FacebookAPI():
         ''' create a test user '''
 
         ENDPOINT = settings.FACEBOOK_APP_ID + '/accounts/test-users?'
-        URL = self.HOST + ENDPOINT + self.APP_ACCESS_TOKEN_PARAM  + '&installed={}&name={}'.format(True, 'TranSapper testing')
+        URL = self.HOST + ENDPOINT + self.APP_ACCESS_TOKEN_PARAM + '&installed={}&name={}'.format(True,
+                                                                                                  'TranSapper testing')
         response = requests.post(URL)
         jsonResponse = json.loads(response.text)
-        
+
         return jsonResponse['id'], jsonResponse['access_token']
 
     def deleteTestuser(self, userId):
@@ -35,7 +36,7 @@ class FacebookAPI():
         URL = self.HOST + userId + '?' + self.APP_ACCESS_TOKEN_PARAM
         response = requests.delete(URL)
         jsonResponse = json.loads(response.text)
-        
+
         return jsonResponse
 
 
@@ -52,8 +53,10 @@ class UserLogTestCase(TestCase):
 
         return response
     """
-    def makePostRequest(self, url, params = {}):
-        
+
+    def makePostRequest(self, url, params=None):
+        if params is None:
+            params = {}
         URL = self.URL_PREFIX + url
         c = Client()
         response = c.post(URL, params)
@@ -73,7 +76,7 @@ class UserLogTestCase(TestCase):
         self.PHONE_ID_2 = '2fe70cbb-6beb-473f-8fc4-0ff2042f1608'
         self.PHOTO_URI = 'aaa.aaaa.com/asdasdasd/photo'
         self.NICKNAME = 'nickname'
- 
+
         self.facebook = FacebookAPI()
         self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP = self.facebook.createTestuser()
 
@@ -91,17 +94,17 @@ class UserLogTestCase(TestCase):
         params = {
             'accessToken': accessToken,
             'accountType': accountType,
-            'phoneId': phoneId, 
-            'name':  self.NAME,
+            'phoneId': phoneId,
+            'name': self.NAME,
             'email': self.EMAIL,
             'userId': self.USER_ID,
             'photoURI': self.PHOTO_URI,
             'nickname': self.NICKNAME
         }
         jsonResponse = self.makePostRequest(url, params)
-        
+
         return jsonResponse
- 
+
     def logout(self, sessionToken):
         ''' log out a user '''
         url = 'logout'
@@ -117,7 +120,7 @@ class UserLogTestCase(TestCase):
         '''   '''
         # login
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
- 
+
         self.assertEqual(jsonResponse['status'], 200)
         self.assertEqual(jsonResponse['userData']['score'], 0)
         self.assertEqual(jsonResponse['userData']['level']['name'], 'firstLevel')
@@ -147,7 +150,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(user.name, self.NAME)
         self.assertEqual(user.email, self.EMAIL)
         self.assertEqual(user.phoneId, uuid.UUID(self.PHONE_ID_2))
-    
+
     def testFacebbokLoginWithRealAccessTokenButBadPhoneId(self):
         '''   '''
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, 'asdasd', TranSappUser.FACEBOOK)
@@ -159,7 +162,7 @@ class UserLogTestCase(TestCase):
         jsonResponse = self.login(self.FAKE_ACCESS_TOKEN, self.PHONE_ID_1, TranSappUser.FACEBOOK)
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['status'])
         self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['message'])
-    
+
     def testFacebookLogout(self):
         '''   '''
         # login
@@ -171,23 +174,23 @@ class UserLogTestCase(TestCase):
         self.assertEqual(jsonLogout['status'], Status.getJsonStatus(Status.OK, {})['status'])
         user = TranSappUser.objects.get(userId=self.USER_ID)
         self.assertEqual(user.sessionToken, uss.NULL_SESSION_TOKEN)
-    
+
     def testFacebookLogoutWithBadSessionToken(self):
         '''   '''
 
         # login
-        jsonLogin = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
         # logout
         jsonLogout = self.logout("I'm a bad session token")
         # tests
         self.assertEqual(jsonLogout['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
         self.assertEqual(jsonLogout['message'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['message'])
-    
+
     def testFacebookModifyUserInfo(self):
         ''' modify user info  '''
         # login
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
- 
+
         url = 'updateUserSettings'
 
         sessionToken = jsonResponse['sessionToken']
@@ -197,17 +200,12 @@ class UserLogTestCase(TestCase):
         busAvatarId = 2
         showAvatar = False
 
-        data = {}
-        data["sessionToken"] = sessionToken
-        data["userId"] = userId
-        data["nickname"] = nickname
-        data["userAvatarId"] = userAvatarId
-        data["busAvatarId"] = busAvatarId
-        data["showAvatar"] = showAvatar
-        
+        data = {"sessionToken": sessionToken, "userId": userId, "nickname": nickname, "userAvatarId": userAvatarId,
+                "busAvatarId": busAvatarId, "showAvatar": showAvatar}
+
         jsonResponse = self.makePostRequest(url, data)
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
-        user = TranSappUser.objects.get(userId=self.USER_ID);
+        user = TranSappUser.objects.get(userId=self.USER_ID)
         self.assertEqual(user.nickname, nickname)
         self.assertEqual(user.userAvatarId, userAvatarId)
         self.assertEqual(user.busAvatarId, busAvatarId)
@@ -217,12 +215,12 @@ class UserLogTestCase(TestCase):
         data['showAvatar'] = True
         jsonResponse = self.makePostRequest(url, data)
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
-        user = TranSappUser.objects.get(userId=self.USER_ID);
+        user = TranSappUser.objects.get(userId=self.USER_ID)
         self.assertEqual(user.showAvatar, True)
 
     def testFacebookModifyUserInfoWithFakeUserId(self):
         ''' modify user info  '''
- 
+
         url = 'updateUserSettings'
 
         sessionToken = "fakeSessionToken"
@@ -232,14 +230,9 @@ class UserLogTestCase(TestCase):
         busAvatarId = 2
         showAvatar = False
 
-        data = {}
-        data["sessionToken"] = sessionToken
-        data["userId"] = userId
-        data["nickname"] = nickname
-        data["userAvatarId"] = userAvatarId
-        data["busAvatarId"] = busAvatarId
-        data["showAvatar"] = showAvatar
-        
+        data = {"sessionToken": sessionToken, "userId": userId, "nickname": nickname, "userAvatarId": userAvatarId,
+                "busAvatarId": busAvatarId, "showAvatar": showAvatar}
+
         jsonResponse = self.makePostRequest(url, data)
 
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
@@ -256,15 +249,9 @@ class UserLogTestCase(TestCase):
         busAvatarId = "thisIsAnError"
         showAvatar = False
 
-        data = {}
-        data["sessionToken"] = jsonResponse["sessionToken"]
-        data["userId"] = self.USER_ID
-        data["nickname"] = nickname
-        data["userAvatarId"] = userAvatarId
-        data["busAvatarId"] = busAvatarId
-        data["showAvatar"] = showAvatar
-        
+        data = {"sessionToken": jsonResponse["sessionToken"], "userId": self.USER_ID, "nickname": nickname,
+                "userAvatarId": userAvatarId, "busAvatarId": busAvatarId, "showAvatar": showAvatar}
+
         jsonResponse = self.makePostRequest(url, data)
 
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INTERNAL_ERROR, {})['status'])
-

@@ -12,7 +12,7 @@ class UserRanking(View):
     TOP_USERS = 5
     UPPER_USERS = 5
     LOWER_USERS = 5
- 
+
     def getRanking(self, user):
         ''' return ranking list '''
         ranking = []
@@ -20,8 +20,8 @@ class UserRanking(View):
 
         previousScore = None
         position = 0
-        topUsers = TranSappUser.objects.\
-                select_related('level').order_by('-globalScore')[:self.TOP_USERS]
+        topUsers = TranSappUser.objects. \
+                       select_related('level').order_by('-globalScore')[:self.TOP_USERS]
         for topUser in topUsers:
             excludedUsers.append(topUser.pk)
             if previousScore != topUser.globalScore:
@@ -31,12 +31,12 @@ class UserRanking(View):
             topUser['position'] = position
             ranking.append(topUser)
 
-        positionsUpperUsers = TranSappUser.objects.\
-                filter(globalScore__gt=user.globalScore).values('globalScore').\
-                annotate(count=Count('globalScore')).count()
-        upperUsers = TranSappUser.objects.select_related('level').\
-                 filter(globalScore__gt=user.globalScore).\
-                 order_by('globalScore')[:self.UPPER_USERS]
+        positionsUpperUsers = TranSappUser.objects. \
+            filter(globalScore__gt=user.globalScore).values('globalScore'). \
+            annotate(count=Count('globalScore')).count()
+        upperUsers = TranSappUser.objects.select_related('level'). \
+                         filter(globalScore__gt=user.globalScore). \
+                         order_by('globalScore')[:self.UPPER_USERS]
 
         position = positionsUpperUsers + 1
         for upperUser in upperUsers:
@@ -50,9 +50,9 @@ class UserRanking(View):
             upperUser['position'] = position
             ranking.append(upperUser)
 
-        lowerUsers = TranSappUser.objects.\
-                select_related('level').filter(globalScore__lte=user.globalScore).\
-                order_by('-globalScore')[:self.LOWER_USERS]
+        lowerUsers = TranSappUser.objects. \
+                         select_related('level').filter(globalScore__lte=user.globalScore). \
+                         order_by('-globalScore')[:self.LOWER_USERS]
         position = positionsUpperUsers
         for lowerUser in lowerUsers:
             if lowerUser.pk in excludedUsers:
@@ -63,21 +63,21 @@ class UserRanking(View):
             lowerUser = lowerUser.getDictionary()
             lowerUser['position'] = position
             ranking.append(lowerUser)
-        
+
         ranking = sorted(ranking, key=lambda el: el['position'])
         return ranking
 
     def get(self, request):
         """return list of ranking with @TOP_USERS + @UPPER_USERS + @LOWER_USERS """
-       
+
         userId = request.GET.get('userId')
         sessionToken = request.GET.get('sessionToken')
 
         loggedUser, user, statusResponse = UserValidation().validateUser(userId, sessionToken)
-        
+
         response = {}
         response.update(statusResponse)
-        
+
         if loggedUser:
             response['ranking'] = self.getRanking(user)
 

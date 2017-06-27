@@ -32,12 +32,12 @@ class RegisterEventBusV2(View):
         vote = request.POST.get('vote', '')
         latitude = float(request.POST.get('latitude', '500'))
         longitude = float(request.POST.get('longitude', '500'))
-        
+
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
 
-        return self.get(request, phoneId, machineId, service, 
-                eventCode, vote, latitude, longitude, userId, sessionToken)
+        return self.get(request, phoneId, machineId, service,
+                        eventCode, vote, latitude, longitude, userId, sessionToken)
 
     def get(
             self,
@@ -48,8 +48,8 @@ class RegisterEventBusV2(View):
             pEventID,
             pConfirmDecline,
             pLatitude=500,
-            pLongitude=500, 
-            userId=None, 
+            pLongitude=500,
+            userId=None,
             sessionToken=None):
         # here we request all the info needed to proceed
         event = Event.objects.get(id=pEventID)
@@ -58,8 +58,6 @@ class RegisterEventBusV2(View):
 
         # remove hyphen and convert to uppercase
         # pBusPlate = pBusPlate.replace('-', '').upper()
-        theBus = {}
-        theAsignment = {}
         try:
             theBus = Busv2.objects.get(uuid=pMachineId)
             theAsignment = Busassignment.objects.get(
@@ -68,19 +66,14 @@ class RegisterEventBusV2(View):
             return JsonResponse({}, safe=False)
 
         # get the GPS data from the url
-        responseLongitude = None
-        responseLatitude = None
-        responseTimeStamp = None
-        responseDistance = None
-
         responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
             theBus.registrationPlate, timeStamp, float(pLongitude), float(pLatitude))
 
         # check if there is an event
         eventReport = EventForBusv2.objects.filter(
-            expireTime__gte=timeStamp, 
-            timeCreation__lte=timeStamp, 
-            busassignment=theAsignment, 
+            expireTime__gte=timeStamp,
+            timeCreation__lte=timeStamp,
+            busassignment=theAsignment,
             broken=False,
             event=event).order_by('-timeStamp').first()
 

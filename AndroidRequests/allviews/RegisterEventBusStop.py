@@ -30,14 +30,14 @@ class RegisterEventBusStop(View):
         # user position
         userLatitude = float(request.POST.get('latitude', '500'))
         userLongitude = float(request.POST.get('longitude', '500'))
-        
+
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
 
         service = request.POST.get('service', '')
 
-        return self.get(request, phoneId, stopCode,  
-                eventCode, vote, userLatitude, userLongitude, service, userId, sessionToken)
+        return self.get(request, phoneId, stopCode,
+                        eventCode, vote, userLatitude, userLongitude, service, userId, sessionToken)
 
     def get(
             self,
@@ -57,10 +57,10 @@ class RegisterEventBusStop(View):
         expireTime = timeStamp + timezone.timedelta(minutes=event.lifespam)
 
         eventReport = EventForBusStop.objects.filter(
-            expireTime__gte=timeStamp, 
-            timeCreation__lte=timeStamp, 
-            stopCode=stopCode, 
-            broken = False,
+            expireTime__gte=timeStamp,
+            timeCreation__lte=timeStamp,
+            stopCode=stopCode,
+            broken=False,
             event=event).order_by('-timeStamp').first()
 
         if eventReport is not None:

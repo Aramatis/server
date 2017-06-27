@@ -58,15 +58,13 @@ class RequestTokenV2(View):
         ActiveToken.objects.create(timeStamp=data, token=tokenObj)
 
         # we store the active token
-        response = {}
-        response['token'] = hashToken
+        response = {'token': hashToken}
 
         return JsonResponse(response, safe=False)
 
     def getRandomColor(self):
         # color used by web page that shows trip trajectories
         # unused -> letters = '0123456789ABCDEF0'
-        color = '#'
         colors = {'#2c7fb8', '#dd1c77', '#016c59', '#de2d26', '#d95f0e'}
         color = list(colors)[int(round(random() * 4))]
         return color

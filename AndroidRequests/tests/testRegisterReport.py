@@ -33,12 +33,8 @@ class RegisterReportTestCase(TestCase):
         self.formatImage = 'JPEG'
         self.reportInfo = 'additional info'
 
-        POST = {}
-        POST['text'] = self.textMessage
-        POST['img'] = self.image
-        POST['ext'] = self.formatImage
-        POST['userId'] = self.phoneId
-        POST['report_info'] = self.reportInfo
+        POST = {'text': self.textMessage, 'img': self.image, 'ext': self.formatImage, 'userId': self.phoneId,
+                'report_info': self.reportInfo}
 
         self.request.POST = POST
 

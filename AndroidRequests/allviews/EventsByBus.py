@@ -19,9 +19,7 @@ class EventsByBus(View):
         # remove hyphen and convert to uppercase
         pRegistrationPlate = pRegistrationPlate.replace('-', '').upper()
 
-        response = {}
-        response['registrationPlate'] = pRegistrationPlate
-        response['service'] = pBusService
+        response = {'registrationPlate': pRegistrationPlate, 'service': pBusService}
 
         try:
             # bus = Bus.objects.get(registrationPlate=pRegistrationPlate, service=pBusService)
