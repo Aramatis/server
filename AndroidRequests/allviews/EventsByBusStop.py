@@ -12,7 +12,7 @@ class EventsByBusStop(View):
     """This class handles requests for the current reported events
     for a given bus stop."""
 
-    def get(self, resquest, stopCode):
+    def get(self, request, stopCode):
         """Only the bus stop code is needed."""
 
         timestamp = timezone.now()
