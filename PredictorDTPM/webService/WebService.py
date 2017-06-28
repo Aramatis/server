@@ -115,12 +115,18 @@ class WebService(object):
                 bus2['mensajeError'] = service['respuestaServicio']
 
             bus1['servicio'] = service['servicio']
-            bus1['patente'] = service['ppubus1']
+            if service['ppubus1'] is not None:
+                bus1['patente'] = service['ppubus1'].replace("-", "").strip().upper()
+            else:
+                bus1['patente'] = None
             bus1['tiempo'] = service['horaprediccionbus1']
             bus1['distancia'] = "{} {}".format(service['distanciabus1'], ' mts.')
 
             bus2['servicio'] = service['servicio']
-            bus2['patente'] = service['ppubus2']
+            if service['ppubus2'] is not None:
+                bus2['patente'] = service['ppubus2'].replace("-", "").strip().upper()
+            else:
+                bus2['patente'] = None
             bus2['tiempo'] = service['horaprediccionbus2']
             bus2['distancia'] = "{} {}".format(service['distanciabus2'], ' mts.')
 
