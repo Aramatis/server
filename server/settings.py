@@ -72,7 +72,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240']
 
 # for django_debug_toolbar
-INTERNAL_IPS = ['127.0.0.1']
+INTERNAL_IPS = ['127.0.0.1', '172.17.57.156']
 # Application definition
 
 INSTALLED_APPS = (
