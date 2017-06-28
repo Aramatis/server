@@ -38,7 +38,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     logger = logging.getLogger(__name__)
 
     timeNow = timezone.now()
-    busStopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
+    stopObj = BusStop.objects.select_related('gtfs').get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
 
     """
     This is temporal, it has to be deleted in the future
@@ -47,7 +47,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
         # Register user request
         NearByBusesLog.objects.create(
             phoneId=pPhoneId,
-            busStop=busStopObj,
+            busStop=stopObj,
             timeStamp=timeNow)
     else:
         logger.error('nearbybuses: null user')
@@ -62,7 +62,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     """
     USER BUSES
     """
-    userBuses = getUserBuses(pBusStop, pPhoneId)
+    userBuses = getUserBuses(stopObj, pPhoneId)
 
     """
     DTPM BUSES
@@ -77,7 +77,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
         data = json.loads(response.text)
 
         if 'id' in data:
-            authBuses = getAuthorityBuses(data)
+            authBuses = getAuthorityBuses(stopObj, data)
 
         if data['error'] is not None:
             answer['DTPMError'] = data['error']
@@ -139,12 +139,12 @@ def formatTime(time, distance):
     return time
 
 
-def getUserBuses(busStopCode, questioner):
+def getUserBuses(stopObj, questioner):
     """ get active user buses """
 
     logger = logging.getLogger(__name__)
-    servicesToBusStop = ServicesByBusStop.objects.filter(busStop__code=busStopCode,
-                                                         gtfs__version=settings.GTFS_VERSION)
+    servicesToBusStop = ServicesByBusStop.objects.select_related('service').filter(busStop=stopObj,
+                                                                                   gtfs__version=settings.GTFS_VERSION)
     serviceNames = []
     serviceDirections = []
     for s in servicesToBusStop:
@@ -152,7 +152,7 @@ def getUserBuses(busStopCode, questioner):
         serviceDirections.append(s.code.replace(s.service.service, ""))
 
     # active user buses that stop in the bus stop
-    activeUserBuses = Token.objects.select_related('tranSappUser', 'busassignment').filter(
+    activeUserBuses = Token.objects.select_related('tranSappUser', 'busassignment__uuid').filter(
         busassignment__service__in=serviceNames,
         activetoken__isnull=False)
     # print "usuarios activos: " + str(len(activeUserBuses))
@@ -206,7 +206,7 @@ def getUserBuses(busStopCode, questioner):
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
                 bus['sentido'] = tokenObj.busassignment.getDirection(
-                    busStopCode, 30)
+                    stopObj, 30)
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
@@ -231,13 +231,13 @@ def getUserBuses(busStopCode, questioner):
     return userBuses
 
 
-def getAuthorityBuses(data):
+def getAuthorityBuses(stopObj, data):
     """ apply json format to authority info """
 
     logger = logging.getLogger(__name__)
 
     authBuses = []
-    busStopCode = data['id']
+    stopCode = data['id']
     for service in data['servicios']:
         if service['valido'] != 1 or service['patente'] is None \
                 or service['tiempo'] is None or service['distancia'] == 'None mts.':
@@ -259,7 +259,7 @@ def getAuthorityBuses(data):
         service['random'] = False
 
         try:
-            busData = busassignment.getEstimatedLocation(busStopCode, distance)
+            busData = busassignment.getEstimatedLocation(stopCode, distance)
         except Exception as e:
             logger.error(str(e))
             busData = {'latitude': 500, 'longitude': 500, 'direction': 'I'}
@@ -269,12 +269,12 @@ def getAuthorityBuses(data):
         service['lat'] = busData['latitude']
         service['lon'] = busData['longitude']
         service['direction'] = busData['direction']
-        service['color'] = Service.objects.get(
-            service=service['servicio'], gtfs__version=settings.GTFS_VERSION).color_id
+        service['color'] = Service.objects.filter(
+            service=service['servicio'], gtfs__version=settings.GTFS_VERSION).values_list('color_id', flat=True)[0]
 
         try:
             service['sentido'] = busassignment.getDirection(
-                busStopCode, distance)
+                stopObj, distance)
         except Exception as e:
             logger.error(str(e))
             service['sentido'] = "left"

@@ -25,10 +25,11 @@ class BusDirectionTestCase(TestCase):
         self.test.insertServicesOnDatabase([self.service])
 
         # add bus stop
-        self.busStopCode = 'PA459'
-        self.test.insertBusstopsOnDatabase([self.busStopCode])
+        self.stopCode = 'PA459'
+        self.test.insertBusstopsOnDatabase([self.stopCode])
+        self.stopObj = BusStop.objects.get(code=self.stopCode)
 
-        self.test.insertServicesByBusstopsOnDatabase([self.busStopCode])
+        self.test.insertServicesByBusstopsOnDatabase([self.stopCode])
 
         # create bus
         phoneId = 'dec51b413a954765abb415524c04c807'
@@ -54,14 +55,13 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # set bus stop
-        busStop = BusStop.objects.get(code=self.busStopCode, gtfs__version=settings.GTFS_VERSION)
-        busStop.longitude = 100
-        busStop.latitude = 95
-        busStop.save()
+        self.stopObj.longitude = 100
+        self.stopObj.latitude = 95
+        self.stopObj.save()
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(
-            busStop=busStop, gtfs=self.gtfs, service=self.serviceCode, distance=45)
+            busStop=self.stopObj, gtfs=self.gtfs, service=self.serviceCode, distance=45)
         # to select points uses itouchmap.com/latlong.html
         # this points generate this position scheme
         #
@@ -110,7 +110,7 @@ class BusDirectionTestCase(TestCase):
         distance = 25
 
         # print "upper_right_corner"
-        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
 
         self.assertEqual(orientation, 'left')
 
@@ -132,14 +132,13 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitude = -70.662800
-        busStop.latitude = -33.447467
-        busStop.save()
+        self.stopObj.longitude = -70.662800
+        self.stopObj.latitude = -33.447467
+        self.stopObj.save()
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(
-            busStop=busStop, gtfs=self.gtfs, service=self.serviceCode, distance=45)
+            busStop=self.stopObj, gtfs=self.gtfs, service=self.serviceCode, distance=45)
         # to select points uses itouchmap.com/latlong.html
         # this points generate this position scheme
         #
@@ -188,7 +187,7 @@ class BusDirectionTestCase(TestCase):
         distance = 20
 
         # print "lower_right_corner"
-        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
 
         self.assertEqual(orientation, 'left')
 
@@ -210,14 +209,13 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitude = -70.662800
-        busStop.latitude = -33.457091
-        busStop.save()
+        self.stopObj.longitude = -70.662800
+        self.stopObj.latitude = -33.457091
+        self.stopObj.save()
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(
-            busStop=busStop, gtfs=self.gtfs, service=self.serviceCode, distance=45)
+            busStop=self.stopObj, gtfs=self.gtfs, service=self.serviceCode, distance=45)
         # to select points uses itouchmap.com/latlong.html
         # this points generate this position scheme
         #
@@ -265,7 +263,7 @@ class BusDirectionTestCase(TestCase):
 
         distance = 20
         # print "lower_left_corner"
-        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
 
         self.assertEqual(orientation, 'right')
 
@@ -287,14 +285,13 @@ class BusDirectionTestCase(TestCase):
         --------------------------
         """
         # create bus stop
-        busStop = BusStop.objects.get(code=self.busStopCode, gtfs=self.gtfs)
-        busStop.longitude = 140
-        busStop.latitude = -33.457199
-        busStop.save()
+        self.stopObj.longitude = 140
+        self.stopObj.latitude = -33.457199
+        self.stopObj.save()
 
         # self.serviceCode stops in  self.busStop
         ServiceStopDistance.objects.create(
-            busStop=busStop, gtfs=self.gtfs, service=self.serviceCode, distance=45)
+            busStop=self.stopObj, gtfs=self.gtfs, service=self.serviceCode, distance=45)
         # to select points uses itouchmap.com/latlong.html
         # this points generate this position scheme
         #
@@ -344,6 +341,6 @@ class BusDirectionTestCase(TestCase):
         distance = 25
 
         # print "upper_left_corner"
-        orientation = Busassignment.objects.first().getDirection(self.busStopCode, distance)
+        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
 
         self.assertEqual(orientation, 'right')
