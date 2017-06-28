@@ -8,6 +8,8 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone
 
+from collections import defaultdict
+
 # constants
 import AndroidRequests.constants as Constants
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
@@ -38,7 +40,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     logger = logging.getLogger(__name__)
 
     timeNow = timezone.now()
-    stopObj = BusStop.objects.select_related('gtfs').get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
+    stopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
 
     """
     This is temporal, it has to be deleted in the future
@@ -238,24 +240,64 @@ def getAuthorityBuses(stopObj, data):
 
     authBuses = []
     stopCode = data['id']
+
+    """
+    Generate busObjDict and busDict dicts to make just two queries to get all buses info
+    """
+    # TODO: 'replace("-", "").strip().upper()' has moved to webService app, so will have to disappear in the future
+    routeList = filter(lambda route: route['patente'] is not None, data['servicios'])
+    licensePlateList = map(lambda route: route['patente'].replace("-", "").strip().upper(), routeList)
+
+    busObjList = Busv2.objects.prefetch_related('busassignment_set').filter(registrationPlate__in=licensePlateList)
+    busObjDict = defaultdict(None)
+    for busObj in busObjList:
+        busObjDict[busObj.registrationPlate] = busObj
+
+    busList = Busv2.objects.filter(registrationPlate__in=licensePlateList).values_list('registrationPlate',
+                                                                                       'uuid',
+                                                                                       'busassignment__service')
+    busDict = defaultdict(lambda : {'busassignments': [], 'uuid': None})
+    for licensePlate, uuid, route in busList:
+        busDict[licensePlate]['busassignments'].append(route)
+        busDict[licensePlate]['uuid'] = uuid
+
+    """
+    Generate eventBusObjDict dict to make one query to get all event buses info
+    """
+    busassignments = []
+    for busObj in busObjList:
+        busassignments += busObj.busassignment_set.all()
+    eventsByLicensePlate = EventsByBusV2().getEventsForBuses(busassignments, timezone.now())
+    print eventsByLicensePlate
+
     for service in data['servicios']:
         if service['valido'] != 1 or service['patente'] is None \
                 or service['tiempo'] is None or service['distancia'] == 'None mts.':
             continue
         # clean the strings from spaces and unwanted format
         service['servicio'] = formatServiceName(service['servicio'].strip())
-        service['patente'] = service[
-            'patente'].replace("-", "").strip().upper()
+        # TODO: this has moved to webService app, so will have to disappear in the future
+        service['patente'] = service['patente'].replace("-", "").strip().upper()
         distance = int(service['distancia'].replace(' mts.', ''))
         service['distanciaMts'] = distance
         service['distanciaV2'] = formatDistance(distance)
         service['tiempoV2'] = formatTime(service['tiempo'], distance)
 
+        licensePlate = service['patente']
+        route = service['servicio']
         # request the correct bus
-        bus = Busv2.objects.get_or_create(
-            registrationPlate=service['patente'])[0]
-        busassignment = Busassignment.objects.get_or_create(
-            service=service['servicio'], uuid=bus)[0]
+        if licensePlate not in busDict.keys():
+            bus = Busv2.objects.create(registrationPlate=licensePlate)
+            service['busId'] = bus.uuid
+            busassignment = Busassignment.objects.create(service=route, uuid=bus)
+        else:
+            service['busId'] = busDict[service['patente']]['uuid']
+            if route not in busDict[licensePlate]['busassignments']:
+                busassignment = Busassignment.objects.create(service=route, uuid=busObjDict[licensePlate])
+            else:
+                # this uses prefetch related made in busObjList
+                busassignment = [b for b in busObjDict[licensePlate].busassignment_set.all() if b.service == route][0]
+
         service['random'] = False
 
         try:
@@ -281,8 +323,6 @@ def getAuthorityBuses(stopObj, data):
 
         busEvents = EventsByBusV2().getEventsForBus([busassignment], timezone.now())
         service['eventos'] = busEvents
-        # add uuid parameter
-        service['busId'] = bus.uuid
 
         authBuses.append(service)
 

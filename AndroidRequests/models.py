@@ -490,7 +490,7 @@ class Busassignment(models.Model):
         location = ServiceLocation.objects.filter(
             service=serviceCode,
             gtfs__version=settings.GTFS_VERSION,
-            distance=closest)[0]
+            distance=closest).first()
 
         return {'latitude': location.latitude,
                 'longitude': location.longitude,

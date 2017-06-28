@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
 
+from collections import defaultdict
+
 # my stuff
 # import DB's models
 from AndroidRequests.models import Busv2, EventForBusv2, Busassignment
@@ -63,3 +65,34 @@ class EventsByBusV2(View):
                 result.append(event)
         
         return result
+
+    def getEventsForBuses(self, busassignments, timeStamp):
+        """ this method get events of group of buses with one hit to database """
+
+        events = EventForBusv2.objects.prefetch_related('stadisticdatafromregistrationbus_set__tranSappUser',
+                                                        'busassignment__uuid').filter(
+            busassignment__in=busassignments, event__eventType='bus', broken=False,
+            expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+
+        eventsByLicensePlate = defaultdict(list)
+        for event in events:
+            eventsByLicensePlate[event.busassignment.uuid.registrationPlate].append(event)
+
+        eventListByBus = defaultdict(None)
+        for licensePlate, events in eventsByLicensePlate:
+            aggregatedEvents = {}
+            result = []
+            for event in events:
+                event = event.getDictionary()
+
+                if event['eventcode'] in aggregatedEvents:
+                    position = aggregatedEvents[event['eventcode']]
+                    result[position]['eventConfirm'] += event['eventConfirm']
+                    result[position]['eventDecline'] += event['eventDecline']
+                    result[position]['confirmedVoteList'] += event['confirmedVoteList']
+                    result[position]['declinedVoteList'] += event['declinedVoteList']
+                else:
+                    aggregatedEvents[event['eventcode']] = len(result)
+                    result.append(event)
+            eventListByBus[licensePlate] = result
+        return eventListByBus
