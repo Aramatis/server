@@ -157,12 +157,18 @@ def getUserBuses(stopObj, questioner):
     activeUserBuses = Token.objects.select_related('tranSappUser', 'busassignment__uuid').filter(
         busassignment__service__in=serviceNames,
         activetoken__isnull=False)
-    # print "usuarios activos: " + str(len(activeUserBuses))
+
+    # retrieve events for all user buses
+    busassignments = []
+    for tokenObj in activeUserBuses:
+        busassignments.append(tokenObj.busassignment)
+    eventsByMachineId = EventsByBusV2().getEventsForBuses(busassignments, timezone.now())
+
     globalScores = []
     # used to choose which bus avatar shows. Criteria: user with highest global score
     userBuses = []
     uuids = []
-    # bus identifiers  
+    # bus identifiers
     for tokenObj in activeUserBuses:
         serviceIndex = serviceNames.index(tokenObj.busassignment.service)
         machineId = tokenObj.busassignment.uuid.uuid
@@ -202,8 +208,7 @@ def getUserBuses(stopObj, questioner):
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
 
-            busEvents = EventsByBusV2().getEventsForBus([tokenObj.busassignment], timezone.now())
-            bus['eventos'] = busEvents
+            bus['eventos'] = eventsByMachineId[machineId] if machineId in eventsByMachineId.keys() else []
 
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
@@ -267,8 +272,7 @@ def getAuthorityBuses(stopObj, data):
     busassignments = []
     for busObj in busObjList:
         busassignments += busObj.busassignment_set.all()
-    eventsByLicensePlate = EventsByBusV2().getEventsForBuses(busassignments, timezone.now())
-    print eventsByLicensePlate
+    eventsByMachineId = EventsByBusV2().getEventsForBuses(busassignments, timezone.now())
 
     for service in data['servicios']:
         if service['valido'] != 1 or service['patente'] is None \
@@ -298,6 +302,7 @@ def getAuthorityBuses(stopObj, data):
                 # this uses prefetch related made in busObjList
                 busassignment = [b for b in busObjDict[licensePlate].busassignment_set.all() if b.service == route][0]
 
+        service['eventos'] = eventsByMachineId[service['busId']] if service['busId'] in eventsByMachineId.keys() else []
         service['random'] = False
 
         try:
@@ -320,9 +325,6 @@ def getAuthorityBuses(stopObj, data):
         except Exception as e:
             logger.error(str(e))
             service['sentido'] = "left"
-
-        busEvents = EventsByBusV2().getEventsForBus([busassignment], timezone.now())
-        service['eventos'] = busEvents
 
         authBuses.append(service)
 
