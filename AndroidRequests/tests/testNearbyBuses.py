@@ -8,6 +8,7 @@ import AndroidRequests.constants as Constants
 import AndroidRequests.views as views
 # my stuff
 from AndroidRequests.tests.testHelper import TestHelper
+from AndroidRequests.models import BusStop
 
 
 class NearbyBusesTest(TestCase):
@@ -22,12 +23,13 @@ class NearbyBusesTest(TestCase):
         self.helper = TestHelper(self)
 
         self.service = '507'
-        self.busStop = 'PA459'
+        self.stopCode = 'PA459'
 
         self.helper.insertServicesOnDatabase([self.service])
-        self.helper.insertBusstopsOnDatabase([self.busStop])
-        self.helper.insertServicesByBusstopsOnDatabase([self.busStop])
-        self.helper.insertServiceStopDistanceOnDatabase([self.busStop])
+        self.helper.insertBusstopsOnDatabase([self.stopCode])
+        self.stopObj = BusStop.objects.get(code=self.stopCode)
+        self.helper.insertServicesByBusstopsOnDatabase([self.stopCode])
+        self.helper.insertServiceStopDistanceOnDatabase([self.stopCode])
         self.helper.insertServiceLocationOnDatabase([self.service + 'R'])
 
     def test_nearbyBuses(self):
@@ -36,7 +38,7 @@ class NearbyBusesTest(TestCase):
         request = factory.get('/android/nearbyBuses')
         request.user = AnonymousUser()
 
-        response = views.nearbyBuses(request, self.phoneId, self.busStop)
+        response = views.nearbyBuses(request, self.phoneId, self.stopObj.code)
 
         self.assertEqual(response.status_code, 200)
 
@@ -65,20 +67,21 @@ class NearbyBusesResponseTest(TestCase):
         self.stopCode = 'PA433'
         self.service = '507'
         self.helper.insertBusstopsOnDatabase([self.stopCode])
+        self.stopObj = BusStop.objects.get(code=self.stopCode)
         self.helper.insertServicesOnDatabase(['506', '506e', '506v', '509', '507'])
         self.helper.insertServicesByBusstopsOnDatabase([self.stopCode])
         self.helper.insertServiceStopDistanceOnDatabase([self.stopCode])
         self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
-    def getBuses(self, stopCode, phoneId, indexPairList):
+    def getBuses(self, stopObj, phoneId, indexPairList):
         ''' generate nearbybuses response '''
 
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(stopCode, phoneId)
-        authBuses = views.getAuthorityBuses(fakeJsonAuthorityAnswer)
+        userBuses = views.getUserBuses(stopObj, phoneId)
+        authBuses = views.getAuthorityBuses(stopObj, fakeJsonAuthorityAnswer)
         # authBuses return 9 of 10 buses because one of them does not have license plate
         buses = views.mergeBuses(userBuses, authBuses)
 
@@ -105,7 +108,7 @@ class NearbyBusesResponseTest(TestCase):
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
             (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
+        buses = self.getBuses(self.stopObj, self.phoneId, indexPairList)
         self.assertEqual(len(buses), 9)
 
     def test_nearbyBusesWithFakeAuthorityInfoPlusOneUserBus(self):
@@ -118,7 +121,7 @@ class NearbyBusesResponseTest(TestCase):
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
             (1, 0), (2, 1), (3, 2), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
+        buses = self.getBuses(self.stopObj, self.phoneId2, indexPairList)
 
         self.assertEqual(len(buses), 9 + 1)
         self.assertEqual(buses[0]['patente'], Constants.DUMMY_LICENSE_PLATE)
@@ -141,7 +144,7 @@ class NearbyBusesResponseTest(TestCase):
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
             (2, 0), (3, 1), (4, 2), (5, 4), (6, 5), (7, 6), (8, 7), (9, 8), (10, 9)]
-        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
+        buses = self.getBuses(self.stopObj, otherUser, indexPairList)
 
         self.assertEqual(len(buses), 9 + 1 + 1)
 
@@ -165,14 +168,14 @@ class NearbyBusesResponseTest(TestCase):
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
             (0, 1), (1, 2), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
+        buses = self.getBuses(self.stopObj, self.phoneId, indexPairList)
 
         self.assertEqual(len(buses), 8)
 
         otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
         indexPairList = [
             (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
-        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
+        buses = self.getBuses(self.stopObj, otherUser, indexPairList)
         self.assertEqual(len(buses), 9)
 
     def test_nearbyBusesWithFakeAuthorityInfoPlusTwoUserInTheSameBus(self):
@@ -191,17 +194,17 @@ class NearbyBusesResponseTest(TestCase):
 
         indexPairList = [
             (0, 1), (1, 2), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId, indexPairList)
+        buses = self.getBuses(self.stopObj, self.phoneId, indexPairList)
         self.assertEqual(len(buses), 8)
 
-        buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
+        buses = self.getBuses(self.stopObj, self.phoneId2, indexPairList)
         self.assertEqual(len(buses), 8)
 
         # user who ask for stop info
         otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
         indexPairList = [
             (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
-        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
+        buses = self.getBuses(self.stopObj, otherUser, indexPairList)
         self.assertEqual(len(buses), 9)
 
         self.assertEqual(buses[0]['patente'], licensePlate.upper())
@@ -230,7 +233,7 @@ class NearbyBusesResponseTest(TestCase):
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
             (0, 0), (2, 1), (3, 2), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9)]
-        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
+        buses = self.getBuses(self.stopObj, otherUser, indexPairList)
 
         self.assertEqual(len(buses), 10)
         # this is the fake bus
@@ -258,7 +261,7 @@ class NearbyBusesResponseTest(TestCase):
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
             (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
-        buses = self.getBuses(self.stopCode, self.phoneId2, indexPairList)
+        buses = self.getBuses(self.stopObj, self.phoneId2, indexPairList)
 
         self.assertEqual(len(buses), 9)
 
@@ -301,7 +304,7 @@ class NearbyBusesResponseTest(TestCase):
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = []
-        buses = self.getBuses(self.stopCode, otherUser, indexPairList)
+        buses = self.getBuses(self.stopObj, otherUser, indexPairList)
         self.assertEqual(len(buses), 9)
 
         # check avatar Id

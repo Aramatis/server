@@ -8,6 +8,8 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone
 
+from collections import defaultdict
+
 # constants
 import AndroidRequests.constants as Constants
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
@@ -38,7 +40,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     logger = logging.getLogger(__name__)
 
     timeNow = timezone.now()
-    busStopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
+    stopObj = BusStop.objects.get(code=pBusStop, gtfs__version=settings.GTFS_VERSION)
 
     """
     This is temporal, it has to be deleted in the future
@@ -47,7 +49,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
         # Register user request
         NearByBusesLog.objects.create(
             phoneId=pPhoneId,
-            busStop=busStopObj,
+            busStop=stopObj,
             timeStamp=timeNow)
     else:
         logger.error('nearbybuses: null user')
@@ -62,7 +64,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     """
     USER BUSES
     """
-    userBuses = getUserBuses(pBusStop, pPhoneId)
+    userBuses = getUserBuses(stopObj, pPhoneId)
 
     """
     DTPM BUSES
@@ -77,7 +79,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
         data = json.loads(response.text)
 
         if 'id' in data:
-            authBuses = getAuthorityBuses(data)
+            authBuses = getAuthorityBuses(stopObj, data)
 
         if data['error'] is not None:
             answer['DTPMError'] = data['error']
@@ -139,12 +141,12 @@ def formatTime(time, distance):
     return time
 
 
-def getUserBuses(busStopCode, questioner):
+def getUserBuses(stopObj, questioner):
     """ get active user buses """
 
     logger = logging.getLogger(__name__)
-    servicesToBusStop = ServicesByBusStop.objects.filter(busStop__code=busStopCode,
-                                                         gtfs__version=settings.GTFS_VERSION)
+    servicesToBusStop = ServicesByBusStop.objects.select_related('service').filter(busStop=stopObj,
+                                                                                   gtfs__version=settings.GTFS_VERSION)
     serviceNames = []
     serviceDirections = []
     for s in servicesToBusStop:
@@ -152,15 +154,21 @@ def getUserBuses(busStopCode, questioner):
         serviceDirections.append(s.code.replace(s.service.service, ""))
 
     # active user buses that stop in the bus stop
-    activeUserBuses = Token.objects.select_related('tranSappUser', 'busassignment').filter(
+    activeUserBuses = Token.objects.select_related('tranSappUser', 'busassignment__uuid').filter(
         busassignment__service__in=serviceNames,
         activetoken__isnull=False)
-    # print "usuarios activos: " + str(len(activeUserBuses))
+
+    # retrieve events for all user buses
+    busassignments = []
+    for tokenObj in activeUserBuses:
+        busassignments.append(tokenObj.busassignment)
+    eventsByMachineId = EventsByBusV2().getEventsForBuses(busassignments, timezone.now())
+
     globalScores = []
     # used to choose which bus avatar shows. Criteria: user with highest global score
     userBuses = []
     uuids = []
-    # bus identifiers  
+    # bus identifiers
     for tokenObj in activeUserBuses:
         serviceIndex = serviceNames.index(tokenObj.busassignment.service)
         machineId = tokenObj.busassignment.uuid.uuid
@@ -200,13 +208,12 @@ def getUserBuses(busStopCode, questioner):
             bus['lon'] = busData['longitude']
             bus['tienePasajeros'] = busData['passengers']
 
-            busEvents = EventsByBusV2().getEventsForBus([tokenObj.busassignment], timezone.now())
-            bus['eventos'] = busEvents
+            bus['eventos'] = eventsByMachineId[machineId] if machineId in eventsByMachineId.keys() else []
 
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
                 bus['sentido'] = tokenObj.busassignment.getDirection(
-                    busStopCode, 30)
+                    stopObj, 30)
             except Exception as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
@@ -231,35 +238,78 @@ def getUserBuses(busStopCode, questioner):
     return userBuses
 
 
-def getAuthorityBuses(data):
+def getAuthorityBuses(stopObj, data):
     """ apply json format to authority info """
 
     logger = logging.getLogger(__name__)
 
     authBuses = []
-    busStopCode = data['id']
+    stopCode = data['id']
+
+    """
+    Generate busObjDict and busDict dicts to make just two queries to get all buses info
+    """
+    # TODO: 'replace("-", "").strip().upper()' has moved to webService app, so will have to disappear in the future
+    routeList = filter(lambda route: route['patente'] is not None, data['servicios'])
+    licensePlateList = map(lambda route: route['patente'].replace("-", "").strip().upper(), routeList)
+
+    busObjList = Busv2.objects.prefetch_related('busassignment_set').filter(registrationPlate__in=licensePlateList)
+    busObjDict = defaultdict(None)
+    for busObj in busObjList:
+        busObjDict[busObj.registrationPlate] = busObj
+
+    busList = Busv2.objects.filter(registrationPlate__in=licensePlateList).values_list('registrationPlate',
+                                                                                       'uuid',
+                                                                                       'busassignment__service')
+    busDict = defaultdict(lambda : {'busassignments': [], 'uuid': None})
+    for licensePlate, uuid, route in busList:
+        busDict[licensePlate]['busassignments'].append(route)
+        busDict[licensePlate]['uuid'] = uuid
+
+    """
+    Generate eventBusObjDict dict to make one query to get all event buses info
+    """
+    busassignments = []
+    for busObj in busObjList:
+        busassignments += busObj.busassignment_set.all()
+    eventsByMachineId = EventsByBusV2().getEventsForBuses(busassignments, timezone.now())
+
     for service in data['servicios']:
         if service['valido'] != 1 or service['patente'] is None \
                 or service['tiempo'] is None or service['distancia'] == 'None mts.':
             continue
         # clean the strings from spaces and unwanted format
         service['servicio'] = formatServiceName(service['servicio'].strip())
-        service['patente'] = service[
-            'patente'].replace("-", "").strip().upper()
+        # TODO: this has moved to webService app, so will have to disappear in the future
+        service['patente'] = service['patente'].replace("-", "").strip().upper()
         distance = int(service['distancia'].replace(' mts.', ''))
         service['distanciaMts'] = distance
         service['distanciaV2'] = formatDistance(distance)
         service['tiempoV2'] = formatTime(service['tiempo'], distance)
 
+        # default avatar id = 0
+        service['avatarId'] = 0
+
+        licensePlate = service['patente']
+        route = service['servicio']
         # request the correct bus
-        bus = Busv2.objects.get_or_create(
-            registrationPlate=service['patente'])[0]
-        busassignment = Busassignment.objects.get_or_create(
-            service=service['servicio'], uuid=bus)[0]
+        if licensePlate not in busDict.keys():
+            bus = Busv2.objects.create(registrationPlate=licensePlate)
+            service['busId'] = bus.uuid
+            busassignment = Busassignment.objects.create(service=route, uuid=bus)
+        else:
+            service['busId'] = busDict[service['patente']]['uuid']
+            if route not in busDict[licensePlate]['busassignments']:
+                busassignment = Busassignment.objects.create(service=route, uuid=busObjDict[licensePlate])
+            else:
+                # this uses prefetch related made in busObjList
+                busassignment = [b for b in busObjDict[licensePlate].busassignment_set.all() if b.service == route][0]
+
+        service['eventos'] = eventsByMachineId[service['busId']] if service['busId'] in eventsByMachineId.keys() else []
         service['random'] = False
 
         try:
-            busData = busassignment.getEstimatedLocation(busStopCode, distance)
+            busData = busassignment.getEstimatedLocation(stopCode, distance)
         except Exception as e:
             logger.error(str(e))
             busData = {'latitude': 500, 'longitude': 500, 'direction': 'I'}
@@ -269,22 +319,15 @@ def getAuthorityBuses(data):
         service['lat'] = busData['latitude']
         service['lon'] = busData['longitude']
         service['direction'] = busData['direction']
-        service['color'] = Service.objects.get(
-            service=service['servicio'], gtfs__version=settings.GTFS_VERSION).color_id
+        service['color'] = Service.objects.filter(
+            service=service['servicio'], gtfs__version=settings.GTFS_VERSION).values_list('color_id', flat=True)[0]
 
         try:
             service['sentido'] = busassignment.getDirection(
-                busStopCode, distance)
+                stopObj, distance)
         except Exception as e:
             logger.error(str(e))
             service['sentido'] = "left"
-
-        busEvents = EventsByBusV2().getEventsForBus([busassignment], timezone.now())
-        service['eventos'] = busEvents
-        # add uuid parameter
-        service['busId'] = bus.uuid
-        # default avatar id = 0
-        service['avatarId'] = 0
 
         authBuses.append(service)
 
