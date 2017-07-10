@@ -283,6 +283,8 @@ def getAuthorityBuses(data):
         service['eventos'] = busEvents
         # add uuid parameter
         service['busId'] = bus.uuid
+        # default avatar id = 0
+        service['avatarId'] = 0
 
         authBuses.append(service)
 
