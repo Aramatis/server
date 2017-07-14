@@ -266,7 +266,7 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(len(buses), 9)
 
     def test_nearbyBusesCheckAvatarId(self):
-        """ user asked for nearby buses with one of them with avatar id.
+        """ user asked for nearby buses with one of them with avatar id differents of default value (0).
             there are two users inside the bus and the avatar id will be 
             of user with highest score """
 
@@ -311,6 +311,8 @@ class NearbyBusesResponseTest(TestCase):
         for bus in buses:
             if bus['patente'] == licensePlate.upper():
                 self.assertEqual(bus['avatarId'], 4)
+            else:
+                self.assertEqual(bus['avatarId'], 0)
 
 
 class FormattersTest(TestCase):

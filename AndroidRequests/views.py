@@ -287,6 +287,9 @@ def getAuthorityBuses(stopObj, data):
         service['distanciaV2'] = formatDistance(distance)
         service['tiempoV2'] = formatTime(service['tiempo'], distance)
 
+        # default avatar id = 0
+        service['avatarId'] = 0
+
         licensePlate = service['patente']
         route = service['servicio']
         # request the correct bus
