@@ -80,10 +80,10 @@ class NearbyBusesResponseTest(TestCase):
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(stopObj, phoneId)
-        authBuses = views.getAuthorityBuses(stopObj, fakeJsonAuthorityAnswer)
+        userBuses = views.get_user_buses(stopObj, phoneId)
+        authBuses = views.get_authority_buses(stopObj, fakeJsonAuthorityAnswer)
         # authBuses return 9 of 10 buses because one of them does not have license plate
-        buses = views.mergeBuses(userBuses, authBuses)
+        buses = views.merge_buses(userBuses, authBuses)
 
         for busIndex, authIndexAnswer in indexPairList:
             self.assertEqual(
@@ -327,10 +327,10 @@ class FormattersTest(TestCase):
         distanceGreaterThan1000NotInt = 1856
         distanceGreaterThan1000Int = 2000
 
-        self.assertEqual(views.formatDistance(distanceLessThan1000), "585m")
-        self.assertEqual(views.formatDistance(
+        self.assertEqual(views.format_distance(distanceLessThan1000), "585m")
+        self.assertEqual(views.format_distance(
             distanceGreaterThan1000NotInt), "1.86Km")
-        self.assertEqual(views.formatDistance(
+        self.assertEqual(views.format_distance(
             distanceGreaterThan1000Int), "2Km")
 
     def test_FormatServiceName(self):
@@ -343,13 +343,13 @@ class FormattersTest(TestCase):
         serviceName6 = "N50"
         serviceName7 = "506"
 
-        self.assertEqual(views.formatServiceName(serviceName1), "506e")
-        self.assertEqual(views.formatServiceName(serviceName2), "506N")
-        self.assertEqual(views.formatServiceName(serviceName3), "D03N")
-        self.assertEqual(views.formatServiceName(serviceName4), "D03e")
-        self.assertEqual(views.formatServiceName(serviceName5), "D03")
-        self.assertEqual(views.formatServiceName(serviceName6), "N50")
-        self.assertEqual(views.formatServiceName(serviceName7), "506")
+        self.assertEqual(views.format_service_name(serviceName1), "506e")
+        self.assertEqual(views.format_service_name(serviceName2), "506N")
+        self.assertEqual(views.format_service_name(serviceName3), "D03N")
+        self.assertEqual(views.format_service_name(serviceName4), "D03e")
+        self.assertEqual(views.format_service_name(serviceName5), "D03")
+        self.assertEqual(views.format_service_name(serviceName6), "N50")
+        self.assertEqual(views.format_service_name(serviceName7), "506")
 
     def test_FormatTime(self):
         """ test method that apply time format """
@@ -377,7 +377,7 @@ class FormattersTest(TestCase):
         for time in times:
             for distance in distances:
                 self.assertEqual(
-                    views.formatTime(
+                    views.format_time(
                         time,
                         distance),
                     answers[index])

@@ -39,7 +39,7 @@ class EventsByBus(View):
         since the last time there were reported"""
         events = []
 
-        # if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE :
+        # if pBus.registrationPlate == constants.DUMMY_LICENSE_PLATE :
         #     return events
 
         eventsToAsk = Event.objects.filter(eventType='bus')
