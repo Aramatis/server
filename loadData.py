@@ -15,7 +15,7 @@ django.setup()
  the first parameter is the gtfs version followed by 
  pairs the name of the model and the paths to the csv files with the data
 
- EX: python loadData.py 'v0.7' busstop InitialData/v0.7/busstop.csv service InitialData/v0.7/services.csv servicesbybusstop InitialData/v0.7/servicesbybusstop.csv servicestopdistance InitialData/v0.7/servicestopdistance.csv ServiceLocation InitialData/v0.7/servicelocation.csv event InitialData/events.csv
+ EX: python loadData.py v1.1 busstop InitialData/v1.1/busstop.csv service InitialData/v1.1/services.csv servicesbybusstop InitialData/v1.1/servicesbybusstop.csv servicestopdistance InitialData/v1.1/servicestopdistance.csv ServiceLocation InitialData/v1.1/servicelocation.csv event InitialData/events.csv
 """
 def loadData(args, logFileName = 'loadDataError.log'):
     ''' load csv data to database '''
