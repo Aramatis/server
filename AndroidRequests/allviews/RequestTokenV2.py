@@ -53,6 +53,7 @@ class RequestTokenV2(View):
             busassignment=busassignment,
             color=self.getRandomColor(),
             tranSappUser=tranSappUser,
+            timeCreation=data,
             direction=None)
 
         ActiveToken.objects.create(timeStamp=data, token=tokenObj)

@@ -56,6 +56,7 @@ class RequestToken(View):
             token=hashToken,
             busassignment=assignment,
             color=self.getRandomColor(),
+            timeCreation=timezone.now(),
             direction=None)
         ActiveToken.objects.create(timeStamp=data, token=aToken)
 
