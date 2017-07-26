@@ -329,7 +329,7 @@ def get_authority_buses(stop_obj, data):
         try:
             bus_data = busassignment.getEstimatedLocation(stop_code, distance)
         except Exception as e:
-            logger.error(str(e))
+            logger.error("Trying to get estimated location: " + str(e))
             bus_data = {'latitude': 500, 'longitude': 500, 'direction': 'I'}
             service['random'] = True
 
