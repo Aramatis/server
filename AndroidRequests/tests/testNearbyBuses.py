@@ -271,7 +271,7 @@ class NearbyBusesResponseTest(TestCase):
             of user with highest score """
 
         licensePlate = 'bjfb28'
-        service = '506'
+        route = '506'
         # create users and set theirs global scores
         users = self.helper.createTranSappUsers(2)
 
@@ -287,14 +287,14 @@ class NearbyBusesResponseTest(TestCase):
 
         # user1 get in bus 
         travelKey = self.helper.getInBusWithLicencePlateByPost(
-            user1.phoneId, service, licensePlate, userId=user1.userId, sessionToken=user1.sessionToken)
+            user1.phoneId, route, licensePlate, userId=user1.userId, sessionToken=user1.sessionToken)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
         # user2 get in bus 
         travelKey = self.helper.getInBusWithLicencePlateByPost(
-            user2.phoneId, service, licensePlate, userId=user2.userId, sessionToken=user2.sessionToken)
+            user2.phoneId, route, licensePlate, userId=user2.userId, sessionToken=user2.sessionToken)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
