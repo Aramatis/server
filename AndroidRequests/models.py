@@ -107,7 +107,7 @@ class StadisticDataFromRegistration(Location):
         abstract = True
 
     def getDictionary(self):
-        ''' return two list: one with confirm users and another with decline users '''
+        """ return two list: one with confirm users and another with decline users """
         dictionary = {}
         if self.tranSappUser is not None:
             dictionary['user'] = self.tranSappUser.getDictionary()
@@ -143,7 +143,7 @@ class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
 
 
 class EventRegistration(models.Model):
-    '''This model stores the reports of events coming from the passagers of the system of public transport buses.'''
+    """This model stores the reports of events coming from the passagers of the system of public transport buses."""
     timeStamp = models.DateTimeField('Time Stamp')  # lastime it was updated
     """ Specific date time when the server received the event registration """
     timeCreation = models.DateTimeField('Creation Time')
@@ -168,7 +168,7 @@ class EventRegistration(models.Model):
         abstract = True
 
     def getDictionary(self):
-        '''A dictionary with the event information, just what was of interest to return to the app.'''
+        """A dictionary with the event information, just what was of interest to return to the app."""
         dictionary = {'eventConfirm': self.eventConfirm, 'eventDecline': self.eventDecline}
 
         creation = timezone.localtime(self.timeCreation)
@@ -183,7 +183,7 @@ class EventRegistration(models.Model):
 
 
 class EventForBusStop(EventRegistration):
-    '''This model stores the reported events for the busStop'''
+    """This model stores the reported events for the busStop"""
     stopCode = models.CharField(max_length=6, db_index=True, verbose_name='Stop Code')
     '''Indicates the bus stop to which the event refers'''
     aditionalInfo = models.CharField(
@@ -209,7 +209,7 @@ class EventForBusStop(EventRegistration):
 
 
 class EventForBusv2(EventRegistration):
-    '''This model stores the reported events for the Bus'''
+    """This model stores the reported events for the Bus"""
     busassignment = models.ForeignKey('Busassignment', verbose_name='the bus')
     '''Indicates the bus to which the event refers'''
 
@@ -453,7 +453,7 @@ class Busassignment(models.Model):
                 }
 
     def getEstimatedLocation(self, stopCode, distance):
-        '''Given a distace from the bus to the busstop, this method returns the global position of the machine.'''
+        """Given a distace from the bus to the busstop, this method returns the global position of the machine."""
         try:
             serviceCode = ServicesByBusStop.objects.filter(
                 busStop__code=stopCode, service__service=self.service,
@@ -510,8 +510,8 @@ class Busassignment(models.Model):
 
 
 class ServiceLocation(Location):
-    '''This models stores the position along the route of every bus at 20 meters apart.
-    You can give the distance from the start of the travel and it return the position at that distance.'''
+    """This models stores the position along the route of every bus at 20 meters apart.
+    You can give the distance from the start of the travel and it return the position at that distance."""
     service = models.CharField(
         'Service Code',
         max_length=11,
@@ -529,8 +529,8 @@ class ServiceLocation(Location):
 
 
 class ServiceStopDistance(models.Model):
-    '''This model stores the distance for every bustop in every bus route for every service.
-    Given a bus direction code xxxI or xxxR or something alike.'''
+    """This model stores the distance for every bustop in every bus route for every service.
+    Given a bus direction code xxxI or xxxR or something alike."""
     busStop = models.ForeignKey(BusStop, verbose_name='Bus Stop')
     """ Bus stops where the service is stopped """
     service = models.CharField(
@@ -549,7 +549,7 @@ class ServiceStopDistance(models.Model):
 
 
 class Token(models.Model):
-    '''This table has all the tokens that have been used ever.'''
+    """This table has all the tokens that have been used ever."""
     token = models.CharField('Token', max_length=128)
     '''Identifier for an incognito trip'''
     busassignment = models.ForeignKey(Busassignment, verbose_name='Bus')
@@ -572,7 +572,7 @@ class Token(models.Model):
 
 
 class PoseInTrajectoryOfToken(Location):
-    '''This stores all the poses of a trajectory. The trajectory can start on foot and end on foot.'''
+    """This stores all the poses of a trajectory. The trajectory can start on foot and end on foot."""
     timeStamp = models.DateTimeField(null=False, blank=False, db_index=True)
     """ Specific date time when the server received a pose in the trajectory """
     inVehicleOrNot = models.CharField(max_length=15)  # vehicle, non_vehicle
@@ -584,7 +584,7 @@ class PoseInTrajectoryOfToken(Location):
 
 
 class ActiveToken(models.Model):
-    '''This are the tokens that are currently beeing use to upload positions.'''
+    """This are the tokens that are currently beeing use to upload positions."""
     timeStamp = models.DateTimeField('Time Stamp', null=False, blank=False)
     """ Specific date time when the server received the first pose in the trajectory, i.e. when the trip started """
     token = models.OneToOneField(Token, verbose_name='Token')
@@ -654,7 +654,7 @@ class Route(Location):
 
 
 class Level(models.Model):
-    ''' user level '''
+    """ user level """
     name = models.CharField(max_length=50, null=False, blank=False)
     ''' level name '''
     minScore = models.FloatField(default=0, null=False)
@@ -666,7 +666,7 @@ class Level(models.Model):
 
 
 class TranSappUser(models.Model):
-    ''' user logged with social network (Facebook, google) '''
+    """ user logged with social network (Facebook, google) """
     userId = models.CharField(max_length=128, null=False, blank=False)
     ''' user id given by social network(FacebookUserId or ) '''
     name = models.CharField(max_length=50, null=False, blank=False)
@@ -701,7 +701,7 @@ class TranSappUser(models.Model):
     ''' bus avatar used to show buses on app map '''
 
     def getDictionary(self):
-        ''' get dictionary of public data '''
+        """ get dictionary of public data """
         data = {
             "nickname": self.nickname,
             "globalScore": self.globalScore,
@@ -717,7 +717,7 @@ class TranSappUser(models.Model):
 
 
 class ScoreEvent(models.Model):
-    ''' score given by action '''
+    """ score given by action """
     code = models.CharField(max_length=10, null=False, blank=False, unique=True)
     ''' event code '''
     score = models.FloatField(default=0, null=False)
