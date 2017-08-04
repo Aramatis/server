@@ -37,12 +37,12 @@ done
 #####################################################################
 # Database backup
 #####################################################################
-DB_NAME="ghostinspector"
-DATE=`date +%Y-%m-%d`
-DUMP_NAME="dump$DATE\.sql"
-sudo -u postgres pg_dump "$DB_NAME" > "$DUMP_NAME"
-tar -zcvf ../"$DUMP_NAME\.tar.gz" "$DUMP_NAME"
-rm "$DUMP_NAME"
+#DB_NAME="ghostinspector"
+#DATE=`date +%Y-%m-%d`
+#DUMP_NAME="dump$DATE\.sql"
+#sudo -u postgres pg_dump "$DB_NAME" > "$DUMP_NAME"
+#tar -zcvf ../"$DUMP_NAME\.tar.gz" "$DUMP_NAME"
+#rm "$DUMP_NAME"
 
 #####################################################################
 # Update repository
