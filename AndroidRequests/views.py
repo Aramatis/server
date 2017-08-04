@@ -158,7 +158,7 @@ def get_user_buses(stop_obj, questioner):
 
     logger = logging.getLogger(__name__)
 
-    servicesToBusStop = ServicesByBusStop.objects.select_related('service').\
+    servicesToBusStop = ServicesByBusStop.objects.select_related('service'). \
         filter(busStop=stop_obj, gtfs__version=settings.GTFS_VERSION).values_list('service__service', 'code')
     route_names = []
     route_directions = []
@@ -230,7 +230,7 @@ def get_user_buses(stop_obj, questioner):
                 logger.error(str(e))
                 bus['sentido'] = "left"
 
-            bus['color'] = Service.objects.filter(service=bus['servicio'], gtfs__version=settings.GTFS_VERSION).\
+            bus['color'] = Service.objects.filter(service=bus['servicio'], gtfs__version=settings.GTFS_VERSION). \
                 values_list("color_id", flat=True)[0]
             bus['valido'] = 1
             # extras
@@ -279,7 +279,7 @@ def get_authority_buses(stop_obj, data):
     bus_list = Busv2.objects.filter(registrationPlate__in=license_plate_list).values_list('registrationPlate',
                                                                                           'uuid',
                                                                                           'busassignment__service')
-    busDict = defaultdict(lambda : {'busassignments': [], 'uuid': None})
+    busDict = defaultdict(lambda: {'busassignments': [], 'uuid': None})
     for license_plate, uuid, route in bus_list:
         busDict[license_plate]['busassignments'].append(route)
         busDict[license_plate]['uuid'] = uuid
@@ -323,7 +323,8 @@ def get_authority_buses(stop_obj, data):
                 # this uses prefetch related made in busObjList
                 busassignment = [b for b in busObjDict[license_plate].busassignment_set.all() if b.service == route][0]
 
-        service['eventos'] = events_by_machine_id[service['busId']] if service['busId'] in events_by_machine_id.keys() else []
+        service['eventos'] = events_by_machine_id[service['busId']] if service[
+                                                                           'busId'] in events_by_machine_id.keys() else []
         service['random'] = False
 
         try:
