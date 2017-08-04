@@ -24,7 +24,7 @@ JSONEncoder.default = JSONEncoder_newdefault
 
 
 # Create your models here.
-# Remembre to add new models to admin.py
+# Remember to add new models to admin.py
 
 
 class Location(models.Model):

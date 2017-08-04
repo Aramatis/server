@@ -23,12 +23,12 @@ class RequestTokenV2(View):
         ''' get in the bus '''
 
         phoneId = request.POST.get('phoneId')
-        busService = request.POST.get('busService')
+        route = request.POST.get('route')
         machineId = request.POST.get('machineId')
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
         
-        return self.get(request, phoneId, busService, machineId, userId, sessionToken)
+        return self.get(request, phoneId, route, machineId, userId, sessionToken)
 
     def get(self, request, pPhoneId, pBusService, pUUID, userId=None, sessionToken=None, data=timezone.now()):
         '''  '''
