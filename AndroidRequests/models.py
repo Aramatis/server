@@ -200,6 +200,8 @@ class EventForBusStop(EventRegistration):
 
         for record in self.stadisticdatafromregistrationbusstop_set.all():
             record = record.getDictionary()
+            if record["user"] == {}:
+                continue
             if record['vote'] == 'confirm':
                 dictionary['confirmedVoteList'].append(record['user'])
             else:
@@ -221,6 +223,8 @@ class EventForBusv2(EventRegistration):
 
         for record in self.stadisticdatafromregistrationbus_set.all():
             record = record.getDictionary()
+            if record["user"] == {}:
+                continue
             if record['vote'] == 'confirm':
                 dictionary['confirmedVoteList'].append(record['user'])
             else:
