@@ -710,7 +710,8 @@ class TranSappUser(models.Model):
             "nickname": self.nickname,
             "globalScore": self.globalScore,
             "showAvatar": self.showAvatar,
-            "levelName": self.level.name
+            "levelName": self.level.name,
+            "levelPosition": self.level.position
         }
         if self.showAvatar:
             data['userAvatarId'] = self.userAvatarId
