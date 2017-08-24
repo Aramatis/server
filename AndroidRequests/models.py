@@ -199,15 +199,24 @@ class EventForBusStop(EventRegistration):
 
         dictionary['confirmedVoteList'] = []
         dictionary['declinedVoteList'] = []
+        dictionary['creatorIndex'] = -1
 
-        for record in self.stadisticdatafromregistrationbusstop_set.all():
+        first = True
+        for record in self.stadisticdatafromregistrationbusstop_set.all().order_by("timeStamp"):
             record = record.getDictionary()
-            if record["user"] == {}:
+            user = record['user']
+
+            if first and user != {}:
+                dictionary["creatorIndex"] = 0
+            elif user == {}:
                 continue
+
             if record['vote'] == EventRegistration.CONFIRM:
-                dictionary['confirmedVoteList'].append(record['user'])
+                dictionary['confirmedVoteList'].append(user)
             else:
-                dictionary['declinedVoteList'].append(record['user'])
+                dictionary['declinedVoteList'].append(user)
+
+            first = False
 
         return dictionary
 
@@ -222,15 +231,24 @@ class EventForBusv2(EventRegistration):
 
         dictionary['confirmedVoteList'] = []
         dictionary['declinedVoteList'] = []
+        dictionary['creatorIndex'] = -1
 
-        for record in self.stadisticdatafromregistrationbus_set.all():
+        first = True
+        for record in self.stadisticdatafromregistrationbus_set.all().order_by("timeStamp"):
             record = record.getDictionary()
-            if record["user"] == {}:
+            user = record['user']
+
+            if first and user != {}:
+                dictionary["creatorIndex"] = 0
+            elif user == {}:
                 continue
+
             if record['vote'] == self.CONFIRM:
                 dictionary['confirmedVoteList'].append(record['user'])
             else:
                 dictionary['declinedVoteList'].append(record['user'])
+
+            first = False
 
         return dictionary
 
