@@ -114,7 +114,7 @@ class WebService(object):
                 bus1['mensajeError'] = service['respuestaServicio']
                 bus2['mensajeError'] = service['respuestaServicio']
 
-            bus1['servicio'] = service['servicio']
+            bus1['servicio'] = service['servicio'].strip()
             if service['ppubus1'] is not None:
                 bus1['patente'] = service['ppubus1'].replace("-", "").strip().upper()
             else:
@@ -122,7 +122,7 @@ class WebService(object):
             bus1['tiempo'] = service['horaprediccionbus1']
             bus1['distancia'] = "{} {}".format(service['distanciabus1'], ' mts.')
 
-            bus2['servicio'] = service['servicio']
+            bus2['servicio'] = service['servicio'].strip()
             if service['ppubus2'] is not None:
                 bus2['patente'] = service['ppubus2'].replace("-", "").strip().upper()
             else:

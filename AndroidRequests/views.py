@@ -77,7 +77,8 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     DTPM BUSES
     """
     # DTPM source
-    url = "http://54.94.231.101/dtpm/busStopInfo/"
+    IP = "18.231.23.145"
+    url = "http://{}/dtpm/busStopInfo/".format(IP)
     url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
     response = requests.get(url=url)
 
@@ -297,9 +298,7 @@ def get_authority_buses(stop_obj, data):
                 or service['tiempo'] is None or service['distancia'] == 'None mts.':
             continue
         # clean the strings from spaces and unwanted format
-        service['servicio'] = format_service_name(service['servicio'].strip())
-        # TODO: this has moved to webService app, so will have to disappear in the future
-        service['patente'] = service['patente'].replace("-", "").strip().upper()
+        service['servicio'] = format_service_name(service['servicio'])
         distance = int(service['distancia'].replace(' mts.', ''))
         service['distanciaMts'] = distance
         service['distanciaV2'] = format_distance(distance)
