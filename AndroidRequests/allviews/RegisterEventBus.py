@@ -67,9 +67,9 @@ class RegisterEventBus(View):
 
         # check if there is an event
         eventReport = EventForBusv2.objects.filter(
-            expireTime__gte=timeStamp, 
-            timeCreation__lte=timeStamp, 
-            busassignment=theAssignment, 
+            expireTime__gte=timeStamp,
+            timeCreation__lte=timeStamp,
+            busassignment=theAssignment,
             event=event).order_by('-timeStamp').first()
 
         if eventReport is not None:
@@ -78,7 +78,7 @@ class RegisterEventBus(View):
             eventReport.expireTime = expireTime
 
             # update the counters
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
@@ -93,7 +93,7 @@ class RegisterEventBus(View):
                 timeCreation=timeStamp)
 
             # set the initial values for this fields
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline = 1
                 eventReport.eventConfirm = 0
 

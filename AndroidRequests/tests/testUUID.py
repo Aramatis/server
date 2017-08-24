@@ -51,7 +51,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.helper.insertServiceLocationOnDatabase([self.service + self.direction])
 
     def test_RequestTokenWithDummyLicensePlateUUID(self):
-        ''' This method will test a token for a dummy license plate bus with uuid '''
+        """ This method will test a token for a dummy license plate bus with uuid """
 
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         busService = '507'
@@ -76,7 +76,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
     def test_RequestTokenV2WithRealLicencePlate(self):
-        ''' This method will test a token for bus with uuid '''
+        """ This method will test a token for bus with uuid """
 
         licencePlate = 'AA1111'
         busService = '507'
@@ -101,7 +101,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
     def test_RequestTokenV2WithRealLicencePlateAndTranSappUser(self):
-        ''' This method will test to ask a token with transapp user data '''
+        """ This method will test to ask a token with transapp user data """
 
         licencePlate = 'AA1111'
         busService = '507'
@@ -124,7 +124,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
     def test_RequestTokenV2WithRealLicencePlateAndFakeTranSappUser(self):
-        ''' This method will test to ask a token with fake transapp user data '''
+        """ This method will test to ask a token with fake transapp user data """
 
         licencePlate = 'AA1111'
         busService = '507'
@@ -148,8 +148,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
 
     def test_EventsByBusWithDummyLicensePlateUUID(self):
-        '''This method test two thing, the posibility to report an event and asking
-        the events for the specific dummy bus'''
+        """This method test two thing, the posibility to report an event and asking
+        the events for the specific dummy bus"""
 
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         busService = '507'
@@ -196,7 +196,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # ===================================================================================
         # do event +1 to the event
         jsonResponse = self.helper.confirmOrDeclineEventV2(self.phoneId, machineId, busService,
-                                                           eventCode, 'confirm')
+                                                           eventCode, EventForBusv2.CONFIRM)
 
         self.assertEqual(jsonResponse['uuid'], machineId)
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
@@ -217,7 +217,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # do event -1 to the event
         jsonResponse = self.helper.confirmOrDeclineEventV2(self.phoneId, machineId, busService,
-                                                           eventCode, 'decline')
+                                                           eventCode, EventForBusv2.DECLINE)
 
         self.assertEqual(jsonResponse['uuid'], machineId)
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
@@ -253,8 +253,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(len(jsonResponse['events']), 0)
 
     def test_EventsByBusv2(self):
-        '''This method test two thing, the posibility to report an event and asking
-        the events for the specific bus'''
+        """This method test two thing, the posibility to report an event and asking
+        the events for the specific bus"""
 
         licencePlate = 'AA1111'
         busService = '507'
@@ -297,7 +297,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # ===================================================================================
         # do event +1 to the event
         jsonResponse = self.helper.confirmOrDeclineEventV2(
-            self.phoneId, machineId, busService, eventCode, 'confirm')
+            self.phoneId, machineId, busService, eventCode, EventForBusv2.CONFIRM)
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -320,7 +320,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # do event -1 to the event
         jsonResponse = self.helper.confirmOrDeclineEventV2(
-            self.phoneId, machineId, busService, eventCode, 'decline')
+            self.phoneId, machineId, busService, eventCode, EventForBusStop.DECLINE)
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
@@ -362,8 +362,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(len(responseToRequestEventForBus['events']), 0)
 
     def test_EventsByBusStopv2(self):
-        '''This method test two thing, the posibility to report an event and asking
-        the events for the specific busStop'''
+        """This method test two thing, the posibility to report an event and asking
+        the events for the specific busStop"""
 
         busStopCode = 'PA459'
         eventCode = 'evn00001'
@@ -381,7 +381,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
             self.phoneId,
             busStopCode,
             eventCode,
-            'confirm')
+            EventForBusStop.CONFIRM)
 
         # report one event, and confirm it
         response0View = EventsByBusStop()
@@ -399,7 +399,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
             self.phoneId,
             busStopCode,
             eventCode,
-            'confirm')
+            EventForBusStop.CONFIRM)
         response0 = response0View.get(request0, busStopCode)
         response0 = json.loads(response0.content)
 
@@ -414,7 +414,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
             self.phoneId,
             busStopCode,
             eventCode,
-            'decline')
+            EventForBusStop.DECLINE)
         response0 = response0View.get(request0, busStopCode)
         response0 = json.loads(response0.content)
 
@@ -515,14 +515,14 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         testUUID = json.loads(responseGetUUID.content)['uuid']
 
-        # creat bus to create an assignment
+        # create bus to create an assignment
         request = self.factory.get('/android/requestToken/v2/')
         request.user = AnonymousUser()
         reponseView = RequestTokenV2()
         response = reponseView.get(request, self.phoneId, busService1, testUUID)
         self.assertEqual(response.status_code, 200)
 
-        # creat bus to create an assignment
+        # create bus to create an assignment
         request = self.factory.get('/android/requestToken/v2/')
         request.user = AnonymousUser()
         reponseView = RequestTokenV2()
@@ -537,7 +537,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # send first report with service 1
         reportEventBusView = RegisterEventBusV2()
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.phoneId, testUUID, busService1, eventCode1, 'confirm')
+                                                          self.phoneId, testUUID, busService1, eventCode1,
+                                                          EventForBusv2.CONFIRM)
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
@@ -555,7 +556,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         # send second report with service 2. We decline the previous event
         # reportd
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.phoneId, testUUID, busService2, eventCode1, 'decline')
+                                                          self.phoneId, testUUID, busService2, eventCode1,
+                                                          EventForBusv2.DECLINE)
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
@@ -572,7 +574,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # report second event to service
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.phoneId, testUUID, busService1, eventCode2, 'confirm')
+                                                          self.phoneId, testUUID, busService1, eventCode2,
+                                                          EventForBusv2.CONFIRM)
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
@@ -587,7 +590,8 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # report third event to service
         responseToReportEventBus = reportEventBusView.get(requestToReportEventBus,
-                                                          self.phoneId, testUUID, busService2, eventCode3, 'confirm')
+                                                          self.phoneId, testUUID, busService2, eventCode3,
+                                                          EventForBusv2.CONFIRM)
 
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 

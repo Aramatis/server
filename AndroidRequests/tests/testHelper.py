@@ -9,7 +9,7 @@ from django.utils import timezone
 
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
-from AndroidRequests.models import TranSappUser, Level
+from AndroidRequests.models import TranSappUser, Level, EventRegistration
 from Loaders.TestLoaderFactory import TestLoaderFactory
 
 
@@ -282,7 +282,7 @@ class TestHelper:
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
         c = Client()
-        URL = URL + '/'.join([phoneId, route, licencePlate, eventCode, 'confirm'])
+        URL = URL + '/'.join([phoneId, route, licencePlate, eventCode, EventRegistration.CONFIRM])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -328,7 +328,7 @@ class TestHelper:
         URL = '/android/reportEventBus/v2/'
         c = Client()
         URL = URL + '/'.join([phoneId, machineId, route,
-                              eventCode, 'confirm'])
+                              eventCode, EventRegistration.CONFIRM])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -374,9 +374,9 @@ class TestHelper:
         URL = '/android/reportEventBusStop/'
         c = Client()
         if aditionalInfo is None:
-            params = [phoneId, stopCode, eventCode, 'confirm']
+            params = [phoneId, stopCode, eventCode, EventRegistration.CONFIRM]
         else:
-            params = [phoneId, stopCode, aditionalInfo, eventCode, 'confirm']
+            params = [phoneId, stopCode, aditionalInfo, eventCode, EventRegistration.CONFIRM]
         URL = URL + '/'.join(params)
         response = c.get(URL, {})
 
@@ -425,7 +425,7 @@ class TestHelper:
                 'machineId': machineId,
                 'service': route,
                 'eventId': eventCode,
-                'vote': 'confirm',
+                'vote': EventRegistration.CONFIRM,
                 'userId': userId,
                 'sessionToken': sessionToken}
         response = c.post(URL, data)
@@ -463,7 +463,7 @@ class TestHelper:
         data = {'phoneId': phoneId,
                 'stopCode': stopCode,
                 'eventId': eventCode,
-                'vote': 'confirm',
+                'vote': EventRegistration.CONFIRM,
                 'userId': userId,
                 'sessionToken': sessionToken}
 

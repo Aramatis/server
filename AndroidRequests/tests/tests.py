@@ -205,7 +205,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         eventCode = 'evn00001'
 
         jsonResponse = self.test.confirmOrDeclineStopEvent(
-            self.phoneId, busStopCode, eventCode, 'decline')
+            self.phoneId, busStopCode, eventCode, EventForBusStop.DECLINE)
 
         self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
@@ -230,7 +230,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         # do event +1 to the event
         jsonResponse = self.test.confirmOrDeclineStopEvent(
-            self.phoneId, busStopCode, eventCode, 'confirm')
+            self.phoneId, busStopCode, eventCode, EventForBusStop.CONFIRM)
 
         self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -239,7 +239,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         # do event -1 to the event
         jsonResponse = self.test.confirmOrDeclineStopEvent(
-            self.phoneId, busStopCode, eventCode, 'decline')
+            self.phoneId, busStopCode, eventCode, EventForBusStop.DECLINE)
 
         self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)

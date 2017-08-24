@@ -3,12 +3,10 @@ import datetime as dt
 from django.test import TransactionTestCase
 from django.utils import timezone
 
-from AndroidRequests.models import Level, ScoreEvent, TranSappUser, ScoreHistory
+from AndroidRequests.models import Level, ScoreEvent, TranSappUser, ScoreHistory, EventRegistration
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
 
-
-# Create your tests here.
 
 class EventScoreTest(TransactionTestCase):
     """ test for DevicePositionInTime model """
@@ -79,7 +77,8 @@ class EventScoreTest(TransactionTestCase):
 
         # we will vote -1
         jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                               self.service, self.eventBusCode, 'decline', userId,
+                                                               self.service, self.eventBusCode,
+                                                               EventRegistration.DECLINE, userId,
                                                                sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
@@ -219,7 +218,8 @@ class EventScoreTest(TransactionTestCase):
 
         # we will vote -1
         jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                                                                 eventStopCode, 'decline', userId, sessionToken)
+                                                                 eventStopCode, EventRegistration.DECLINE, userId,
+                                                                 sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],

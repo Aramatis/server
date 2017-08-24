@@ -67,7 +67,7 @@ class RegisterEventBusStop(View):
             # updates to the event reported
             eventReport.timeStamp = timeStamp
             eventReport.expireTime = expireTime
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusStop.DECLINE:
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
@@ -81,7 +81,7 @@ class RegisterEventBusStop(View):
                 phoneId=pPhoneId,
                 aditionalInfo=pService)
 
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusStop.DECLINE:
                 eventReport.eventDecline = 1
                 eventReport.eventConfirm = 0
 

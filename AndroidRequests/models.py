@@ -144,6 +144,8 @@ class StadisticDataFromRegistrationBusStop(StadisticDataFromRegistration):
 
 class EventRegistration(models.Model):
     """This model stores the reports of events coming from the passagers of the system of public transport buses."""
+    CONFIRM = "confirm"
+    DECLINE = "decline"
     timeStamp = models.DateTimeField('Time Stamp')  # lastime it was updated
     """ Specific date time when the server received the event registration """
     timeCreation = models.DateTimeField('Creation Time')
@@ -202,7 +204,7 @@ class EventForBusStop(EventRegistration):
             record = record.getDictionary()
             if record["user"] == {}:
                 continue
-            if record['vote'] == 'confirm':
+            if record['vote'] == EventRegistration.CONFIRM:
                 dictionary['confirmedVoteList'].append(record['user'])
             else:
                 dictionary['declinedVoteList'].append(record['user'])
@@ -225,7 +227,7 @@ class EventForBusv2(EventRegistration):
             record = record.getDictionary()
             if record["user"] == {}:
                 continue
-            if record['vote'] == 'confirm':
+            if record['vote'] == self.CONFIRM:
                 dictionary['confirmedVoteList'].append(record['user'])
             else:
                 dictionary['declinedVoteList'].append(record['user'])

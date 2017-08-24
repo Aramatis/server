@@ -83,7 +83,7 @@ class RegisterEventBusV2(View):
             eventReport.expireTime = expireTime
 
             # update the counters
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
@@ -98,7 +98,7 @@ class RegisterEventBusV2(View):
                 timeCreation=timeStamp)
 
             # set the initial values for this fields
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline = 1
                 eventReport.eventConfirm = 0
 

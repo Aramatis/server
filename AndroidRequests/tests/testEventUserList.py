@@ -1,10 +1,8 @@
 from django.test import TransactionTestCase
 
-from AndroidRequests.models import Level, ScoreEvent
+from AndroidRequests.models import Level, ScoreEvent, EventRegistration
 from AndroidRequests.tests.testHelper import TestHelper
 
-
-# Create your tests here.
 
 class BusEventUserListTestCase(TransactionTestCase):
     """ test for user list returned by an event """
@@ -41,7 +39,8 @@ class BusEventUserListTestCase(TransactionTestCase):
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                               self.service, self.eventCode, 'confirm', user.userId,
+                                                               self.service, self.eventCode, EventRegistration.CONFIRM,
+                                                               user.userId,
                                                                user.sessionToken)
 
         for event in jsonResponse['events']:
@@ -49,7 +48,8 @@ class BusEventUserListTestCase(TransactionTestCase):
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                               self.service, self.eventCode, 'decline', user.userId,
+                                                               self.service, self.eventCode, EventRegistration.DECLINE,
+                                                               user.userId,
                                                                user.sessionToken)
 
         for event in jsonResponse['events']:
@@ -73,7 +73,8 @@ class BusEventUserListTestCase(TransactionTestCase):
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
-                                                                 stopCode, eventCode, 'confirm', user.userId,
+                                                                 stopCode, eventCode, EventRegistration.CONFIRM,
+                                                                 user.userId,
                                                                  user.sessionToken)
 
         for event in jsonResponse['events']:
@@ -81,7 +82,8 @@ class BusEventUserListTestCase(TransactionTestCase):
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
-                                                                 stopCode, eventCode, 'decline', user.userId,
+                                                                 stopCode, eventCode, EventRegistration.DECLINE,
+                                                                 user.userId,
                                                                  user.sessionToken)
 
         for event in jsonResponse['events']:
