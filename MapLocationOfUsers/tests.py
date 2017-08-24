@@ -34,7 +34,7 @@ class GetMapPositionsTest(TestCase):
         self.factory = RequestFactory()
 
     def test_getPositions(self):
-        '''This test the response of the current poses'''
+        """This test the response of the current poses"""
 
         request = self.factory.get('/map/activeuserpose')
         request.user = AnonymousUser()
@@ -51,7 +51,7 @@ class GetMapPositionsTest(TestCase):
             self.assertEqual(postitionRes['latitud'], 5.2)
 
     def test_showMap(self):
-        '''this test is for testing the response of the map view'''
+        """this test is for testing the response of the map view"""
 
         request = self.factory.get('/map/show')
         request.user = AnonymousUser()
@@ -62,7 +62,7 @@ class GetMapPositionsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_getGetMapTrajectory(self):
-        '''this test the trajectory that the server gives to the map. '''
+        """this test the trajectory that the server gives to the map. """
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]

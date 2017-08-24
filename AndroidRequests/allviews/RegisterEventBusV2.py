@@ -16,7 +16,7 @@ from EventsByBusV2 import EventsByBusV2
 
 
 class RegisterEventBusV2(View):
-    '''This class handles requests that report events of a bus.'''
+    """This class handles requests that report events of a bus."""
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):

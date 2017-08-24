@@ -8,13 +8,13 @@ from AndroidRequests.scoreFunctions import UserValidation
 
 
 class UserRanking(View):
-    ''' global user ranking '''
+    """ global user ranking """
     TOP_USERS = 5
     UPPER_USERS = 5
     LOWER_USERS = 5
 
     def getRanking(self, user):
-        ''' return ranking list '''
+        """ return ranking list """
         ranking = []
         excludedUsers = []
 

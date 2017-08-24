@@ -11,7 +11,7 @@ from AndroidRequests.statusResponse import Status
 # Create your views here.
 
 class EvaluateTrip(View):
-    ''' log in transapp user '''
+    """ log in transapp user """
 
     def __init__(self):
         self.context = {}

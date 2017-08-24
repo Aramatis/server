@@ -27,7 +27,7 @@ class EventsByBusStop(View):
         return JsonResponse(eventDictionary, safe=False)
 
     def getEventsForStop(self, stopCode, timeStamp):
-        '''this method returns all the events that are active given their timestamp.'''
+        """this method returns all the events that are active given their timestamp."""
 
         currentEventReport = []
 

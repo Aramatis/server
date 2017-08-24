@@ -74,7 +74,7 @@ class NearbyBusesResponseTest(TestCase):
         self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
     def getBuses(self, stopObj, phoneId, indexPairList):
-        ''' generate nearbybuses response '''
+        """ generate nearbybuses response """
 
         fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
@@ -93,7 +93,7 @@ class NearbyBusesResponseTest(TestCase):
         return buses
 
     def getInBus(self, phoneId, service, licensePlate, addTrajectory=False):
-        ''' create a user bus  '''
+        """ create a user bus  """
         travelKey = self.helper.getInBusWithLicencePlate(
             phoneId, service, licensePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)

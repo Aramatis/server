@@ -21,7 +21,7 @@ NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 
 
 class TranSappUserLogin(View):
-    ''' log in transapp user '''
+    """ log in transapp user """
 
     def __init__(self):
         self.context = {}
@@ -32,11 +32,11 @@ class TranSappUserLogin(View):
         return super(TranSappUserLogin, self).dispatch(request, *args, **kwargs)
 
     # def checkGoogleId(self, googleId):
-    #    ''' ask to facebook if tokenId is valid '''
+    #    """ ask to facebook if tokenId is valid """
     #    pass
 
     def checkFacebookId(self, accessToken):
-        ''' ask to facebook if accessToken is valid '''
+        """ ask to facebook if accessToken is valid """
 
         URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'. \
             format(accessToken, settings.FACEBOOK_APP_ID, settings.FACEBOOK_APP_SECRET)
@@ -130,7 +130,7 @@ class TranSappUserLogout(View):
         return super(TranSappUserLogout, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
-        ''' change session id to default value '''
+        """ change session id to default value """
 
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
@@ -150,7 +150,7 @@ class TranSappUserLogout(View):
 
 
 class UpdateTranSappUserSettings(View):
-    ''' update user info '''
+    """ update user info """
 
     def __init__(self):
         self.context = {}

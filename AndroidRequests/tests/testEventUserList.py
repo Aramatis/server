@@ -28,7 +28,7 @@ class BusEventUserListTestCase(TransactionTestCase):
         self.token = self.test.getInBusWithMachineId(self.phoneId, self.service, self.machineId)
 
     def test_userReportsBusEventAndGetListUser(self):
-        ''' user reports bus event and get list users '''
+        """ user reports bus event and get list users """
 
         user = self.test.createTranSappUsers(1)[0]
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
@@ -57,7 +57,7 @@ class BusEventUserListTestCase(TransactionTestCase):
             self.assertEqual(len(event['declinedVoteList']), 1)
 
     def test_userReportsStopEventAndGetListUser(self):
-        ''' user reports bus event and get list users '''
+        """ user reports bus event and get list users """
 
         eventCode = 'evn00010'
         stopCode = 'PA433'

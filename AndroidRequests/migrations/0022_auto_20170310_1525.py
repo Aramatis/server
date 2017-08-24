@@ -10,7 +10,7 @@ PROCEDURE
 """
 
 def fullData(apps, schema_editor):
-    ''' '''
+    """ """
     servicesbybusstopM = apps.get_model('AndroidRequests', 'servicesbybusstop')
     servicesbybusstopM.objects.all().update(busStop_id=F('busStop_id_aux'))
 

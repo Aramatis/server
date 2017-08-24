@@ -20,7 +20,7 @@ class RequestTokenV2(View):
         self.context = {}
 
     def post(self, request):
-        ''' get in the bus '''
+        """ get in the bus """
 
         phoneId = request.POST.get('phoneId')
         route = request.POST.get('route')
@@ -31,7 +31,7 @@ class RequestTokenV2(View):
         return self.get(request, phoneId, route, machineId, userId, sessionToken)
 
     def get(self, request, pPhoneId, pBusService, pUUID, userId=None, sessionToken=None, data=timezone.now()):
-        '''  '''
+        """  """
 
         salt = os.urandom(20)
         hashToken = hashlib.sha512(str(data) + salt).hexdigest()

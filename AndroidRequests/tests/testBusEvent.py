@@ -30,7 +30,7 @@ class BusEventTest(TransactionTestCase):
         self.test.insertBusstopsOnDatabase([self.stop])
 
     def test_EventsByBusWithDummyLicensePlate(self):
-        '''This method test the bus with a dummy license plate '''
+        """This method test the bus with a dummy license plate """
 
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         self.test.getInBusWithLicencePlate(
@@ -49,8 +49,8 @@ class BusEventTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
     def test_EventsByBus(self):
-        '''This method test two thing, the posibility to report an event and asking
-        the events for the specific bus'''
+        """This method test two thing, the posibility to report an event and asking
+        the events for the specific bus"""
 
         licencePlate = 'AA0000'
         eventCode = 'evn00202'

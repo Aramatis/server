@@ -12,7 +12,7 @@ from AndroidRequests.statusResponse import Status
 
 
 class FacebookAPI:
-    ''' class to manipulate calls to facebook API '''
+    """ class to manipulate calls to facebook API """
     HOST = 'https://graph.facebook.com/v2.8/'
     APP_ACCESS_TOKEN_PARAM = 'access_token={}'.format(settings.FACEBOOK_APP_ACCESS_TOKEN)
 
@@ -20,7 +20,7 @@ class FacebookAPI:
         pass
 
     def createTestuser(self):
-        ''' create a test user '''
+        """ create a test user """
 
         ENDPOINT = settings.FACEBOOK_APP_ID + '/accounts/test-users?'
         URL = self.HOST + ENDPOINT + self.APP_ACCESS_TOKEN_PARAM + '&installed={}&name={}'.format(True,
@@ -31,7 +31,7 @@ class FacebookAPI:
         return jsonResponse['id'], jsonResponse['access_token']
 
     def deleteTestuser(self, userId):
-        ''' delete a test user '''
+        """ delete a test user """
 
         URL = self.HOST + userId + '?' + self.APP_ACCESS_TOKEN_PARAM
         response = requests.delete(URL)
@@ -41,7 +41,7 @@ class FacebookAPI:
 
 
 class UserLogTestCase(TestCase):
-    '''  '''
+    """  """
     URL_PREFIX = '/android/'
     """
     def makeGetRequest(self, url, params = {}):
@@ -65,7 +65,7 @@ class UserLogTestCase(TestCase):
         return json.loads(response.content)
 
     def setUp(self):
-        '''   '''
+        """   """
         # Insert levels
         Level.objects.create(name="firstLevel", minScore=0, maxScore=1000, position=1)
         Level.objects.create(name="secondLevel", minScore=1000, maxScore=2000, position=2)
@@ -85,11 +85,11 @@ class UserLogTestCase(TestCase):
         self.FAKE_ACCESS_TOKEN = 'EAAFSBRbv0msBABlfTcAdq8i61IKGqeYMUPmF8aZBEbRIU11WNlTqcRekCWZASa8xo0piQL1ZBHlFF2vSGStnf45gAWkLh3bcbZCSJCE8P6FHyMZBNVw0sFt860BY4Y8wR7ZCtCOwmwCwb20GoUIsSR7cgd2Xnc2QXkd8mlu4ss3cK8GOQgH15IEtt1Ef6fdJx6thTL5ZAgWzfdipeFUcSGd4f0Cl62Y3I4Zx'
 
     def tearDown(self):
-        ''' executed after each test method '''
+        """ executed after each test method """
         self.facebook.deleteTestuser(self.USER_ID)
 
     def login(self, accessToken, phoneId, accountType):
-        ''' log in a user '''
+        """ log in a user """
         url = 'login'
         params = {
             'accessToken': accessToken,
@@ -106,7 +106,7 @@ class UserLogTestCase(TestCase):
         return jsonResponse
 
     def logout(self, sessionToken):
-        ''' log out a user '''
+        """ log out a user """
         url = 'logout'
         params = {
             'userId': self.USER_ID,
@@ -117,7 +117,7 @@ class UserLogTestCase(TestCase):
         return jsonResponse
 
     def testFacebookLogInWithRealAccessToken(self):
-        '''   '''
+        """   """
         # login
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
 
@@ -152,19 +152,19 @@ class UserLogTestCase(TestCase):
         self.assertEqual(user.phoneId, uuid.UUID(self.PHONE_ID_2))
 
     def testFacebbokLoginWithRealAccessTokenButBadPhoneId(self):
-        '''   '''
+        """   """
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, 'asdasd', TranSappUser.FACEBOOK)
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INTERNAL_ERROR, {})['status'])
         self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INTERNAL_ERROR, {})['message'])
 
     def testFacebookLoginWithFakeAccessToken(self):
-        '''   '''
+        """   """
         jsonResponse = self.login(self.FAKE_ACCESS_TOKEN, self.PHONE_ID_1, TranSappUser.FACEBOOK)
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['status'])
         self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['message'])
 
     def testFacebookLogout(self):
-        '''   '''
+        """   """
         # login
         jsonLogin = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
         # logout
@@ -176,7 +176,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(user.sessionToken, uss.NULL_SESSION_TOKEN)
 
     def testFacebookLogoutWithBadSessionToken(self):
-        '''   '''
+        """   """
 
         # login
         self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
@@ -187,7 +187,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(jsonLogout['message'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['message'])
 
     def testFacebookModifyUserInfo(self):
-        ''' modify user info  '''
+        """ modify user info  """
         # login
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
 
@@ -219,7 +219,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(user.showAvatar, True)
 
     def testFacebookModifyUserInfoWithFakeUserId(self):
-        ''' modify user info  '''
+        """ modify user info  """
 
         url = 'updateUserSettings'
 
@@ -238,7 +238,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
 
     def testFacebookModifyUserInfoWithIncorrectData(self):
-        ''' modify user info with bad format '''
+        """ modify user info with bad format """
         # login
         jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
 

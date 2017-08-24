@@ -11,7 +11,7 @@ from EventsByBusV2 import EventsByBusV2
 
 
 class RegisterEventBus(View):
-    '''This class handles requests that report events of a bus.'''
+    """This class handles requests that report events of a bus."""
 
     def get(
             self,

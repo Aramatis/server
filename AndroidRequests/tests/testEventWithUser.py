@@ -36,7 +36,7 @@ class EventWithUserTestCase(TransactionTestCase):
                                     level=level, sessionToken=self.sessionToken)
 
     def test_userAssignedToBusEvent(self):
-        '''This method check that user was assigned to bus event '''
+        """This method check that user was assigned to bus event """
 
         self.test.reportEventV2ByPost(self.phoneId, self.machineId,
                                       self.service, self.eventBusCode, self.userId, self.sessionToken)
@@ -71,7 +71,7 @@ class EventWithUserTestCase(TransactionTestCase):
         self.assertEqual(eventRecord.tranSappUser, None)
 
     def test_userAssignedToStopEvent(self):
-        '''This method check that user was assigned to stop event '''
+        """This method check that user was assigned to stop event """
 
         stopCode = 'PA459'
         self.test.insertBusstopsOnDatabase([stopCode])

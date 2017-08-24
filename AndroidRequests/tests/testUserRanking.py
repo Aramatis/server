@@ -10,7 +10,7 @@ from AndroidRequests.statusResponse import Status
 
 
 class UserRankingTestCase(TestCase):
-    '''  '''
+    """  """
     URL_PREFIX = '/android/'
 
     def makeGetRequest(self, url, params=None):
@@ -25,7 +25,7 @@ class UserRankingTestCase(TestCase):
         return json.loads(response.content)
 
     def createUsers(self, userQuantity, userPosition, userObj):
-        ''' create @quantity users and put the user asked in @userPosition '''
+        """ create @quantity users and put the user asked in @userPosition """
 
         phoneId = uuid.UUID('56fbbcbf-e48a-458a-9645-65ab145e35ea')
         score = 1000000
@@ -49,7 +49,7 @@ class UserRankingTestCase(TestCase):
             score -= 100
 
     def checkRankingList(self, userId, sessionToken, userPosition, resultUsersNumber):
-        ''' check ranking list returned by url '''
+        """ check ranking list returned by url """
         URL = 'getRanking'
         data = {
             "userId": userId,
@@ -86,7 +86,7 @@ class UserRankingTestCase(TestCase):
             previousPosition = user['position']
 
     def setUp(self):
-        '''   '''
+        """   """
         self.level = Level.objects.create(name="firstLevel", minScore=0, maxScore=2000000, position=1)
 
         self.NAME = 'test name'
@@ -107,7 +107,7 @@ class UserRankingTestCase(TestCase):
                                                 photoURI=self.PHOTO_URI)
 
     def testUserDoesNotExist(self):
-        ''' user without session ask for ranking '''
+        """ user without session ask for ranking """
         URL = 'getRanking'
         userId = 'fakeUserId'
         sessionToken = uuid.uuid4()
@@ -121,7 +121,7 @@ class UserRankingTestCase(TestCase):
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_USER, {})['status'])
 
     def testInvalidSession(self):
-        ''' user without session ask for ranking '''
+        """ user without session ask for ranking """
         URL = 'getRanking'
         userId = self.USER_ID
         sessionToken = uuid.uuid4()
@@ -135,7 +135,7 @@ class UserRankingTestCase(TestCase):
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
 
     def testDontSendParams(self):
-        ''' user without session ask for ranking '''
+        """ user without session ask for ranking """
         URL = 'getRanking'
 
         data = {}
@@ -145,7 +145,7 @@ class UserRankingTestCase(TestCase):
                          Status.getJsonStatus(Status.INVALID_PARAMS, {})['status'])
 
     def testUserOnTopFive(self):
-        '''   '''
+        """   """
         userQuantity = 5
         userPosition = 3
         self.createUsers(userQuantity, userPosition, self.user)
@@ -153,7 +153,7 @@ class UserRankingTestCase(TestCase):
         self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, userPosition, userQuantity)
 
     def testUserOnTopTen(self):
-        '''   '''
+        """   """
         userQuantity = 10
         userPosition = 7
         self.createUsers(userQuantity, userPosition, self.user)
@@ -162,7 +162,7 @@ class UserRankingTestCase(TestCase):
         self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, userPosition, userQuantityResult)
 
     def testUserOnTopTwenty(self):
-        '''   '''
+        """   """
         userQuantity = 20
         userPosition = 18
         self.createUsers(userQuantity, userPosition, self.user)
@@ -171,7 +171,7 @@ class UserRankingTestCase(TestCase):
         self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, userPosition, userQuantityResult)
 
     def testUserOnTopOne(self):
-        '''   '''
+        """   """
         userQuantity = 100
         userPosition = 1
         self.createUsers(userQuantity, userPosition, self.user)

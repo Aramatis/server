@@ -33,7 +33,7 @@ class EventScoreTest(TransactionTestCase):
         self.token = self.test.getInBusWithMachineId(self.phoneId, self.service, self.machineId)
 
     def test_calculateBusEventScoreWithoutParams(self):
-        '''This method test event score when the info is sending without params'''
+        """This method test event score when the info is sending without params"""
 
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId, self.service,
                                                      self.eventBusCode, '', '')

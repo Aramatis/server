@@ -12,7 +12,7 @@ PROCEDURE
 """
 
 def assignBusStopId(apps, schema_editor):
-    ''' '''
+    """ """
     busStopM = apps.get_model('AndroidRequests', 'busStop')
 
     busStopId = 1
@@ -23,7 +23,7 @@ def assignBusStopId(apps, schema_editor):
     print "Finish to add ids to bus stop records"
 
 def assignServiceId(apps, schema_editor):
-    ''' '''
+    """ """
     serviceM = apps.get_model('AndroidRequests', 'service')
 
     serviceId = 1
@@ -34,7 +34,7 @@ def assignServiceId(apps, schema_editor):
     print "Finish to add ids to service records"
 
 def assignTokenId(apps, schema_editor):
-    ''' '''
+    """ """
     tokenM = apps.get_model('AndroidRequests', 'token')
 
     tokenId = 1
@@ -45,7 +45,7 @@ def assignTokenId(apps, schema_editor):
     print "Finish to add ids to token records"
 
 def changeServicesbybusstop(apps, schema_editor):
-    ''' '''
+    """ """
     busStopM = apps.get_model('AndroidRequests', 'busstop')
     servicesbybusstopM = apps.get_model('AndroidRequests', 'servicesbybusstop')
     for busstop in busStopM.objects.all():
@@ -53,7 +53,7 @@ def changeServicesbybusstop(apps, schema_editor):
     print "Finish..."
 
 def changeServicestopdistance(apps, schema_editor):
-    ''' '''
+    """ """
     busStopM = apps.get_model('AndroidRequests', 'busStop')
     servicestopdistanceM = apps.get_model('AndroidRequests', 'servicestopdistance')
     for busstop in busStopM.objects.all():
@@ -61,7 +61,7 @@ def changeServicestopdistance(apps, schema_editor):
     print "Finish..."
 
 def changeEventforbusstop(apps, schema_editor):
-    ''' '''
+    """ """
     busStopM = apps.get_model('AndroidRequests', 'busStop')
     eventforbusstopM = apps.get_model('AndroidRequests', 'eventforbusstop')
     for busstop in busStopM.objects.all():
@@ -69,7 +69,7 @@ def changeEventforbusstop(apps, schema_editor):
     print "Finish..."
 
 def changeNearbybuseslog(apps, schema_editor):
-    ''' '''
+    """ """
     busStopM = apps.get_model('AndroidRequests', 'busStop')
     nearbybuseslogM = apps.get_model('AndroidRequests', 'nearbybuseslog')
     for busstop in busStopM.objects.all():
@@ -78,7 +78,7 @@ def changeNearbybuseslog(apps, schema_editor):
 
 # service model
 def changeServicesbybusstopService(apps, schema_editor):
-    ''' '''
+    """ """
     serviceM = apps.get_model('AndroidRequests', 'service')
     servicesbybusstopM = apps.get_model('AndroidRequests', 'servicesbybusstop')
     for service in serviceM.objects.all():
@@ -87,7 +87,7 @@ def changeServicesbybusstopService(apps, schema_editor):
 
 # token model
 def changePoseintrajectoryoftoken(apps, schema_editor):
-    ''' '''
+    """ """
     tokenM = apps.get_model('AndroidRequests', 'token')
     trajectoryM = apps.get_model('AndroidRequests', 'poseintrajectoryoftoken')
     for token in tokenM.objects.all():
@@ -95,7 +95,7 @@ def changePoseintrajectoryoftoken(apps, schema_editor):
     print "Finish..."
 
 def changeActivetoken(apps, schema_editor):
-    ''' '''
+    """ """
     tokenM = apps.get_model('AndroidRequests', 'token')
     activetokenM = apps.get_model('AndroidRequests', 'activetoken')
     for token in tokenM.objects.all():

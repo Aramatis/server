@@ -496,7 +496,7 @@ class TestHelper:
         return jsonResponse
 
     def createTranSappUsers(self, userQuantity):
-        ''' create @quantity users and put the user asked in @userPosition '''
+        """ create @quantity users and put the user asked in @userPosition """
         users = []
 
         level, created = Level.objects.get_or_create(position=1,

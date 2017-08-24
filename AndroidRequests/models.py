@@ -5,9 +5,9 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-'''
+"""
 Dealing with no UUID serialization support in json
-'''
+"""
 from json import JSONEncoder
 from uuid import UUID
 
@@ -101,7 +101,7 @@ class StadisticDataFromRegistration(Location):
     phoneId = models.UUIDField()
     """ To identify the data owner """
     tranSappUser = models.ForeignKey('TranSappUser', null=True)
-    ''' logged user in app that made the report '''
+    """ logged user in app that made the report """
 
     class Meta:
         abstract = True
@@ -151,7 +151,7 @@ class EventRegistration(models.Model):
     timeCreation = models.DateTimeField('Creation Time')
     """ Specific date time when the server received for the first time the event registration """
     expireTime = models.DateTimeField(null=True)
-    ''' Specific date time when event expired '''
+    """ Specific date time when event expired """
     event = models.ForeignKey(Event, verbose_name='The event information')
     eventConfirm = models.IntegerField('Confirmations', default=1)
     """ Amount of confirmations for this event """
@@ -160,11 +160,11 @@ class EventRegistration(models.Model):
     phoneId = models.UUIDField()
     """ To identify the data owner """
     broken = models.BooleanField(default=False)
-    ''' to indecate that event expired by some brokenType '''
+    """ to indecate that event expired by some brokenType """
     # list  of criterion of broken type
     PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE = 'percentage'
     brokenType = models.CharField(max_length=50, default=None, null=True)
-    ''' indicate why event is broken '''
+    """ indicate why event is broken """
 
     class Meta:
         abstract = True
@@ -187,12 +187,12 @@ class EventRegistration(models.Model):
 class EventForBusStop(EventRegistration):
     """This model stores the reported events for the busStop"""
     stopCode = models.CharField(max_length=6, db_index=True, verbose_name='Stop Code')
-    '''Indicates the bus stop to which the event refers'''
+    """Indicates the bus stop to which the event refers"""
     aditionalInfo = models.CharField(
         'Additional Information',
         max_length=140,
         default='nothing')
-    ''' Saves additional information required by the event '''
+    """ Saves additional information required by the event """
 
     def getDictionary(self):
         dictionary = super(EventForBusStop, self).getDictionary()
@@ -215,7 +215,7 @@ class EventForBusStop(EventRegistration):
 class EventForBusv2(EventRegistration):
     """This model stores the reported events for the Bus"""
     busassignment = models.ForeignKey('Busassignment', verbose_name='the bus')
-    '''Indicates the bus to which the event refers'''
+    """Indicates the bus to which the event refers"""
 
     def getDictionary(self):
         dictionary = super(EventForBusv2, self).getDictionary()
@@ -505,7 +505,7 @@ class Busassignment(models.Model):
 
     """
     def getDictionary(self):
-        ''' Return a dictionary with useful information about the bus '''
+        """ Return a dictionary with useful information about the bus """
         dictionary = {}
 
         dictionary['serviceBus'] = self.service
@@ -557,13 +557,13 @@ class ServiceStopDistance(models.Model):
 class Token(models.Model):
     """This table has all the tokens that have been used ever."""
     token = models.CharField('Token', max_length=128)
-    '''Identifier for an incognito trip'''
+    """Identifier for an incognito trip"""
     busassignment = models.ForeignKey(Busassignment, verbose_name='Bus')
-    '''Bus that is making the trip'''
+    """Bus that is making the trip"""
     direction = models.CharField(max_length=1, null=True)
-    ''' route direction that the bus is doing. It can be 'R' or 'I' '''
+    """ route direction that the bus is doing. It can be 'R' or 'I' """
     color = models.CharField("Icon's color", max_length=7, default='#00a0f0')
-    '''Color to paint the travel icon'''
+    """Color to paint the travel icon"""
     phoneId = models.UUIDField()
     """ To identify the data owner """
     timeCreation = models.DateTimeField('Time Creation', null=True, blank=False)
@@ -571,7 +571,7 @@ class Token(models.Model):
     userEvaluation = models.IntegerField(null=True)
     """ User evaluation does at the end of trip """
     tranSappUser = models.ForeignKey('TranSappUser', null=True)
-    ''' Logged user with social media (if exists) '''
+    """ Logged user with social media (if exists) """
 
     def getBusesIn(self, pListOfServices):
         """ return a list of buses that match with buses given as parameter """
@@ -662,25 +662,25 @@ class Route(Location):
 class Level(models.Model):
     """ user level """
     name = models.CharField(max_length=50, null=False, blank=False)
-    ''' level name '''
+    """ level name """
     minScore = models.FloatField(default=0, null=False)
-    ''' minimun score to keep the level '''
+    """ minimun score to keep the level """
     maxScore = models.FloatField(default=0, null=False)
-    ''' maximum score to keep the level '''
+    """ maximum score to keep the level """
     position = models.IntegerField(null=False, unique=True)
-    ''' to order levels 1,2,3,... '''
+    """ to order levels 1,2,3,... """
 
 
 class TranSappUser(models.Model):
     """ user logged with social network (Facebook, google) """
     userId = models.CharField(max_length=128, null=False, blank=False)
-    ''' user id given by social network(FacebookUserId or ) '''
+    """ user id given by social network(FacebookUserId or ) """
     name = models.CharField(max_length=50, null=False, blank=False)
-    ''' user name '''
+    """ user name """
     email = models.EmailField(null=False, blank=False)
-    ''' user email'''
+    """ user email"""
     phoneId = models.UUIDField(null=False)
-    ''' phone id used to log in '''
+    """ phone id used to log in """
     FACEBOOK = 'FACEBOOK'
     GOOGLE = 'GOOGLE'
     ACCOUNT_TYPES = (
@@ -688,23 +688,23 @@ class TranSappUser(models.Model):
         (GOOGLE, 'Google')
     )
     accountType = models.CharField(max_length=10, choices=ACCOUNT_TYPES, null=False)
-    ''' type of toke id (it says where tokenID comes from) '''
+    """ type of toke id (it says where tokenID comes from) """
     globalScore = models.FloatField(default=0, null=False)
-    ''' global score generated by user interactions '''
+    """ global score generated by user interactions """
     level = models.ForeignKey(Level, null=False)
-    ''' level based on score '''
+    """ level based on score """
     sessionToken = models.UUIDField(null=False)
-    ''' uuid generated each time the user log in '''
+    """ uuid generated each time the user log in """
     nickname = models.CharField(max_length=20, null=False)
-    ''' user nick name '''
+    """ user nick name """
     photoURI = models.URLField(null=False)
-    ''' social media photo '''
+    """ social media photo """
     userAvatarId = models.IntegerField(default=1)
-    ''' avatar used to hide identity of user '''
+    """ avatar used to hide identity of user """
     showAvatar = models.BooleanField(default=True)
-    ''' to indicate if system hast to use the avatar or social media photo '''
+    """ to indicate if system hast to use the avatar or social media photo """
     busAvatarId = models.IntegerField(default=1)
-    ''' bus avatar used to show buses on app map '''
+    """ bus avatar used to show buses on app map """
 
     def getDictionary(self):
         """ get dictionary of public data """
@@ -726,20 +726,20 @@ class TranSappUser(models.Model):
 class ScoreEvent(models.Model):
     """ score given by action """
     code = models.CharField(max_length=10, null=False, blank=False, unique=True)
-    ''' event code '''
+    """ event code """
     score = models.FloatField(default=0, null=False)
-    ''' score given to user when he does the action associated to code '''
+    """ score given to user when he does the action associated to code """
 
 
 class ScoreHistory(models.Model):
     """ history of events give score """
     tranSappUser = models.ForeignKey(TranSappUser)
-    ''' user '''
+    """ user """
     scoreEvent = models.ForeignKey(ScoreEvent)
-    ''' event that generates the score '''
+    """ event that generates the score """
     timeCreation = models.DateTimeField(null=False)
-    ''' time when event was generated '''
+    """ time when event was generated """
     score = models.FloatField(default=0, null=False)
-    ''' wined score '''
+    """ wined score """
     meta = models.CharField(max_length=10000, null=True)
-    ''' additional data to score '''
+    """ additional data to score """

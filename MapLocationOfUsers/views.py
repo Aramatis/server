@@ -11,8 +11,8 @@ from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
 
 
 class MapHandler(View):
-    '''This class manages the map where the markers from the devices using the
-    application are shown'''
+    """This class manages the map where the markers from the devices using the
+    application are shown"""
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
@@ -25,7 +25,7 @@ class MapHandler(View):
 
 
 class GetMapPositions(View):
-    '''This class requests to the database the values of the actives users'''
+    """This class requests to the database the values of the actives users"""
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
@@ -80,7 +80,7 @@ class GetMapTrajectory(View):
         return JsonResponse(response, safe=False)
 
     def getTokenUsedIn10LastMinutes(self):
-        '''return the tokens that have the latest entry at least 5 minutes ago'''
+        """return the tokens that have the latest entry at least 5 minutes ago"""
         now = timezone.now()
 
         earlier = now - timezone.timedelta(minutes=5)
