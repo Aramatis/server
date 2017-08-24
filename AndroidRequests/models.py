@@ -503,17 +503,6 @@ class Busassignment(models.Model):
                 'direction': serviceCode[-1]
                 }
 
-    """
-    def getDictionary(self):
-        """ Return a dictionary with useful information about the bus """
-        dictionary = {}
-
-        dictionary['serviceBus'] = self.service
-        dictionary['registrationPlateBus'] = self.uuid.registrationPlate
-
-        return dictionary
-    """
-
 
 class ServiceLocation(Location):
     """This models stores the position along the route of every bus at 20 meters apart.
