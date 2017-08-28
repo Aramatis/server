@@ -183,6 +183,61 @@ class EventRegistration(models.Model):
 
         return dictionary
 
+    def createUserLists(self, records):
+        """
+        create confirmed user list, declined user list and identify user creator (if exists)
+        return creatorIndex, confirmedUserList, declinedUserList
+        """
+        creatorId = None
+        creatorIndex = -1
+
+        first = True
+        confirmedUserDict = {}
+        declinedUserDict = {}
+        for record in records.order_by("timeStamp"):
+            record = record.getDictionary()
+            user = record['user']
+
+            if first and user != {}:
+                creatorId = user["id"]
+            elif user == {}:
+                continue
+
+            userId = user["id"]
+            if record['vote'] == self.CONFIRM:
+                if userId in confirmedUserDict:
+                    confirmedUserDict[userId]["votes"] += 1
+                else:
+                    confirmedUserDict[userId] = user
+                    confirmedUserDict[userId]["votes"] = 1
+                confirmedUserDict[userId]["lastReportTimestamp"] = record["timeStamp"]
+
+            if record['vote'] == self.DECLINE:
+                if userId in declinedUserDict:
+                    declinedUserDict[userId]["votes"] += 1
+                else:
+                    declinedUserDict[userId] = user
+                    declinedUserDict[userId]["votes"] = 1
+                declinedUserDict[userId]["lastReportTimestamp"] = record["timeStamp"]
+
+            first = False
+
+        confirmedVoteList = []
+        declinedVoteList = []
+
+        for index, (_, user) in enumerate(confirmedUserDict.items()):
+            if user["id"] == creatorId:
+                creatorIndex = index
+            # user id is not public
+            del user["id"]
+            confirmedVoteList.append(user)
+
+        for _, user in declinedUserDict.items():
+            # user id is not public
+            del user["id"]
+            declinedVoteList.append(user)
+
+        return creatorIndex, confirmedVoteList, declinedVoteList
 
 class EventForBusStop(EventRegistration):
     """This model stores the reported events for the busStop"""
@@ -197,26 +252,12 @@ class EventForBusStop(EventRegistration):
     def getDictionary(self):
         dictionary = super(EventForBusStop, self).getDictionary()
 
-        dictionary['confirmedVoteList'] = []
-        dictionary['declinedVoteList'] = []
-        dictionary['creatorIndex'] = -1
+        records = self.stadisticdatafromregistrationbusstop_set.all()
+        creatorIndex, confirmedVoteList, declinedVoteList = self.createUserLists(records)
 
-        first = True
-        for record in self.stadisticdatafromregistrationbusstop_set.all().order_by("timeStamp"):
-            record = record.getDictionary()
-            user = record['user']
-
-            if first and user != {}:
-                dictionary["creatorIndex"] = 0
-            elif user == {}:
-                continue
-
-            if record['vote'] == EventRegistration.CONFIRM:
-                dictionary['confirmedVoteList'].append(user)
-            else:
-                dictionary['declinedVoteList'].append(user)
-
-            first = False
+        dictionary['confirmedVoteList'] = confirmedVoteList
+        dictionary['declinedVoteList'] = declinedVoteList
+        dictionary['creatorIndex'] = creatorIndex
 
         return dictionary
 
@@ -229,29 +270,14 @@ class EventForBusv2(EventRegistration):
     def getDictionary(self):
         dictionary = super(EventForBusv2, self).getDictionary()
 
-        dictionary['confirmedVoteList'] = []
-        dictionary['declinedVoteList'] = []
-        dictionary['creatorIndex'] = -1
+        records = self.stadisticdatafromregistrationbus_set.all()
+        creatorIndex, confirmedVoteList, declinedVoteList = self.createUserLists(records)
 
-        first = True
-        for record in self.stadisticdatafromregistrationbus_set.all().order_by("timeStamp"):
-            record = record.getDictionary()
-            user = record['user']
-
-            if first and user != {}:
-                dictionary["creatorIndex"] = 0
-            elif user == {}:
-                continue
-
-            if record['vote'] == self.CONFIRM:
-                dictionary['confirmedVoteList'].append(record['user'])
-            else:
-                dictionary['declinedVoteList'].append(record['user'])
-
-            first = False
+        dictionary['confirmedVoteList'] = confirmedVoteList
+        dictionary['declinedVoteList'] = declinedVoteList
+        dictionary['creatorIndex'] = creatorIndex
 
         return dictionary
-
 
 ##
 #
@@ -716,6 +742,7 @@ class TranSappUser(models.Model):
     def getDictionary(self):
         """ get dictionary of public data """
         data = {
+            "id": self.id,
             "nickname": self.nickname,
             "globalScore": self.globalScore,
             "showAvatar": self.showAvatar,
