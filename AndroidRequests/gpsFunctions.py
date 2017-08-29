@@ -3,8 +3,7 @@ import urllib2
 from math import radians, cos, sin, asin, sqrt
 
 from django.utils.dateparse import parse_datetime
-
-import AndroidRequests.constants as Constants
+from pytz import timezone
 
 
 def haversine(lon1, lat1, lon2, lat2, measure='m'):
@@ -26,8 +25,10 @@ def haversine(lon1, lat1, lon2, lat2, measure='m'):
 
 
 def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
-    parameters = {'licencePlate': registrationPlate, 'time': timeStamp.strftime(
-        "%Y-%m-%d %H:%M:%S").replace(" ", "%20")}
+    parameters = {
+        'licencePlate': registrationPlate,
+        'time': timeStamp.strftime("%Y-%m-%d %H:%M:%S").replace(" ", "%20")
+    }
     url = "http://200.9.100.91/onlinegps/transappBusPosition/getEstimatedPosition"
     full_url = url + '?licencePlate=' + \
         parameters['licencePlate'] + '&time=' + parameters['time']
@@ -48,7 +49,9 @@ def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
             longitude = response['nearestGpsPoint']['longitude']
             latitude = response['nearestGpsPoint']['latitude']
             time = response['nearestGpsPoint']['time']
-            time = parse_datetime(time + Constants.TIMEZONE)
+            time = parse_datetime(time)
+            local = timezone("America/Santiago")
+            time = local.localize(time)
             distance = haversine(longitude, latitude, plon, plat)
     except:
         pass
