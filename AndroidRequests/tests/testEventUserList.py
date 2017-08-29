@@ -22,10 +22,16 @@ class BusEventUserListTestCase(TransactionTestCase):
         ScoreEvent.objects.create(code=self.eventCode, score=self.score)
 
         self.phoneId = '1df6e1b6a1b840d689b364119db3fb7c'
-        licencePlate = 'AA1111'
+        licensePlate = 'AA1111'
         self.service = '507'
-        self.machineId = self.test.askForMachineId(licencePlate)
+        self.machineId = self.test.askForMachineId(licensePlate)
         self.token = self.test.getInBusWithMachineId(self.phoneId, self.service, self.machineId)
+
+    def check_user_data(self, user, vote_number):
+        """ check if user info is correct """
+        self.assertEqual(user['votes'], vote_number)
+        self.assertRaises(KeyError, user.__getitem__, 'id')
+        self.assertTrue(user['lastReportTimestamp'])
 
     def test_userReportsBusEventAndGetListUser(self):
         """ user reports bus event and get list users """
@@ -36,6 +42,8 @@ class BusEventUserListTestCase(TransactionTestCase):
 
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 1)
+            for confirmedUser in event['confirmedVoteList']:
+                self.check_user_data(confirmedUser, 1)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
@@ -44,7 +52,10 @@ class BusEventUserListTestCase(TransactionTestCase):
                                                                user.sessionToken)
 
         for event in jsonResponse['events']:
-            self.assertEqual(len(event['confirmedVoteList']), 2)
+            self.assertEqual(len(event['confirmedVoteList']), 1)
+            for confirmedUser in event['confirmedVoteList']:
+                self.check_user_data(confirmedUser, 2)
+
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
@@ -53,8 +64,12 @@ class BusEventUserListTestCase(TransactionTestCase):
                                                                user.sessionToken)
 
         for event in jsonResponse['events']:
-            self.assertEqual(len(event['confirmedVoteList']), 2)
+            self.assertEqual(len(event['confirmedVoteList']), 1)
+            for confirmedUser in event['confirmedVoteList']:
+                self.check_user_data(confirmedUser, 2)
             self.assertEqual(len(event['declinedVoteList']), 1)
+            for declinedUser in event['declinedVoteList']:
+                self.check_user_data(declinedUser, 1)
 
     def test_userReportsStopEventAndGetListUser(self):
         """ user reports bus event and get list users """
@@ -70,6 +85,8 @@ class BusEventUserListTestCase(TransactionTestCase):
 
         for event in jsonResponse['events']:
             self.assertEqual(len(event['confirmedVoteList']), 1)
+            for confirmedUser in event['confirmedVoteList']:
+                self.check_user_data(confirmedUser, 1)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
@@ -78,7 +95,9 @@ class BusEventUserListTestCase(TransactionTestCase):
                                                                  user.sessionToken)
 
         for event in jsonResponse['events']:
-            self.assertEqual(len(event['confirmedVoteList']), 2)
+            self.assertEqual(len(event['confirmedVoteList']), 1)
+            for confirmedUser in event['confirmedVoteList']:
+                self.check_user_data(confirmedUser, 2)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
@@ -87,5 +106,9 @@ class BusEventUserListTestCase(TransactionTestCase):
                                                                  user.sessionToken)
 
         for event in jsonResponse['events']:
-            self.assertEqual(len(event['confirmedVoteList']), 2)
+            self.assertEqual(len(event['confirmedVoteList']), 1)
+            for confirmedUser in event['confirmedVoteList']:
+                self.check_user_data(confirmedUser, 2)
             self.assertEqual(len(event['declinedVoteList']), 1)
+            for declinedUser in event['declinedVoteList']:
+                self.check_user_data(declinedUser, 1)
