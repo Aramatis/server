@@ -3,6 +3,8 @@ import urllib2
 from math import radians, cos, sin, asin, sqrt
 
 from django.utils.dateparse import parse_datetime
+from django.conf import settings
+
 from pytz import timezone
 
 
@@ -50,7 +52,7 @@ def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
             latitude = response['nearestGpsPoint']['latitude']
             time = response['nearestGpsPoint']['time']
             time = parse_datetime(time)
-            local = timezone("America/Santiago")
+            local = timezone(settings.TIME_ZONE)
             time = local.localize(time)
             distance = haversine(longitude, latitude, plon, plat)
     except:
