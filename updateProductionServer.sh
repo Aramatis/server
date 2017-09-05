@@ -23,6 +23,7 @@ KEY_FILES=(
     secret_key.txt
     database_config.json
     android_requests_backups.py
+    facebook_config.json
     )
 
 for FILE_NAME in "${KEY_FILES[@]}"
