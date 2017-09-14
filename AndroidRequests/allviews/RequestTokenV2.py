@@ -6,6 +6,8 @@ from random import random
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 # my stuff
 # import DB's models
@@ -18,6 +20,10 @@ class RequestTokenV2(View):
 
     def __init__(self):
         self.context = {}
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RequestTokenV2, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
         """ get in the bus """
