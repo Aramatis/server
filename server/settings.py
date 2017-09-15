@@ -155,6 +155,9 @@ LOGGING = {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
         },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
     },
     'handlers': {
         'db_file': {
@@ -166,25 +169,31 @@ LOGGING = {
         },
         'file': {
             'level': 'DEBUG',
-            'filters': ['ignore_devicepositionintime'],
+            'filters': ['ignore_devicepositionintime', 'require_debug_false'],
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + "/logs/file.log",
             'formatter': 'simple',
         },
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
+            'filters': ['require_debug_false', 'require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
         },
     },
     'loggers': {
         'django.db.backends': {
             'handlers': ['db_file'],
             'level': 'DEBUG',
-            'propagate': False,
+            'propagate': True,
         },
         'django': {
-            'handlers': ['file', 'mail_admins'],
+            'handlers': ['file', 'mail_admins', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
