@@ -227,7 +227,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) 
     DATABASES['default'].update(json.load(db_file))
 
 # GTFS DATA USED TO PREDICT POSITION AND OTHER THINGS
-GTFS_VERSION = 'v1.1'
+GTFS_VERSION = 'v1.2'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
