@@ -60,7 +60,7 @@ class UserRankingTestCase(TestCase):
         self.assertEqual(jsonResponse['status'],
                          Status.getJsonStatus(Status.OK, {})['status'])
 
-        ranking = jsonResponse['ranking']
+        ranking = jsonResponse['ranking']['top'] + jsonResponse['ranking']['near']
         self.assertEqual(len(ranking), resultUsersNumber)
         previousScore = None
         previousPosition = None
