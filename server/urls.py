@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dtpm/', include('PredictorDTPM.urls')),
     url(r'^android/', include('AndroidRequests.urls')),
+    url(r'^phone/', include('AndroidRequests.urls')),
     url(r'^map/', include('MapLocationOfUsers.urls')),
     url(r'^modeldic/', include('DataDictionary.urls')),
     url(r'^routeplanner/', include('routeplanner.urls')),
