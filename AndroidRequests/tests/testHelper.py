@@ -117,7 +117,7 @@ class TestHelper:
         request.user = AnonymousUser()
 
         view = RequestTokenV2()
-        response = view.get(request, phoneId, service, machineId, None, None, time)
+        response = view.get(request, phoneId, service, machineId, None, None, None, None, time)
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -141,15 +141,19 @@ class TestHelper:
         return token
 
     def getInBusWithLicencePlateByPost(
-            self, phoneId, route, licencePlate,
+            self, phoneId, route, licencePlate, busLongitude=None, busLatitude=None,
             userId=None, sessionToken=None):
         """ create a user on bus in database """
         machineId = self.askForMachineId(licencePlate)
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId, 'userId': userId,
-                'sessionToken': sessionToken}
+        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId,
+                'userId': userId, 'sessionToken': sessionToken}
+        if busLongitude is not None:
+            data["longitude"] = busLongitude
+        if busLatitude is not None:
+            data["latitude"] = busLatitude
 
         response = c.post(URL, data)
 
@@ -160,14 +164,19 @@ class TestHelper:
 
         return token
 
-    def getInBusWithMachineIdByPost(self, phoneId, route, machineId,
+    def getInBusWithMachineIdByPost(self, phoneId, route, machineId, busLongitude=None, busLatitude=None,
                                     userId=None, sessionToken=None):
         """ create a user on bus in database """
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId, 'userId': userId,
-                'sessionToken': sessionToken}
+        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId,
+                'userId': userId, 'sessionToken': sessionToken}
+        if busLongitude is not None:
+            data["longitude"] = busLongitude
+        if busLatitude is not None:
+            data["latitude"] = busLatitude
+
         response = c.post(URL, data)
 
         self.test.assertEqual(response.status_code, 200)

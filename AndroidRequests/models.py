@@ -591,6 +591,8 @@ class Token(models.Model):
 
 class PoseInTrajectoryOfToken(Location):
     """This stores all the poses of a trajectory. The trajectory can start on foot and end on foot."""
+    IN_VEHICLE ='vehicle'
+    NON_VEHICLE = 'non_vehicle'
     timeStamp = models.DateTimeField(null=False, blank=False, db_index=True)
     """ Specific date time when the server received a pose in the trajectory """
     inVehicleOrNot = models.CharField(max_length=15)  # vehicle, non_vehicle

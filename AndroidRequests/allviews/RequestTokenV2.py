@@ -9,7 +9,7 @@ from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser
+from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser, PoseInTrajectoryOfToken
 from AndroidRequests.encoder import TranSappJSONEncoder
 
 
@@ -18,6 +18,7 @@ class RequestTokenV2(View):
     to identify the trip, not the device."""
 
     def __init__(self):
+        super(RequestTokenV2, self).__init__()
         self.context = {}
 
     @method_decorator(csrf_exempt)
@@ -32,10 +33,14 @@ class RequestTokenV2(View):
         machineId = request.POST.get('machineId')
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
-        
-        return self.get(request, phoneId, route, machineId, userId, sessionToken)
+        # current bus position
+        busLatitude = request.POST.get('latitude')
+        busLongitude = request.POST.get('longitude')
 
-    def get(self, request, pPhoneId, pBusService, pUUID, userId=None, sessionToken=None, data=timezone.now()):
+        return self.get(request, phoneId, route, machineId, busLatitude, busLongitude, userId, sessionToken)
+
+    def get(self, request, pPhoneId, pBusService, pUUID, busLatitude=None, busLongitude=None,
+            userId=None, sessionToken=None, data=timezone.now()):
         """  """
 
         salt = os.urandom(20)
@@ -62,6 +67,11 @@ class RequestTokenV2(View):
             direction=None)
 
         ActiveToken.objects.create(timeStamp=data, token=tokenObj)
+        # add current position for tokens
+        if busLongitude is not None and busLatitude is not None:
+            PoseInTrajectoryOfToken.objects.create(timeStamp=timezone.now(), token=tokenObj,
+                                                   inVehicleOrNot=PoseInTrajectoryOfToken.IN_VEHICLE,
+                                                   longitude=float(busLongitude), latitude=float(busLatitude))
 
         # we store the active token
         response = {'token': hashToken}
