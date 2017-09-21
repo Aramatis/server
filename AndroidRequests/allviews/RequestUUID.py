@@ -1,13 +1,11 @@
-# python utilities
-import uuid
-
 from django.http import JsonResponse
 from django.views.generic import View
 
-import AndroidRequests.constants as Constants
-# my stuff
-# import DB's models
 from AndroidRequests.models import Busv2
+from AndroidRequests.encoder import TranSappJSONEncoder
+
+import AndroidRequests.constants as Constants
+import uuid
 
 
 class RequestUUID(View):
@@ -35,4 +33,4 @@ class RequestUUID(View):
         # we store the active token
         response['uuid'] = busv2.uuid
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

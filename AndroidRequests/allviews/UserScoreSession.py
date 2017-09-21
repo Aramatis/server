@@ -14,6 +14,7 @@ from django.views.generic import View
 
 from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 
@@ -115,7 +116,7 @@ class TranSappUserLogin(View):
         # elif accountType == TranSappUser.GOOGLE:
         #    googleUserId = self.checkGoogleId(tokenId)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 class TranSappUserLogout(View):
@@ -146,7 +147,7 @@ class TranSappUserLogout(View):
             Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             self.logger.error(str(e))
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 class UpdateTranSappUserSettings(View):
@@ -192,4 +193,4 @@ class UpdateTranSappUserSettings(View):
             Status.getJsonStatus(Status.INTERNAL_ERROR, response)
             self.logger.error(str(e))
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

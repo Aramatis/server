@@ -6,9 +6,8 @@ from django.views.generic import View
 
 from collections import defaultdict
 
-# my stuff
-# import DB's models
 from AndroidRequests.models import Busv2, EventForBusv2, Busassignment
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class EventsByBusV2(View):
@@ -38,7 +37,7 @@ class EventsByBusV2(View):
         response['registrationPlate'] = pRegistrationPlate
         response['events'] = events
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getEventsForBuses(self, busassignments, timeStamp):
         """ this method get events of group of buses with one hit to database """

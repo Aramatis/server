@@ -5,6 +5,7 @@ from django.views.generic import View
 # import DB's models
 from AndroidRequests.models import TranSappUser
 from AndroidRequests.scoreFunctions import UserValidation
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class UserRanking(View):
@@ -81,4 +82,4 @@ class UserRanking(View):
         if loggedUser:
             response['ranking'] = self.getRanking(user)
 
-        return JsonResponse(response)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

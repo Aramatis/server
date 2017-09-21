@@ -2,12 +2,12 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
 
-import AndroidRequests.constants as Constants
-import AndroidRequests.gpsFunctions as Gps
-# my stuff
-# import DB's models
 from AndroidRequests.models import Event, Busv2, Busassignment, EventForBusv2, StadisticDataFromRegistrationBus
 from EventsByBusV2 import EventsByBusV2
+from AndroidRequests.encoder import TranSappJSONEncoder
+
+import AndroidRequests.constants as Constants
+import AndroidRequests.gpsFunctions as Gps
 
 
 class RegisterEventBus(View):
@@ -51,7 +51,7 @@ class RegisterEventBus(View):
             events.append(dictionary)
             # events[0].
             response['events'] = events
-            return JsonResponse(response, safe=False)
+            return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
             # TODO
             # Problem: there is no way to identify THE dummy bus without the uuid.
             # Return the same event.

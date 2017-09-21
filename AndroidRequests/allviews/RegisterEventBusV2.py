@@ -6,13 +6,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-import AndroidRequests.gpsFunctions as Gps
-import AndroidRequests.scoreFunctions as score
-# my stuff
-# import DB's models
 from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment, \
     TranSappUser
 from EventsByBusV2 import EventsByBusV2
+from AndroidRequests.encoder import TranSappJSONEncoder
+
+import AndroidRequests.gpsFunctions as Gps
+import AndroidRequests.scoreFunctions as score
 
 
 class RegisterEventBusV2(View):
@@ -63,7 +63,7 @@ class RegisterEventBusV2(View):
             theAsignment = Busassignment.objects.get(
                 uuid=theBus, service=pBusService)
         except:
-            return JsonResponse({}, safe=False)
+            return JsonResponse({}, safe=False, encoder=TranSappJSONEncoder)
 
         # get the GPS data from the url
         responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
@@ -129,4 +129,4 @@ class RegisterEventBusV2(View):
         jsonEventResponse = json.loads(EventsByBusV2().get(request, pMachineId).content)
         jsonEventResponse["gamificationData"] = jsonScoreResponse
 
-        return JsonResponse(jsonEventResponse)
+        return JsonResponse(jsonEventResponse, encoder=TranSappJSONEncoder)

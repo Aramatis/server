@@ -1,9 +1,8 @@
 from django.http import JsonResponse
 from django.views.generic import View
 
-# my stuff
-# import DB's models
 from AndroidRequests.models import Event
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class RequestEventsToNotified(View):
@@ -28,4 +27,4 @@ class RequestEventsToNotified(View):
         for data in events:
             response.append(data.getDictionary())
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

@@ -9,9 +9,8 @@ from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-# my stuff
-# import DB's models
 from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class RequestTokenV2(View):
@@ -67,7 +66,7 @@ class RequestTokenV2(View):
         # we store the active token
         response = {'token': hashToken}
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getRandomColor(self):
         # color used by web page that shows trip trajectories

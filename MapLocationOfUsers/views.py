@@ -1,13 +1,10 @@
-# usefull packages from django
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.utils import timezone
 
-# models
 from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
-
-# Create your views here.
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class MapHandler(View):
@@ -16,6 +13,7 @@ class MapHandler(View):
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
+        super(MapHandler, self).__init__()
         self.context = {}
 
     def get(self, request):
@@ -29,6 +27,7 @@ class GetMapPositions(View):
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
+        super(GetMapPositions, self).__init__()
         self.context = {}
 
     def get(self, request):
@@ -49,7 +48,7 @@ class GetMapPositions(View):
                                  'longitud': aPosition.longitude})
                 phones.append(aPosition.phoneId)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 class GetMapTrajectory(View):
@@ -58,6 +57,7 @@ class GetMapTrajectory(View):
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
+        super(GetMapTrajectory, self).__init__()
         self.context = {}
 
     def get(self, request):
@@ -77,7 +77,7 @@ class GetMapTrajectory(View):
             tokenResponse['myColor'] = aToken.color
             response.append(tokenResponse)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getTokenUsedIn10LastMinutes(self):
         """return the tokens that have the latest entry at least 5 minutes ago"""

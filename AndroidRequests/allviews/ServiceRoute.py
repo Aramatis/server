@@ -1,14 +1,15 @@
 from django.http import JsonResponse
 from django.views.generic import View
 
-# import DB's models
 from AndroidRequests.models import Route
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class ServiceRoute(View):
     """This class handles requests for a service route."""
 
     def __init__(self):
+        super(ServiceRoute, self).__init__()
         self.context = {}
 
     def get(self, request, pBusService, pLat1, pLon1, pLat2, pLon2):
@@ -29,7 +30,7 @@ class ServiceRoute(View):
 
         response['route'] = route
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def detectRouteDirection(self, pBusService, pLat1, pLon1, pLat2, pLon2):
         """ detect route direction based on two points  """

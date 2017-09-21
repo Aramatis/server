@@ -5,27 +5,6 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-"""
-Dealing with no UUID serialization support in json
-"""
-from json import JSONEncoder
-from uuid import UUID
-
-JSONEncoder_olddefault = JSONEncoder.default
-
-
-def JSONEncoder_newdefault(self, o):
-    if isinstance(o, UUID):
-        return str(o)
-    return JSONEncoder_olddefault(self, o)
-
-
-JSONEncoder.default = JSONEncoder_newdefault
-
-
-# Create your models here.
-# Remember to add new models to admin.py
-
 
 class Location(models.Model):
     """ Some of our models require to set a geolocation (coodinates)"""
@@ -106,11 +85,11 @@ class StadisticDataFromRegistration(Location):
     class Meta:
         abstract = True
 
-    def getDictionary(self):
+    def getDictionary(self, userWithId=False):
         """ return two list: one with confirm users and another with decline users """
         dictionary = {}
         if self.tranSappUser is not None:
-            dictionary['user'] = self.tranSappUser.getDictionary()
+            dictionary['user'] = self.tranSappUser.getDictionary(withId=userWithId)
         else:
             dictionary['user'] = {}
         dictionary['vote'] = self.confirmDecline
@@ -195,7 +174,7 @@ class EventRegistration(models.Model):
         confirmedUserDict = {}
         declinedUserDict = {}
         for record in records.order_by("timeStamp"):
-            record = record.getDictionary()
+            record = record.getDictionary(userWithId=True)
             user = record['user']
 
             if first and user != {}:
@@ -739,16 +718,17 @@ class TranSappUser(models.Model):
     busAvatarId = models.IntegerField(default=1)
     """ bus avatar used to show buses on app map """
 
-    def getDictionary(self):
+    def getDictionary(self, withId=False):
         """ get dictionary of public data """
         data = {
-            "id": self.id,
             "nickname": self.nickname,
             "globalScore": self.globalScore,
             "showAvatar": self.showAvatar,
             "levelName": self.level.name,
             "levelPosition": self.level.position
         }
+        if withId:
+            data["id"] = self.id
         if self.showAvatar:
             data['userAvatarId'] = self.userAvatarId
         else:
