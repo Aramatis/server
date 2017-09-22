@@ -26,7 +26,7 @@ class UserRanking(View):
         topUsers = TranSappUser.objects. \
                        select_related('level').order_by('-globalScore')[:self.TOP_USERS]
         for topUser in topUsers:
-            excludedUsers.append(topUser.pk)
+            #excludedUsers.append(topUser.pk)
             if previousScore != topUser.globalScore:
                 previousScore = topUser.globalScore
                 position += 1
