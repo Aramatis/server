@@ -5,7 +5,8 @@ from django.conf import settings
 from mock import Mock
 
 from PredictorDTPM.webService.WebService import WebService
-
+from PredictorDTPM.views import registerDTPMAnswer
+from PredictorDTPM.models import Log, BusLog
 
 class ParserTest(TestCase):
     """ test method  """
@@ -77,7 +78,17 @@ class ParserTest(TestCase):
         WebService.clientInstance = sud_client
         webService = WebService(self.request)
 
-        webService.askForServices(self.stopCode)
+        data = webService.askForServices(self.stopCode)
+        registerDTPMAnswer(data)
+
+        self.assertEqual(Log.objects.count(), 1)
+        self.assertEqual(BusLog.objects.count(), 3)
+        for busLog in BusLog.objects.all():
+            self.assertIsNotNone(busLog.route)
+            self.assertIsNotNone(busLog.licensePlate)
+            self.assertIsNotNone(busLog.timeMessage)
+            self.assertIsNotNone(busLog.distance)
+            self.assertIsNone(busLog.message)
 
     def test_code11(self):
         """ test situation when authority response routes with code 11 """
@@ -121,7 +132,17 @@ class ParserTest(TestCase):
         WebService.clientInstance = sud_client
         webService = WebService(self.request)
 
-        webService.askForServices(self.stopCode)
+        data = webService.askForServices(self.stopCode)
+        registerDTPMAnswer(data)
+
+        self.assertEqual(Log.objects.count(), 1)
+        self.assertEqual(BusLog.objects.count(), 2)
+        for busLog in BusLog.objects.all():
+            self.assertIsNotNone(busLog.route)
+            self.assertIsNone(busLog.licensePlate)
+            self.assertIsNone(busLog.timeMessage)
+            self.assertIsNone(busLog.distance)
+            self.assertIsNotNone(busLog.message)
 
     def test_code23(self):
         """ test situation when authority response routes with code 11 """
@@ -154,4 +175,7 @@ class ParserTest(TestCase):
         WebService.clientInstance = sud_client
         webService = WebService(self.request)
 
-        webService.askForServices(self.stopCode)
+        data = webService.askForServices(self.stopCode)
+        registerDTPMAnswer(data)
+
+        self.assertEqual(Log.objects.count(), 1)
