@@ -8,10 +8,10 @@ import json
 from PredictorDTPM.models import Log
 
 
-class WebService(object):
+class WebService:
     """ Communicate with TranSantiago predictor service """
 
-    class __WebServiceClient(object):
+    class __WebServiceClient:
         """ Singleton for suds client """
 
         def __init__(self):
@@ -47,7 +47,7 @@ class WebService(object):
     def __init__(self, request):
         """ constructor """
         self.__ipFinalUser = self.__getUserIP(request)
-        if not WebService.clientInstance:
+        if WebService.clientInstance is None:
             WebService.clientInstance = WebService.__WebServiceClient()
 
     def askForServices(self, busStop):
@@ -93,44 +93,78 @@ class WebService(object):
     def __parserDTPMData(self, dtpmInfo):
         """ separate buses. Each one in an array """
 
-        response = {'fechaConsulta': dtpmInfo['fechaprediccion'], 'horaConsulta': dtpmInfo['horaprediccion'],
-                    'id': dtpmInfo['paradero'], 'descripcion': dtpmInfo['nomett'], 'servicios': [], 'error': None}
+        response = {
+            'fechaConsulta': dtpmInfo['fechaprediccion'],
+            'horaConsulta': dtpmInfo['horaprediccion'],
+            'id': dtpmInfo['paradero'],
+            'descripcion': dtpmInfo['nomett'],
+            'servicios': [],
+            'error': None
+        }
 
         if (dtpmInfo['respuestaParadero'] is not None):
             response['error'] = dtpmInfo['respuestaParadero']
 
-        # for each service
-        for service in dtpmInfo['servicios'][0]:
-            bus1 = {}
-            bus2 = {}
-            # if response is ok
-            if service['codigorespuesta'] == "00" or \
-               service['codigorespuesta'] == "01":
-                bus1['valido'] = 1
-                bus2['valido'] = 1
-            else:
-                bus1['valido'] = 0
-                bus2['valido'] = 0
-                bus1['mensajeError'] = service['respuestaServicio']
-                bus2['mensajeError'] = service['respuestaServicio']
+        # for each route
+        for route in dtpmInfo['servicios'][0]:
+            bus_list = []
+            bus1 = {
+                "servicio": None,
+                "patente": None,
+                "tiempo": None,
+                "distancia": None,
+                "msg": None
+            }
 
-            bus1['servicio'] = service['servicio'].strip()
-            if service['ppubus1'] is not None:
-                bus1['patente'] = service['ppubus1'].replace("-", "").strip().upper()
-            else:
-                bus1['patente'] = None
-            bus1['tiempo'] = service['horaprediccionbus1']
-            bus1['distancia'] = "{} {}".format(service['distanciabus1'], ' mts.')
+            # information about next two buses
+            if route['codigorespuesta'] == "00":
 
-            bus2['servicio'] = service['servicio'].strip()
-            if service['ppubus2'] is not None:
-                bus2['patente'] = service['ppubus2'].replace("-", "").strip().upper()
-            else:
-                bus2['patente'] = None
-            bus2['tiempo'] = service['horaprediccionbus2']
-            bus2['distancia'] = "{} {}".format(service['distanciabus2'], ' mts.')
+                bus1['servicio'] = route['servicio'].strip()
+                bus1['patente'] = route['ppubus1'].replace("-", "").strip().upper()
+                bus1['tiempo'] = route['horaprediccionbus1']
+                bus1['distancia'] = "{} {}".format(route['distanciabus1'], ' mts.')
 
-            response['servicios'].append(bus1)
-            response['servicios'].append(bus2)
+                bus2 = {
+                    'servicio': route['servicio'].strip(),
+                    'patente': route['ppubus2'].replace("-", "").strip().upper(),
+                    'tiempo': route['horaprediccionbus2'],
+                    'distancia': "{} {}".format(route['distanciabus2'], ' mts.'),
+                    'msg': None
+                }
+
+                bus_list.append(bus1)
+                bus_list.append(bus2)
+
+            # information about next bus
+            elif route['codigorespuesta'] == "01":
+
+                bus1['servicio'] = route['servicio'].strip()
+                bus1['patente'] = route['ppubus1'].replace("-", "").strip().upper()
+                bus1['tiempo'] = route['horaprediccionbus1']
+                bus1['distancia'] = "{} {}".format(route['distanciabus1'], ' mts.')
+
+                bus_list.append(bus1)
+
+            # 09: information about frequency
+            # 10: there is not buses to bus stop
+            # 11: route out of schedule
+            # 12: route not available
+            elif route['codigorespuesta'] in ["09", "10", "11", "12"]:
+                bus1['servicio'] = route['servicio'].strip()
+                bus1['msg'] = route['respuestaServicio']
+
+                bus_list.append(bus1)
+
+            # 14: stop does not math with route asked
+            # 20: system error. it's catch by stop error
+            # 21: invalid query
+            # 23: invalid stop
+            # 24: invalid route. It is used when ask for route and stop, not our case
+            elif route['codigorespuesta'] in ["14", "20", "21", "23", "24"]:
+                bus1['servicio'] = route['servicio']
+                bus1['msg'] = route['respuestaServicio']
+                bus_list.append(bus1)
+
+            response['servicios'] += bus_list
 
         return response

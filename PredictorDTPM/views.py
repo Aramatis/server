@@ -41,14 +41,11 @@ def registerDTPMAnswer(data):
         errorMessage=data['error'])
 
     for bus in data['servicios']:
-        if bus['patente'] is None or bus['servicio'] is None\
-           or bus['tiempo'] is None or bus['valido'] is None:
-            continue
-        distance = int(bus['distancia'].replace(" mts.", ""))
+        distance = int(bus['distancia'].replace(" mts.", "")) if bus["distancia"] is not None else None
         BusLog.objects.create(
             licensePlate=bus['patente'],
-            serviceName=bus['servicio'],
+            route=bus['servicio'],
             timeMessage=bus['tiempo'],
             distance=distance,
-            valid=bus['valido'],
+            message=bus["msg"],
             log=log)
