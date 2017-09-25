@@ -179,3 +179,88 @@ class ParserTest(TestCase):
         registerDTPMAnswer(data)
 
         self.assertEqual(Log.objects.count(), 1)
+        self.assertEqual(BusLog.objects.count(), 0)
+
+    def test_checkURLAnswer(self):
+        """ check output """
+        sud_answer = {
+            "fechaprediccion": "2017-09-25",
+            "horaprediccion": "00:25",
+            "nomett": "AVENIDA LAS REJAS ESQ. / QUENAC",
+            "paradero": "PA433",
+            "respuestaParadero": None,
+            "servicios": [
+                [
+                    {
+                        "codigorespuesta": "00",
+                        "distanciabus1": "5015",
+                        "distanciabus2": "12095",
+                        "horaprediccionbus1": "En menos de 10 min.",
+                        "horaprediccionbus2": "Entre 18 Y 28 min. ",
+                        "ppubus1": "ZB6733",
+                        "ppubus2": "ZN4332",
+                        "respuestaServicio": None,
+                        "servicio": "107",
+                    },
+                    {
+                        "codigorespuesta": "01",
+                        "distanciabus1": "6554",
+                        "distanciabus2": None,
+                        "horaprediccionbus1": "En menos de 10 min.",
+                        "horaprediccionbus2": None,
+                        "ppubus1": "ZJ1792",
+                        "ppubus2": None,
+                        "respuestaServicio": None,
+                        "servicio": "102",
+                    }
+                ]
+            ],
+            "urlLinkPublicidad": None,
+            "urlPublicidad": "http://mkt.smsbus.cl/img/Cat11.jpg"
+        }
+
+        sud_client = self.get_mock_client(sud_answer)
+        WebService.clientInstance = sud_client
+        webService = WebService(self.request)
+
+        data = webService.askForServices(self.stopCode)
+
+        url_output = {
+            "horaConsulta": "00:25",
+            "webTransId": "TSPP00000000000001197450",
+            "error": None,
+            "descripcion": "AVENIDA LAS REJAS ESQ. / QUENAC",
+            "fechaConsulta": "2017-09-25",
+            "id": "PA433",
+            "servicios": [
+                {
+                    "servicio": "102",
+                    "patente": "ZJ1792",
+                    "tiempo": "En menos de 10 min.",
+                    "valido": 1,
+                    "distancia": "6554  mts."
+                },
+                {
+                    "servicio": "107",
+                    "patente": "ZB6733",
+                    "tiempo": "En menos de 10 min.",
+                    "valido": 1,
+                    "distancia": "5015  mts."
+                },
+                {
+                    "servicio": "107",
+                    "patente": "ZN4332",
+                    "tiempo": "Entre 18 Y 28 min. ",
+                    "valido": 1,
+                    "distancia": "12095  mts."
+                }
+            ]
+        }
+
+        # check with expected
+        for key, value in url_output.items():
+            if isinstance(value, list):
+                for index, key2, value2 in enumerate(value.items()):
+                    self.assertEqual(value2, data["servicios"][index][key2])
+            else:
+                self.assertEqual(value, data[key])
