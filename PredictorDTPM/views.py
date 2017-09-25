@@ -8,7 +8,7 @@ from datetime import datetime
 # my stuff
 from PredictorDTPM.webService.WebService import WebService
 from PredictorDTPM.models import Log, BusLog
-
+from pytz import timezone as tz
 
 def busStopInfo(request, pSecretKey, pBusStop):
     """ return dtpm data related to buses of pBusStop """
@@ -29,11 +29,14 @@ def busStopInfo(request, pSecretKey, pBusStop):
 def registerDTPMAnswer(data):
     """ register DTPM answer in database """
 
+    local = tz(settings.TIME_ZONE)
+    timestamp = local.localize(datetime.strptime("{} {}".format(data['fechaConsulta'], data['horaConsulta']),
+                                                 "%Y-%m-%d %H:%M"))
+
     log = Log.objects.create(
         busStopCode=data['id'],
         serverTimeStamp=timezone.now(),
-        dtpmTimeStamp=datetime.strptime(
-            "{} {}".format(data['fechaConsulta'], data['horaConsulta']), "%Y-%m-%d %H:%M"),
+        dtpmTimeStamp=timestamp,
         webTransId=data['webTransId'],
         errorMessage=data['error'])
 

@@ -6,12 +6,11 @@ from django.views.generic import View
 
 from AndroidRequests.models import Token
 from AndroidRequests.statusResponse import Status
+from AndroidRequests.encoder import TranSappJSONEncoder
 
-
-# Create your views here.
 
 class EvaluateTrip(View):
-    ''' log in transapp user '''
+    """ log in transapp user """
 
     def __init__(self):
         self.context = {}
@@ -34,5 +33,5 @@ class EvaluateTrip(View):
         except:
             Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, response)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 

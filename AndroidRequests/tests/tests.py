@@ -131,7 +131,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
             service='507I', gtfs=self.gtfs, distance=6, longitude=9, latitude=5)
 
     def test_consistencyModelDevicePositionInTime(self):
-        '''This method test the database for the DevicePositionInTime model'''
+        """This method test the database for the DevicePositionInTime model"""
 
         longituds = [3.5, 3.4, 3.3]
         latituds = [5.2, 5.2, 4.2]
@@ -149,7 +149,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
             self.assertEqual(devicePosition.timeStamp, timeStamps[cont])
 
     def test_consistencyModelActiveToken(self):
-        '''This method test the database for the ActiveToken model'''
+        """This method test the database for the ActiveToken model"""
 
         service = '503'
         licencePlate = 'ZZZZ00'
@@ -178,7 +178,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
                 token=travelToken).exists(), True)
 
     def test_consistencyModelPoseInTrajectoryOfToken(self):
-        '''this method test the PoseInTrajectoryOfToken'''
+        """this method test the PoseInTrajectoryOfToken"""
 
         service = '503'
         licencePlate = 'ZZZZ00'
@@ -205,7 +205,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         eventCode = 'evn00001'
 
         jsonResponse = self.test.confirmOrDeclineStopEvent(
-            self.phoneId, busStopCode, eventCode, 'decline')
+            self.phoneId, busStopCode, eventCode, EventForBusStop.DECLINE)
 
         self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
@@ -213,8 +213,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
     def test_EventsByBusStop(self):
-        '''This method test two thing, the posibility to report an event and asking
-        the events for the specific busStop'''
+        """This method test two thing, the posibility to report an event and asking
+        the events for the specific busStop"""
 
         busStopCode = 'PA459'
         eventCode = 'evn00001'
@@ -230,7 +230,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         # do event +1 to the event
         jsonResponse = self.test.confirmOrDeclineStopEvent(
-            self.phoneId, busStopCode, eventCode, 'confirm')
+            self.phoneId, busStopCode, eventCode, EventForBusStop.CONFIRM)
 
         self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -239,7 +239,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         # do event -1 to the event
         jsonResponse = self.test.confirmOrDeclineStopEvent(
-            self.phoneId, busStopCode, eventCode, 'decline')
+            self.phoneId, busStopCode, eventCode, EventForBusStop.DECLINE)
 
         self.assertEqual(jsonResponse['codeBusStop'], busStopCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
@@ -261,8 +261,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
     def test_EventsByBusStopWithAditionalInfo(self):
-        '''This method test two thing, the posibility to report an event adding 
-        aditional information and asking the events for the specific busStop'''
+        """This method test two thing, the posibility to report an event adding
+        aditional information and asking the events for the specific busStop"""
 
         busStopCode = 'PA459'
         eventCode = 'evn00102'
@@ -281,8 +281,8 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(anEvent.aditionalInfo, aditionalInfo)
 
     def test_EventsByBusStopWhereBusEventsAreAlwaysDifferentRecords(self):
-        '''This method test the posibility to report an event adding 
-        aditional information twice and should generate two records '''
+        """This method test the posibility to report an event adding
+        aditional information twice and should generate two records """
 
         busStopCode = 'PA459'
 

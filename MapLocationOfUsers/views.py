@@ -1,21 +1,19 @@
-# usefull packages from django
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.utils import timezone
 
-# models
 from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
-
-# Create your views here.
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class MapHandler(View):
-    '''This class manages the map where the markers from the devices using the
-    application are shown'''
+    """This class manages the map where the markers from the devices using the
+    application are shown"""
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
+        super(MapHandler, self).__init__()
         self.context = {}
 
     def get(self, request):
@@ -25,10 +23,11 @@ class MapHandler(View):
 
 
 class GetMapPositions(View):
-    '''This class requests to the database the values of the actives users'''
+    """This class requests to the database the values of the actives users"""
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
+        super(GetMapPositions, self).__init__()
         self.context = {}
 
     def get(self, request):
@@ -49,7 +48,7 @@ class GetMapPositions(View):
                                  'longitud': aPosition.longitude})
                 phones.append(aPosition.phoneId)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 class GetMapTrajectory(View):
@@ -58,6 +57,7 @@ class GetMapTrajectory(View):
 
     def __init__(self):
         """the contructor, context are the parameter given to the html template"""
+        super(GetMapTrajectory, self).__init__()
         self.context = {}
 
     def get(self, request):
@@ -77,10 +77,10 @@ class GetMapTrajectory(View):
             tokenResponse['myColor'] = aToken.color
             response.append(tokenResponse)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getTokenUsedIn10LastMinutes(self):
-        '''return the tokens that have the latest entry at least 5 minutes ago'''
+        """return the tokens that have the latest entry at least 5 minutes ago"""
         now = timezone.now()
 
         earlier = now - timezone.timedelta(minutes=5)

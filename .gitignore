@@ -110,4 +110,4 @@ DataDictionary/templates/dataDic.md
 
 # Do not track keys
 server/keys/*
-
+static/*

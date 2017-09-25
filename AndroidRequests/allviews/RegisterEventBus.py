@@ -2,16 +2,16 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
 
-import AndroidRequests.constants as Constants
-import AndroidRequests.gpsFunctions as Gps
-# my stuff
-# import DB's models
 from AndroidRequests.models import Event, Busv2, Busassignment, EventForBusv2, StadisticDataFromRegistrationBus
 from EventsByBusV2 import EventsByBusV2
+from AndroidRequests.encoder import TranSappJSONEncoder
+
+import AndroidRequests.constants as Constants
+import AndroidRequests.gpsFunctions as Gps
 
 
 class RegisterEventBus(View):
-    '''This class handles requests that report events of a bus.'''
+    """This class handles requests that report events of a bus."""
 
     def get(
             self,
@@ -51,7 +51,7 @@ class RegisterEventBus(View):
             events.append(dictionary)
             # events[0].
             response['events'] = events
-            return JsonResponse(response, safe=False)
+            return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
             # TODO
             # Problem: there is no way to identify THE dummy bus without the uuid.
             # Return the same event.
@@ -67,9 +67,9 @@ class RegisterEventBus(View):
 
         # check if there is an event
         eventReport = EventForBusv2.objects.filter(
-            expireTime__gte=timeStamp, 
-            timeCreation__lte=timeStamp, 
-            busassignment=theAssignment, 
+            expireTime__gte=timeStamp,
+            timeCreation__lte=timeStamp,
+            busassignment=theAssignment,
             event=event).order_by('-timeStamp').first()
 
         if eventReport is not None:
@@ -78,7 +78,7 @@ class RegisterEventBus(View):
             eventReport.expireTime = expireTime
 
             # update the counters
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
@@ -93,7 +93,7 @@ class RegisterEventBus(View):
                 timeCreation=timeStamp)
 
             # set the initial values for this fields
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline = 1
                 eventReport.eventConfirm = 0
 

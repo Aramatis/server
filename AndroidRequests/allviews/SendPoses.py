@@ -1,22 +1,22 @@
-# python utilities
-import json
-
 from django.http import JsonResponse
 from django.utils import timezone, dateparse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-import AndroidRequests.scoreFunctions as score
-# import DB's models
 from AndroidRequests.models import ActiveToken, Token, PoseInTrajectoryOfToken
 from AndroidRequests.statusResponse import Status
+from AndroidRequests.encoder import TranSappJSONEncoder
+
+import AndroidRequests.scoreFunctions as score
+import json
 
 
 class SendPoses(View):
     """This class receives a segment of the trajectory associated to a token."""
 
     def __init__(self):
+        super(SendPoses, self).__init__()
         self.context = {}
 
     @method_decorator(csrf_exempt)
@@ -63,4 +63,4 @@ class SendPoses(View):
             else:  # if the token was not found alert
                 Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, response)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

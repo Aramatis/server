@@ -14,6 +14,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import json
 
+from server.keys.android_requests_backups import ANDROID_REQUESTS_BACKUPS
+from server.keys.android_requests_backups import android_requests_backups_update_jobs
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -40,8 +43,8 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as adminF
     del adminsJson
 
 # Set email configuration to report errors
-with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as file:
-    emailConfigJson = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as email_file:
+    emailConfigJson = json.load(email_file)
     EMAIL_HOST = emailConfigJson["EMAIL_HOST"]
     EMAIL_PORT = emailConfigJson["EMAIL_PORT"]
     EMAIL_USE_TSL = emailConfigJson["EMAIL_USE_TLS"]
@@ -54,8 +57,8 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as 
     del emailConfigJson
 
 # facebook keys to log in users
-with open(os.path.join(os.path.dirname(__file__), 'keys/facebook_config.json')) as file:
-    facebookConfig = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), 'keys/facebook_config.json')) as facebook_file:
+    facebookConfig = json.load(facebook_file)
     FACEBOOK_APP_ID = facebookConfig['APP_ID']
     FACEBOOK_APP_SECRET = facebookConfig['APP_SECRET']
     FACEBOOK_APP_ACCESS_TOKEN = facebookConfig['APP_ACCESS_TOKEN']
@@ -69,7 +72,7 @@ DEBUG = True
 '200.9.100.91'  => public dev server ip
 '172.17.77.240' => private dev server ip
 """
-ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240']
+ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240', u'172.17.57.156']
 
 # for django_debug_toolbar
 INTERNAL_IPS = ['127.0.0.1', '172.17.57.156']
@@ -91,6 +94,7 @@ INSTALLED_APPS = (
     'PredictorDTPM',
     'routeplanner',
     'AndroidRequestsBackups',
+    'onlinegps',
 )
 
 from django.http import HttpResponse
@@ -158,13 +162,6 @@ WSGI_APPLICATION = 'server.wsgi.application'
 # Logging
 
 
-def ignore_silk(record):
-    """ return False if exist the word silk in the message """
-    if "silk" in record.getMessage():
-        return False
-    return True
-
-
 def ignore_devicepositionintime(record):
     """ return False if exist the word devicepositionintime in the message """
     if "devicepositionintime" in record.getMessage():
@@ -184,10 +181,6 @@ LOGGING = {
         },
     },
     'filters': {
-        'ignore_silk': {
-            '()': 'django.utils.log.CallbackFilter',
-            'callback': ignore_silk,
-        },
         'ignore_devicepositionintime': {
             '()': 'django.utils.log.CallbackFilter',
             'callback': ignore_devicepositionintime,
@@ -195,24 +188,45 @@ LOGGING = {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
         },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
     },
     'handlers': {
+        'db_file': {
+            'level': 'DEBUG',
+            'filters': ['ignore_devicepositionintime'],
+            'class': 'logging.FileHandler',
+            'filename': os.path.dirname(__file__) + "/logs/dbfile.log",
+            'formatter': 'simple',
+        },
         'file': {
             'level': 'DEBUG',
-            'filters': ['ignore_silk', 'ignore_devicepositionintime'],
+            'filters': ['ignore_devicepositionintime', 'require_debug_false'],
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + "/logs/file.log",
             'formatter': 'simple',
         },
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
+            'filters': ['require_debug_false', 'require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
         },
     },
     'loggers': {
+        'django.db.backends': {
+            'handlers': ['db_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'django': {
-            'handlers': ['file', 'mail_admins'],
+            'handlers': ['file', 'mail_admins', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -233,30 +247,29 @@ LOGGING = {
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) as file:
-    databaseConfig = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) as db_file:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            #TODO: you must to define a name, user and password valid to connect database
-            'NAME': databaseConfig['NAME'],
-            'USER': databaseConfig['USER'],
-            'PASSWORD': databaseConfig['PASSWORD'],
-            # Empty for localhost through domain sockets or           '127.0.0.1'
+            'NAME': '',
+            'USER': '',
+            'PASSWORD': '',
+            # Empty for localhost through domain sockets or '127.0.0.1'
             # for localhost through TCP.
-            'HOST': databaseConfig['HOST'],
+            'HOST': '',
             'PORT': '',
         }
-        # for development purpuse use SQLite
+        # for development purpose use SQLite
         # 'default': {
         #     'ENGINE': 'django.db.backends.sqlite3',
         #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         # }
     }
-    del databaseConfig
+    # update database params
+    DATABASES['default'].update(json.load(db_file))
 
 # GTFS DATA USED TO PREDICT POSITION AND OTHER THINGS
-GTFS_VERSION =  'v1.0'
+GTFS_VERSION = 'v1.2'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -308,9 +321,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 os.environ['wsgi.url_scheme'] = 'https'
 
 
-## load AndroidRequestsBackups settings
-from server.keys.android_requests_backups import ANDROID_REQUESTS_BACKUPS
-from server.keys.android_requests_backups import android_requests_backups_update_jobs
+# load AndroidRequestsBackups settings
 CRONJOBS = android_requests_backups_update_jobs(CRONJOBS)
 
 # Configuration for TRAVIS-CI

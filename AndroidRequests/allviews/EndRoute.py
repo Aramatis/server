@@ -1,9 +1,8 @@
 from django.http import JsonResponse
 from django.views.generic import View
 
-# my stuff
-# import DB's models
 from AndroidRequests.models import ActiveToken
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class EndRoute(View):
@@ -23,4 +22,4 @@ class EndRoute(View):
         else:  # if the token was not found alert
             response['response'] = 'Token doesn\'t exist.'
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

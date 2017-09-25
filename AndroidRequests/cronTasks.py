@@ -35,7 +35,7 @@ def cleanActiveTokenTable():
 
 
 def clearEventsThatHaveBeenDecline():
-    '''This clears the events that have lost credibility'''
+    """This clears the events that have lost credibility"""
     percentageOverConfirm = 1 + PORCENTAGE_OF_DECLINE_OVER_CONFIRM / 100.0
 
     timeStamp = timezone.now()

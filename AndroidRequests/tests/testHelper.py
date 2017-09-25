@@ -9,7 +9,7 @@ from django.utils import timezone
 
 # views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
-from AndroidRequests.models import TranSappUser, Level
+from AndroidRequests.models import TranSappUser, Level, EventRegistration
 from Loaders.TestLoaderFactory import TestLoaderFactory
 
 
@@ -117,7 +117,7 @@ class TestHelper:
         request.user = AnonymousUser()
 
         view = RequestTokenV2()
-        response = view.get(request, phoneId, service, machineId, None, None, time)
+        response = view.get(request, phoneId, service, machineId, None, None, None, None, time)
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -141,15 +141,19 @@ class TestHelper:
         return token
 
     def getInBusWithLicencePlateByPost(
-            self, phoneId, service, licencePlate,
+            self, phoneId, route, licencePlate, busLongitude=None, busLatitude=None,
             userId=None, sessionToken=None):
         """ create a user on bus in database """
         machineId = self.askForMachineId(licencePlate)
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId, 'busService': service, 'machineId': machineId, 'userId': userId,
-                'sessionToken': sessionToken}
+        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId,
+                'userId': userId, 'sessionToken': sessionToken}
+        if busLongitude is not None:
+            data["longitude"] = busLongitude
+        if busLatitude is not None:
+            data["latitude"] = busLatitude
 
         response = c.post(URL, data)
 
@@ -160,14 +164,19 @@ class TestHelper:
 
         return token
 
-    def getInBusWithMachineIdByPost(self, phoneId, service, machineId,
+    def getInBusWithMachineIdByPost(self, phoneId, route, machineId, busLongitude=None, busLatitude=None,
                                     userId=None, sessionToken=None):
         """ create a user on bus in database """
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId, 'busService': service, 'machineId': machineId, 'userId': userId,
-                'sessionToken': sessionToken}
+        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId,
+                'userId': userId, 'sessionToken': sessionToken}
+        if busLongitude is not None:
+            data["longitude"] = busLongitude
+        if busLatitude is not None:
+            data["latitude"] = busLatitude
+
         response = c.post(URL, data)
 
         self.test.assertEqual(response.status_code, 200)
@@ -278,11 +287,11 @@ class TestHelper:
        BUS EVENT METHODS V1
     """
 
-    def reportEvent(self, phoneId, service, licencePlate, eventCode):
+    def reportEvent(self, phoneId, route, licencePlate, eventCode):
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
         c = Client()
-        URL = URL + '/'.join([phoneId, service, licencePlate, eventCode, 'confirm'])
+        URL = URL + '/'.join([phoneId, route, licencePlate, eventCode, EventRegistration.CONFIRM])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -291,12 +300,12 @@ class TestHelper:
 
         return jsonResponse
 
-    def confirmOrDeclineEvent(self, phoneId, service,
+    def confirmOrDeclineEvent(self, phoneId, route,
                               licencePlate, eventCode, confirmOrDecline):
         """ report an event with the old version  """
         URL = '/android/reportEventBus/'
         c = Client()
-        URL = URL + '/'.join([phoneId, service, licencePlate,
+        URL = URL + '/'.join([phoneId, route, licencePlate,
                               eventCode, confirmOrDecline])
         response = c.get(URL, {})
 
@@ -306,11 +315,11 @@ class TestHelper:
 
         return jsonResponse
 
-    def requestEventsForBus(self, service, licencePlate):
+    def requestEventsForBus(self, route, licencePlate):
         """ ask for events related to machine id """
         URL = '/android/requestEventsForBus/'
         c = Client()
-        URL = URL + '/'.join([licencePlate, service])
+        URL = URL + '/'.join([licencePlate, route])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -323,12 +332,12 @@ class TestHelper:
        BUS EVENT METHODS V2
     """
 
-    def reportEventV2(self, phoneId, machineId, service, eventCode):
+    def reportEventV2(self, phoneId, machineId, route, eventCode):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2/'
         c = Client()
-        URL = URL + '/'.join([phoneId, machineId, service,
-                              eventCode, 'confirm'])
+        URL = URL + '/'.join([phoneId, machineId, route,
+                              eventCode, EventRegistration.CONFIRM])
         response = c.get(URL, {})
 
         self.test.assertEqual(response.status_code, 200)
@@ -338,11 +347,11 @@ class TestHelper:
         return jsonResponse
 
     def confirmOrDeclineEventV2(
-            self, phoneId, machineId, service, eventCode, confirmOrDecline):
+            self, phoneId, machineId, route, eventCode, confirmOrDecline):
         """ confirm or decline an event with the new version  """
         URL = '/android/reportEventBus/v2/'
         c = Client()
-        URL = URL + '/'.join([phoneId, machineId, service,
+        URL = URL + '/'.join([phoneId, machineId, route,
                               eventCode, confirmOrDecline])
         response = c.get(URL, {})
 
@@ -374,9 +383,9 @@ class TestHelper:
         URL = '/android/reportEventBusStop/'
         c = Client()
         if aditionalInfo is None:
-            params = [phoneId, stopCode, eventCode, 'confirm']
+            params = [phoneId, stopCode, eventCode, EventRegistration.CONFIRM]
         else:
-            params = [phoneId, stopCode, aditionalInfo, eventCode, 'confirm']
+            params = [phoneId, stopCode, aditionalInfo, eventCode, EventRegistration.CONFIRM]
         URL = URL + '/'.join(params)
         response = c.get(URL, {})
 
@@ -417,15 +426,15 @@ class TestHelper:
         BUS EVENT METHODS BY POST
     """
 
-    def reportEventV2ByPost(self, phoneId, machineId, service, eventCode, userId, sessionToken):
+    def reportEventV2ByPost(self, phoneId, machineId, route, eventCode, userId, sessionToken):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2'
         c = Client()
         data = {'phoneId': phoneId,
                 'machineId': machineId,
-                'service': service,
+                'service': route,
                 'eventId': eventCode,
-                'vote': 'confirm',
+                'vote': EventRegistration.CONFIRM,
                 'userId': userId,
                 'sessionToken': sessionToken}
         response = c.post(URL, data)
@@ -437,13 +446,13 @@ class TestHelper:
         return jsonResponse
 
     def confirmOrDeclineEventV2ByPost(
-            self, phoneId, machineId, service, eventCode, confirmOrDecline, userId, sessionToken):
+            self, phoneId, machineId, route, eventCode, confirmOrDecline, userId, sessionToken):
         """ confirm or decline an event with the new version  """
         URL = '/android/reportEventBus/v2'
         c = Client()
         data = {'phoneId': phoneId,
                 'machineId': machineId,
-                'service': service,
+                'service': route,
                 'eventId': eventCode,
                 'vote': confirmOrDecline,
                 'userId': userId,
@@ -463,7 +472,7 @@ class TestHelper:
         data = {'phoneId': phoneId,
                 'stopCode': stopCode,
                 'eventId': eventCode,
-                'vote': 'confirm',
+                'vote': EventRegistration.CONFIRM,
                 'userId': userId,
                 'sessionToken': sessionToken}
 
@@ -496,7 +505,7 @@ class TestHelper:
         return jsonResponse
 
     def createTranSappUsers(self, userQuantity):
-        ''' create @quantity users and put the user asked in @userPosition '''
+        """ create @quantity users and put the user asked in @userPosition """
         users = []
 
         level, created = Level.objects.get_or_create(position=1,

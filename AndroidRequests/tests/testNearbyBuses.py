@@ -74,16 +74,16 @@ class NearbyBusesResponseTest(TestCase):
         self.helper.insertServiceLocationOnDatabase(['506I', '506eI', '506vI', '509I', '507I'])
 
     def getBuses(self, stopObj, phoneId, indexPairList):
-        ''' generate nearbybuses response '''
+        """ generate nearbybuses response """
 
-        fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC-56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH-28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX-64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB-96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH-27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC-20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC-45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD-43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
+        fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
-        userBuses = views.getUserBuses(stopObj, phoneId)
-        authBuses = views.getAuthorityBuses(stopObj, fakeJsonAuthorityAnswer)
+        userBuses = views.get_user_buses(stopObj, phoneId)
+        authBuses = views.get_authority_buses(stopObj, fakeJsonAuthorityAnswer)
         # authBuses return 9 of 10 buses because one of them does not have license plate
-        buses = views.mergeBuses(userBuses, authBuses)
+        buses = views.merge_buses(userBuses, authBuses)
 
         for busIndex, authIndexAnswer in indexPairList:
             self.assertEqual(
@@ -93,7 +93,7 @@ class NearbyBusesResponseTest(TestCase):
         return buses
 
     def getInBus(self, phoneId, service, licensePlate, addTrajectory=False):
-        ''' create a user bus  '''
+        """ create a user bus  """
         travelKey = self.helper.getInBusWithLicencePlate(
             phoneId, service, licensePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
@@ -271,7 +271,7 @@ class NearbyBusesResponseTest(TestCase):
             of user with highest score """
 
         licensePlate = 'bjfb28'
-        service = '506'
+        route = '506'
         # create users and set theirs global scores
         users = self.helper.createTranSappUsers(2)
 
@@ -287,14 +287,14 @@ class NearbyBusesResponseTest(TestCase):
 
         # user1 get in bus 
         travelKey = self.helper.getInBusWithLicencePlateByPost(
-            user1.phoneId, service, licensePlate, userId=user1.userId, sessionToken=user1.sessionToken)
+            user1.phoneId, route, licensePlate, userId=user1.userId, sessionToken=user1.sessionToken)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
         # user2 get in bus 
         travelKey = self.helper.getInBusWithLicencePlateByPost(
-            user2.phoneId, service, licensePlate, userId=user2.userId, sessionToken=user2.sessionToken)
+            user2.phoneId, route, licensePlate, userId=user2.userId, sessionToken=user2.sessionToken)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
@@ -327,10 +327,10 @@ class FormattersTest(TestCase):
         distanceGreaterThan1000NotInt = 1856
         distanceGreaterThan1000Int = 2000
 
-        self.assertEqual(views.formatDistance(distanceLessThan1000), "585m")
-        self.assertEqual(views.formatDistance(
+        self.assertEqual(views.format_distance(distanceLessThan1000), "585m")
+        self.assertEqual(views.format_distance(
             distanceGreaterThan1000NotInt), "1.86Km")
-        self.assertEqual(views.formatDistance(
+        self.assertEqual(views.format_distance(
             distanceGreaterThan1000Int), "2Km")
 
     def test_FormatServiceName(self):
@@ -343,13 +343,13 @@ class FormattersTest(TestCase):
         serviceName6 = "N50"
         serviceName7 = "506"
 
-        self.assertEqual(views.formatServiceName(serviceName1), "506e")
-        self.assertEqual(views.formatServiceName(serviceName2), "506N")
-        self.assertEqual(views.formatServiceName(serviceName3), "D03N")
-        self.assertEqual(views.formatServiceName(serviceName4), "D03e")
-        self.assertEqual(views.formatServiceName(serviceName5), "D03")
-        self.assertEqual(views.formatServiceName(serviceName6), "N50")
-        self.assertEqual(views.formatServiceName(serviceName7), "506")
+        self.assertEqual(views.format_service_name(serviceName1), "506e")
+        self.assertEqual(views.format_service_name(serviceName2), "506N")
+        self.assertEqual(views.format_service_name(serviceName3), "D03N")
+        self.assertEqual(views.format_service_name(serviceName4), "D03e")
+        self.assertEqual(views.format_service_name(serviceName5), "D03")
+        self.assertEqual(views.format_service_name(serviceName6), "N50")
+        self.assertEqual(views.format_service_name(serviceName7), "506")
 
     def test_FormatTime(self):
         """ test method that apply time format """
@@ -377,7 +377,7 @@ class FormattersTest(TestCase):
         for time in times:
             for distance in distances:
                 self.assertEqual(
-                    views.formatTime(
+                    views.format_time(
                         time,
                         distance),
                     answers[index])

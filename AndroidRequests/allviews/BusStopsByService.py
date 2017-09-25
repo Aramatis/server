@@ -4,8 +4,8 @@ from django.utils import timezone
 from django.views.generic import View
 
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
-# import DB's models
 from AndroidRequests.models import ServicesByBusStop
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class BusStopsByService(View):
@@ -23,7 +23,7 @@ class BusStopsByService(View):
 
         response['paraderos'] = busStops
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getBusStopsForService(self, pBusService):
         """this method look for all the bus stops where the service stops."""

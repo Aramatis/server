@@ -9,7 +9,7 @@ PROCEDURE
 - Assign stop code to stopCode column in eventforbusstop model
 """
 def fillStopCodeColumnInEventforbusstop(apps, schema_editor):
-    ''' '''
+    """ """
     stopM = apps.get_model('AndroidRequests', 'busstop')
     eventforbusstopM = apps.get_model('AndroidRequests', 'eventforbusstop')
     for stop in stopM.objects.all():

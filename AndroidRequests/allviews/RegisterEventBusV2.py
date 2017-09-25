@@ -6,17 +6,17 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-import AndroidRequests.gpsFunctions as Gps
-import AndroidRequests.scoreFunctions as score
-# my stuff
-# import DB's models
 from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment, \
     TranSappUser
 from EventsByBusV2 import EventsByBusV2
+from AndroidRequests.encoder import TranSappJSONEncoder
+
+import AndroidRequests.gpsFunctions as Gps
+import AndroidRequests.scoreFunctions as score
 
 
 class RegisterEventBusV2(View):
-    '''This class handles requests that report events of a bus.'''
+    """This class handles requests that report events of a bus."""
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -63,7 +63,7 @@ class RegisterEventBusV2(View):
             theAsignment = Busassignment.objects.get(
                 uuid=theBus, service=pBusService)
         except:
-            return JsonResponse({}, safe=False)
+            return JsonResponse({}, safe=False, encoder=TranSappJSONEncoder)
 
         # get the GPS data from the url
         responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
@@ -83,7 +83,7 @@ class RegisterEventBusV2(View):
             eventReport.expireTime = expireTime
 
             # update the counters
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline += 1
             else:
                 eventReport.eventConfirm += 1
@@ -98,7 +98,7 @@ class RegisterEventBusV2(View):
                 timeCreation=timeStamp)
 
             # set the initial values for this fields
-            if pConfirmDecline == 'decline':
+            if pConfirmDecline == EventForBusv2.DECLINE:
                 eventReport.eventDecline = 1
                 eventReport.eventConfirm = 0
 
@@ -129,4 +129,4 @@ class RegisterEventBusV2(View):
         jsonEventResponse = json.loads(EventsByBusV2().get(request, pMachineId).content)
         jsonEventResponse["gamificationData"] = jsonScoreResponse
 
-        return JsonResponse(jsonEventResponse)
+        return JsonResponse(jsonEventResponse, encoder=TranSappJSONEncoder)

@@ -14,6 +14,7 @@ from django.views.generic import View
 
 from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 
@@ -21,7 +22,7 @@ NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 
 
 class TranSappUserLogin(View):
-    ''' log in transapp user '''
+    """ log in transapp user """
 
     def __init__(self):
         self.context = {}
@@ -32,11 +33,11 @@ class TranSappUserLogin(View):
         return super(TranSappUserLogin, self).dispatch(request, *args, **kwargs)
 
     # def checkGoogleId(self, googleId):
-    #    ''' ask to facebook if tokenId is valid '''
+    #    """ ask to facebook if tokenId is valid """
     #    pass
 
     def checkFacebookId(self, accessToken):
-        ''' ask to facebook if accessToken is valid '''
+        """ ask to facebook if accessToken is valid """
 
         URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'. \
             format(accessToken, settings.FACEBOOK_APP_ID, settings.FACEBOOK_APP_SECRET)
@@ -115,7 +116,7 @@ class TranSappUserLogin(View):
         # elif accountType == TranSappUser.GOOGLE:
         #    googleUserId = self.checkGoogleId(tokenId)
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 class TranSappUserLogout(View):
@@ -130,7 +131,7 @@ class TranSappUserLogout(View):
         return super(TranSappUserLogout, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
-        ''' change session id to default value '''
+        """ change session id to default value """
 
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
@@ -146,11 +147,11 @@ class TranSappUserLogout(View):
             Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             self.logger.error(str(e))
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 class UpdateTranSappUserSettings(View):
-    ''' update user info '''
+    """ update user info """
 
     def __init__(self):
         self.context = {}
@@ -192,4 +193,4 @@ class UpdateTranSappUserSettings(View):
             Status.getJsonStatus(Status.INTERNAL_ERROR, response)
             self.logger.error(str(e))
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

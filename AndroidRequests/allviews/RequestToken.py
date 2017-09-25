@@ -8,10 +8,10 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
 
-import AndroidRequests.constants as Constants
-# my stuff
-# import DB's models
 from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken
+from AndroidRequests.encoder import TranSappJSONEncoder
+
+import AndroidRequests.constants as Constants
 
 
 class RequestToken(View):
@@ -19,6 +19,7 @@ class RequestToken(View):
     to identify the trip, not the device."""
 
     def __init__(self):
+        super(RequestToken, self).__init__()
         self.context = {}
 
     def get(
@@ -56,13 +57,14 @@ class RequestToken(View):
             token=hashToken,
             busassignment=assignment,
             color=self.getRandomColor(),
+            timeCreation=timezone.now(),
             direction=None)
         ActiveToken.objects.create(timeStamp=data, token=aToken)
 
         # we store the active token
         response = {'token': hashToken}
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getRandomColor(self):
         # color used by web page that shows trip trajectories

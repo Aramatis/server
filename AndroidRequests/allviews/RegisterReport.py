@@ -11,6 +11,7 @@ from django.views.generic import View
 
 # import DB's models
 from AndroidRequests.models import Report
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class IncorrectExtensionImageError(Exception):
@@ -101,4 +102,4 @@ class RegisterReport(View):
                     fine = False
 
         response = {'valid': fine, 'message': message}
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

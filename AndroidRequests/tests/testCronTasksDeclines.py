@@ -4,6 +4,7 @@ from django.test import TransactionTestCase, RequestFactory
 import AndroidRequests.cronTasks as cronTasks
 # view
 from AndroidRequests.tests.testHelper import TestHelper
+from AndroidRequests.models import EventRegistration
 
 
 class CronTasksTestCase(TransactionTestCase):
@@ -38,7 +39,7 @@ class CronTasksTestCase(TransactionTestCase):
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES - 2):
             self.test.confirmOrDeclineStopEvent(
-                self.phoneId, self.stop, self.stopEventCode, 'decline')
+                self.phoneId, self.stop, self.stopEventCode, EventRegistration.DECLINE)
         # decline isn't 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -59,12 +60,12 @@ class CronTasksTestCase(TransactionTestCase):
         # report events for bus stop
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES + 1):
             self.test.confirmOrDeclineStopEvent(
-                self.phoneId, self.stop, self.stopEventCode, 'confirm')
+                self.phoneId, self.stop, self.stopEventCode, EventRegistration.CONFIRM)
 
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES + 1):
             self.test.confirmOrDeclineStopEvent(
-                self.phoneId, self.stop, self.stopEventCode, 'decline')
+                self.phoneId, self.stop, self.stopEventCode, EventRegistration.DECLINE)
         # decline isn't 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -86,12 +87,12 @@ class CronTasksTestCase(TransactionTestCase):
         # report events for bus stop
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES):
             self.test.confirmOrDeclineStopEvent(
-                self.phoneId, self.stop, self.stopEventCode, 'confirm')
+                self.phoneId, self.stop, self.stopEventCode, EventRegistration.CONFIRM)
 
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES * 3):
             self.test.confirmOrDeclineStopEvent(
-                self.phoneId, self.stop, self.stopEventCode, 'decline')
+                self.phoneId, self.stop, self.stopEventCode, EventRegistration.DECLINE)
         # decline isn't 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -119,7 +120,7 @@ class CronTasksTestCase(TransactionTestCase):
                 self.machineId,
                 self.service,
                 self.busEventCode,
-                'decline')
+                EventRegistration.DECLINE)
         # decline isn't 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -149,7 +150,7 @@ class CronTasksTestCase(TransactionTestCase):
                 self.machineId,
                 self.service,
                 self.busEventCode,
-                'confirm')
+                EventRegistration.CONFIRM)
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES + 1):
             self.test.confirmOrDeclineEventV2(
@@ -157,7 +158,7 @@ class CronTasksTestCase(TransactionTestCase):
                 self.machineId,
                 self.service,
                 self.busEventCode,
-                'decline')
+                EventRegistration.DECLINE)
         # decline is 100% over confirm
 
         cronTasks.clearEventsThatHaveBeenDecline()
@@ -194,7 +195,7 @@ class CronTasksTestCase(TransactionTestCase):
                 self.machineId,
                 self.service,
                 self.busEventCode,
-                'confirm')
+                EventRegistration.CONFIRM)
 
         # decline event
         for index in range(0, cronTasks.MINIMUM_NUMBER_OF_DECLINES * 3):
@@ -203,9 +204,9 @@ class CronTasksTestCase(TransactionTestCase):
                 self.machineId,
                 self.service,
                 self.busEventCode,
-                'decline')
+                EventRegistration.DECLINE)
         # decline is 100% over confirm
-        
+
         jsonResponse = self.test.requestEventsForBusV2(self.machineId)
         self.assertEqual(len(jsonResponse['events']), 1)
         self.assertEqual(

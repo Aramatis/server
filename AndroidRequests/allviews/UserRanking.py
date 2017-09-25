@@ -2,19 +2,22 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.views.generic import View
 
-# import DB's models
+from collections import defaultdict
+
 from AndroidRequests.models import TranSappUser
 from AndroidRequests.scoreFunctions import UserValidation
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class UserRanking(View):
-    ''' global user ranking '''
+    """ global user ranking """
     TOP_USERS = 5
     UPPER_USERS = 5
     LOWER_USERS = 5
 
     def getRanking(self, user):
-        ''' return ranking list '''
+        """ return ranking list """
+        topRanking = []
         ranking = []
         excludedUsers = []
 
@@ -23,13 +26,13 @@ class UserRanking(View):
         topUsers = TranSappUser.objects. \
                        select_related('level').order_by('-globalScore')[:self.TOP_USERS]
         for topUser in topUsers:
-            excludedUsers.append(topUser.pk)
+            #excludedUsers.append(topUser.pk)
             if previousScore != topUser.globalScore:
                 previousScore = topUser.globalScore
                 position += 1
             topUser = topUser.getDictionary()
             topUser['position'] = position
-            ranking.append(topUser)
+            topRanking.append(topUser)
 
         positionsUpperUsers = TranSappUser.objects. \
             filter(globalScore__gt=user.globalScore).values('globalScore'). \
@@ -65,7 +68,7 @@ class UserRanking(View):
             ranking.append(lowerUser)
 
         ranking = sorted(ranking, key=lambda el: el['position'])
-        return ranking
+        return topRanking, ranking
 
     def get(self, request):
         """return list of ranking with @TOP_USERS + @UPPER_USERS + @LOWER_USERS """
@@ -75,10 +78,10 @@ class UserRanking(View):
 
         loggedUser, user, statusResponse = UserValidation().validateUser(userId, sessionToken)
 
-        response = {}
+        response = defaultdict(dict)
         response.update(statusResponse)
 
         if loggedUser:
-            response['ranking'] = self.getRanking(user)
+            response['ranking']['top'], response['ranking']['near'] = self.getRanking(user)
 
-        return JsonResponse(response)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

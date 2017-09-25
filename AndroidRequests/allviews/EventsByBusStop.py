@@ -3,9 +3,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
 
-# my stuff
-# import DB's models
 from AndroidRequests.models import BusStop, EventForBusStop
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class EventsByBusStop(View):
@@ -24,10 +23,10 @@ class EventsByBusStop(View):
         eventDictionary = stopObj.getDictionary()
         eventDictionary['events'] = eventsData
 
-        return JsonResponse(eventDictionary, safe=False)
+        return JsonResponse(eventDictionary, safe=False, encoder=TranSappJSONEncoder)
 
     def getEventsForStop(self, stopCode, timeStamp):
-        '''this method returns all the events that are active given their timestamp.'''
+        """this method returns all the events that are active given their timestamp."""
 
         currentEventReport = []
 

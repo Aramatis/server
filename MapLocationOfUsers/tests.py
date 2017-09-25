@@ -5,10 +5,8 @@ from django.contrib.auth.models import AnonymousUser
 # import my stuff
 from MapLocationOfUsers.views import MapHandler, GetMapPositions, GetMapTrajectory
 from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
-# views
-from AndroidRequests.allviews.RequestToken import RequestToken
-from AndroidRequests.allviews.EndRoute import EndRoute
-from AndroidRequests.allviews.SendPoses import SendPoses
+
+from AndroidRequests.tests.testHelper import TestHelper
 
 import json
 
@@ -17,6 +15,8 @@ class GetMapPositionsTest(TestCase):
 
     def setUp(self):
         self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+
+        self.helper = TestHelper(self)
 
         DevicePositionInTime.objects.create(
             phoneId=self.phoneId,
@@ -34,7 +34,7 @@ class GetMapPositionsTest(TestCase):
         self.factory = RequestFactory()
 
     def test_getPositions(self):
-        '''This test the response of the current poses'''
+        """This test the response of the current poses"""
 
         request = self.factory.get('/map/activeuserpose')
         request.user = AnonymousUser()
@@ -51,7 +51,7 @@ class GetMapPositionsTest(TestCase):
             self.assertEqual(postitionRes['latitud'], 5.2)
 
     def test_showMap(self):
-        '''this test is for testing the response of the map view'''
+        """this test is for testing the response of the map view"""
 
         request = self.factory.get('/map/show')
         request.user = AnonymousUser()
@@ -62,7 +62,7 @@ class GetMapPositionsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_getGetMapTrajectory(self):
-        '''this test the trajectory that the server gives to the map. '''
+        """this test the trajectory that the server gives to the map. """
 
         timeStampNow = str(timezone.localtime(timezone.now()))
         timeStampNow = timeStampNow[0:19]
@@ -103,33 +103,15 @@ class GetMapPositionsTest(TestCase):
 
         testTokens = []
 
-        request = self.factory.get('/android/requestToken')
-        request.user = AnonymousUser()
-
         for cont in range(6):
-            reponseView = RequestToken()
-            response = reponseView.get(request, self.phoneId, '503', 'ZZZZ00')
-
-            jsonContent = json.loads(response.content)
-            testToken = jsonContent['token']
+            testToken = self.helper.getInBusWithLicencePlate(self.phoneId, "503", "ZZZZ00")
             testTokens.append(testToken)
 
         # save last token
         timeOutToken = testTokens[-1]
 
         for cont in range(6):
-            request = self.factory.get('/android/sendTrajectoy')
-            request.user = AnonymousUser()
-
-            reponseView = SendPoses()
-            request.POST = {'pToken': testTokens[cont], 'pTrajectory': json.dumps(testPoses)}
-            request.method = 'POST'
-            response = reponseView.post(request)
-
-            request = self.factory.get('/android/endRoute/')
-            request.user = AnonymousUser()
-            reponseView = EndRoute()
-            response = reponseView.get(request, testTokens[cont])
+            self.helper.sendFakeTrajectoryOfToken(testTokens[cont], testPoses)
 
         nonTrajectory = PoseInTrajectoryOfToken.objects.filter(
             token__token=timeOutToken)

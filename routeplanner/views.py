@@ -4,12 +4,14 @@ from django.conf import settings
 from django.views.generic import View
 from django.utils import timezone
 
+from routeplanner.models import Log
+from AndroidRequests.encoder import TranSappJSONEncoder
+
 # python utilities
 import logging
 
 # third-party libraries
 import googlemaps
-from routeplanner.models import Log
 import re
 
 # Create your views here.
@@ -136,4 +138,4 @@ class RoutePlanner(View):
             logger.error(str(e))
             routes = []
 
-        return JsonResponse(routes, safe=False)
+        return JsonResponse(routes, safe=False, encoder=TranSappJSONEncoder)

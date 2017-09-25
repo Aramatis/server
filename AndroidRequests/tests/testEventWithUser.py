@@ -1,11 +1,9 @@
 from django.test import TransactionTestCase
 
-from AndroidRequests.models import Level, ScoreEvent, TranSappUser
-from AndroidRequests.models import StadisticDataFromRegistrationBus, StadisticDataFromRegistrationBusStop
+from AndroidRequests.models import StadisticDataFromRegistrationBus, StadisticDataFromRegistrationBusStop, Level, \
+    ScoreEvent, TranSappUser, EventRegistration
 from AndroidRequests.tests.testHelper import TestHelper
 
-
-# Create your tests here.
 
 class EventWithUserTestCase(TransactionTestCase):
     """ test for DevicePositionInTime model """
@@ -38,7 +36,7 @@ class EventWithUserTestCase(TransactionTestCase):
                                     level=level, sessionToken=self.sessionToken)
 
     def test_userAssignedToBusEvent(self):
-        '''This method check that user was assigned to bus event '''
+        """This method check that user was assigned to bus event """
 
         self.test.reportEventV2ByPost(self.phoneId, self.machineId,
                                       self.service, self.eventBusCode, self.userId, self.sessionToken)
@@ -48,7 +46,7 @@ class EventWithUserTestCase(TransactionTestCase):
 
         # we will vote -1
         self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                self.service, self.eventBusCode, 'decline', self.userId,
+                                                self.service, self.eventBusCode, EventRegistration.DECLINE, self.userId,
                                                 self.sessionToken)
 
         eventRecord = \
@@ -57,7 +55,7 @@ class EventWithUserTestCase(TransactionTestCase):
 
         # we will vote +1
         self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                self.service, self.eventBusCode, 'confirm', self.userId,
+                                                self.service, self.eventBusCode, EventRegistration.CONFIRM, self.userId,
                                                 self.sessionToken)
 
         eventRecord = \
@@ -66,14 +64,14 @@ class EventWithUserTestCase(TransactionTestCase):
 
         # we will vote +1
         self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                self.service, self.eventBusCode, 'confirm', None, None)
+                                                self.service, self.eventBusCode, EventRegistration.CONFIRM, None, None)
 
         eventRecord = \
             StadisticDataFromRegistrationBus.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]
         self.assertEqual(eventRecord.tranSappUser, None)
 
     def test_userAssignedToStopEvent(self):
-        '''This method check that user was assigned to stop event '''
+        """This method check that user was assigned to stop event """
 
         stopCode = 'PA459'
         self.test.insertBusstopsOnDatabase([stopCode])
@@ -88,7 +86,7 @@ class EventWithUserTestCase(TransactionTestCase):
 
         # we will vote -1
         self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                                                  eventStopCode, 'decline', self.userId,
+                                                  eventStopCode, EventRegistration.DECLINE, self.userId,
                                                   self.sessionToken)
 
         eventRecord = \
@@ -97,7 +95,7 @@ class EventWithUserTestCase(TransactionTestCase):
 
         # we will vote +1
         self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                                                  eventStopCode, 'confirm', self.userId,
+                                                  eventStopCode, EventRegistration.CONFIRM, self.userId,
                                                   self.sessionToken)
 
         eventRecord = \
@@ -106,7 +104,7 @@ class EventWithUserTestCase(TransactionTestCase):
 
         # we will vote +1
         self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                                                  eventStopCode, 'confirm', None, None)
+                                                  eventStopCode, EventRegistration.CONFIRM, None, None)
 
         eventRecord = \
             StadisticDataFromRegistrationBusStop.objects.select_related('tranSappUser').all().order_by('-timeStamp')[0]

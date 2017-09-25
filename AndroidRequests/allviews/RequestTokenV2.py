@@ -6,10 +6,11 @@ from random import random
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
-# my stuff
-# import DB's models
-from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser
+from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser, PoseInTrajectoryOfToken
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class RequestTokenV2(View):
@@ -17,21 +18,30 @@ class RequestTokenV2(View):
     to identify the trip, not the device."""
 
     def __init__(self):
+        super(RequestTokenV2, self).__init__()
         self.context = {}
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RequestTokenV2, self).dispatch(request, *args, **kwargs)
+
     def post(self, request):
-        ''' get in the bus '''
+        """ get in the bus """
 
         phoneId = request.POST.get('phoneId')
-        busService = request.POST.get('busService')
+        route = request.POST.get('route')
         machineId = request.POST.get('machineId')
         userId = request.POST.get('userId')
         sessionToken = request.POST.get('sessionToken')
-        
-        return self.get(request, phoneId, busService, machineId, userId, sessionToken)
+        # current bus position
+        busLatitude = request.POST.get('latitude')
+        busLongitude = request.POST.get('longitude')
 
-    def get(self, request, pPhoneId, pBusService, pUUID, userId=None, sessionToken=None, data=timezone.now()):
-        '''  '''
+        return self.get(request, phoneId, route, machineId, busLatitude, busLongitude, userId, sessionToken)
+
+    def get(self, request, pPhoneId, pBusService, pUUID, busLatitude=None, busLongitude=None,
+            userId=None, sessionToken=None, data=timezone.now()):
+        """  """
 
         salt = os.urandom(20)
         hashToken = hashlib.sha512(str(data) + salt).hexdigest()
@@ -53,14 +63,20 @@ class RequestTokenV2(View):
             busassignment=busassignment,
             color=self.getRandomColor(),
             tranSappUser=tranSappUser,
+            timeCreation=data,
             direction=None)
 
         ActiveToken.objects.create(timeStamp=data, token=tokenObj)
+        # add current position for tokens
+        if busLongitude is not None and busLatitude is not None:
+            PoseInTrajectoryOfToken.objects.create(timeStamp=timezone.now(), token=tokenObj,
+                                                   inVehicleOrNot=PoseInTrajectoryOfToken.IN_VEHICLE,
+                                                   longitude=float(busLongitude), latitude=float(busLatitude))
 
         # we store the active token
         response = {'token': hashToken}
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getRandomColor(self):
         # color used by web page that shows trip trajectories

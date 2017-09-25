@@ -2,9 +2,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
 
-# my stuff
-# import DB's models
 from AndroidRequests.models import Busv2, Busassignment, Event, EventForBusv2
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class EventsByBus(View):
@@ -32,14 +31,14 @@ class EventsByBus(View):
 
         response['events'] = events
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
     def getEventForBus(self, pBusassignment):
         """this method look for the active events of a bus, those whose lifespan hasn't expired
         since the last time there were reported"""
         events = []
 
-        # if pBus.registrationPlate == Constants.DUMMY_LICENSE_PLATE :
+        # if pBus.registrationPlate == constants.DUMMY_LICENSE_PLATE :
         #     return events
 
         eventsToAsk = Event.objects.filter(eventType='bus')

@@ -30,7 +30,7 @@ class BusEventTest(TransactionTestCase):
         self.test.insertBusstopsOnDatabase([self.stop])
 
     def test_EventsByBusWithDummyLicensePlate(self):
-        '''This method test the bus with a dummy license plate '''
+        """This method test the bus with a dummy license plate """
 
         licencePlate = Constants.DUMMY_LICENSE_PLATE
         self.test.getInBusWithLicencePlate(
@@ -49,8 +49,8 @@ class BusEventTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
     def test_EventsByBus(self):
-        '''This method test two thing, the posibility to report an event and asking
-        the events for the specific bus'''
+        """This method test two thing, the posibility to report an event and asking
+        the events for the specific bus"""
 
         licencePlate = 'AA0000'
         eventCode = 'evn00202'
@@ -69,7 +69,7 @@ class BusEventTest(TransactionTestCase):
         # ===================================================================================
         # do event +1 to the event
         jsonResponse = self.test.confirmOrDeclineEvent(
-            self.phoneId, self.service, licencePlate, eventCode, 'confirm')
+            self.phoneId, self.service, licencePlate, eventCode, EventForBusv2.CONFIRM)
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
@@ -78,7 +78,7 @@ class BusEventTest(TransactionTestCase):
 
         # do event -1 to the event
         jsonResponse = self.test.confirmOrDeclineEvent(
-            self.phoneId, self.service, licencePlate, eventCode, 'decline')
+            self.phoneId, self.service, licencePlate, eventCode, EventForBusv2.DECLINE)
 
         self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)

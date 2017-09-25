@@ -47,7 +47,7 @@ def downloadFile(fileName, webFileName, filePath):
     print "file '{}' updated".format(fileName)
 
 if __name__ == "__main__":
-    ''' download new csv files by command line '''
+    """ download new csv files by command line """
     if len(sys.argv) < 2:
         print "ERROR: You have to provided a GTFS version. For instance: v0.9"
     else:

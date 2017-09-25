@@ -1,10 +1,10 @@
-'''
+"""
 to update succesfuly this feature run the following comnads from the root of the project
 
 python manage.py listing_models --format md > DataDictionary/templates/dataDic.md
 cd DataDictionary/templates/
 python parseMKtoHTML.py
-'''
+"""
 
 destHTML = open("dataDic.html","w")
 readMK   = open("dataDic.md","r") 

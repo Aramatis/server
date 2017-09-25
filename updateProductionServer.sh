@@ -23,12 +23,13 @@ KEY_FILES=(
     secret_key.txt
     database_config.json
     android_requests_backups.py
+    facebook_config.json
     )
 
 for FILE_NAME in "${KEY_FILES[@]}"
 do
     if [ ! -f $KEY_PATH/$FILE_NAME ]; then
-        echo "REMEBER TO ADD ALL KEY FILES IN THIS SERVER"
+        echo "REMEMBER TO ADD ALL KEY FILES IN THIS SERVER"
         echo "THE NEXT FILE COULD NOT FIND: $FILE_NAME"
         exit
     fi
@@ -37,12 +38,12 @@ done
 #####################################################################
 # Database backup
 #####################################################################
-DB_NAME="ghostinspector"
-DATE=`date +%Y-%m-%d`
-DUMP_NAME="dump$DATE\.sql"
-sudo -u postgres pg_dump "$DB_NAME" > "$DUMP_NAME"
-tar -zcvf ../"$DUMP_NAME\.tar.gz" "$DUMP_NAME"
-rm "$DUMP_NAME"
+#DB_NAME="ghostinspector"
+#DATE=`date +%Y-%m-%d`
+#DUMP_NAME="dump$DATE\.sql"
+#sudo -u postgres pg_dump "$DB_NAME" > "$DUMP_NAME"
+#tar -zcvf ../"$DUMP_NAME\.tar.gz" "$DUMP_NAME"
+#rm "$DUMP_NAME"
 
 #####################################################################
 # Update repository
@@ -96,7 +97,7 @@ then
     python loadData.py "$fileVersion" servicestopdistance InitialData/"$fileVersion"/servicestopdistance.csv
     echo "loading service location data ..."
     python loadData.py "$fileVersion" ServiceLocation InitialData/"$fileVersion"/servicelocation.csv
-    echo "lodating events data ..."
+    echo "loading events data ..."
     python loadData.py "$fileVersion" event InitialData/events.csv
     #python loadData.py "$fileVersion" route InitialData/"$fileVersion"/routes.csv
 else 

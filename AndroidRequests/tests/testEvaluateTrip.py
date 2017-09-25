@@ -28,7 +28,7 @@ class EvaluateTripTest(TestCase):
                 self.userId, self.service, self.licencePlate)
 
     def test_tripEvaluationWithGoodEvaluationFormat(self):
-        '''This method test trip evaluation '''
+        """This method test trip evaluation """
 
         evaluation = 1
         jsonResponse = self.test.evaluateTrip(self.token, evaluation)
@@ -38,7 +38,7 @@ class EvaluateTripTest(TestCase):
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, evaluation)
 
     def test_tripEvaluationWithBadEvaluationFormat(self):
-        '''This method test trip evaluation '''
+        """This method test trip evaluation """
 
         evaluation = "asd"
         jsonResponse = self.test.evaluateTrip(self.token, evaluation)
@@ -50,7 +50,7 @@ class EvaluateTripTest(TestCase):
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
 
     def test_tripEvaluationWithWrongToken(self):
-        '''This method test trip evaluation '''
+        """This method test trip evaluation """
 
         evaluation = 5
         jsonResponse = self.test.evaluateTrip('aasd', evaluation)

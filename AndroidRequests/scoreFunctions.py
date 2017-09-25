@@ -11,13 +11,13 @@ from AndroidRequests.statusResponse import Status
 
 
 class UserValidation(object):
-    ''' it validates  user session '''
+    """ it validates  user session """
 
     def __init__(self):
         pass
 
     def validateUser(self, userId, sessionToken):
-        ''' validate user session '''
+        """ validate user session """
         response = {}
         Status.getJsonStatus(Status.OK, response)
 
