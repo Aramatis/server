@@ -163,7 +163,7 @@ class WebService:
             # 23: invalid stop
             # 24: invalid route. It is used when ask for route and stop, not our case
             elif route["codigorespuesta"] in ["14", "20", "21", "23", "24"]:
-                print("proccessing route from authority predictor: ", route["respuestaServicio"])
+                print("proccessing route from authority predictor: ", route["respuestaServicio"], route["codigorespuesta"])
 
             response["servicios"] += bus_list
 
