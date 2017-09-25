@@ -363,16 +363,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         """ test the method to request an uuid based on dummy license plate """
         licensePlate = Constants.DUMMY_LICENSE_PLATE
 
-        request = self.factory.get("/android/getUUID/")
-        request.user = AnonymousUser()
-
-        reponseView = RequestUUID()
-        response = reponseView.get(request, licensePlate)
-
-        self.assertEqual(response.status_code, 200)
-
-        testUUID = json.loads(response.content)
-        uuid = testUUID["uuid"]
+        uuid = self.helper.askForMachineId(licensePlate)
 
         # it is a valid uuid
         pattern = re.compile(
@@ -380,9 +371,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertTrue((pattern.match(uuid.upper()) if True else False))
 
         """ if request a second uuid wiht dummy license plate, i must to get a new uuid """
-        response2 = reponseView.get(request, licensePlate)
-        testUUID2 = json.loads(response2.content)
-        uuid2 = testUUID2["uuid"]
+        uuid2 = self.helper.askForMachineId(licensePlate)
 
         self.assertTrue((pattern.match(uuid2.upper()) if True else False))
         self.assertFalse(uuid == uuid2)
@@ -390,7 +379,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
     def test_MergeEventsFromTheSameBusButDifferenceService(self):
         """ test the method that merge event from the same bus machine but difference service """
 
-        licencePlate = "AA1111"
+        licensePlate = "AA1111"
         busService1 = "506"
         busService2 = "509"
         eventCode1 = "evn00230"
@@ -398,13 +387,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         eventCode3 = "evn00232"
 
         # ask for bus and get the UUID
-        request = self.factory.get("/android/getUUID/")
-        view = RequestUUID()
-        responseGetUUID = view.get(request, licencePlate)
-
-        self.assertEqual(responseGetUUID.status_code, 200)
-
-        testUUID = json.loads(responseGetUUID.content)["uuid"]
+        testUUID = self.helper.askForMachineId(licensePlate)
 
         # create bus to create an assignment
         request = self.factory.get("/android/requestToken/v2/")
@@ -436,7 +419,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(responseToReportEventBus["uuid"], testUUID)
         self.assertEqual(
             responseToReportEventBus["registrationPlate"],
-            licencePlate)
+            licensePlate)
         self.assertEqual(responseToReportEventBus[
                              "events"][0]["eventDecline"], 0)
         self.assertEqual(responseToReportEventBus[
@@ -455,7 +438,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(responseToReportEventBus["uuid"], testUUID)
         self.assertEqual(
             responseToReportEventBus["registrationPlate"],
-            licencePlate)
+            licensePlate)
         self.assertEqual(responseToReportEventBus[
                              "events"][0]["eventDecline"], 1)
         self.assertEqual(responseToReportEventBus[
@@ -471,7 +454,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         responseToReportEventBus = json.loads(responseToReportEventBus.content)
 
         self.assertEqual(responseToReportEventBus["uuid"], testUUID)
-        self.assertEqual(responseToReportEventBus["registrationPlate"], licencePlate)
+        self.assertEqual(responseToReportEventBus["registrationPlate"], licensePlate)
         self.assertEqual(responseToReportEventBus["events"][0]["eventDecline"], 0)
         self.assertEqual(responseToReportEventBus["events"][0]["eventConfirm"], 1)
         self.assertEqual(responseToReportEventBus["events"][0]["eventcode"], eventCode2)
@@ -489,7 +472,7 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
         self.assertEqual(responseToReportEventBus["uuid"], testUUID)
         self.assertEqual(
             responseToReportEventBus["registrationPlate"],
-            licencePlate)
+            licensePlate)
         self.assertEqual(responseToReportEventBus[
                              "events"][0]["eventDecline"], 0)
         self.assertEqual(responseToReportEventBus[
