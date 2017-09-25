@@ -12,20 +12,18 @@ class RequestUUID(View):
     """This class get or create an UUID for bus object based on license plate. """
 
     def __init__(self):
+        super(RequestUUID, self).__init__()
         self.context = {}
 
     def get(self, request, pLicensePlate):
 
         # remove hyphen and convert to uppercase
-        pLicensePlate = pLicensePlate.replace('-', '').upper()
+        pLicensePlate = pLicensePlate.replace("-", "").replace(" ", "").upper()
         response = {}
         if pLicensePlate == Constants.DUMMY_LICENSE_PLATE:
-
-            puuid = uuid.uuid4()
-
-            # we will update service when the bus asks for a token
+            # we will update route when the bus asks for a token
             busv2 = Busv2.objects.create(registrationPlate=pLicensePlate,
-                                         uuid=puuid)
+                                         uuid=uuid.uuid4())
         else:
             busv2 = Busv2.objects.get_or_create(
                 registrationPlate=pLicensePlate)[0]

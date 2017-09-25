@@ -343,33 +343,21 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
     def test_RequestUUIDBasedOnLicensePlate(self):
         """ test the method to request an uuid based on license plate """
         licensePlates = ["AFJG21", "aFAf21", "AF-SD23", "FG-DF-45"]
-
-        request = self.factory.get("/android/getUUID/")
-        request.user = AnonymousUser()
-
-        reponseView = RequestUUID()
-
         # it is a valid uuid
         pattern = re.compile(
             "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
 
+        machine_id = None
         for licensePlate in licensePlates:
-            response = reponseView.get(request, licensePlate)
-
-            self.assertEqual(response.status_code, 200)
-
-            testUUID = json.loads(response.content)
-            uuid = testUUID["uuid"]
-
-            self.assertTrue((pattern.match(uuid.upper()) if True else False))
+            # machine id is a UUID
+            machine_id = self.helper.askForMachineId(licensePlate)
+            self.assertTrue((pattern.match(machine_id.upper()) if True else False))
 
         """ if request a second uuid with an old license plate, i must to get the same uuid """
-        response2 = reponseView.get(request, licensePlates[3])
-        testUUID2 = json.loads(response2.content)
-        uuid2 = testUUID2["uuid"]
+        machine_id2 = self.helper.askForMachineId(licensePlates[3])
 
-        self.assertTrue(pattern.match(uuid2.upper()))
-        self.assertTrue(uuid == uuid2)
+        self.assertTrue(pattern.match(machine_id2.upper()))
+        self.assertTrue(machine_id == machine_id2)
 
     def test_RequestUUIDBasedOnDummyLicensePlate(self):
         """ test the method to request an uuid based on dummy license plate """
