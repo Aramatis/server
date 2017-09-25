@@ -311,6 +311,12 @@ class NearbyBusesResponseTest(TestCase):
         for bus in buses:
             if bus['patente'] == licensePlate.upper():
                 self.assertEqual(bus['avatarId'], 4)
+                self.assertEqual(bus['user']['nickname'], u"nickname1")
+                self.assertEqual(bus['user']['globalScore'], 200)
+                self.assertEqual(bus['user']['showAvatar'], True)
+                self.assertEqual(bus['user']['userAvatarId'], 1)
+                self.assertEqual(bus['user']['levelName'], u"level 1")
+                self.assertEqual(bus['user']['levelPosition'], 1)
             else:
                 self.assertEqual(bus['avatarId'], 0)
 

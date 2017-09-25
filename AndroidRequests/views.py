@@ -168,7 +168,7 @@ def get_user_buses(stop_obj, questioner):
         route_directions.append(route_with_direction.replace(route, ""))
 
     # active user buses that stop in the bus stop
-    active_user_buses = Token.objects.select_related('tranSappUser', 'busassignment__uuid').filter(
+    active_user_buses = Token.objects.select_related('tranSappUser__level', 'busassignment__uuid').filter(
         busassignment__service__in=route_names,
         activetoken__isnull=False)
 
@@ -198,6 +198,7 @@ def get_user_buses(stop_obj, questioner):
                 if global_scores[position] < global_score:
                     global_scores[position] = global_score
                     bus['avatarId'] = token_obj.tranSappUser.busAvatarId
+                    bus['user'] = token_obj.tranSappUser.getDictionary()
 
             user_buses[position] = bus
 
