@@ -155,7 +155,8 @@ class WebService:
                 bus1["servicio"] = route["servicio"].strip()
                 bus1["msg"] = route["respuestaServicio"]
 
-                bus_list.append(bus1)
+                # TODO: uncomment this when app can show message to users
+                #bus_list.append(bus1)
 
             # 14: stop does not math with route asked
             # 20: system error. it"s catch by stop error
