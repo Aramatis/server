@@ -28,11 +28,11 @@ class ParserTest(TestCase):
         sudClient.service.configure_mock(**{"predictorParaderoServicio.return_value": sud_answer})
 
         client.client = sudClient
-        client.prefix = "t"
+        client.prefix = "TSPP"
         client.clientCode = "e"
         client.answerCode = "s"
         client.resCode = [{"code": "00"}]
-        client.transactionId = 1
+        client.transactionId = 1197450
 
         return client
 
@@ -192,17 +192,6 @@ class ParserTest(TestCase):
             "servicios": [
                 [
                     {
-                        "codigorespuesta": "00",
-                        "distanciabus1": "5015",
-                        "distanciabus2": "12095",
-                        "horaprediccionbus1": "En menos de 10 min.",
-                        "horaprediccionbus2": "Entre 18 Y 28 min. ",
-                        "ppubus1": "ZB6733",
-                        "ppubus2": "ZN4332",
-                        "respuestaServicio": None,
-                        "servicio": "107",
-                    },
-                    {
                         "codigorespuesta": "01",
                         "distanciabus1": "6554",
                         "distanciabus2": None,
@@ -212,6 +201,17 @@ class ParserTest(TestCase):
                         "ppubus2": None,
                         "respuestaServicio": None,
                         "servicio": "102",
+                    },
+                    {
+                        "codigorespuesta": "00",
+                        "distanciabus1": "5015",
+                        "distanciabus2": "12095",
+                        "horaprediccionbus1": "En menos de 10 min.",
+                        "horaprediccionbus2": "Entre 18 Y 28 min. ",
+                        "ppubus1": "ZB6733",
+                        "ppubus2": "ZN4332",
+                        "respuestaServicio": None,
+                        "servicio": "107",
                     }
                 ]
             ],
@@ -260,7 +260,8 @@ class ParserTest(TestCase):
         # check with expected
         for key, value in url_output.items():
             if isinstance(value, list):
-                for index, key2, value2 in enumerate(value.items()):
-                    self.assertEqual(value2, data["servicios"][index][key2])
+                for index, route in enumerate(value):
+                    for  key2, value2 in route.items():
+                        self.assertEqual(value2, data["servicios"][index][key2])
             else:
                 self.assertEqual(value, data[key])

@@ -113,7 +113,8 @@ class WebService:
                 "patente": None,
                 "tiempo": None,
                 "distancia": None,
-                "msg": None
+                "msg": None,
+                "valido": 1
             }
 
             # information about next two buses
@@ -129,7 +130,8 @@ class WebService:
                     "patente": route["ppubus2"].replace("-", "").strip().upper(),
                     "tiempo": route["horaprediccionbus2"],
                     "distancia": "{} {}".format(route["distanciabus2"], " mts."),
-                    "msg": None
+                    "msg": None,
+                    "valido": 1
                 }
 
                 bus_list.append(bus1)
