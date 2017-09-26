@@ -1,14 +1,12 @@
-import json
-
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory
 
-import AndroidRequests.constants as Constants
-# views
-import AndroidRequests.views as views
-# my stuff
 from AndroidRequests.tests.testHelper import TestHelper
 from AndroidRequests.models import BusStop
+
+import AndroidRequests.constants as Constants
+import AndroidRequests.views as views
+import json
 
 
 class NearbyBusesTest(TestCase):
@@ -76,7 +74,77 @@ class NearbyBusesResponseTest(TestCase):
     def getBuses(self, stopObj, phoneId, indexPairList):
         """ generate nearbybuses response """
 
-        fakeAuthorityAnswer = '{"horaConsulta": "10:12", "servicios": [{"servicio": "506", "patente": "BJFB28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1691  mts."}, {"servicio": "506", "patente": "BJFC56", "tiempo": "Entre 03 Y 07 min. ", "valido": 1, "distancia": "1921  mts."}, {"servicio": "506E", "patente": "BJFH28", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "771  mts."}, {"servicio": "506E", "patente": null, "tiempo": null, "valido": 1, "distancia": "None  mts."}, {"servicio": "506V", "patente": "FDJX64", "tiempo": "Menos de 5 min.", "valido": 1, "distancia": "1922  mts."}, {"servicio": "506V", "patente": "BFKB96", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1572  mts."}, {"servicio": "507", "patente": "BJFH27", "tiempo": "Entre 11 Y 17 min. ", "valido": 1, "distancia": "3194  mts."}, {"servicio": "507", "patente": "BJFC20", "tiempo": "Entre 20 Y 30 min. ", "valido": 1, "distancia": "6094  mts."}, {"servicio": "509", "patente": "FLXC45", "tiempo": "Entre 04 Y 08 min. ", "valido": 1, "distancia": "1953  mts."}, {"servicio": "509", "patente": "FLXD43", "tiempo": "Entre 08 Y 14 min. ", "valido": 1, "distancia": "3273  mts."}], "webTransId": "TSPP00000000000000219461", "error": null, "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", "fechaConsulta": "2016-11-02", "id": "PA433"}'
+        fakeAuthorityAnswer = """{
+            "horaConsulta": "10:12",
+            "servicios": [{
+                "servicio": "506",
+                "patente": "BJFB28",
+                "tiempo": "Menos de 5 min.",
+                "valido": 1,
+                "distancia": "1691  mts."
+            }, {
+                "servicio": "506",
+                "patente": "BJFC56",
+                "tiempo": "Entre 03 Y 07 min. ",
+                "valido": 1,
+                "distancia": "1921  mts."
+            }, {
+                "servicio": "506E",
+                "patente": "BJFH28",
+                "tiempo": "Menos de 5 min.",
+                "valido": 1,
+                "distancia": "771  mts."
+            }, {"servicio": "506E",
+                "patente": null,
+                "tiempo": null,
+                "valido": 1,
+                "distancia": "None  mts."
+            }, {
+                "servicio": "506V",
+                "patente": "FDJX64",
+                "tiempo": "Menos de 5 min.",
+                "valido": 1,
+                "distancia": "1922  mts."
+            }, {
+                "servicio": "506V",
+                "patente": "BFKB96",
+                "tiempo": "Entre 04 Y 08 min. ",
+                "valido": 1,
+                "distancia": "1572  mts."
+            }, {
+                "servicio": "507", 
+                "patente": "BJFH27", 
+                "tiempo": "Entre 11 Y 17 min. ", 
+                "valido": 1, 
+                "distancia": "3194  mts."
+            }, {
+                "servicio": "507", 
+                "patente": "BJFC20", 
+                "tiempo": "Entre 20 Y 30 min. ", 
+                "valido": 1, 
+                "distancia": "6094  mts."
+            }, {
+                "servicio": "509", 
+                "patente": "FLXC45", 
+                "tiempo": "Entre 04 Y 08 min. ", 
+                "valido": 1, "distancia": "1953  mts."
+            }, {
+                "servicio": "509", 
+                "patente": "FLXD43", 
+                "tiempo": "Entre 08 Y 14 min. ", 
+                "valido": 1, 
+                "distancia": "3273  mts."
+            }], 
+            "webTransId": "TSPP00000000000000219461", 
+            "error": null, 
+            "descripcion": "PARADA 1 / ESCUELA   DE INGENIERIA", 
+            "fechaConsulta": "2016-11-02", 
+            "id": "PA433",
+            "routeInfo": [{
+                    "servicio": "I13",
+                    "msg": "No hay buses que se dirijan al paradero."
+            }]
+        }"""
 
         fakeJsonAuthorityAnswer = json.loads(fakeAuthorityAnswer)
 
@@ -102,6 +170,8 @@ class NearbyBusesResponseTest(TestCase):
         if addTrajectory:
             self.helper.sendFakeTrajectoryOfToken(travelKey)
 
+        return travelKey
+
     def test_nearbyBusesWithFakeAuthorityInfoWithoutUserBuses(self):
         """ user ask by nearbybuses and receives authority buses list """
 
@@ -124,9 +194,9 @@ class NearbyBusesResponseTest(TestCase):
         buses = self.getBuses(self.stopObj, self.phoneId2, indexPairList)
 
         self.assertEqual(len(buses), 9 + 1)
-        self.assertEqual(buses[0]['patente'], Constants.DUMMY_LICENSE_PLATE)
-        self.assertEqual(buses[0]['servicio'], self.service)
-        self.assertEqual(buses[0]['direction'], self.direction)
+        self.assertEqual(buses[0]["patente"], Constants.DUMMY_LICENSE_PLATE)
+        self.assertEqual(buses[0]["servicio"], self.service)
+        self.assertEqual(buses[0]["direction"], self.direction)
 
     def test_nearbyBusesWithFakeAuthorityInfoPlusTwoUserBuses(self):
         """ user ask by nearbybuses and receives authority buses list plus 
@@ -139,7 +209,7 @@ class NearbyBusesResponseTest(TestCase):
         self.getInBus(self.phoneId2, self.service, Constants.DUMMY_LICENSE_PLATE)
 
         # user who ask for stop info
-        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+        otherUser = "0cf16966-8643-4887-92b4-7015b4d1dbde"
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
@@ -148,20 +218,20 @@ class NearbyBusesResponseTest(TestCase):
 
         self.assertEqual(len(buses), 9 + 1 + 1)
 
-        self.assertEqual(buses[0]['patente'], Constants.DUMMY_LICENSE_PLATE)
-        self.assertEqual(buses[0]['servicio'], self.service)
-        self.assertEqual(buses[0]['direction'], self.direction)
+        self.assertEqual(buses[0]["patente"], Constants.DUMMY_LICENSE_PLATE)
+        self.assertEqual(buses[0]["servicio"], self.service)
+        self.assertEqual(buses[0]["direction"], self.direction)
 
-        self.assertEqual(buses[1]['patente'], Constants.DUMMY_LICENSE_PLATE)
-        self.assertEqual(buses[1]['servicio'], self.service)
-        self.assertEqual(buses[1]['direction'], self.direction)
+        self.assertEqual(buses[1]["patente"], Constants.DUMMY_LICENSE_PLATE)
+        self.assertEqual(buses[1]["servicio"], self.service)
+        self.assertEqual(buses[1]["direction"], self.direction)
 
     def test_nearbyBusesWithFakeAuthorityInfoPlusUserInTheSameBus(self):
         """ user ask by nearbybuses and receives authority buses list plus 
             the bus comes in the authority bus list. Same user ask by buses so the bus has to be omitted  """
 
-        licensePlate = 'bjfb28'
-        service = '506'
+        licensePlate = "bjfb28"
+        service = "506"
         # first user get in the bus
         self.getInBus(self.phoneId, service, licensePlate, addTrajectory=True)
 
@@ -172,7 +242,7 @@ class NearbyBusesResponseTest(TestCase):
 
         self.assertEqual(len(buses), 8)
 
-        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+        otherUser = "0cf16966-8643-4887-92b4-7015b4d1dbde"
         indexPairList = [
             (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
         buses = self.getBuses(self.stopObj, otherUser, indexPairList)
@@ -182,8 +252,8 @@ class NearbyBusesResponseTest(TestCase):
         """ user ask by nearbybuses and receives authority buses list plus 
             the bus comes in the authority bus list. One of the user ask by buses so the bus has to be omitted  """
 
-        licensePlate = 'bjfb28'
-        service = '506'
+        licensePlate = "bjfb28"
+        service = "506"
         # first user get in the bus
         self.getInBus(self.phoneId, service, licensePlate, addTrajectory=True)
 
@@ -201,26 +271,26 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(len(buses), 8)
 
         # user who ask for stop info
-        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+        otherUser = "0cf16966-8643-4887-92b4-7015b4d1dbde"
         indexPairList = [
             (0, 0), (1, 1), (2, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
         buses = self.getBuses(self.stopObj, otherUser, indexPairList)
         self.assertEqual(len(buses), 9)
 
-        self.assertEqual(buses[0]['patente'], licensePlate.upper())
-        self.assertEqual(buses[0]['servicio'], service)
-        self.assertEqual(buses[0]['tienePasajeros'], 2)
-        self.assertEqual(buses[0]['distanciaMts'], 1691)
-        self.assertEqual(buses[0]['tiempoV2'], "0 a 5 min")
-        self.assertEqual(buses[0]['distanciaV2'], "1.69Km")
-        self.assertEqual(buses[0]['direction'], "I")
+        self.assertEqual(buses[0]["patente"], licensePlate.upper())
+        self.assertEqual(buses[0]["servicio"], service)
+        self.assertEqual(buses[0]["tienePasajeros"], 2)
+        self.assertEqual(buses[0]["distanciaMts"], 1691)
+        self.assertEqual(buses[0]["tiempoV2"], "0 a 5 min")
+        self.assertEqual(buses[0]["distanciaV2"], "1.69Km")
+        self.assertEqual(buses[0]["direction"], "I")
 
     def test_nearbyBusesWithFakeAuthorityInfoWithTwoUserInTheSameBus(self):
         """ test methods that uses nearbyBuses url. case: authority buses plus one of them
             has a user and other is a dummy bus. """
 
-        licensePlate = 'bjfb28'
-        service = '506'
+        licensePlate = "bjfb28"
+        service = "506"
         # first user get in the bus
         self.getInBus(self.phoneId, service, licensePlate, addTrajectory=True)
 
@@ -228,7 +298,7 @@ class NearbyBusesResponseTest(TestCase):
         self.getInBus(self.phoneId2, service, Constants.DUMMY_LICENSE_PLATE, addTrajectory=True)
 
         # user who ask for stop info
-        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+        otherUser = "0cf16966-8643-4887-92b4-7015b4d1dbde"
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = [
@@ -237,23 +307,23 @@ class NearbyBusesResponseTest(TestCase):
 
         self.assertEqual(len(buses), 10)
         # this is the fake bus
-        self.assertEqual(buses[0]['patente'], licensePlate.upper())
-        self.assertEqual(buses[0]['servicio'], service)
-        self.assertEqual(buses[0]['tienePasajeros'], 1)
-        self.assertEqual(buses[0]['distanciaMts'], 1691)
-        self.assertEqual(buses[0]['tiempoV2'], "0 a 5 min")
-        self.assertEqual(buses[0]['distanciaV2'], "1.69Km")
-        self.assertEqual(buses[0]['direction'], "I")
+        self.assertEqual(buses[0]["patente"], licensePlate.upper())
+        self.assertEqual(buses[0]["servicio"], service)
+        self.assertEqual(buses[0]["tienePasajeros"], 1)
+        self.assertEqual(buses[0]["distanciaMts"], 1691)
+        self.assertEqual(buses[0]["tiempoV2"], "0 a 5 min")
+        self.assertEqual(buses[0]["distanciaV2"], "1.69Km")
+        self.assertEqual(buses[0]["direction"], "I")
 
-        self.assertEqual(buses[1]['patente'], Constants.DUMMY_LICENSE_PLATE)
-        self.assertEqual(buses[1]['servicio'], service)
-        self.assertEqual(buses[1]['tienePasajeros'], 1)
-        self.assertEqual(buses[1]['direction'], "I")
+        self.assertEqual(buses[1]["patente"], Constants.DUMMY_LICENSE_PLATE)
+        self.assertEqual(buses[1]["servicio"], service)
+        self.assertEqual(buses[1]["tienePasajeros"], 1)
+        self.assertEqual(buses[1]["direction"], "I")
 
     def test_getFakeAuthorityInfoWithUserBusWithoutDirection(self):
-        """ if dummy bus does not have direction won't be in the buses list """
+        """ if dummy bus does not have direction won"t be in the buses list """
 
-        service = '506'
+        service = "506"
         travelKey = self.helper.getInBusWithLicencePlate(
             self.phoneId, service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
@@ -271,10 +341,10 @@ class NearbyBusesResponseTest(TestCase):
             of user with highest score """
 
         # user who ask for stop info
-        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+        otherUser = "0cf16966-8643-4887-92b4-7015b4d1dbde"
 
-        licensePlate = 'bjfb28'
-        route = '506'
+        licensePlate = "bjfb28"
+        route = "506"
         # create users and set theirs global scores
         users = self.helper.createTranSappUsers(2)
 
@@ -302,16 +372,16 @@ class NearbyBusesResponseTest(TestCase):
 
         # check avatar Id
         for bus in buses:
-            if bus['patente'] == licensePlate.upper():
-                self.assertEqual(bus['avatarId'], 3)
-                self.assertEqual(bus['user']['nickname'], u"nickname0")
-                self.assertEqual(bus['user']['globalScore'], 100)
-                self.assertEqual(bus['user']['showAvatar'], True)
-                self.assertEqual(bus['user']['userAvatarId'], 1)
-                self.assertEqual(bus['user']['levelName'], u"level 1")
-                self.assertEqual(bus['user']['levelPosition'], 1)
+            if bus["patente"] == licensePlate.upper():
+                self.assertEqual(bus["avatarId"], 3)
+                self.assertEqual(bus["user"]["nickname"], u"nickname0")
+                self.assertEqual(bus["user"]["globalScore"], 100)
+                self.assertEqual(bus["user"]["showAvatar"], True)
+                self.assertEqual(bus["user"]["userAvatarId"], 1)
+                self.assertEqual(bus["user"]["levelName"], u"level 1")
+                self.assertEqual(bus["user"]["levelPosition"], 1)
             else:
-                self.assertEqual(bus['avatarId'], 0)
+                self.assertEqual(bus["avatarId"], 0)
 
         # user2 get in bus
         travelKey = self.helper.getInBusWithLicencePlateByPost(
@@ -327,16 +397,77 @@ class NearbyBusesResponseTest(TestCase):
 
         # check avatar Id
         for bus in buses:
-            if bus['patente'] == licensePlate.upper():
-                self.assertEqual(bus['avatarId'], 4)
-                self.assertEqual(bus['user']['nickname'], u"nickname1")
-                self.assertEqual(bus['user']['globalScore'], 200)
-                self.assertEqual(bus['user']['showAvatar'], True)
-                self.assertEqual(bus['user']['userAvatarId'], 1)
-                self.assertEqual(bus['user']['levelName'], u"level 1")
-                self.assertEqual(bus['user']['levelPosition'], 1)
+            if bus["patente"] == licensePlate.upper():
+                self.assertEqual(bus["avatarId"], 4)
+                self.assertEqual(bus["user"]["nickname"], u"nickname1")
+                self.assertEqual(bus["user"]["globalScore"], 200)
+                self.assertEqual(bus["user"]["showAvatar"], True)
+                self.assertEqual(bus["user"]["userAvatarId"], 1)
+                self.assertEqual(bus["user"]["levelName"], u"level 1")
+                self.assertEqual(bus["user"]["levelPosition"], 1)
             else:
-                self.assertEqual(bus['avatarId'], 0)
+                self.assertEqual(bus["avatarId"], 0)
+
+    def test_EventsFromSameMachineButDifferentRoute(self):
+        """ case: first event reported with one route, second event reported in the same machine but different route.
+            Expected answer: new user bus has to have two events """
+        self.helper.insertEventsOnDatabase()
+
+        licensePlate = "BJFB28"
+        previousRoute = "999"
+        machineId = self.helper.askForMachineId(licensePlate)
+
+        eventCode1 = "evn00202"
+        eventCode2 = "evn00221"
+
+        # user who ask for stop info
+        otherUser = "0cf16966-8643-4887-92b4-7015b4d1dbde"
+
+        # trip on route 509
+        tripToken = self.getInBus(self.phoneId, previousRoute, licensePlate)
+        self.helper.reportEventV2ByPost(self.phoneId, machineId, previousRoute, eventCode1, None, None)
+
+        buses = self.getBuses(self.stopObj, otherUser, [])
+
+        for bus in buses:
+            if bus["patente"] == licensePlate:
+                self.assertEqual(bus["eventos"][0]["eventDecline"], 0)
+                self.assertEqual(bus["eventos"][0]["eventConfirm"], 1)
+                self.assertEqual(bus["eventos"][0]["eventcode"], eventCode1)
+                self.assertEqual(len(bus["eventos"]), 1)
+
+        self.helper.endRoute(tripToken)
+
+        # trip on route 507
+        tripToken2 = self.getInBus(self.phoneId2, self.service, licensePlate)
+        self.helper.reportEventV2ByPost(self.phoneId2, machineId, self.service, eventCode2, None, None)
+
+        buses = self.getBuses(self.stopObj, otherUser, [])
+
+        for bus in buses:
+            if bus["patente"] == licensePlate:
+                self.assertEqual(bus["eventos"][0]["eventDecline"], 0)
+                self.assertEqual(bus["eventos"][0]["eventConfirm"], 1)
+                self.assertEqual(bus["eventos"][0]["eventcode"], eventCode2)
+                self.assertEqual(bus["eventos"][1]["eventDecline"], 0)
+                self.assertEqual(bus["eventos"][1]["eventConfirm"], 1)
+                self.assertEqual(bus["eventos"][1]["eventcode"], eventCode1)
+                self.assertEqual(len(bus["eventos"]), 2)
+
+        self.helper.endRoute(tripToken2)
+
+        # ask for bus events without passengers on buses
+        buses = self.getBuses(self.stopObj, otherUser, [])
+
+        for bus in buses:
+            if bus["patente"] == licensePlate:
+                self.assertEqual(bus["eventos"][0]["eventDecline"], 0)
+                self.assertEqual(bus["eventos"][0]["eventConfirm"], 1)
+                self.assertEqual(bus["eventos"][0]["eventcode"], eventCode2)
+                self.assertEqual(bus["eventos"][1]["eventDecline"], 0)
+                self.assertEqual(bus["eventos"][1]["eventConfirm"], 1)
+                self.assertEqual(bus["eventos"][1]["eventcode"], eventCode1)
+                self.assertEqual(len(bus["eventos"]), 2)
 
 
 class FormattersTest(TestCase):

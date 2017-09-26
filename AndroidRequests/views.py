@@ -168,14 +168,15 @@ def get_user_buses(stop_obj, questioner):
         route_directions.append(route_with_direction.replace(route, ""))
 
     # active user buses that stop in the bus stop
-    active_user_buses = Token.objects.select_related('tranSappUser__level', 'busassignment__uuid').filter(
+    active_user_buses = Token.objects.select_related('tranSappUser__level').\
+        prefetch_related("busassignment__uuid__busassignment_set").filter(
         busassignment__service__in=route_names,
         activetoken__isnull=False)
 
-    # retrieve events for all user buses
+    # retrieve events for all user buses and busassignments related
     bus_assignments = []
     for token_obj in active_user_buses:
-        bus_assignments.append(token_obj.busassignment)
+        bus_assignments += token_obj.busassignment.uuid.busassignment_set.all()
     events_by_machine_id = EventsByBusV2().getEventsForBuses(bus_assignments, timezone.now())
 
     global_scores = []

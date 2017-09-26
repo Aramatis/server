@@ -107,7 +107,7 @@ class BusEventTest(TransactionTestCase):
         anEvent.expireTime = anEvent.expireTime - timezone.timedelta(minutes=event.lifespam)
         anEvent.save()
 
-        # ask for ecents and the answere should be none
+        # ask for events and the answer should be none
         jsonResponse = self.test.reportEvent(
             self.phoneId, self.route, licencePlate, eventCode)
         self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
