@@ -5,7 +5,7 @@ from django.conf import settings
 from mock import Mock
 
 from PredictorDTPM.webService.WebService import WebService
-from PredictorDTPM.views import registerDTPMAnswer
+from PredictorDTPM.views import registerAuthorityAnswer
 from PredictorDTPM.models import Log, BusLog
 
 class ParserTest(TestCase):
@@ -79,7 +79,7 @@ class ParserTest(TestCase):
         webService = WebService(self.request)
 
         data = webService.askForServices(self.stopCode)
-        registerDTPMAnswer(data)
+        registerAuthorityAnswer(data)
 
         self.assertEqual(Log.objects.count(), 1)
         self.assertEqual(BusLog.objects.count(), 3)
@@ -133,7 +133,7 @@ class ParserTest(TestCase):
         webService = WebService(self.request)
 
         data = webService.askForServices(self.stopCode)
-        registerDTPMAnswer(data)
+        registerAuthorityAnswer(data)
 
         self.assertEqual(Log.objects.count(), 1)
         self.assertEqual(BusLog.objects.count(), 2)
@@ -176,7 +176,7 @@ class ParserTest(TestCase):
         webService = WebService(self.request)
 
         data = webService.askForServices(self.stopCode)
-        registerDTPMAnswer(data)
+        registerAuthorityAnswer(data)
 
         self.assertEqual(Log.objects.count(), 1)
         self.assertEqual(BusLog.objects.count(), 0)
@@ -212,6 +212,17 @@ class ParserTest(TestCase):
                         "ppubus2": "ZN4332",
                         "respuestaServicio": None,
                         "servicio": "107",
+                    },
+                    {
+                        "codigorespuesta": "10",
+                        "distanciabus1": None,
+                        "distanciabus2": None,
+                        "horaprediccionbus1": None,
+                        "horaprediccionbus2": None,
+                        "ppubus1": None,
+                        "ppubus2": None,
+                        "respuestaServicio": "No hay buses que se dirijan al paradero.",
+                        "servicio": "I13",
                     }
                 ]
             ],
@@ -254,6 +265,12 @@ class ParserTest(TestCase):
                     "valido": 1,
                     "distancia": "12095  mts."
                 }
+            ],
+            "routeInfo": [
+                {
+                    "servicio": "I13",
+                    "msg": "No hay buses que se dirijan al paradero."
+                }
             ]
         }
 
@@ -262,6 +279,6 @@ class ParserTest(TestCase):
             if isinstance(value, list):
                 for index, route in enumerate(value):
                     for  key2, value2 in route.items():
-                        self.assertEqual(value2, data["servicios"][index][key2])
+                        self.assertEqual(value2, data[key][index][key2])
             else:
                 self.assertEqual(value, data[key])

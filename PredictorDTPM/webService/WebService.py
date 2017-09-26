@@ -99,6 +99,7 @@ class WebService:
             "id": dtpmInfo["paradero"],
             "descripcion": dtpmInfo["nomett"],
             "servicios": [],
+            "routeInfo": [],
             "error": None
         }
 
@@ -108,12 +109,13 @@ class WebService:
         # for each route
         for route in dtpmInfo["servicios"][0]:
             bus_list = []
+            route_info_list = []
+
             bus1 = {
                 "servicio": None,
                 "patente": None,
                 "tiempo": None,
                 "distancia": None,
-                "msg": None,
                 "valido": 1
             }
 
@@ -130,7 +132,6 @@ class WebService:
                     "patente": route["ppubus2"].replace("-", "").strip().upper(),
                     "tiempo": route["horaprediccionbus2"],
                     "distancia": "{} {}".format(route["distanciabus2"], " mts."),
-                    "msg": None,
                     "valido": 1
                 }
 
@@ -152,11 +153,12 @@ class WebService:
             # 11: route out of schedule
             # 12: route not available
             elif route["codigorespuesta"] in ["09", "10", "11", "12"]:
-                bus1["servicio"] = route["servicio"].strip()
-                bus1["msg"] = route["respuestaServicio"]
+                route_info = {
+                    "servicio": route["servicio"].strip(),
+                    "msg": route["respuestaServicio"]
+                }
 
-                # TODO: uncomment this when app can show message to users
-                #bus_list.append(bus1)
+                route_info_list.append(route_info)
 
             # 14: stop does not math with route asked
             # 20: system error. it"s catch by stop error
@@ -167,5 +169,6 @@ class WebService:
                 print("proccessing route from authority predictor: ", route["respuestaServicio"], route["codigorespuesta"])
 
             response["servicios"] += bus_list
+            response["routeInfo"] += route_info_list
 
         return response

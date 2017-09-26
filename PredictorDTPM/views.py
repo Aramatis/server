@@ -2,13 +2,12 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.conf import settings
 
-# python utilities
 from datetime import datetime
 
-# my stuff
 from PredictorDTPM.webService.WebService import WebService
 from PredictorDTPM.models import Log, BusLog
 from pytz import timezone as tz
+
 
 def busStopInfo(request, pSecretKey, pBusStop):
     """ return dtpm data related to buses of pBusStop """
@@ -21,12 +20,12 @@ def busStopInfo(request, pSecretKey, pBusStop):
     ws = WebService(request)
     data = ws.askForServices(pBusStop)
 
-    registerDTPMAnswer(data)
+    registerAuthorityAnswer(data)
 
     return JsonResponse(data, safe=False)
 
 
-def registerDTPMAnswer(data):
+def registerAuthorityAnswer(data):
     """ register DTPM answer in database """
 
     local = tz(settings.TIME_ZONE)
@@ -47,5 +46,10 @@ def registerDTPMAnswer(data):
             route=bus['servicio'],
             timeMessage=bus['tiempo'],
             distance=distance,
+            log=log)
+
+    for bus in data["routeInfo"]:
+        BusLog.objects.create(
+            route=bus["servicio"],
             message=bus["msg"],
             log=log)
