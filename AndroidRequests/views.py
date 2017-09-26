@@ -215,6 +215,7 @@ def get_user_buses(stop_obj, questioner):
             if token_obj.tranSappUser is not None:
                 global_score = token_obj.tranSappUser.globalScore
                 bus['avatarId'] = token_obj.tranSappUser.busAvatarId
+                bus['user'] = token_obj.tranSappUser.getDictionary()
 
             bus_data = token_obj.busassignment.getLocation()
             bus['random'] = bus_data['random']

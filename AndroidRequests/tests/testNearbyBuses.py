@@ -270,6 +270,9 @@ class NearbyBusesResponseTest(TestCase):
             there are two users inside the bus and the avatar id will be 
             of user with highest score """
 
+        # user who ask for stop info
+        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
+
         licensePlate = 'bjfb28'
         route = '506'
         # create users and set theirs global scores
@@ -292,15 +295,30 @@ class NearbyBusesResponseTest(TestCase):
         self.helper.setDirection(travelKey, self.direction)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
-        # user2 get in bus 
+        # ask for buses and i retrieve list with user bus and its user data
+        indexPairList = []
+        buses = self.getBuses(self.stopObj, otherUser, indexPairList)
+        self.assertEqual(len(buses), 9)
+
+        # check avatar Id
+        for bus in buses:
+            if bus['patente'] == licensePlate.upper():
+                self.assertEqual(bus['avatarId'], 3)
+                self.assertEqual(bus['user']['nickname'], u"nickname0")
+                self.assertEqual(bus['user']['globalScore'], 100)
+                self.assertEqual(bus['user']['showAvatar'], True)
+                self.assertEqual(bus['user']['userAvatarId'], 1)
+                self.assertEqual(bus['user']['levelName'], u"level 1")
+                self.assertEqual(bus['user']['levelPosition'], 1)
+            else:
+                self.assertEqual(bus['avatarId'], 0)
+
+        # user2 get in bus
         travelKey = self.helper.getInBusWithLicencePlateByPost(
             user2.phoneId, route, licensePlate, userId=user2.userId, sessionToken=user2.sessionToken)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
-
-        # user who ask for stop info
-        otherUser = '0cf16966-8643-4887-92b4-7015b4d1dbde'
 
         # to compare response given by nearbybuses function and authority (in that order)
         indexPairList = []
