@@ -30,7 +30,8 @@ class BusEventUserListTestCase(TransactionTestCase):
     def check_user_data(self, user, vote_number):
         """ check if user info is correct """
         self.assertEqual(user['votes'], vote_number)
-        self.assertRaises(KeyError, user.__getitem__, 'id')
+        self.assertIn("id", user.keys())
+        #self.assertRaises(KeyError, user.__getitem__, 'id')
         self.assertTrue(user['lastReportTimestamp'])
 
     def test_userReportsBusEventAndGetListUser(self):
