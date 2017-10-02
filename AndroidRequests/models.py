@@ -85,11 +85,11 @@ class StadisticDataFromRegistration(Location):
     class Meta:
         abstract = True
 
-    def getDictionary(self, userWithId=False):
+    def getDictionary(self):
         """ return two list: one with confirm users and another with decline users """
         dictionary = {}
         if self.tranSappUser is not None:
-            dictionary['user'] = self.tranSappUser.getDictionary(withId=userWithId)
+            dictionary['user'] = self.tranSappUser.getDictionary()
         else:
             dictionary['user'] = {}
         dictionary['vote'] = self.confirmDecline
@@ -174,7 +174,7 @@ class EventRegistration(models.Model):
         confirmedUserDict = {}
         declinedUserDict = {}
         for record in records.order_by("timeStamp"):
-            record = record.getDictionary(userWithId=True)
+            record = record.getDictionary()
             user = record['user']
 
             if first and user != {}:
@@ -207,13 +207,9 @@ class EventRegistration(models.Model):
         for index, (_, user) in enumerate(confirmedUserDict.items()):
             if user["id"] == creatorId:
                 creatorIndex = index
-            # user id is not public
-            del user["id"]
             confirmedVoteList.append(user)
 
         for _, user in declinedUserDict.items():
-            # user id is not public
-            del user["id"]
             declinedVoteList.append(user)
 
         return creatorIndex, confirmedVoteList, declinedVoteList
@@ -719,6 +715,8 @@ class TranSappUser(models.Model):
     """ to indicate if system hast to use the avatar or social media photo """
     busAvatarId = models.IntegerField(default=1)
     """ bus avatar used to show buses on app map """
+    externalId = models.UUIDField(default=uuid.uuid4, unique=True, null=False)
+    """ user external id """
 
     def getDictionary(self, withId=False):
         """ get dictionary of public data """
@@ -727,10 +725,9 @@ class TranSappUser(models.Model):
             "globalScore": self.globalScore,
             "showAvatar": self.showAvatar,
             "levelName": self.level.name,
-            "levelPosition": self.level.position
+            "levelPosition": self.level.position,
+            "id": self.externalId
         }
-        if withId:
-            data["id"] = self.id
         if self.showAvatar:
             data['userAvatarId'] = self.userAvatarId
         else:
