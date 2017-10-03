@@ -1,23 +1,21 @@
-import json
-import logging
-import re
-
-# python utilities
-import requests
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone
 
 from collections import defaultdict
 
-# constants
-import AndroidRequests.constants as constants
+from AndroidRequests.encoder import TranSappJSONEncoder
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
-# my stuff
-# import DB's models
 from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, \
     ServicesByBusStop, Token
+
+import AndroidRequests.constants as constants
+
+import json
+import logging
+import re
+import requests
 
 
 def userPosition(request, pPhoneId, pLat, pLon):
@@ -38,7 +36,7 @@ def userPosition(request, pPhoneId, pLat, pLon):
     currPose.save()
 
     response = {'response': 'Pose registered.'}
-    return JsonResponse(response, safe=False)
+    return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 def nearbyBuses(request, pPhoneId, pBusStop):
@@ -99,7 +97,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     """
     answer['servicios'] = merge_buses(userBuses, authBuses)
 
-    return JsonResponse(answer, safe=False)
+    return JsonResponse(answer, safe=False, encoder=TranSappJSONEncoder)
 
 
 def format_service_name(serviceName):
