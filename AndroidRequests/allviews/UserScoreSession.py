@@ -1,10 +1,3 @@
-# encoding=utf-8
-import json
-# python utilities
-import logging
-import uuid
-
-import requests
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import JsonResponse
@@ -16,9 +9,12 @@ from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.encoder import TranSappJSONEncoder
 
-NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
+import json
+import logging
+import uuid
+import requests
 
-# Create your views here.
+NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 
 
 class TranSappUserLogin(View):
@@ -101,6 +97,7 @@ class TranSappUserLogin(View):
                     Status.getJsonStatus(Status.OK, response)
                     response['sessionToken'] = user.sessionToken
                     response['userData'] = {}
+                    response['userData']['id'] = user.externalId
                     response['userData']['score'] = user.globalScore
                     response['userData']['level'] = {}
                     response['userData']['level']['name'] = user.level.name
