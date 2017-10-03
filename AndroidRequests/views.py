@@ -92,6 +92,11 @@ def nearbyBuses(request, pPhoneId, pBusStop):
         else:
             answer['DTPMError'] = ""
 
+        """
+        ADDED ADDITIONAL INFO OF ROUTES
+        """
+        answer["routeInfo"] = data["routeInfo"]
+
     """
     MERGE USER BUSES WITH DTPM BUSES
     """
