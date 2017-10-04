@@ -4,10 +4,10 @@ import uuid
 
 from django.test import TestCase, Client
 
-# Create your tests here.
 from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.allviews.UserRanking import UserRanking
+from AndroidRequests.cronTasks import updateGlobalRanking
 
 
 class UserRankingTestCase(TestCase):
@@ -30,6 +30,7 @@ class UserRankingTestCase(TestCase):
 
         phoneId = uuid.UUID('56fbbcbf-e48a-458a-9645-65ab145e35ea')
         score = 1000000
+
         for index in range(userQuantity):
             if index == userPosition - 1:
                 userObj.globalScore = score
@@ -45,9 +46,11 @@ class UserRankingTestCase(TestCase):
                                             sessionToken=sessionToken, name=name, nickname=nickname,
                                             phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
                                             level=self.level, globalScore=score, showAvatar=showAvatar,
-                                            photoURI=photoURI)
+                                            photoURI=photoURI, globalPosition=1)
 
             score -= 100
+
+        updateGlobalRanking()
 
     def checkRankingList(self, userId, sessionToken, userPosition, topUserNumber, nearUserNumber):
         """ check ranking list returned by url """
@@ -80,16 +83,16 @@ class UserRankingTestCase(TestCase):
             if previousScore is not None:
                 self.assertTrue(previousScore > user['globalScore'])
             if previousPosition is not None:
-                self.assertTrue(previousPosition < user['position'])
+                self.assertTrue(previousPosition < user["ranking"]['globalPosition'])
 
             previousScore = user['globalScore']
-            previousPosition = user['position']
+            previousPosition = user["ranking"]['globalPosition']
 
         nearRanking = jsonResponse['ranking']['near']
         self.assertEqual(len(nearRanking), nearUserNumber)
         previousScore = None
         previousPosition = None
-        delta = nearRanking[0]['position']
+        delta = nearRanking[0]["ranking"]['globalPosition']
         for index, user in enumerate(nearRanking):
             if index + delta == userPosition:
                 self.assertEqual(user['nickname'], self.NICKNAME)
@@ -105,10 +108,10 @@ class UserRankingTestCase(TestCase):
             if previousScore is not None:
                 self.assertTrue(previousScore > user['globalScore'])
             if previousPosition is not None:
-                self.assertTrue(previousPosition < user['position'])
+                self.assertTrue(previousPosition < user["ranking"]['globalPosition'])
 
             previousScore = user['globalScore']
-            previousPosition = user['position']
+            previousPosition = user["ranking"]['globalPosition']
 
     def setUp(self):
         """   """
@@ -118,7 +121,7 @@ class UserRankingTestCase(TestCase):
         self.EMAIL = 'felipe@hernandez.cl'
         self.PHONE_ID = 'c1f8c203-7285-481b-9fbe-5d13d375e0d5'
         self.PHOTO_URI = 'aaa.aaaa.com/asdasdasd/photo'
-        self.NICKNAME = 'nickname'
+        self.NICKNAME = 'testNickname'
         self.USER_ID = '123456'
         self.SESSION_TOKEN = 'e496c175-c3a8-4ee1-83bb-5d6e6a2ed24b'
         self.USER_AVATAR_ID = 300
@@ -129,7 +132,7 @@ class UserRankingTestCase(TestCase):
                                                 showAvatar=self.SHOW_AVATAR,
                                                 phoneId=uuid.UUID(self.PHONE_ID), accountType=TranSappUser.FACEBOOK,
                                                 level=self.level, userAvatarId=self.USER_AVATAR_ID,
-                                                photoURI=self.PHOTO_URI)
+                                                photoURI=self.PHOTO_URI, globalPosition=1)
 
     def testUserDoesNotExist(self):
         """ user without session ask for ranking """

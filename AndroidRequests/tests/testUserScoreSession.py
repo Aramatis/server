@@ -123,6 +123,7 @@ class UserLogTestCase(TestCase):
 
         self.assertEqual(jsonResponse['status'], 200)
         self.assertIn("id", jsonResponse['userData'].keys())
+        self.assertIn("globalPosition", jsonResponse['userData']["ranking"].keys())
         self.assertEqual(jsonResponse['userData']['score'], 0)
         self.assertEqual(jsonResponse['userData']['level']['name'], 'firstLevel')
         self.assertEqual(jsonResponse['userData']['level']['position'], 1)

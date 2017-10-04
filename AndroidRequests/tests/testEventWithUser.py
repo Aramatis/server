@@ -33,7 +33,7 @@ class EventWithUserTestCase(TransactionTestCase):
         self.sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
         TranSappUser.objects.create(userId=self.userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=level, sessionToken=self.sessionToken)
+                                    level=level, sessionToken=self.sessionToken, globalPosition=1)
 
     def test_userAssignedToBusEvent(self):
         """This method check that user was assigned to bus event """

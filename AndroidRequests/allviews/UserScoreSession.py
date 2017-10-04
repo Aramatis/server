@@ -21,6 +21,7 @@ class TranSappUserLogin(View):
     """ log in transapp user """
 
     def __init__(self):
+        super(TranSappUserLogin, self).__init__()
         self.context = {}
         self.logger = logging.getLogger(__name__)
 
@@ -83,6 +84,11 @@ class TranSappUserLogin(View):
                     else:
                         # user does not exist
                         firstLevel = Level.objects.get(position=1)
+                        if TranSappUser.objects.count() > 0:
+                            globalPosition = TranSappUser.objects.order_by("-globalPosition").\
+                                values_list("globalPosition")[0] + 1
+                        else:
+                            globalPosition = 1
                         user = TranSappUser.objects.create(userId=userId,
                                                            accountType=TranSappUser.FACEBOOK,
                                                            name=name,
@@ -91,12 +97,16 @@ class TranSappUserLogin(View):
                                                            photoURI=photoURI,
                                                            nickname=nickname,
                                                            sessionToken=sessionToken,
+                                                           globalPosition=globalPosition,
                                                            level=firstLevel)
 
                     # ok
                     Status.getJsonStatus(Status.OK, response)
                     response['sessionToken'] = user.sessionToken
                     response['userData'] = {}
+                    response['userData']['ranking'] = {
+                        "globalPosition": user.globalPosition
+                    }
                     response['userData']['id'] = user.externalId
                     response['userData']['score'] = user.globalScore
                     response['userData']['level'] = {}
@@ -120,6 +130,7 @@ class TranSappUserLogout(View):
     """ end session """
 
     def __init__(self):
+        super(TranSappUserLogout, self).__init__()
         self.context = {}
         self.logger = logging.getLogger(__name__)
 
@@ -151,6 +162,7 @@ class UpdateTranSappUserSettings(View):
     """ update user info """
 
     def __init__(self):
+        super(UpdateTranSappUserSettings, self).__init__()
         self.context = {}
         self.logger = logging.getLogger(__name__)
 

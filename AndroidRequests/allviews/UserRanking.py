@@ -1,4 +1,3 @@
-from django.db.models import Count
 from django.http import JsonResponse
 from django.views.generic import View
 
@@ -17,57 +16,19 @@ class UserRanking(View):
 
     def getRanking(self, user):
         """ return ranking list """
-        topRanking = []
-        ranking = []
-        excludedUsers = []
+        topUsers = TranSappUser.objects.select_related('level'). \
+                        order_by("globalPosition", "-globalScore")[:self.TOP_USERS]
+        topRanking = [topUser.getDictionary(with_ranking=True) for topUser in topUsers]
 
-        previousScore = None
-        position = 0
-        topUsers = TranSappUser.objects. \
-                       select_related('level').order_by('-globalScore')[:self.TOP_USERS]
-        for topUser in topUsers:
-            #excludedUsers.append(topUser.pk)
-            if previousScore != topUser.globalScore:
-                previousScore = topUser.globalScore
-                position += 1
-            topUser = topUser.getDictionary()
-            topUser['position'] = position
-            topRanking.append(topUser)
+        upperUsers = TranSappUser.objects.select_related('level').filter(globalScore__gt=user.globalScore). \
+                         order_by("-globalPosition", "globalScore")[:self.UPPER_USERS]
+        ranking = [upperUser.getDictionary(with_ranking=True) for upperUser in upperUsers]
+        ranking.reverse()
 
-        positionsUpperUsers = TranSappUser.objects. \
-            filter(globalScore__gt=user.globalScore).values('globalScore'). \
-            annotate(count=Count('globalScore')).count()
-        upperUsers = TranSappUser.objects.select_related('level'). \
-                         filter(globalScore__gt=user.globalScore). \
-                         order_by('globalScore')[:self.UPPER_USERS]
+        lowerUsers = TranSappUser.objects.select_related('level').filter(globalScore__lte=user.globalScore). \
+                         order_by("globalPosition", '-globalScore')[:self.LOWER_USERS]
+        ranking += [lowerUser.getDictionary(with_ranking=True) for lowerUser in lowerUsers]
 
-        position = positionsUpperUsers + 1
-        for upperUser in upperUsers:
-            if upperUser.pk in excludedUsers:
-                continue
-            excludedUsers.append(upperUser.pk)
-            if previousScore != upperUser.globalScore:
-                previousScore = upperUser.globalScore
-                position -= 1
-            upperUser = upperUser.getDictionary()
-            upperUser['position'] = position
-            ranking.append(upperUser)
-
-        lowerUsers = TranSappUser.objects. \
-                         select_related('level').filter(globalScore__lte=user.globalScore). \
-                         order_by('-globalScore')[:self.LOWER_USERS]
-        position = positionsUpperUsers
-        for lowerUser in lowerUsers:
-            if lowerUser.pk in excludedUsers:
-                continue
-            if previousScore != lowerUser.globalScore:
-                previousScore = lowerUser.globalScore
-                position += 1
-            lowerUser = lowerUser.getDictionary()
-            lowerUser['position'] = position
-            ranking.append(lowerUser)
-
-        ranking = sorted(ranking, key=lambda el: el['position'])
         return topRanking, ranking
 
     def get(self, request):

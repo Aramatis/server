@@ -1,12 +1,12 @@
 import os
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 django.setup()
 
-from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2
 from django.utils import timezone
+from django.db import transaction
+from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser
 
 import logging
 
@@ -62,3 +62,15 @@ def clearEventsThatHaveBeenDecline():
             event.broken = True
             event.brokenType = EventForBusv2.PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE
             event.save()
+
+def updateGlobalRanking():
+    """ update ranking position for TranSapp users """
+    with transaction.atomic():
+        users = TranSappUser.objects.select_related('level').order_by('-globalScore')
+        previousScore = -1
+        position = 0
+        for user in users:
+            if user.globalScore > previousScore:
+                position += 1
+            user.globalPosition = position
+            user.save()

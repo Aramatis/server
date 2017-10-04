@@ -717,8 +717,10 @@ class TranSappUser(models.Model):
     """ bus avatar used to show buses on app map """
     externalId = models.UUIDField(default=uuid.uuid4, unique=True, null=False)
     """ user external id """
+    globalPosition = models.BigIntegerField()
+    """ global position betweenn TranSapp users """
 
-    def getDictionary(self, withId=False):
+    def getDictionary(self, with_ranking=False):
         """ get dictionary of public data """
         data = {
             "nickname": self.nickname,
@@ -732,6 +734,11 @@ class TranSappUser(models.Model):
             data['userAvatarId'] = self.userAvatarId
         else:
             data["photoURI"] = self.photoURI
+
+        if with_ranking:
+            data["ranking"] = {
+                "globalPosition": self.globalPosition
+            }
 
         return data
 

@@ -54,7 +54,7 @@ class EventScoreTest(TransactionTestCase):
         sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
         TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken)
+                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
 
         # report a bus event
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
@@ -103,7 +103,7 @@ class EventScoreTest(TransactionTestCase):
         sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
         TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken)
+                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
 
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
                                                      self.service, self.eventBusCode, wrongUserId, sessionToken)
@@ -129,7 +129,7 @@ class EventScoreTest(TransactionTestCase):
         wrongSessionToken = '3586b9f9-de09-4dca-99ee-892b803ac6e8'
         TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken)
+                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
                                                      self.service, self.eventBusCode, userId, wrongSessionToken)
 
@@ -153,7 +153,7 @@ class EventScoreTest(TransactionTestCase):
         sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
         TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken)
+                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
 
         # increase score of event to pass level
         scoreEventObj = ScoreEvent.objects.first()
@@ -195,7 +195,7 @@ class EventScoreTest(TransactionTestCase):
         sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
         TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken)
+                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
 
         # report a bus event
         jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode,
@@ -249,7 +249,7 @@ class EventScoreTest(TransactionTestCase):
         sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
         TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken)
+                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
 
         # send poses
         now = timezone.make_aware(dt.datetime.now())
@@ -331,7 +331,7 @@ class EventScoreTest(TransactionTestCase):
         sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
         TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
                                     phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken)
+                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
 
         # send poses
         now = timezone.make_aware(dt.datetime.now())
