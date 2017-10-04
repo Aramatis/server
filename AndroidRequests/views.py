@@ -95,7 +95,8 @@ def nearbyBuses(request, pPhoneId, pBusStop):
         """
         ADDED ADDITIONAL INFO OF ROUTES
         """
-        answer["routeInfo"] = data["routeInfo"]
+        if "routeInfo" in data.keys():
+            answer["routeInfo"] = data["routeInfo"]
 
     """
     MERGE USER BUSES WITH DTPM BUSES
