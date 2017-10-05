@@ -19,22 +19,21 @@ class UserRanking(View):
         """ return ranking list """
 
         with transaction.atomic():
-            topUsers = TranSappUser.objects.select_related('level'). \
-                            order_by("globalPosition", "-globalScore")[:self.TOP_USERS]
-            topRanking = [topUser.getDictionary(with_ranking=True) for topUser in topUsers]
+            topUsers = TranSappUser.objects.select_related("level"). \
+                            order_by("-globalScore", "globalPosition")[:self.TOP_USERS]
+            upperUsers = TranSappUser.objects.select_related("level").filter(globalScore__gt=user.globalScore). \
+                             order_by("globalScore", "globalPosition")[:self.UPPER_USERS]
+            lowerUsers = TranSappUser.objects.select_related("level").filter(globalScore__lte=user.globalScore). \
+                             order_by("-globalScore", "globalPosition")[:self.LOWER_USERS]
 
-            upperUsers = TranSappUser.objects.select_related('level').filter(globalScore__gt=user.globalScore). \
-                             order_by("-globalPosition", "globalScore")[:self.UPPER_USERS]
-            nearRanking = [upperUser.getDictionary(with_ranking=True) for upperUser in upperUsers]
-            nearRanking.reverse()
+        topRanking = [topUser.getDictionary(with_ranking=True) for topUser in topUsers]
+        nearRanking = [upperUser.getDictionary(with_ranking=True) for upperUser in upperUsers]
+        nearRanking.reverse()
+        nearRanking += [lowerUser.getDictionary(with_ranking=True) for lowerUser in lowerUsers]
 
-            lowerUsers = TranSappUser.objects.select_related('level').filter(globalScore__lte=user.globalScore). \
-                             order_by("globalPosition", '-globalScore')[:self.LOWER_USERS]
-            nearRanking += [lowerUser.getDictionary(with_ranking=True) for lowerUser in lowerUsers]
-
-        # if user ask between updates
-        newTopRanking = []
+        # if user ask between updates simulate position
         cache = {}
+        newTopRanking = []
         position = 0
         for user in topRanking:
             if user["globalScore"] in user.keys():
@@ -46,7 +45,7 @@ class UserRanking(View):
             newTopRanking.append(user)
 
         newNearRanking = []
-        position = nearRanking[0]["ranking"]["globalPosition"] - 1  if len(nearRanking) > 0 else None
+        position = nearRanking[0]["ranking"]["globalPosition"] - 1 if len(nearRanking) > 0 else None
         for user in nearRanking:
             if user["globalScore"] in user.keys():
                 user["ranking"]["globalPosition"] = cache[user["globalScore"]]
@@ -61,8 +60,8 @@ class UserRanking(View):
     def get(self, request):
         """return list of ranking with @TOP_USERS + @UPPER_USERS + @LOWER_USERS """
 
-        userId = request.GET.get('userId')
-        sessionToken = request.GET.get('sessionToken')
+        userId = request.GET.get("userId")
+        sessionToken = request.GET.get("sessionToken")
 
         loggedUser, user, statusResponse = UserValidation().validateUser(userId, sessionToken)
 
@@ -70,6 +69,6 @@ class UserRanking(View):
         response.update(statusResponse)
 
         if loggedUser:
-            response['ranking']['top'], response['ranking']['near'] = self.getRanking(user)
+            response["ranking"]["top"], response["ranking"]["near"] = self.getRanking(user)
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

@@ -18,6 +18,9 @@ MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
 MINIMUM_NUMBER_OF_DECLINES = 30
 PORCENTAGE_OF_DECLINE_OVER_CONFIRM = 60.0
 
+# time windows to find score history records, if it exists
+MINUTE_DELTA = 1
+
 
 def cleanActiveTokenTable():
     """It cleans the active tokens table on the DB. This checks that the last time a
@@ -66,7 +69,6 @@ def clearEventsThatHaveBeenDecline():
 
 def updateGlobalRanking():
     """ update ranking position for TranSapp users """
-    MINUTE_DELTA = 1
     with transaction.atomic():
         delta = timezone.now() - datetime.timedelta(minutes=MINUTE_DELTA)
 

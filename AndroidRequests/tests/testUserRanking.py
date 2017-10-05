@@ -32,9 +32,11 @@ class UserRankingTestCase(TestCase):
         phoneId = uuid.UUID('56fbbcbf-e48a-458a-9645-65ab145e35ea')
         score = 1000000
 
+        position = 1
         for index in range(userQuantity):
             if index == userPosition - 1:
                 userObj.globalScore = score
+                userObj.globalPosition = position
                 userObj.save()
             else:
                 name = "name{}".format(index + 1)
@@ -47,9 +49,9 @@ class UserRankingTestCase(TestCase):
                                             sessionToken=sessionToken, name=name, nickname=nickname,
                                             phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
                                             level=self.level, globalScore=score, showAvatar=showAvatar,
-                                            photoURI=photoURI, globalPosition=1)
-
+                                            photoURI=photoURI, globalPosition=position)
             score -= 100
+            position += 1
 
         updateGlobalRanking()
 
