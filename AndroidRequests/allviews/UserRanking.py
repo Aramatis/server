@@ -56,7 +56,7 @@ class UserRanking(View):
                 user["ranking"]["globalPosition"] = position
             newNearRanking.append(user)
 
-        return newTopRanking, nearRanking
+        return newTopRanking, newNearRanking
 
     def get(self, request):
         """return list of ranking with @TOP_USERS + @UPPER_USERS + @LOWER_USERS """
