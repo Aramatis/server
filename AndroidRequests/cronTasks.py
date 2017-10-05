@@ -6,9 +6,10 @@ django.setup()
 
 from django.utils import timezone
 from django.db import transaction
-from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser
+from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser, ScoreHistory
 
 import logging
+import datetime
 
 # for cleanActiveTokenTable method
 MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
@@ -65,12 +66,16 @@ def clearEventsThatHaveBeenDecline():
 
 def updateGlobalRanking():
     """ update ranking position for TranSapp users """
+    MINUTE_DELTA = 1
     with transaction.atomic():
-        users = TranSappUser.objects.select_related('level').order_by('-globalScore')
-        previousScore = -1
-        position = 0
-        for user in users:
-            if user.globalScore > previousScore:
-                position += 1
-            user.globalPosition = position
-            user.save()
+        delta = timezone.now() - datetime.timedelta(minutes=MINUTE_DELTA)
+
+        if ScoreHistory.objects.filter(timeCreation__gt=delta).count() > 0:
+            users = TranSappUser.objects.select_related('level').order_by('-globalScore')
+            previousScore = -1
+            position = 0
+            for user in users:
+                if user.globalScore > previousScore:
+                    position += 1
+                user.globalPosition = position
+                user.save()

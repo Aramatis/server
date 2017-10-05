@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.views.generic import View
+from django.db import transaction
 
 from collections import defaultdict
 
@@ -16,20 +17,46 @@ class UserRanking(View):
 
     def getRanking(self, user):
         """ return ranking list """
-        topUsers = TranSappUser.objects.select_related('level'). \
-                        order_by("globalPosition", "-globalScore")[:self.TOP_USERS]
-        topRanking = [topUser.getDictionary(with_ranking=True) for topUser in topUsers]
 
-        upperUsers = TranSappUser.objects.select_related('level').filter(globalScore__gt=user.globalScore). \
-                         order_by("-globalPosition", "globalScore")[:self.UPPER_USERS]
-        ranking = [upperUser.getDictionary(with_ranking=True) for upperUser in upperUsers]
-        ranking.reverse()
+        with transaction.atomic():
+            topUsers = TranSappUser.objects.select_related('level'). \
+                            order_by("globalPosition", "-globalScore")[:self.TOP_USERS]
+            topRanking = [topUser.getDictionary(with_ranking=True) for topUser in topUsers]
 
-        lowerUsers = TranSappUser.objects.select_related('level').filter(globalScore__lte=user.globalScore). \
-                         order_by("globalPosition", '-globalScore')[:self.LOWER_USERS]
-        ranking += [lowerUser.getDictionary(with_ranking=True) for lowerUser in lowerUsers]
+            upperUsers = TranSappUser.objects.select_related('level').filter(globalScore__gt=user.globalScore). \
+                             order_by("-globalPosition", "globalScore")[:self.UPPER_USERS]
+            nearRanking = [upperUser.getDictionary(with_ranking=True) for upperUser in upperUsers]
+            nearRanking.reverse()
 
-        return topRanking, ranking
+            lowerUsers = TranSappUser.objects.select_related('level').filter(globalScore__lte=user.globalScore). \
+                             order_by("globalPosition", '-globalScore')[:self.LOWER_USERS]
+            nearRanking += [lowerUser.getDictionary(with_ranking=True) for lowerUser in lowerUsers]
+
+        # if user ask between updates
+        newTopRanking = []
+        cache = {}
+        position = 0
+        for user in topRanking:
+            if user["globalScore"] in user.keys():
+                user["ranking"]["globalPosition"] = cache[user["globalScore"]]
+            else:
+                position += 1
+                cache[user["globalScore"]] = position
+                user["ranking"]["globalPosition"] = position
+            newTopRanking.append(user)
+
+        newNearRanking = []
+        position = nearRanking[0]["ranking"]["globalPosition"] - 1  if len(nearRanking) > 0 else None
+        for user in nearRanking:
+            if user["globalScore"] in user.keys():
+                user["ranking"]["globalPosition"] = cache[user["globalScore"]]
+            else:
+                position += 1
+                cache[user["globalScore"]] = position
+                user["ranking"]["globalPosition"] = position
+            newNearRanking.append(user)
+
+        return newTopRanking, nearRanking
 
     def get(self, request):
         """return list of ranking with @TOP_USERS + @UPPER_USERS + @LOWER_USERS """

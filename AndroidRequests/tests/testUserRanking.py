@@ -3,8 +3,9 @@ import random
 import uuid
 
 from django.test import TestCase, Client
+from django.utils import timezone
 
-from AndroidRequests.models import TranSappUser, Level
+from AndroidRequests.models import TranSappUser, Level, ScoreHistory, ScoreEvent
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.allviews.UserRanking import UserRanking
 from AndroidRequests.cronTasks import updateGlobalRanking
@@ -133,6 +134,9 @@ class UserRankingTestCase(TestCase):
                                                 phoneId=uuid.UUID(self.PHONE_ID), accountType=TranSappUser.FACEBOOK,
                                                 level=self.level, userAvatarId=self.USER_AVATAR_ID,
                                                 photoURI=self.PHOTO_URI, globalPosition=1)
+        # simulate a report to execute update
+        score = ScoreEvent.objects.create(code="111", score=100)
+        ScoreHistory.objects.create(tranSappUser_id=self.user.id, scoreEvent=score, timeCreation=timezone.now())
 
     def testUserDoesNotExist(self):
         """ user without session ask for ranking """

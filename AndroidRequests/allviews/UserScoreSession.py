@@ -85,8 +85,10 @@ class TranSappUserLogin(View):
                         # user does not exist
                         firstLevel = Level.objects.get(position=1)
                         if TranSappUser.objects.count() > 0:
-                            globalPosition = TranSappUser.objects.order_by("-globalPosition").\
-                                values_list("globalPosition")[0] + 1
+                            globalPosition, globalScore = TranSappUser.objects.order_by("-globalPosition").\
+                                values_list("globalPosition", "globalScore")[0]
+                            if globalScore != 0:
+                                globalPosition += 1
                         else:
                             globalPosition = 1
                         user = TranSappUser.objects.create(userId=userId,
