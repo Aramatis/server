@@ -227,7 +227,7 @@ class EventForBusStop(EventRegistration):
     def getDictionary(self):
         dictionary = super(EventForBusStop, self).getDictionary()
 
-        records = self.stadisticdatafromregistrationbusstop_set.all()
+        records = self.stadisticdatafromregistrationbusstop_set.all().order_by("timeStamp")
         creatorIndex, confirmedVoteList, declinedVoteList = self.createUserLists(records)
 
         dictionary['confirmedVoteList'] = confirmedVoteList
@@ -245,7 +245,7 @@ class EventForBusv2(EventRegistration):
     def getDictionary(self):
         dictionary = super(EventForBusv2, self).getDictionary()
 
-        records = self.stadisticdatafromregistrationbus_set.all()
+        records = self.stadisticdatafromregistrationbus_set.all().order_by("timeStamp")
         creatorIndex, confirmedVoteList, declinedVoteList = self.createUserLists(records)
 
         dictionary['confirmedVoteList'] = confirmedVoteList
