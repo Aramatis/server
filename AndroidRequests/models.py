@@ -720,7 +720,7 @@ class TranSappUser(models.Model):
     globalPosition = models.BigIntegerField()
     """ global position betweenn TranSapp users """
 
-    def getDictionary(self, with_ranking=False):
+    def getDictionary(self):
         """ get dictionary of public data """
         data = {
             "nickname": self.nickname,
@@ -728,17 +728,15 @@ class TranSappUser(models.Model):
             "showAvatar": self.showAvatar,
             "levelName": self.level.name,
             "levelPosition": self.level.position,
-            "id": self.externalId
+            "id": self.externalId,
+            "ranking": {
+                "globalPosition": self.globalPosition
+            }
         }
         if self.showAvatar:
             data['userAvatarId'] = self.userAvatarId
         else:
             data["photoURI"] = self.photoURI
-
-        if with_ranking:
-            data["ranking"] = {
-                "globalPosition": self.globalPosition
-            }
 
         return data
 

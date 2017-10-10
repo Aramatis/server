@@ -405,6 +405,7 @@ class NearbyBusesResponseTest(TestCase):
                 self.assertEqual(bus["user"]["userAvatarId"], 1)
                 self.assertEqual(bus["user"]["levelName"], u"level 1")
                 self.assertEqual(bus["user"]["levelPosition"], 1)
+                self.assertIn("globalPosition", bus["user"]["ranking"].keys())
             else:
                 self.assertEqual(bus["avatarId"], 0)
 
