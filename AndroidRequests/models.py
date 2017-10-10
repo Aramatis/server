@@ -177,9 +177,10 @@ class EventRegistration(models.Model):
             record = record.getDictionary()
             user = record['user']
 
-            if first and user != {}:
+            if first and bool(user):
                 creatorId = user["id"]
-            elif user == {}:
+            first = False
+            if not bool(user):
                 continue
 
             userId = user["id"]
@@ -198,8 +199,6 @@ class EventRegistration(models.Model):
                     declinedUserDict[userId] = user
                     declinedUserDict[userId]["votes"] = 1
                 declinedUserDict[userId]["lastReportTimestamp"] = record["timeStamp"]
-
-            first = False
 
         confirmedVoteList = []
         declinedVoteList = []
