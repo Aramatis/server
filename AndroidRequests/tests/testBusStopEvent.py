@@ -1,13 +1,8 @@
 from django.test import TransactionTestCase
 from django.utils import timezone
 
-# my stuff
 from AndroidRequests.models import BusStop, GTFS, EventRegistration
-# test helper
 from AndroidRequests.tests.testHelper import TestHelper
-
-
-# Create your tests here.
 
 
 class BusStopEventTestCase(TransactionTestCase):
