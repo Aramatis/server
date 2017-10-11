@@ -41,9 +41,7 @@ class TranSappUserLogin(View):
         response = requests.get(URL)
         response = json.loads(response.text)
 
-        if response['data'] and \
-                response['data']['is_valid'] and \
-                        response['data']['app_id'] == settings.FACEBOOK_APP_ID:
+        if response['data'] and response['data']['is_valid'] and response['data']['app_id'] == settings.FACEBOOK_APP_ID:
             return response['data']['user_id']
 
         return None
@@ -105,20 +103,7 @@ class TranSappUserLogin(View):
                     # ok
                     Status.getJsonStatus(Status.OK, response)
                     response['sessionToken'] = user.sessionToken
-                    response['userData'] = {}
-                    response['userData']['ranking'] = {
-                        "globalPosition": user.globalPosition
-                    }
-                    response['userData']['id'] = user.externalId
-                    response['userData']['score'] = user.globalScore
-                    response['userData']['level'] = {}
-                    response['userData']['level']['name'] = user.level.name
-                    response['userData']['level']['maxScore'] = user.level.maxScore
-                    response['userData']['level']['position'] = user.level.position
-                    response['userSettings'] = {}
-                    response['userSettings']['busAvatarId'] = user.busAvatarId
-                    response['userSettings']['userAvatarId'] = user.userAvatarId
-                    response['userSettings']['showAvatar'] = user.showAvatar
+                    response.update(user.getLoginData())
                 except Exception as e:
                     Status.getJsonStatus(Status.INTERNAL_ERROR, response)
                     self.logger.error(str(e))

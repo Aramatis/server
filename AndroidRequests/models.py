@@ -739,6 +739,31 @@ class TranSappUser(models.Model):
 
         return data
 
+    def getScoreData(self):
+        """ return updated score data """
+        return {
+            "id": self.externalId,
+            "score": self.globalScore,
+            "ranking": {
+                "globalPosition": self.globalPosition
+            },
+            "level": {
+                "name": self.level.name,
+                "maxScore": self.level.maxScore,
+                "position": self.level.position
+            }
+        }
+
+    def getLoginData(self):
+        """ return user info needed when finish login process """
+        return {
+            "userData": self.getScoreData(),
+            "userSettings": {
+                "busAvatarId": self.busAvatarId,
+                "userAvatarId": self.userAvatarId,
+                "showAvatar": self.showAvatar
+            }
+        }
 
 class ScoreEvent(models.Model):
     """ score given by action """

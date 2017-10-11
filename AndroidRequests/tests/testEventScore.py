@@ -32,6 +32,16 @@ class EventScoreTest(TransactionTestCase):
         self.machineId = self.test.askForMachineId(licencePlate)
         self.token = self.test.getInBusWithMachineId(self.phoneId, self.service, self.machineId)
 
+    def check_user_data(self, jsonScoreResponse, userObj, score):
+        """ check user data given by url """
+        self.assertEqual(jsonScoreResponse['userData']['id'], str(userObj.externalId))
+        self.assertEqual(jsonScoreResponse['userData']['score'], score)
+        self.assertIn("globalPosition", jsonScoreResponse['userData']['ranking'].keys())
+        self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
+        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
+        self.assertEqual(jsonScoreResponse['userData']['level']['position'], userObj.level.position)
+        self.assertEqual(userObj.globalScore, score)
+
     def test_calculateBusEventScoreWithoutParams(self):
         """This method test event score when the info is sending without params"""
 
@@ -39,12 +49,9 @@ class EventScoreTest(TransactionTestCase):
                                                      self.eventBusCode, '', '')
 
         jsonScoreResponse = jsonResponse['gamificationData']
-        self.assertEqual(jsonScoreResponse['status'], 402)
-        self.assertEqual(jsonScoreResponse['message'], 'invalid params')
-        self.assertEqual(jsonScoreResponse['userData']['score'], -1)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], '')
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], '')
-
+        self.assertEqual(jsonScoreResponse['status'], Status.getJsonStatus(Status.INVALID_PARAMS, {})['status'])
+        self.assertEqual(jsonScoreResponse['message'], Status.getJsonStatus(Status.INVALID_PARAMS, {})['message'])
+        self.assertNotIn("userData", jsonScoreResponse.keys())
         self.assertEqual(ScoreHistory.objects.count(), 0)
 
     def test_calculateBusEventScoreWithGoodParams(self):
@@ -67,10 +74,7 @@ class EventScoreTest(TransactionTestCase):
                          Status.getJsonStatus(Status.OK, {})['message'])
 
         userObj = TranSappUser.objects.first()
-        self.assertEqual(jsonScoreResponse['userData']['score'], self.score)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
-        self.assertEqual(userObj.globalScore, self.score)
+        self.check_user_data(jsonScoreResponse, userObj, self.score)
 
         self.assertEqual(ScoreHistory.objects.first().score, self.score)
         self.assertEqual(ScoreHistory.objects.first().meta, None)
@@ -88,10 +92,7 @@ class EventScoreTest(TransactionTestCase):
                          Status.getJsonStatus(Status.OK, {})['message'])
 
         userObj.refresh_from_db()
-        self.assertEqual(userObj.globalScore, 2 * self.score)
-        self.assertEqual(jsonScoreResponse['userData']['score'], 2 * self.score)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
+        self.check_user_data(jsonScoreResponse, userObj, 2 * self.score)
 
         self.assertEqual(ScoreHistory.objects.count(), 2)
 
@@ -115,10 +116,7 @@ class EventScoreTest(TransactionTestCase):
         self.assertEqual(jsonScoreResponse['message'],
                          Status.getJsonStatus(Status.INVALID_USER, {})['message'])
 
-        self.assertEqual(jsonScoreResponse['userData']['score'], -1)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], '')
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], '')
-
+        self.assertNotIn("userData", jsonScoreResponse.keys())
         self.assertEqual(ScoreHistory.objects.count(), 0)
 
     def test_calculateBusEventScoreWithParamsButWrongSessionToken(self):
@@ -140,10 +138,8 @@ class EventScoreTest(TransactionTestCase):
         self.assertEqual(jsonScoreResponse['message'],
                          Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['message'])
 
-        self.assertEqual(jsonScoreResponse['userData']['score'], -1)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], '')
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], '')
 
+        self.assertNotIn("userData", jsonScoreResponse.keys())
         self.assertEqual(ScoreHistory.objects.count(), 0)
 
     def test_userPassToNextLevel(self):
@@ -173,10 +169,7 @@ class EventScoreTest(TransactionTestCase):
         nextLevel = Level.objects.get(position=2)
 
         userObj = TranSappUser.objects.first()
-        self.assertEqual(jsonScoreResponse['userData']['score'], scoreEventObj.score)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], nextLevel.name)
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], nextLevel.maxScore)
-        self.assertEqual(userObj.globalScore, scoreEventObj.score)
+        self.check_user_data(jsonScoreResponse, userObj, scoreEventObj.score)
 
         self.assertEqual(ScoreHistory.objects.first().score, scoreEventObj.score)
         self.assertEqual(ScoreHistory.objects.first().meta, None)
@@ -208,10 +201,7 @@ class EventScoreTest(TransactionTestCase):
                          Status.getJsonStatus(Status.OK, {})['message'])
 
         userObj = TranSappUser.objects.first()
-        self.assertEqual(jsonScoreResponse['userData']['score'], score)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
-        self.assertEqual(userObj.globalScore, score)
+        self.check_user_data(jsonScoreResponse, userObj, score)
 
         self.assertEqual(ScoreHistory.objects.first().score, score)
         self.assertEqual(ScoreHistory.objects.first().meta, None)
@@ -228,10 +218,7 @@ class EventScoreTest(TransactionTestCase):
                          Status.getJsonStatus(Status.OK, {})['message'])
 
         userObj.refresh_from_db()
-        self.assertEqual(userObj.globalScore, 2 * score)
-        self.assertEqual(jsonScoreResponse['userData']['score'], 2 * score)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
+        self.check_user_data(jsonScoreResponse, userObj, 2 * score)
 
         self.assertEqual(ScoreHistory.objects.count(), 2)
 
@@ -308,10 +295,7 @@ class EventScoreTest(TransactionTestCase):
                          Status.getJsonStatus(Status.OK, {})['message'])
 
         userObj = TranSappUser.objects.first()
-        self.assertEqual(jsonScoreResponse['userData']['score'], calculatedScore)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
-        self.assertEqual(userObj.globalScore, calculatedScore)
+        self.check_user_data(jsonScoreResponse, userObj, calculatedScore)
 
         self.assertEqual(ScoreHistory.objects.first().scoreEvent.code, eventCode)
         self.assertEqual(ScoreHistory.objects.first().score, calculatedScore)
@@ -408,10 +392,7 @@ class EventScoreTest(TransactionTestCase):
                          Status.getJsonStatus(Status.OK, {})['message'])
 
         userObj = TranSappUser.objects.first()
-        self.assertEqual(jsonScoreResponse['userData']['score'], calculatedScoreTotal)
-        self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
-        self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
-        self.assertEqual(userObj.globalScore, calculatedScoreTotal)
+        self.check_user_data(jsonScoreResponse, userObj, calculatedScoreTotal)
 
         self.assertEqual(ScoreHistory.objects.count(), 2)
         scoreHistoryObj = ScoreHistory.objects.all()
