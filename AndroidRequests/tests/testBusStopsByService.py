@@ -1,5 +1,3 @@
-import json
-
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory
@@ -7,6 +5,8 @@ from django.utils import timezone
 
 from AndroidRequests.allviews.BusStopsByService import BusStopsByService
 from AndroidRequests.models import Service, BusStop, ServicesByBusStop, GTFS
+
+import json
 
 
 class BusStopsByServiceTestCase(TestCase):

@@ -1,14 +1,10 @@
 from django.test import TransactionTestCase, RequestFactory
 from django.utils import timezone
 
-# views
-import AndroidRequests.constants as Constants
-# my stuff
 from AndroidRequests.models import Busv2, Busassignment, Event, EventForBusv2
 from AndroidRequests.tests.testHelper import TestHelper
 
-
-# Create your tests here.
+import AndroidRequests.constants as constants
 
 
 class BusEventTest(TransactionTestCase):
@@ -32,7 +28,7 @@ class BusEventTest(TransactionTestCase):
     def test_EventsByBusWithDummyLicensePlate(self):
         """This method test the bus with a dummy license plate """
 
-        licencePlate = Constants.DUMMY_LICENSE_PLATE
+        licencePlate = constants.DUMMY_LICENSE_PLATE
         self.test.getInBusWithLicencePlate(
             self.phoneId, self.route, licencePlate)
         eventCode = 'evn00202'

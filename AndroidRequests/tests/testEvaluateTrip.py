@@ -1,13 +1,8 @@
 from django.test import TestCase
 
-# my stuff
 from AndroidRequests.models import Token
-# views
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
-
-
-# Create your tests here.
 
 
 class EvaluateTripTest(TestCase):
@@ -58,4 +53,3 @@ class EvaluateTripTest(TestCase):
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
         self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
-
