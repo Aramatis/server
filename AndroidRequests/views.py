@@ -1,23 +1,21 @@
-import json
-import logging
-import re
-
-# python utilities
-import requests
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone
 
 from collections import defaultdict
 
-# constants
-import AndroidRequests.constants as constants
+from AndroidRequests.encoder import TranSappJSONEncoder
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
-# my stuff
-# import DB's models
 from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, \
     ServicesByBusStop, Token
+
+import AndroidRequests.constants as constants
+
+import json
+import logging
+import re
+import requests
 
 
 def userPosition(request, pPhoneId, pLat, pLon):
@@ -38,7 +36,7 @@ def userPosition(request, pPhoneId, pLat, pLon):
     currPose.save()
 
     response = {'response': 'Pose registered.'}
-    return JsonResponse(response, safe=False)
+    return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
 
 def nearbyBuses(request, pPhoneId, pBusStop):
@@ -94,12 +92,18 @@ def nearbyBuses(request, pPhoneId, pBusStop):
         else:
             answer['DTPMError'] = ""
 
+        """
+        ADDED ADDITIONAL INFO OF ROUTES
+        """
+        if "routeInfo" in data.keys():
+            answer["routeInfo"] = data["routeInfo"]
+
     """
     MERGE USER BUSES WITH DTPM BUSES
     """
     answer['servicios'] = merge_buses(userBuses, authBuses)
 
-    return JsonResponse(answer, safe=False)
+    return JsonResponse(answer, safe=False, encoder=TranSappJSONEncoder)
 
 
 def format_service_name(serviceName):
@@ -168,14 +172,15 @@ def get_user_buses(stop_obj, questioner):
         route_directions.append(route_with_direction.replace(route, ""))
 
     # active user buses that stop in the bus stop
-    active_user_buses = Token.objects.select_related('tranSappUser', 'busassignment__uuid').filter(
+    active_user_buses = Token.objects.select_related('tranSappUser__level').\
+        prefetch_related("busassignment__uuid__busassignment_set").filter(
         busassignment__service__in=route_names,
         activetoken__isnull=False)
 
-    # retrieve events for all user buses
+    # retrieve events for all user buses and busassignments related
     bus_assignments = []
     for token_obj in active_user_buses:
-        bus_assignments.append(token_obj.busassignment)
+        bus_assignments += token_obj.busassignment.uuid.busassignment_set.all()
     events_by_machine_id = EventsByBusV2().getEventsForBuses(bus_assignments, timezone.now())
 
     global_scores = []
@@ -198,6 +203,7 @@ def get_user_buses(stop_obj, questioner):
                 if global_scores[position] < global_score:
                     global_scores[position] = global_score
                     bus['avatarId'] = token_obj.tranSappUser.busAvatarId
+                    bus['user'] = token_obj.tranSappUser.getDictionary()
 
             user_buses[position] = bus
 
@@ -214,6 +220,7 @@ def get_user_buses(stop_obj, questioner):
             if token_obj.tranSappUser is not None:
                 global_score = token_obj.tranSappUser.globalScore
                 bus['avatarId'] = token_obj.tranSappUser.busAvatarId
+                bus['user'] = token_obj.tranSappUser.getDictionary()
 
             bus_data = token_obj.busassignment.getLocation()
             bus['random'] = bus_data['random']

@@ -1,14 +1,15 @@
 import os
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 django.setup()
 
-from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2
 from django.utils import timezone
+from django.db import transaction
+from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser, ScoreHistory
 
 import logging
+import datetime
 
 # for cleanActiveTokenTable method
 MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
@@ -16,6 +17,9 @@ MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
 # for clearEventsThatHaveBeenDecline method
 MINIMUM_NUMBER_OF_DECLINES = 30
 PORCENTAGE_OF_DECLINE_OVER_CONFIRM = 60.0
+
+# time windows to find score history records, if it exists
+MINUTE_DELTA = 1
 
 
 def cleanActiveTokenTable():
@@ -62,3 +66,18 @@ def clearEventsThatHaveBeenDecline():
             event.broken = True
             event.brokenType = EventForBusv2.PERCENTAGE_BETWEEN_POSITIVE_AND_NEGATIVE
             event.save()
+
+def updateGlobalRanking():
+    """ update ranking position for TranSapp users """
+    with transaction.atomic():
+        delta = timezone.now() - datetime.timedelta(minutes=MINUTE_DELTA)
+
+        if ScoreHistory.objects.filter(timeCreation__gt=delta).count() > 0:
+            users = TranSappUser.objects.select_related('level').order_by('-globalScore')
+            previousScore = -1
+            position = 0
+            for user in users:
+                if user.globalScore > previousScore:
+                    position += 1
+                user.globalPosition = position
+                user.save()

@@ -1,8 +1,6 @@
 from django.test import TestCase
 
-# views
 import AndroidRequests.constants as Constants
-# my stuff
 from AndroidRequests.tests.testHelper import TestHelper
 
 

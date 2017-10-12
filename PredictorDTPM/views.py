@@ -2,13 +2,12 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.conf import settings
 
-# python utilities
 from datetime import datetime
 
-# my stuff
 from PredictorDTPM.webService.WebService import WebService
 from PredictorDTPM.models import Log, BusLog
 from pytz import timezone as tz
+
 
 def busStopInfo(request, pSecretKey, pBusStop):
     """ return dtpm data related to buses of pBusStop """
@@ -21,12 +20,12 @@ def busStopInfo(request, pSecretKey, pBusStop):
     ws = WebService(request)
     data = ws.askForServices(pBusStop)
 
-    registerDTPMAnswer(data)
+    registerAuthorityAnswer(data)
 
     return JsonResponse(data, safe=False)
 
 
-def registerDTPMAnswer(data):
+def registerAuthorityAnswer(data):
     """ register DTPM answer in database """
 
     local = tz(settings.TIME_ZONE)
@@ -41,14 +40,16 @@ def registerDTPMAnswer(data):
         errorMessage=data['error'])
 
     for bus in data['servicios']:
-        if bus['patente'] is None or bus['servicio'] is None\
-           or bus['tiempo'] is None or bus['valido'] is None:
-            continue
-        distance = int(bus['distancia'].replace(" mts.", ""))
+        distance = int(bus['distancia'].replace(" mts.", "")) if bus["distancia"] is not None else None
         BusLog.objects.create(
             licensePlate=bus['patente'],
-            serviceName=bus['servicio'],
+            route=bus['servicio'],
             timeMessage=bus['tiempo'],
             distance=distance,
-            valid=bus['valido'],
+            log=log)
+
+    for bus in data["routeInfo"]:
+        BusLog.objects.create(
+            route=bus["servicio"],
+            message=bus["msg"],
             log=log)

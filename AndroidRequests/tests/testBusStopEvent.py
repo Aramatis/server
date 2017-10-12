@@ -1,13 +1,8 @@
 from django.test import TransactionTestCase
 from django.utils import timezone
 
-# my stuff
 from AndroidRequests.models import BusStop, GTFS, EventRegistration
-# test helper
 from AndroidRequests.tests.testHelper import TestHelper
-
-
-# Create your tests here.
 
 
 class BusStopEventTestCase(TransactionTestCase):
@@ -41,9 +36,6 @@ class BusStopEventTestCase(TransactionTestCase):
         # add new bus stop version
         with self.settings(GTFS_VERSION=self.newGtfsVersion):
             self.test.insertBusstopsOnDatabase([self.busStopCode])
-            # busstopv08 = BusStop.objects.get(gtfs__version=settings.GTFS_VERSION)
-            # busstopv08.name = 'new bus stop'
-            # busstopv08.save()
 
         self.assertEqual(BusStop.objects.count(), 2)
 

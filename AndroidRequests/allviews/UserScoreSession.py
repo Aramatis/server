@@ -1,10 +1,3 @@
-# encoding=utf-8
-import json
-# python utilities
-import logging
-import uuid
-
-import requests
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import JsonResponse
@@ -16,15 +9,19 @@ from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.encoder import TranSappJSONEncoder
 
-NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
+import json
+import logging
+import uuid
+import requests
 
-# Create your views here.
+NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
 
 
 class TranSappUserLogin(View):
     """ log in transapp user """
 
     def __init__(self):
+        super(TranSappUserLogin, self).__init__()
         self.context = {}
         self.logger = logging.getLogger(__name__)
 
@@ -44,9 +41,7 @@ class TranSappUserLogin(View):
         response = requests.get(URL)
         response = json.loads(response.text)
 
-        if response['data'] and \
-                response['data']['is_valid'] and \
-                        response['data']['app_id'] == settings.FACEBOOK_APP_ID:
+        if response['data'] and response['data']['is_valid'] and response['data']['app_id'] == settings.FACEBOOK_APP_ID:
             return response['data']['user_id']
 
         return None
@@ -87,6 +82,13 @@ class TranSappUserLogin(View):
                     else:
                         # user does not exist
                         firstLevel = Level.objects.get(position=1)
+                        if TranSappUser.objects.count() > 0:
+                            globalPosition, globalScore = TranSappUser.objects.order_by("-globalPosition").\
+                                values_list("globalPosition", "globalScore")[0]
+                            if globalScore != 0:
+                                globalPosition += 1
+                        else:
+                            globalPosition = 1
                         user = TranSappUser.objects.create(userId=userId,
                                                            accountType=TranSappUser.FACEBOOK,
                                                            name=name,
@@ -95,21 +97,13 @@ class TranSappUserLogin(View):
                                                            photoURI=photoURI,
                                                            nickname=nickname,
                                                            sessionToken=sessionToken,
+                                                           globalPosition=globalPosition,
                                                            level=firstLevel)
 
                     # ok
                     Status.getJsonStatus(Status.OK, response)
                     response['sessionToken'] = user.sessionToken
-                    response['userData'] = {}
-                    response['userData']['score'] = user.globalScore
-                    response['userData']['level'] = {}
-                    response['userData']['level']['name'] = user.level.name
-                    response['userData']['level']['maxScore'] = user.level.maxScore
-                    response['userData']['level']['position'] = user.level.position
-                    response['userSettings'] = {}
-                    response['userSettings']['busAvatarId'] = user.busAvatarId
-                    response['userSettings']['userAvatarId'] = user.userAvatarId
-                    response['userSettings']['showAvatar'] = user.showAvatar
+                    response.update(user.getLoginData())
                 except Exception as e:
                     Status.getJsonStatus(Status.INTERNAL_ERROR, response)
                     self.logger.error(str(e))
@@ -123,6 +117,7 @@ class TranSappUserLogout(View):
     """ end session """
 
     def __init__(self):
+        super(TranSappUserLogout, self).__init__()
         self.context = {}
         self.logger = logging.getLogger(__name__)
 
@@ -154,6 +149,7 @@ class UpdateTranSappUserSettings(View):
     """ update user info """
 
     def __init__(self):
+        super(UpdateTranSappUserSettings, self).__init__()
         self.context = {}
         self.logger = logging.getLogger(__name__)
 

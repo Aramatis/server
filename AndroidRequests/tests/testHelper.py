@@ -1,16 +1,16 @@
-import datetime as dt
-import json
-import uuid
-
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, Client
 from django.utils import timezone
 
-# views
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.models import TranSappUser, Level, EventRegistration
 from Loaders.TestLoaderFactory import TestLoaderFactory
+from AndroidRequests.cronTasks import updateGlobalRanking
+
+import datetime as dt
+import json
+import uuid
 
 
 class TestHelper:
@@ -520,7 +520,8 @@ class TestHelper:
             user = TranSappUser.objects.create(userId=userId,
                                                sessionToken=sessionToken, name=name, nickname=nickname,
                                                phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
-                                               level=level, globalScore=0)
+                                               level=level, globalScore=0, globalPosition=1)
             users.append(user)
+        updateGlobalRanking()
 
         return users

@@ -47,24 +47,11 @@ class CalculateScore:
         @request django.http.request
         """
         self.logger = logging.getLogger(__name__)
-        self.loggedUser, self.user, self.response = self.validateParams(request)
-
-    def validateParams(self, request):
 
         userId = request.POST.get('userId', None)
         sessionToken = request.POST.get('sessionToken', None)
 
-        response = {'userData': {}}
-        response['userData']['score'] = -1
-        response['userData']['level'] = {}
-        response['userData']['level']['name'] = ''
-        response['userData']['level']['position'] = -1
-        response['userData']['level']['maxScore'] = ''
-
-        loggedUser, user, statusResponse = UserValidation().validateUser(userId, sessionToken)
-        response.update(statusResponse)
-
-        return loggedUser, user, response
+        self.loggedUser, self.user, self.response = UserValidation().validateUser(userId, sessionToken)
 
     @abc.abstractmethod
     def getScore(self, eventCode, metaData):
@@ -87,10 +74,7 @@ class CalculateScore:
             ScoreHistory.objects.create(tranSappUser=self.user, scoreEvent=scoreEventObj,
                                         timeCreation=timezone.now(), score=additionalScore, meta=meta)
 
-            self.response['userData']['score'] = self.user.globalScore
-            self.response['userData']['level']['name'] = self.user.level.name
-            self.response['userData']['level']['maxScore'] = self.user.level.maxScore
-            self.response['userData']['level']['position'] = self.user.level.position
+            self.response['userData'] = self.user.getScoreData()
 
         return self.response
 
