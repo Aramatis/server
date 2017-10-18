@@ -1,12 +1,9 @@
 from django.conf import settings
 from django.test import TestCase
 
-# my stuff
 from AndroidRequests.models import ServiceLocation, BusStop, ServiceStopDistance, Busassignment, GTFS
 from AndroidRequests.tests.testHelper import TestHelper
 
-
-# Create your tests here.
 
 class BusDirectionTestCase(TestCase):
     """ test for bus direction """
