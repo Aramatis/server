@@ -78,7 +78,7 @@ class RequestTokenV2(View):
                 Status.getJsonStatus(Status.OK, response)
         except IntegrityError as e:
             logger = logging.getLogger(__name__)
-            logger.error(e.message(), e.args)
+            logger.error(e.message)
             Status.getJsonStatus(Status.TRIP_TOKEN_COULD_NOT_BE_CREATED, response)
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
