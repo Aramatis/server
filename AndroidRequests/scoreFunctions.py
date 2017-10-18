@@ -19,7 +19,8 @@ class UserValidation(object):
     def validateUser(self, userId, sessionToken):
         """ validate user session """
         response = {}
-        Status.getJsonStatus(Status.OK, response)
+        userIsLogged = False
+        tranSappUser = None
 
         if userId and sessionToken:
             try:
@@ -27,7 +28,9 @@ class UserValidation(object):
                     get(userId=userId)
 
                 if user.sessionToken == uuid.UUID(sessionToken):
-                    return True, user, response
+                    userIsLogged = True
+                    tranSappUser = user
+                    Status.getJsonStatus(Status.OK, response)
                 else:
                     Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             except TranSappUser.DoesNotExist:
@@ -35,7 +38,7 @@ class UserValidation(object):
         else:
             Status.getJsonStatus(Status.INVALID_PARAMS, response)
 
-        return False, None, response
+        return userIsLogged, tranSappUser, response
 
 
 class CalculateScore:
@@ -51,14 +54,14 @@ class CalculateScore:
         userId = request.POST.get('userId', None)
         sessionToken = request.POST.get('sessionToken', None)
 
-        self.loggedUser, self.user, self.response = UserValidation().validateUser(userId, sessionToken)
+        self.userIsLogged, self.user, self.response = UserValidation().validateUser(userId, sessionToken)
 
     @abc.abstractmethod
     def getScore(self, eventCode, metaData):
         return
 
     def updateScore(self, scoreEvent, meta=None):
-        if self.loggedUser:
+        if self.userIsLogged:
             additionalScore = self.getScore(scoreEvent, meta)
 
             self.user.globalScore += additionalScore
