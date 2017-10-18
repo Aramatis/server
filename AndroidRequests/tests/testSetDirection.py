@@ -1,9 +1,8 @@
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 
-# views
-import AndroidRequests.constants as Constants
-# my stuff
 from AndroidRequests.tests.testHelper import TestHelper
+
+import AndroidRequests.constants as Constants
 
 
 class SetDirectionTest(TestCase):
@@ -11,8 +10,6 @@ class SetDirectionTest(TestCase):
 
     def setUp(self):
         """ this method will automatically call for every single test """
-        # for testing requests inside the project
-        self.factory = RequestFactory()
 
         self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 

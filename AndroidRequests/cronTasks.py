@@ -28,14 +28,11 @@ def cleanActiveTokenTable():
     logger = logging.getLogger(__name__)
 
     activeTokens = ActiveToken.objects.all()
-    currentTimeMinusXMinutes = timezone.now(
-    ) - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
-    for aToken in activeTokens:
-        if aToken.timeStamp < currentTimeMinusXMinutes:
-            aToken.delete()
-            logger.info(
-                "{} deleted by clenaActiveTokenTable method".format(
-                    aToken.token.token))
+    currentTimeMinusXMinutes = timezone.now() - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
+    for activeToken in activeTokens:
+        if activeToken.timeStamp < currentTimeMinusXMinutes:
+            activeToken.delete()
+            logger.info("{} deleted by clenaActiveTokenTable method".format(activeToken.token.token))
 
 
 def clearEventsThatHaveBeenDecline():
