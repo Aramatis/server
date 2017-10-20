@@ -316,3 +316,4 @@ if 'TRAVIS' in os.environ:
 
     # set google key for route planner requests
     GOOGLE_KEY = os.environ['GOOGLE_KEY']
+    GOOGLE_LOGIN_KEY = os.environ['GOOGLE_LOGIN_KEY']
