@@ -244,11 +244,12 @@ def get_user_buses(stop_obj, questioner):
             # extras
             # old version, 1.2.17 and previous
             bus['tiempo'] = 'Viajando'
-            bus['distancia'] = '1 mts.'
+            distance = token_obj.get_distance_to(stop_obj.longitude, stop_obj.latitude)
+            bus['distancia'] = distance
             # new version, 1.4.23 and upper
             bus['tiempoV2'] = 'Viajando'
-            bus['distanciaV2'] = 'Usuario'
-            bus['distanciaMts'] = 1
+            bus['distanciaV2'] = format_distance(distance)
+            bus['distanciaMts'] = distance
             # add new param 'uuid'
             bus['busId'] = machine_id
 
@@ -383,12 +384,12 @@ def merge_buses(user_buses, authority_buses):
             auth_bus = auth_buses_dict[license_plate]
             if auth_bus['servicio'] == user_bus['servicio']:
                 user_bus['tiempo'] = auth_bus['tiempo']
-                user_bus['distancia'] = auth_bus['distancia']
+                # user_bus['distancia'] = auth_bus['distancia']
 
                 user_bus['tiempoV2'] = auth_bus['tiempoV2']
-                user_bus['distanciaV2'] = auth_bus['distanciaV2']
+                # user_bus['distanciaV2'] = auth_bus['distanciaV2']
 
-                user_bus['distanciaMts'] = auth_bus['distanciaMts']
+                #user_bus['distanciaMts'] = auth_bus['distanciaMts']
                 user_bus['sentido'] = auth_bus['sentido']
 
                 # if user who ask is the same of this user bus

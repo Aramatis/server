@@ -280,9 +280,9 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(buses[0]["patente"], licensePlate.upper())
         self.assertEqual(buses[0]["servicio"], service)
         self.assertEqual(buses[0]["tienePasajeros"], 2)
-        self.assertEqual(buses[0]["distanciaMts"], 1691)
+        self.assertEqual(buses[0]["distanciaMts"], 1100)
         self.assertEqual(buses[0]["tiempoV2"], "0 a 5 min")
-        self.assertEqual(buses[0]["distanciaV2"], "1.69Km")
+        self.assertEqual(buses[0]["distanciaV2"], "1.13Km")
         self.assertEqual(buses[0]["direction"], "I")
 
     def test_nearbyBusesWithFakeAuthorityInfoWithTwoUserInTheSameBus(self):
@@ -310,9 +310,9 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(buses[0]["patente"], licensePlate.upper())
         self.assertEqual(buses[0]["servicio"], service)
         self.assertEqual(buses[0]["tienePasajeros"], 1)
-        self.assertEqual(buses[0]["distanciaMts"], 1691)
+        self.assertEqual(buses[0]["distanciaMts"], 1100)
         self.assertEqual(buses[0]["tiempoV2"], "0 a 5 min")
-        self.assertEqual(buses[0]["distanciaV2"], "1.69Km")
+        self.assertEqual(buses[0]["distanciaV2"], "1.13Km")
         self.assertEqual(buses[0]["direction"], "I")
 
         self.assertEqual(buses[1]["patente"], Constants.DUMMY_LICENSE_PLATE)
