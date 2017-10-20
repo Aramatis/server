@@ -117,8 +117,8 @@ class DistanceScore(CalculateScore):
         distance = 0
         try:
             previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken,
-                                                                   timeStamp__lt=firstPointTime).order_by('-timeStamp')[
-                0]
+                                                                   timeStamp__lt=firstPointTime).\
+                order_by('-timeStamp').first()
             distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
                                                points[0]['longitud'], points[0]['latitud'], measure='km')
         except:
@@ -136,6 +136,10 @@ class DistanceScore(CalculateScore):
             distance += gpsFunctions.haversine(point['longitud'], point['latitud'],
                                                points[index + 1]['longitud'], points[index + 1]['latitud'],
                                                measure='km')
+
+        # if distance is higher than 5 kilometers, fake!! don't give a shit
+        if distance > 5:
+            distance = 0
 
         return round(score * distance, 8)
 
