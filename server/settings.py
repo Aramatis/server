@@ -29,7 +29,11 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as sec
 
 # Google key to ask for google services
 with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as googleFile:
-    GOOGLE_KEY = json.load(googleFile)['key']
+    googleJson = json.load(googleFile)
+    GOOGLE_KEY = googleJson['key']
+    GOOGLE_LOGIN_KEY = googleJson['user_validation_key']
+
+    del googleJson
 
 # Define the user will receive email when server has an error
 with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as adminFile:
@@ -54,6 +58,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as 
     SERVER_EMAIL = emailConfigJson["SERVER_EMAIL"]
 
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
     del emailConfigJson
 
 # facebook keys to log in users
