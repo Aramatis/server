@@ -8,7 +8,7 @@ def fixed_timecreation(apps, schema_editor):
     tokens = apps.get_model('AndroidRequests', 'token')
     # trajectories = apps.get_model('AndroidRequests', 'poseintrajectoryoftoken')
 
-    for token in tokens.objects.prefetch_related('poseintrajectoryoftoken').all():
+    for token in tokens.objects.prefetch_related('poseintrajectoryoftoken_set').all():
         timeCreation = \
         token.poseintrajectoryoftoken_set.all().order_by("-timeCreation").first().values_list("timeCreation",
                                                                                               flat=True)[0]
