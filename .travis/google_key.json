@@ -1,3 +1,4 @@
 {
-  "key": "FAKE_GOOGLE_KEY"
+  "key": "FAKE_GOOGLE_KEY",
+  "user_validation_key": "FAKE_GOOGLE_KEY"
 }
