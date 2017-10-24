@@ -5,14 +5,13 @@ from django.db import migrations
 
 
 def fixed_timecreation(apps, schema_editor):
-    tokens = apps.get_model('AndroidRequests', 'token')
-    # trajectories = apps.get_model('AndroidRequests', 'poseintrajectoryoftoken')
+    Token = apps.get_model('AndroidRequests', 'token')
+    PoseTrajectoryOfToken = apps.get_model('AndroidRequests', 'poseintrajectoryoftoken')
 
     counter = 0
-    for token in tokens.objects.prefetch_related('poseintrajectoryoftoken_set').all():
+    for token in Token.objects.all():
         timeCreation = \
-        token.poseintrajectoryoftoken_set.all().order_by("-timeCreation").first().values_list("timeCreation",
-                                                                                              flat=True)[0]
+        PoseTrajectoryOfToken.objects.order_by("-timeCreation").first().values_list("timeCreation", flat=True)[0]
         token.timeCreation = timeCreation
         token.save()
         counter += 1
