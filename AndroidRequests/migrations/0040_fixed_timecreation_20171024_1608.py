@@ -11,7 +11,7 @@ def fixed_timecreation(apps, schema_editor):
     counter = 0
     for token in Token.objects.all():
         timeCreation = \
-        PoseTrajectoryOfToken.objects.order_by("-timeStamp").first().values_list("timeStamp", flat=True)[0]
+        PoseTrajectoryOfToken.objects.order_by("-timeStamp").first().timeStamp
         token.timeCreation = timeCreation
         token.save()
         counter += 1
