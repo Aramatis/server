@@ -28,8 +28,11 @@ class RequestToken(View):
             pPhoneId,
             pBusService,
             pRegistrationPlate,
-            data=timezone.now()):
+            data=None):
         """ the token is primary a hash of the time stamp plus a random salt """
+        if data is None:
+            data = timezone.now()
+
         salt = os.urandom(20)
         hashToken = hashlib.sha512(str(data) + salt).hexdigest()
 
@@ -57,7 +60,7 @@ class RequestToken(View):
             token=hashToken,
             busassignment=assignment,
             color=self.getRandomColor(),
-            timeCreation=timezone.now(),
+            timeCreation=data,
             direction=None)
         ActiveToken.objects.create(timeStamp=data, token=aToken)
 
