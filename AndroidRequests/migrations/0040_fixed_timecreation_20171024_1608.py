@@ -12,8 +12,9 @@ def fixed_timecreation(apps, schema_editor):
     for token in Token.objects.all():
         timeCreation = \
         PoseTrajectoryOfToken.objects.filter(token=token).order_by("timeStamp").first().timeStamp
-        token.timeCreation = timeCreation
-        token.save()
+        if timeCreation is not None:
+            token.timeCreation = timeCreation
+            token.save()
         counter += 1
         print("{0} - token {1} updated".format(counter, token.id))
 
