@@ -24,6 +24,7 @@ class Command(BaseCommand):
         try:
             file_path = os.path.join(settings.BASE_DIR, "onlinegps", "media", file_name)
             with gzip.open(file_path, "r") as gps_file, connection.cursor() as cursor:
+                cursor.execute("TRUNCATE %s" % table_name)
                 cursor.copy_from(gps_file, table_name, ";")
             total_time = time.time() - start_time
             self.stdout.write(self.style.SUCCESS("copy on table %s successful: %s seconds" % (table_name, total_time)))
