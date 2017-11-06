@@ -692,6 +692,14 @@ class Level(models.Model):
     position = models.IntegerField(null=False, unique=True)
     """ to order levels 1,2,3,... """
 
+    def getDictionary(self):
+        return  {
+            "name": self.name,
+            "maxScore": self.maxScore,
+            "minScore": self.minScore,
+            "position": self.position
+        }
+
 
 class TranSappUser(models.Model):
     """ user logged with social network (Facebook, google) """
@@ -760,11 +768,7 @@ class TranSappUser(models.Model):
             "ranking": {
                 "globalPosition": self.globalPosition
             },
-            "level": {
-                "name": self.level.name,
-                "maxScore": self.level.maxScore,
-                "position": self.level.position
-            }
+            "level": self.level.getDictionary()
         }
 
     def getLoginData(self):
