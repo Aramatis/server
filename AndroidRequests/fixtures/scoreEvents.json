@@ -25,6 +25,9 @@
   "model": "AndroidRequests.scoreEvent","pk": 9,
   "fields": {"code": "evn00013","score": 5}
  },{
+  "model": "AndroidRequests.scoreEvent","pk": 9,
+  "fields": {"code": "evn00014","score": 5}
+ },{
   "model": "AndroidRequests.scoreEvent","pk": 10,
   "fields": {"code": "evn00020","score": 5}
  },{
@@ -101,6 +104,10 @@
   "fields": {"code": "evn00212","score": 5}
  },{
   "model": "AndroidRequests.scoreEvent","pk": 34,
-  "fields": {"code": "evn00300","score": "8"},
+  "fields": {"code": "evn00300","score": 8},
   "_comment": "score by kilometer"
+ },{
+  "model": "AndroidRequests.scoreEvent","pk": 35,
+  "fields": {"code": "evn00301","score": 20},
+  "_comment": "score when user evaluates route experience"
  }]
