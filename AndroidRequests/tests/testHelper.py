@@ -266,7 +266,7 @@ class TestHelper:
 
         return jsonResponse
 
-    def evaluateTrip(self, travelToken, evaluation):
+    def evaluateTrip(self, travelToken, evaluation, userId=None, sessionToken=None):
         """ send trip evaluation """
 
         URL = '/android/evaluateTrip'
@@ -274,8 +274,14 @@ class TestHelper:
         request.user = AnonymousUser()
 
         c = Client()
-        response = c.post(URL, {'token': travelToken,
-                                'evaluation': evaluation})
+        data = {
+            'token': travelToken,
+            'evaluation': evaluation
+        }
+        if userId is not None:
+            data["userId"] = userId
+            data["sessionToken"] = sessionToken
+        response = c.post(URL, data)
 
         self.test.assertEqual(response.status_code, 200)
 
