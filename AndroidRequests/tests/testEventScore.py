@@ -39,6 +39,7 @@ class EventScoreTest(TransactionTestCase):
         self.assertIn("globalPosition", jsonScoreResponse['userData']['ranking'].keys())
         self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
         self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
+        self.assertEqual(jsonScoreResponse['userData']['level']['minScore'], userObj.level.minScore)
         self.assertEqual(jsonScoreResponse['userData']['level']['position'], userObj.level.position)
         self.assertEqual(userObj.globalScore, score)
 
