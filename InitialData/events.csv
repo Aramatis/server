@@ -5,6 +5,7 @@ evn00010;busStop;estado físico;o;No hay techo;Techo dañado o ausente;129600
 evn00011;busStop;estado físico;o;No hay asientos;No hay asientos;129600
 evn00012;busStop;estado físico;o;No hay iluminación;No hay luces;129600
 evn00013;busStop;estado físico;o;Falta info de recorridos;No se informa que servicios pasan;129600
+evn00014;busStop;estado físico;o;Buen estado;Paradero en buen estado;129600
 evn00020;busStop;ambiente;o;Robos o desordenes;Se presencian robos o disturbios;30
 evn00021;busStop;ambiente;o;Ebrio;Personas ebrias en el paradero;30
 evn00022;busStop;ambiente;o;Paradero lleno;Paradero está lleno de personas;30
