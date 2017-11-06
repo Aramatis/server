@@ -104,7 +104,7 @@ class GetMapPositionsTest(TestCase):
         testTokens = []
 
         for cont in range(6):
-            testToken = self.helper.getInBusWithLicencePlate(self.phoneId, "503", "ZZZZ00")
+            testToken = self.helper.getInBusWithLicencePlateByPost(self.phoneId, "503", "ZZZZ00")
             testTokens.append(testToken)
 
         # save last token

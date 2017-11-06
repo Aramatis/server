@@ -162,7 +162,7 @@ class NearbyBusesResponseTest(TestCase):
 
     def getInBus(self, phoneId, service, licensePlate, addTrajectory=False):
         """ create a user bus  """
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             phoneId, service, licensePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
@@ -324,7 +324,7 @@ class NearbyBusesResponseTest(TestCase):
         """ if dummy bus does not have direction won"t be in the buses list """
 
         service = "506"
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 

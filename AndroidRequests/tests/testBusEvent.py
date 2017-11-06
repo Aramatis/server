@@ -29,7 +29,7 @@ class BusEventTest(TransactionTestCase):
         """This method test the bus with a dummy license plate """
 
         licencePlate = constants.DUMMY_LICENSE_PLATE
-        self.test.getInBusWithLicencePlate(
+        self.test.getInBusWithLicencePlateByPost(
             self.phoneId, self.route, licencePlate)
         eventCode = 'evn00202'
 
@@ -50,7 +50,7 @@ class BusEventTest(TransactionTestCase):
 
         licencePlate = 'AA0000'
         eventCode = 'evn00202'
-        self.test.getInBusWithLicencePlate(
+        self.test.getInBusWithLicencePlateByPost(
             self.phoneId, self.route, licencePlate)
 
         # submitting one event to the server

@@ -153,7 +153,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         service = '503'
         licencePlate = 'ZZZZ00'
-        travelToken = self.test.getInBusWithLicencePlate(
+        travelToken = self.test.getInBusWithLicencePlateByPost(
             self.phoneId, service, licencePlate)
 
         # the created token is an active token
@@ -182,7 +182,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
 
         service = '503'
         licencePlate = 'ZZZZ00'
-        testToken = self.test.getInBusWithLicencePlate(
+        testToken = self.test.getInBusWithLicencePlateByPost(
             self.phoneId, service, licencePlate)
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(testToken)
@@ -354,7 +354,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         # add the position of a passanger inside the bus
         service = '507'
         licencePlate = 'AA1112'
-        testToken = self.test.getInBusWithLicencePlate(
+        testToken = self.test.getInBusWithLicencePlateByPost(
             self.phoneId, service, licencePlate)
 
         testPoses = {"poses": [

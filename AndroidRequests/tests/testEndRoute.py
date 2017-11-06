@@ -22,7 +22,7 @@ class EndRouteTest(TestCase):
     def test_endRouteWithValidActiveToken(self):
         """ finish active travel """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
@@ -33,7 +33,7 @@ class EndRouteTest(TestCase):
     def test_endRouteWithInvalidActiveToken(self):
         """ finish unactive travel """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 

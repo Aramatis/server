@@ -26,7 +26,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithActiveTokenWithDummyLicencePlate(self):
         """ set direction of travel has not been finished with dummy licence plate """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
@@ -44,7 +44,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithActiveToken(self):
         """ set direction of travel has not been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
@@ -62,7 +62,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithoutActiveToken(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.endRoute(travelKey)
@@ -77,7 +77,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithoutActiveTokenWithDummyLicencePlate(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.endRoute(travelKey)
@@ -92,7 +92,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithWrongDirection(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 

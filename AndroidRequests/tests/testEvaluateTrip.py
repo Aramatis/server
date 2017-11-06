@@ -15,12 +15,12 @@ class EvaluateTripTest(TestCase):
 
         self.service = '401'
         self.licencePlate = 'AA1111'
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         self.test.insertServicesOnDatabase([self.service])
 
-        self.token = self.test.getInBusWithLicencePlate(
-                self.userId, self.service, self.licencePlate)
+        self.token = self.test.getInBusWithLicencePlateByPost(
+                self.phoneId, self.service, self.licencePlate)
 
     def test_tripEvaluationWithGoodEvaluationFormat(self):
         """This method test trip evaluation """
@@ -53,3 +53,13 @@ class EvaluateTripTest(TestCase):
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
         self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
+
+    def test_tripEvaluationWithLoggedUser(self):
+        """ logged user evaluates trip, so we will give to him some points """
+
+        evaluation = 1
+        jsonResponse = self.test.evaluateTrip(self.token, evaluation)
+
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
+        self.assertEqual(Token.objects.get(token=self.token).userEvaluation, evaluation)
