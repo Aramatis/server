@@ -6,7 +6,6 @@ from django.utils import timezone
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.models import TranSappUser, Level, EventRegistration
 from Loaders.TestLoaderFactory import TestLoaderFactory
-from AndroidRequests.cronTasks import updateGlobalRanking
 
 import datetime as dt
 import json
@@ -526,8 +525,7 @@ class TestHelper:
             user = TranSappUser.objects.create(userId=userId,
                                                sessionToken=sessionToken, name=name, nickname=nickname,
                                                phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
-                                               level=level, globalScore=0, globalPosition=1)
+                                               level=level, globalScore=(100*(index+1)), globalPosition=(userQuantity - 1))
             users.append(user)
-        updateGlobalRanking()
 
         return users

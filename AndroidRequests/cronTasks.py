@@ -71,10 +71,12 @@ def updateGlobalRanking():
 
         if ScoreHistory.objects.filter(timeCreation__gt=delta).count() > 0:
             users = TranSappUser.objects.select_related('level').order_by('-globalScore')
-            previousScore = -1
+            previousScore = None
             position = 0
             for user in users:
-                if user.globalScore > previousScore:
+                if previousScore is None or user.globalScore < previousScore:
                     position += 1
+                    previousScore = user.globalScore
                 user.globalPosition = position
                 user.save()
+                print("new position:", user.globalScore, user.globalPosition)

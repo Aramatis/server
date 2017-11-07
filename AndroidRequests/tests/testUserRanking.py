@@ -1,14 +1,13 @@
-import json
-import random
-import uuid
-
 from django.test import TestCase, Client
 from django.utils import timezone
 
 from AndroidRequests.models import TranSappUser, Level, ScoreHistory, ScoreEvent
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.allviews.UserRanking import UserRanking
-from AndroidRequests.cronTasks import updateGlobalRanking
+
+import json
+import random
+import uuid
 
 
 class UserRankingTestCase(TestCase):
@@ -52,8 +51,6 @@ class UserRankingTestCase(TestCase):
                                             photoURI=photoURI, globalPosition=position)
             score -= 100
             position += 1
-
-        updateGlobalRanking()
 
     def checkRankingList(self, userId, sessionToken, userPosition, topUserNumber, nearUserNumber):
         """ check ranking list returned by url """
