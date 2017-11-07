@@ -84,7 +84,7 @@ fi
 # Update data
 #####################################################################
 
-if [ "$fileVersion" -ne "0" ]
+if [ "$fileVersion" != "0" ]
 then
     python updateData.py "$fileVersion"
     echo "loading stop data ..."
