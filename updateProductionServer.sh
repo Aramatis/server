@@ -96,7 +96,7 @@ then
     echo "loading service stop distance data ..."
     python loadData.py "$fileVersion" servicestopdistance InitialData/"$fileVersion"/servicestopdistance.csv
     echo "loading service location data ..."
-    python loadData.py "$fileVersion" ServiceLocation InitialData/"$fileVersion"/servicelocation.csv
+    python loadData.py "$fileVersion" servicelocation InitialData/"$fileVersion"/servicelocation.csv
     echo "loading events data ..."
     python loadData.py "$fileVersion" event InitialData/events.csv
     #python loadData.py "$fileVersion" route InitialData/"$fileVersion"/routes.csv
