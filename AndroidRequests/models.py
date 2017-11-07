@@ -739,6 +739,8 @@ class TranSappUser(models.Model):
     """ user external id """
     globalPosition = models.BigIntegerField()
     """ global position betweenn TranSapp users """
+    timeCreation = models.DateTimeField(default=timezone.now, null=False)
+    """ time when user was created """
 
     def getDictionary(self):
         """ get dictionary of public data """
