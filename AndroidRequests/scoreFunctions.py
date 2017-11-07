@@ -115,15 +115,12 @@ class DistanceScore(CalculateScore):
         firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
         firstPointTime = timezone.make_aware(firstPointTime)
         distance = 0
-        try:
-            previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken,
-                                                                   timeStamp__lt=firstPointTime).\
-                order_by('-timeStamp').first()
+
+        previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, timeStamp__lt=firstPointTime).\
+            order_by('-timeStamp').first()
+        if previousPoint is not None:
             distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
                                                points[0]['longitud'], points[0]['latitud'], measure='km')
-        except PoseInTrajectoryOfToken.DoesNotExist:
-            # there is not previous point
-            pass
 
         try:
             score = ScoreEvent.objects.get(code=eventCode).score
