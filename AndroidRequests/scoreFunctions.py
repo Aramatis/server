@@ -92,7 +92,7 @@ class EventScore(CalculateScore):
         """ It calculates score """
         try:
             score = ScoreEvent.objects.get(code=eventCode).score
-        except:
+        except ScoreEvent.DoesNotExist:
             errorMsg = 'event code: {} does not exist in database'.format(eventCode)
             self.logger.error(errorMsg)
             score = 0
@@ -121,13 +121,13 @@ class DistanceScore(CalculateScore):
                 order_by('-timeStamp').first()
             distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
                                                points[0]['longitud'], points[0]['latitud'], measure='km')
-        except:
+        except PoseInTrajectoryOfToken.DoesNotExist:
             # there is not previous point
             pass
 
         try:
             score = ScoreEvent.objects.get(code=eventCode).score
-        except:
+        except ScoreEvent.DoesNotExist:
             errorMsg = 'event code: {} does not exist in database'.format(eventCode)
             self.logger.error(errorMsg)
             score = 0
