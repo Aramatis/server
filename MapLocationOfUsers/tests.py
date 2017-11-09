@@ -8,6 +8,7 @@ from AndroidRequests.tests.testHelper import TestHelper
 import json
 import datetime
 import uuid
+import random
 
 
 class GetMapPositionsTest(TestCase):
@@ -147,11 +148,12 @@ class GetMapPositionsTest(TestCase):
             if currentUserNumber == distribution[distribution_index]:
                 distribution_index += 1
                 currentUserNumber = 0
-                day = day + datetime.timedelta(days=1)
+                hour = int(random.random()*23)
+                minute = int(random.random()*60)
+                day = day.replace(hour=hour, minute=minute) + datetime.timedelta(days=1)
                 while distribution[distribution_index] == 0:
                     distribution_index += 1
                     day = day + datetime.timedelta(days=1)
-
             currentUserNumber += 1
             user.timeCreation = day
             user.save()

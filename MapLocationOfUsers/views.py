@@ -104,7 +104,7 @@ class GetGamificationUsersByDay(View):
     def get(self, request):
         newUsersByDay = list(TranSappUser.objects.annotate(
             day=TruncDay("timeCreation", output_field=DateTimeField())).\
-            values('day').annotate(users=Count('id')).order_by("timeCreation"))
+            values('day').annotate(users=Count('id')).order_by(TruncDay("timeCreation")))
 
         days = []
         if len(newUsersByDay) > 0:
