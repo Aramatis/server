@@ -294,8 +294,8 @@ CRONJOBS = [
     # every 2 minutes
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
 
-    # every minute
-    ('* * * * *', 'AndroidRequests.cronTasks.updateGlobalRanking'),
+    # every 2 minutes
+    ('*/2 * * * *', 'AndroidRequests.cronTasks.updateGlobalRanking', '> /tmp/globalRanking.log'),
 ]
 CRONTAB_LOCK_JOBS = True
 CRONTAB_COMMAND_SUFFIX = '2>&1'

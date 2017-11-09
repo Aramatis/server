@@ -19,7 +19,7 @@ MINIMUM_NUMBER_OF_DECLINES = 30
 PORCENTAGE_OF_DECLINE_OVER_CONFIRM = 60.0
 
 # time windows to find score history records, if it exists
-MINUTE_DELTA = 1
+MINUTE_DELTA = 2
 
 
 def cleanActiveTokenTable():
@@ -70,6 +70,7 @@ def updateGlobalRanking():
         delta = timezone.now() - datetime.timedelta(minutes=MINUTE_DELTA)
 
         if ScoreHistory.objects.filter(timeCreation__gt=delta).count() > 0:
+            print(timezone.now(), "updating global ranking")
             users = TranSappUser.objects.select_related('level').order_by('-globalScore')
             previousScore = None
             position = 0
@@ -80,3 +81,5 @@ def updateGlobalRanking():
                 user.globalPosition = position
                 user.save()
                 print("new position:", user.globalScore, user.globalPosition)
+        else:
+            print(timezone.now(), "there is not events in last 2 minutes")
