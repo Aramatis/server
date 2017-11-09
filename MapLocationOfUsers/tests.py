@@ -1,9 +1,8 @@
-from django.test import TestCase, RequestFactory, Client
+from django.test import TestCase, Client
 from django.utils import timezone
-from django.contrib.auth.models import AnonymousUser
+from django.core.urlresolvers import reverse
 
-from MapLocationOfUsers.views import MapHandler, GetMapPositions, GetMapTrajectory
-from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken
+from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, TranSappUser
 from AndroidRequests.tests.testHelper import TestHelper
 
 import json
@@ -18,6 +17,9 @@ class GetMapPositionsTest(TestCase):
         self.phoneId2 = uuid.uuid4()
 
         self.helper = TestHelper(self)
+
+    def test_getPositions(self):
+        """This test the response of the current poses"""
 
         points = [
             [self.phoneId, 3 , 4, (timezone.now() - datetime.timedelta(minutes=2))],
@@ -39,11 +41,7 @@ class GetMapPositionsTest(TestCase):
                 latitude=point[2],
                 timeStamp=point[3])
 
-        self.factory = RequestFactory()
-
-    def test_getPositions(self):
-        """This test the response of the current poses"""
-        url = "/map/activeuserpose"
+        url = reverse("map:activeuserpose")
         response = Client(url).get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -57,7 +55,7 @@ class GetMapPositionsTest(TestCase):
 
     def test_showMap(self):
         """this test is for testing the response of the map view"""
-        url = "/map/show"
+        url = reverse("map:show")
         response = Client(url).get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -124,7 +122,7 @@ class GetMapPositionsTest(TestCase):
             data.timeStamp = data.timeStamp - timezone.timedelta(minutes=61)
             data.save()
 
-        url = "/map/activetrajectory"
+        url = reverse("map:activetrajectory")
         response = Client().get(url)
 
         responseMessage = json.loads(response.content)
@@ -138,3 +136,29 @@ class GetMapPositionsTest(TestCase):
             self.assertEqual(aMsg["lastPose"][0], -33.458771)
 
         self.assertEqual(len(responseMessage), len(testTokens) - 1)
+
+    def test_gamificatedUsersByDay(self):
+        self.helper.createTranSappUsers(100)
+
+        day = timezone.now()
+        distribution = [1, 3, 25, 5, 10, 30, 26]
+        currentUserNumber = 1
+        distribution_index = 0
+        for user in TranSappUser.objects.all():
+            user.timeCreation = day
+            user.save()
+            if distribution[distribution_index] == currentUserNumber:
+                distribution_index += 1
+                currentUserNumber = 1
+                day = day + datetime.timedelta(days=1)
+            else:
+                currentUserNumber += 1
+
+        url = reverse("map:gamificatedusersbyday$")
+        response = Client().get(url)
+        data = json.loads(response.content)["usersByDay"]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), len(distribution))
+        for index, bucket in enumerate(data):
+            self.assertEqual(bucket["users"], distribution[index])

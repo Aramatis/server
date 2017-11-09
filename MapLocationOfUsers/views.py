@@ -2,8 +2,10 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.utils import timezone
+from django.db.models.functions import TruncDay
+from django.db.models import DateTimeField, Count
 
-from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, Token
+from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, Token, TranSappUser
 from AndroidRequests.encoder import TranSappJSONEncoder
 
 
@@ -89,3 +91,20 @@ class GetMapTrajectory(View):
         tokens = Token.objects.filter(id__in=allPoses).values_list("token", "color")
 
         return tokens
+
+class GetGamificationUsersByDay(View):
+
+    def __init__(self):
+        """the contructor, context are the parameter given to the html template"""
+        super(GetGamificationUsersByDay, self).__init__()
+        self.context = {}
+
+    def get(self, request):
+        newUsersByDay = TranSappUser.objects.annotate(
+            day=TruncDay("timeCreation", output_field=DateTimeField())).\
+            values('day').annotate(users=Count('id')).order_by("timeCreation")
+
+        response = {
+            "usersByDay": list(newUsersByDay)
+        }
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
