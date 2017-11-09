@@ -11,7 +11,6 @@ import uuid
 
 
 class GetMapPositionsTest(TestCase):
-
     def setUp(self):
         self.phoneId = uuid.uuid4()
         self.phoneId2 = uuid.uuid4()
@@ -22,12 +21,12 @@ class GetMapPositionsTest(TestCase):
         """This test the response of the current poses"""
 
         points = [
-            [self.phoneId, 3 , 4, (timezone.now() - datetime.timedelta(minutes=2))],
-            [self.phoneId, 5 , 6, (timezone.now() - datetime.timedelta(minutes=1))],
-            [self.phoneId, 7 , 8, timezone.now()],
-            [self.phoneId2, 3 , 4, (timezone.now() - datetime.timedelta(minutes=2))],
-            [self.phoneId2, 5 , 6, (timezone.now() - datetime.timedelta(minutes=1))],
-            [self.phoneId2, 7 , 8, timezone.now()],
+            [self.phoneId, 3, 4, (timezone.now() - datetime.timedelta(minutes=2))],
+            [self.phoneId, 5, 6, (timezone.now() - datetime.timedelta(minutes=1))],
+            [self.phoneId, 7, 8, timezone.now()],
+            [self.phoneId2, 3, 4, (timezone.now() - datetime.timedelta(minutes=2))],
+            [self.phoneId2, 5, 6, (timezone.now() - datetime.timedelta(minutes=1))],
+            [self.phoneId2, 7, 8, timezone.now()],
         ]
         for point in points:
             DevicePositionInTime.objects.create(
@@ -141,20 +140,23 @@ class GetMapPositionsTest(TestCase):
         self.helper.createTranSappUsers(100)
 
         day = timezone.now()
-        distribution = [1, 3, 25, 5, 10, 30, 26]
-        currentUserNumber = 1
+        distribution = [1, 3, 25, 5, 0, 10, 30, 26]
+        currentUserNumber = 0
         distribution_index = 0
         for user in TranSappUser.objects.all():
+            if currentUserNumber == distribution[distribution_index]:
+                distribution_index += 1
+                currentUserNumber = 0
+                day = day + datetime.timedelta(days=1)
+                while distribution[distribution_index] == 0:
+                    distribution_index += 1
+                    day = day + datetime.timedelta(days=1)
+
+            currentUserNumber += 1
             user.timeCreation = day
             user.save()
-            if distribution[distribution_index] == currentUserNumber:
-                distribution_index += 1
-                currentUserNumber = 1
-                day = day + datetime.timedelta(days=1)
-            else:
-                currentUserNumber += 1
 
-        url = reverse("map:gamificatedusersbyday$")
+        url = reverse("map:gamificatedusersbyday")
         response = Client().get(url)
         data = json.loads(response.content)["usersByDay"]
 
@@ -162,3 +164,12 @@ class GetMapPositionsTest(TestCase):
         self.assertEqual(len(data), len(distribution))
         for index, bucket in enumerate(data):
             self.assertEqual(bucket["users"], distribution[index])
+
+    def test_gamificatedUsersByDayWithoutUsers(self):
+
+        url = reverse("map:gamificatedusersbyday")
+        response = Client().get(url)
+        data = json.loads(response.content)["usersByDay"]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), 0)

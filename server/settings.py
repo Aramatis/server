@@ -77,7 +77,7 @@ DEBUG = True
 '200.9.100.91'  => public dev server ip
 '172.17.77.240' => private dev server ip
 """
-ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240', u'172.17.57.156']
+ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240', u'172.17.57.156', '127.0.0.1']
 
 
 # Application definition

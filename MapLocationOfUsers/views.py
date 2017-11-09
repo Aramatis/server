@@ -8,6 +8,8 @@ from django.db.models import DateTimeField, Count
 from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, Token, TranSappUser
 from AndroidRequests.encoder import TranSappJSONEncoder
 
+import datetime
+
 
 class MapHandler(View):
     """This class manages the map where the markers from the devices using the
@@ -100,11 +102,28 @@ class GetGamificationUsersByDay(View):
         self.context = {}
 
     def get(self, request):
-        newUsersByDay = TranSappUser.objects.annotate(
+        newUsersByDay = list(TranSappUser.objects.annotate(
             day=TruncDay("timeCreation", output_field=DateTimeField())).\
-            values('day').annotate(users=Count('id')).order_by("timeCreation")
+            values('day').annotate(users=Count('id')).order_by("timeCreation"))
+
+        days = []
+        if len(newUsersByDay) > 0:
+            firstDay = newUsersByDay[0]["day"]
+            endDay = newUsersByDay[-1]["day"] + datetime.timedelta(days=1)
+            day = firstDay
+            day_index = 0
+            while day != endDay:
+                users = 0
+                if day == newUsersByDay[day_index]["day"]:
+                    users = newUsersByDay[day_index]["users"]
+                    day_index += 1
+                days.append({
+                    "day": day,
+                    "users": users
+                })
+                day = day + datetime.timedelta(days=1)
 
         response = {
-            "usersByDay": list(newUsersByDay)
+            "usersByDay": days
         }
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
