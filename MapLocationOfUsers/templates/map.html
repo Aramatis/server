@@ -51,8 +51,8 @@
     // add chart of new gamificated users
     var info = L.control();
 
-    info.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    info.onAdd = function () {
+        this._div = L.DomUtil.create('div', 'info');
         this._div.innerHTML = '<h4>Usuarios gamificados por día</h4><span id="userChart"></span>';
         return this._div;
     };
