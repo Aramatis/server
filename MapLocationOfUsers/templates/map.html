@@ -53,7 +53,7 @@
 
     info.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-        this._div.innerHTML = '<h4>Usuarios gamificados por día</h4><br /><span id="userChart"></span>';
+        this._div.innerHTML = '<h4>Usuarios gamificados por día</h4><span id="userChart"></span>';
         return this._div;
     };
     info.addTo(map);
