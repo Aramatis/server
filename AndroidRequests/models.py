@@ -5,6 +5,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from gpsFunctions import haversine
+
 
 class Location(models.Model):
     """ Some of our models require to set a geolocation (coodinates)"""
@@ -213,6 +215,7 @@ class EventRegistration(models.Model):
 
         return creatorIndex, confirmedVoteList, declinedVoteList
 
+
 class EventForBusStop(EventRegistration):
     """This model stores the reported events for the busStop"""
     stopCode = models.CharField(max_length=6, db_index=True, verbose_name='Stop Code')
@@ -252,6 +255,7 @@ class EventForBusv2(EventRegistration):
         dictionary['creatorIndex'] = creatorIndex
 
         return dictionary
+
 
 ##
 #
@@ -583,10 +587,19 @@ class Token(models.Model):
     def getBusesIn(self, pListOfServices):
         """ return a list of buses that match with buses given as parameter """
 
+    def get_distance_to(self, longitude, latitude):
+        """ it calculate distance between last point saved in poseTrajectoryOfToken and point given. It returns
+        distance in meters """
+
+        if self.poseintrajectoryoftoken_set.count() > 0:
+            bus_location = self.poseintrajectoryoftoken_set.all().order_by("-timeStamp").first()
+            return round(haversine(bus_location.longitude, bus_location.latitude, longitude, latitude), 2)
+        return 0
+
 
 class PoseInTrajectoryOfToken(Location):
     """This stores all the poses of a trajectory. The trajectory can start on foot and end on foot."""
-    IN_VEHICLE ='vehicle'
+    IN_VEHICLE = 'vehicle'
     NON_VEHICLE = 'non_vehicle'
     timeStamp = models.DateTimeField(null=False, blank=False, db_index=True)
     """ Specific date time when the server received a pose in the trajectory """
@@ -679,6 +692,14 @@ class Level(models.Model):
     position = models.IntegerField(null=False, unique=True)
     """ to order levels 1,2,3,... """
 
+    def getDictionary(self):
+        return  {
+            "name": self.name,
+            "maxScore": self.maxScore,
+            "minScore": self.minScore,
+            "position": self.position
+        }
+
 
 class TranSappUser(models.Model):
     """ user logged with social network (Facebook, google) """
@@ -718,6 +739,8 @@ class TranSappUser(models.Model):
     """ user external id """
     globalPosition = models.BigIntegerField()
     """ global position betweenn TranSapp users """
+    timeCreation = models.DateTimeField(default=timezone.now, null=False)
+    """ time when user was created """
 
     def getDictionary(self):
         """ get dictionary of public data """
@@ -747,11 +770,7 @@ class TranSappUser(models.Model):
             "ranking": {
                 "globalPosition": self.globalPosition
             },
-            "level": {
-                "name": self.level.name,
-                "maxScore": self.level.maxScore,
-                "position": self.level.position
-            }
+            "level": self.level.getDictionary()
         }
 
     def getLoginData(self):
@@ -764,6 +783,7 @@ class TranSappUser(models.Model):
                 "showAvatar": self.showAvatar
             }
         }
+
 
 class ScoreEvent(models.Model):
     """ score given by action """

@@ -162,7 +162,7 @@ class NearbyBusesResponseTest(TestCase):
 
     def getInBus(self, phoneId, service, licensePlate, addTrajectory=False):
         """ create a user bus  """
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             phoneId, service, licensePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.setDirection(travelKey, self.direction)
@@ -280,9 +280,9 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(buses[0]["patente"], licensePlate.upper())
         self.assertEqual(buses[0]["servicio"], service)
         self.assertEqual(buses[0]["tienePasajeros"], 2)
-        self.assertEqual(buses[0]["distanciaMts"], 1691)
+        self.assertEqual(buses[0]["distanciaMts"], 1128.47)
         self.assertEqual(buses[0]["tiempoV2"], "0 a 5 min")
-        self.assertEqual(buses[0]["distanciaV2"], "1.69Km")
+        self.assertEqual(buses[0]["distanciaV2"], "1.13Km")
         self.assertEqual(buses[0]["direction"], "I")
 
     def test_nearbyBusesWithFakeAuthorityInfoWithTwoUserInTheSameBus(self):
@@ -310,9 +310,9 @@ class NearbyBusesResponseTest(TestCase):
         self.assertEqual(buses[0]["patente"], licensePlate.upper())
         self.assertEqual(buses[0]["servicio"], service)
         self.assertEqual(buses[0]["tienePasajeros"], 1)
-        self.assertEqual(buses[0]["distanciaMts"], 1691)
+        self.assertEqual(buses[0]["distanciaMts"], 1128.47)
         self.assertEqual(buses[0]["tiempoV2"], "0 a 5 min")
-        self.assertEqual(buses[0]["distanciaV2"], "1.69Km")
+        self.assertEqual(buses[0]["distanciaV2"], "1.13Km")
         self.assertEqual(buses[0]["direction"], "I")
 
         self.assertEqual(buses[1]["patente"], Constants.DUMMY_LICENSE_PLATE)
@@ -324,7 +324,7 @@ class NearbyBusesResponseTest(TestCase):
         """ if dummy bus does not have direction won"t be in the buses list """
 
         service = "506"
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 

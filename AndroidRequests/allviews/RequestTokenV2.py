@@ -1,6 +1,3 @@
-# python utilities
-import hashlib
-import os
 from random import random
 
 from django.http import JsonResponse
@@ -8,9 +5,15 @@ from django.utils import timezone
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction, IntegrityError
 
 from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser, PoseInTrajectoryOfToken
+from AndroidRequests.statusResponse import Status
 from AndroidRequests.encoder import TranSappJSONEncoder
+
+import hashlib
+import os
+import logging
 
 
 class RequestTokenV2(View):
@@ -40,41 +43,43 @@ class RequestTokenV2(View):
         return self.get(request, phoneId, route, machineId, busLatitude, busLongitude, userId, sessionToken)
 
     def get(self, request, pPhoneId, pBusService, pUUID, busLatitude=None, busLongitude=None,
-            userId=None, sessionToken=None, data=timezone.now()):
+            userId=None, sessionToken=None, timeStamp=None):
         """  """
 
+        if timeStamp is None:
+            timeStamp = timezone.now()
         salt = os.urandom(20)
-        hashToken = hashlib.sha512(str(data) + salt).hexdigest()
-        # the token is primary a hash of the time stamp plus a random salt 
+        hashToken = hashlib.sha512(str(timeStamp) + salt).hexdigest()
+        # the token is primary a hash of the time stamp plus a random salt
 
-        busv2 = Busv2.objects.get(uuid=pUUID)
-        busassignment = Busassignment.objects.get_or_create(
-            uuid=busv2, service=pBusService)[0]
-
-        tranSappUser = None
+        response = {}
         try:
-            tranSappUser = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
-        except Exception:
-            pass
+            with transaction.atomic():
+                busV2 = Busv2.objects.get(uuid=pUUID)
+                busAssignment = Busassignment.objects.get_or_create(uuid=busV2, service=pBusService)[0]
 
-        tokenObj = Token.objects.create(
-            phoneId=pPhoneId,
-            token=hashToken,
-            busassignment=busassignment,
-            color=self.getRandomColor(),
-            tranSappUser=tranSappUser,
-            timeCreation=data,
-            direction=None)
+                tranSappUser = None
+                try:
+                    tranSappUser = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
+                except Exception:
+                    pass
 
-        ActiveToken.objects.create(timeStamp=data, token=tokenObj)
-        # add current position for tokens
-        if busLongitude is not None and busLatitude is not None:
-            PoseInTrajectoryOfToken.objects.create(timeStamp=timezone.now(), token=tokenObj,
-                                                   inVehicleOrNot=PoseInTrajectoryOfToken.IN_VEHICLE,
-                                                   longitude=float(busLongitude), latitude=float(busLatitude))
+                tokenObj = Token.objects.create(phoneId=pPhoneId, token=hashToken, busassignment=busAssignment,
+                    color=self.getRandomColor(), tranSappUser=tranSappUser, timeCreation=timeStamp, direction=None)
 
-        # we store the active token
-        response = {'token': hashToken}
+                ActiveToken.objects.create(timeStamp=timeStamp, token=tokenObj)
+                # add current position for tokens
+                if busLongitude is not None and busLatitude is not None:
+                    PoseInTrajectoryOfToken.objects.create(timeStamp=timeStamp, token=tokenObj,
+                                                           inVehicleOrNot=PoseInTrajectoryOfToken.IN_VEHICLE,
+                                                           longitude=float(busLongitude), latitude=float(busLatitude))
+                # we store the active token
+                response["token"] = hashToken
+                Status.getJsonStatus(Status.OK, response)
+        except IntegrityError as e:
+            logger = logging.getLogger(__name__)
+            logger.error(e.message)
+            Status.getJsonStatus(Status.TRIP_TOKEN_COULD_NOT_BE_CREATED, response)
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 

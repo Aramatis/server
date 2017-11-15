@@ -7,12 +7,14 @@ from django.views.generic import View
 from AndroidRequests.models import Token
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.encoder import TranSappJSONEncoder
+from AndroidRequests import scoreFunctions as score
 
 
 class EvaluateTrip(View):
-    """ log in transapp user """
+    """ view to evaluate trip of user """
 
     def __init__(self):
+        super(EvaluateTrip, self).__init__()
         self.context = {}
 
     @method_decorator(csrf_exempt)
@@ -26,11 +28,18 @@ class EvaluateTrip(View):
         evaluation = request.POST.get('evaluation', '') 
         
         response = {}
-        Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, response)
         try:
-            if Token.objects.filter(token=token).update(userEvaluation=int(evaluation)):
+            if Token.objects.filter(token=token).exists():
+                token = Token.objects.get(token=token)
+                token.userEvaluation = int(evaluation)
+                token.save()
+                # add score
+                event_id = "evn00301"
+                response.update(score.calculateEventScore(request, event_id))
                 Status.getJsonStatus(Status.OK, response)
-        except:
+            else:
+                Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, response)
+        except ValueError:
             Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, response)
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

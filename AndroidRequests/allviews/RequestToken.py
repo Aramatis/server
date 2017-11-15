@@ -1,7 +1,3 @@
-# python utilities
-import hashlib
-import os
-import uuid
 from random import random
 
 from django.http import JsonResponse
@@ -11,7 +7,10 @@ from django.views.generic import View
 from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken
 from AndroidRequests.encoder import TranSappJSONEncoder
 
-import AndroidRequests.constants as Constants
+import AndroidRequests.constants as constants
+import hashlib
+import os
+import uuid
 
 
 class RequestToken(View):
@@ -28,8 +27,11 @@ class RequestToken(View):
             pPhoneId,
             pBusService,
             pRegistrationPlate,
-            data=timezone.now()):
+            data=None):
         """ the token is primary a hash of the time stamp plus a random salt """
+        if data is None:
+            data = timezone.now()
+
         salt = os.urandom(20)
         hashToken = hashlib.sha512(str(data) + salt).hexdigest()
 
@@ -40,7 +42,7 @@ class RequestToken(View):
         #        service = pBusService)[0]
         # aToken = Token.objects.create(phoneId=pPhoneId, token=hashToken, bus=bus, \
         #        color=self.getRandomColor(), direction = None)
-        if pRegistrationPlate == Constants.DUMMY_LICENSE_PLATE:
+        if pRegistrationPlate == constants.DUMMY_LICENSE_PLATE:
             puuid = uuid.uuid4()
             bus = Busv2.objects.create(
                 registrationPlate=pRegistrationPlate, uuid=puuid)
@@ -57,7 +59,7 @@ class RequestToken(View):
             token=hashToken,
             busassignment=assignment,
             color=self.getRandomColor(),
-            timeCreation=timezone.now(),
+            timeCreation=data,
             direction=None)
         ActiveToken.objects.create(timeStamp=data, token=aToken)
 

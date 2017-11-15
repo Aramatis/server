@@ -1,9 +1,8 @@
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 
-# views
-import AndroidRequests.constants as Constants
-# my stuff
 from AndroidRequests.tests.testHelper import TestHelper
+
+import AndroidRequests.constants as Constants
 
 
 class SetDirectionTest(TestCase):
@@ -11,8 +10,6 @@ class SetDirectionTest(TestCase):
 
     def setUp(self):
         """ this method will automatically call for every single test """
-        # for testing requests inside the project
-        self.factory = RequestFactory()
 
         self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
@@ -29,7 +26,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithActiveTokenWithDummyLicencePlate(self):
         """ set direction of travel has not been finished with dummy licence plate """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
@@ -47,7 +44,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithActiveToken(self):
         """ set direction of travel has not been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
@@ -65,7 +62,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithoutActiveToken(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.endRoute(travelKey)
@@ -80,7 +77,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithoutActiveTokenWithDummyLicencePlate(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
         self.helper.endRoute(travelKey)
@@ -95,7 +92,7 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithWrongDirection(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlate(
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, self.licencePlate)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 

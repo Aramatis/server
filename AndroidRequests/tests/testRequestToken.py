@@ -14,9 +14,9 @@ class RequestTokenTest(TestCase):
         self.helper = TestHelper(self)
         self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
-        self.licencePlate = 'AA1111'
+        self.licensePlate = 'AA1111'
         self.route = '507'
-        self.machineId = self.helper.askForMachineId(self.licencePlate)
+        self.machineId = self.helper.askForMachineId(self.licensePlate)
 
     def test_RequestTokenV2WithRealLicencePlateAndTranSappUser(self):
         """ This method will test to ask a token with transapp user data """
@@ -98,7 +98,7 @@ class RequestTokenTest(TestCase):
     def test_RequestTokenV2WithRealLicencePlate(self):
         """ This method will test a token for bus with uuid """
 
-        # a ghost bus is created with the same uuid that was recieved
+        # a ghost bus is created with the same uuid that was received
         self.assertEqual(Busv2.objects.filter(uuid=self.machineId).exists(), True)
 
         testToken = self.helper.getInBusWithMachineId(

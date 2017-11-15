@@ -6,7 +6,6 @@ from django.utils import timezone
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.models import TranSappUser, Level, EventRegistration
 from Loaders.TestLoaderFactory import TestLoaderFactory
-from AndroidRequests.cronTasks import updateGlobalRanking
 
 import datetime as dt
 import json
@@ -266,7 +265,7 @@ class TestHelper:
 
         return jsonResponse
 
-    def evaluateTrip(self, travelToken, evaluation):
+    def evaluateTrip(self, travelToken, evaluation, userId=None, sessionToken=None):
         """ send trip evaluation """
 
         URL = '/android/evaluateTrip'
@@ -274,8 +273,14 @@ class TestHelper:
         request.user = AnonymousUser()
 
         c = Client()
-        response = c.post(URL, {'token': travelToken,
-                                'evaluation': evaluation})
+        data = {
+            'token': travelToken,
+            'evaluation': evaluation
+        }
+        if userId is not None:
+            data["userId"] = userId
+            data["sessionToken"] = sessionToken
+        response = c.post(URL, data)
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -520,8 +525,7 @@ class TestHelper:
             user = TranSappUser.objects.create(userId=userId,
                                                sessionToken=sessionToken, name=name, nickname=nickname,
                                                phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
-                                               level=level, globalScore=0, globalPosition=1)
+                                               level=level, globalScore=(100*(index+1)), globalPosition=(userQuantity - 1))
             users.append(user)
-        updateGlobalRanking()
 
         return users

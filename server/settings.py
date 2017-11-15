@@ -29,7 +29,11 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as sec
 
 # Google key to ask for google services
 with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as googleFile:
-    GOOGLE_KEY = json.load(googleFile)['key']
+    googleJson = json.load(googleFile)
+    GOOGLE_KEY = googleJson['key']
+    GOOGLE_LOGIN_KEY = googleJson['user_validation_key']
+
+    del googleJson
 
 # Define the user will receive email when server has an error
 with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as adminFile:
@@ -54,6 +58,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as 
     SERVER_EMAIL = emailConfigJson["SERVER_EMAIL"]
 
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
     del emailConfigJson
 
 # facebook keys to log in users
@@ -72,7 +77,7 @@ DEBUG = True
 '200.9.100.91'  => public dev server ip
 '172.17.77.240' => private dev server ip
 """
-ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240', u'172.17.57.156']
+ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240', u'172.17.57.156', '127.0.0.1']
 
 # for django_debug_toolbar
 INTERNAL_IPS = ['127.0.0.1', '172.17.57.156']
@@ -127,14 +132,13 @@ class NonHtmlDebugToolbarMiddleware(object):
         return response
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'server.settings.NonHtmlDebugToolbarMiddleware',
 )
@@ -158,6 +162,25 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'server.wsgi.application'
+
+
+# Password validation
+# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
 # Logging
 
@@ -269,7 +292,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) 
     DATABASES['default'].update(json.load(db_file))
 
 # GTFS DATA USED TO PREDICT POSITION AND OTHER THINGS
-GTFS_VERSION = 'v1.2'
+GTFS_VERSION = 'v1.3'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -304,8 +327,8 @@ CRONJOBS = [
     # every 2 minutes
     ('*/2 * * * *', 'AndroidRequests.cronTasks.cleanActiveTokenTable'),
 
-    # every minute
-    ('* * * * *', 'AndroidRequests.cronTasks.updateGlobalRanking'),
+    # every 2 minutes
+    ('*/2 * * * *', 'AndroidRequests.cronTasks.updateGlobalRanking', '> /tmp/globalRanking.log'),
 ]
 CRONTAB_LOCK_JOBS = True
 CRONTAB_COMMAND_SUFFIX = '2>&1'
@@ -314,7 +337,7 @@ MODELSDOC_APPS = ('AndroidRequests',)
 
 # secure proxy SSL header and secure cookies
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
 # session expire at browser close
@@ -344,3 +367,4 @@ if 'TRAVIS' in os.environ:
 
     # set google key for route planner requests
     GOOGLE_KEY = os.environ['GOOGLE_KEY']
+    GOOGLE_LOGIN_KEY = os.environ['GOOGLE_LOGIN_KEY']

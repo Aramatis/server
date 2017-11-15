@@ -1,14 +1,18 @@
-import json
-import uuid
-
-import requests
 from django.conf import settings
 from django.test import TestCase, Client
 
-# Create your tests here.
 from AndroidRequests.allviews import UserScoreSession as uss
 from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
+
+import json
+import uuid
+import requests
+
+
+class GoogleAPI:
+    """ class to manipulate calls to google API """
+    pass
 
 
 class FacebookAPI:
@@ -88,7 +92,7 @@ class UserLogTestCase(TestCase):
         """ executed after each test method """
         self.facebook.deleteTestuser(self.USER_ID)
 
-    def login(self, accessToken, phoneId, accountType):
+    def login(self, userId, accessToken, phoneId, accountType):
         """ log in a user """
         url = 'login'
         params = {
@@ -97,7 +101,7 @@ class UserLogTestCase(TestCase):
             'phoneId': phoneId,
             'name': self.NAME,
             'email': self.EMAIL,
-            'userId': self.USER_ID,
+            'userId': userId,
             'photoURI': self.PHOTO_URI,
             'nickname': self.NICKNAME
         }
@@ -105,21 +109,44 @@ class UserLogTestCase(TestCase):
 
         return jsonResponse
 
-    def logout(self, sessionToken):
+    def logout(self, userId, sessionToken):
         """ log out a user """
         url = 'logout'
         params = {
-            'userId': self.USER_ID,
+            'userId': userId,
             'sessionToken': sessionToken,
         }
         jsonResponse = self.makePostRequest(url, params)
 
         return jsonResponse
 
+    def testFacebookLoginTwoUsers(self):
+        """ log in two users to test global position logic """
+
+        self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        self.assertEquals(TranSappUser.objects.count(), 1)
+        TranSappUser.objects.update(globalScore=100)
+        self.assertEquals(TranSappUser.objects.order_by("id").first().globalPosition, 1)
+
+        userId2, facebookAccessToken2 = self.facebook.createTestuser()
+        self.login(userId2, facebookAccessToken2, self.PHONE_ID_2, TranSappUser.FACEBOOK)
+        self.facebook.deleteTestuser(userId2)
+
+        self.assertEquals(TranSappUser.objects.count(), 2)
+
+        userId3, facebookAccessToken3 = self.facebook.createTestuser()
+        self.login(userId3, facebookAccessToken3, uuid.uuid4(), TranSappUser.FACEBOOK)
+        self.facebook.deleteTestuser(userId3)
+        self.assertEquals(TranSappUser.objects.order_by("-id")[1].globalPosition, 2)
+
+        self.assertEquals(TranSappUser.objects.count(), 3)
+        self.assertEquals(TranSappUser.objects.order_by("-id").first().globalPosition, 2)
+
     def testFacebookLogInWithRealAccessToken(self):
         """   """
         # login
-        jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        jsonResponse = self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1,
+                                  TranSappUser.FACEBOOK)
 
         self.assertEqual(jsonResponse['status'], 200)
         self.assertIn("id", jsonResponse['userData'].keys())
@@ -128,6 +155,7 @@ class UserLogTestCase(TestCase):
         self.assertEqual(jsonResponse['userData']['level']['name'], 'firstLevel')
         self.assertEqual(jsonResponse['userData']['level']['position'], 1)
         self.assertEqual(jsonResponse['userData']['level']['maxScore'], 1000)
+        self.assertEqual(jsonResponse['userData']['level']['minScore'], 0)
         self.assertEqual(jsonResponse['userSettings']['busAvatarId'], 1)
         self.assertEqual(jsonResponse['userSettings']['userAvatarId'], 1)
         self.assertEqual(jsonResponse['userSettings']['showAvatar'], True)
@@ -144,7 +172,8 @@ class UserLogTestCase(TestCase):
         self.assertEqual(user.nickname, self.NICKNAME)
 
         # the same user will log in on another phone
-        jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_2, TranSappUser.FACEBOOK)
+        jsonResponse = self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_2,
+                                  TranSappUser.FACEBOOK)
 
         self.assertEqual(TranSappUser.objects.count(), 1)
         user = TranSappUser.objects.first()
@@ -155,22 +184,24 @@ class UserLogTestCase(TestCase):
 
     def testFacebbokLoginWithRealAccessTokenButBadPhoneId(self):
         """   """
-        jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, 'asdasd', TranSappUser.FACEBOOK)
+        jsonResponse = self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, 'asdasd',
+                                  TranSappUser.FACEBOOK)
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INTERNAL_ERROR, {})['status'])
         self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INTERNAL_ERROR, {})['message'])
 
     def testFacebookLoginWithFakeAccessToken(self):
         """   """
-        jsonResponse = self.login(self.FAKE_ACCESS_TOKEN, self.PHONE_ID_1, TranSappUser.FACEBOOK)
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, {})['message'])
+        jsonResponse = self.login(self.USER_ID, self.FAKE_ACCESS_TOKEN, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_USER, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.INVALID_USER, {})['message'])
 
     def testFacebookLogout(self):
         """   """
         # login
-        jsonLogin = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        jsonLogin = self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1,
+                               TranSappUser.FACEBOOK)
         # logout
-        jsonLogout = self.logout(jsonLogin['sessionToken'])
+        jsonLogout = self.logout(self.USER_ID, jsonLogin['sessionToken'])
 
         # tests
         self.assertEqual(jsonLogout['status'], Status.getJsonStatus(Status.OK, {})['status'])
@@ -181,9 +212,9 @@ class UserLogTestCase(TestCase):
         """   """
 
         # login
-        self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
         # logout
-        jsonLogout = self.logout("I'm a bad session token")
+        jsonLogout = self.logout(self.USER_ID, "I'm a bad session token")
         # tests
         self.assertEqual(jsonLogout['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
         self.assertEqual(jsonLogout['message'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['message'])
@@ -191,7 +222,8 @@ class UserLogTestCase(TestCase):
     def testFacebookModifyUserInfo(self):
         """ modify user info  """
         # login
-        jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        jsonResponse = self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1,
+                                  TranSappUser.FACEBOOK)
 
         url = 'updateUserSettings'
 
@@ -242,7 +274,8 @@ class UserLogTestCase(TestCase):
     def testFacebookModifyUserInfoWithIncorrectData(self):
         """ modify user info with bad format """
         # login
-        jsonResponse = self.login(self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1, TranSappUser.FACEBOOK)
+        jsonResponse = self.login(self.USER_ID, self.FACEBOOK_ACCESS_TOKEN_WITH_LOGGED_APP, self.PHONE_ID_1,
+                                  TranSappUser.FACEBOOK)
 
         url = 'updateUserSettings'
 

@@ -19,7 +19,7 @@ MINIMUM_NUMBER_OF_DECLINES = 30
 PORCENTAGE_OF_DECLINE_OVER_CONFIRM = 60.0
 
 # time windows to find score history records, if it exists
-MINUTE_DELTA = 1
+MINUTE_DELTA = 2
 
 
 def cleanActiveTokenTable():
@@ -28,14 +28,11 @@ def cleanActiveTokenTable():
     logger = logging.getLogger(__name__)
 
     activeTokens = ActiveToken.objects.all()
-    currentTimeMinusXMinutes = timezone.now(
-    ) - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
-    for aToken in activeTokens:
-        if aToken.timeStamp < currentTimeMinusXMinutes:
-            aToken.delete()
-            logger.info(
-                "{} deleted by clenaActiveTokenTable method".format(
-                    aToken.token.token))
+    currentTimeMinusXMinutes = timezone.now() - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
+    for activeToken in activeTokens:
+        if activeToken.timeStamp < currentTimeMinusXMinutes:
+            activeToken.delete()
+            logger.info("{} deleted by clenaActiveTokenTable method".format(activeToken.token.token))
 
 
 def clearEventsThatHaveBeenDecline():
@@ -73,11 +70,16 @@ def updateGlobalRanking():
         delta = timezone.now() - datetime.timedelta(minutes=MINUTE_DELTA)
 
         if ScoreHistory.objects.filter(timeCreation__gt=delta).count() > 0:
+            print(timezone.now(), "updating global ranking")
             users = TranSappUser.objects.select_related('level').order_by('-globalScore')
-            previousScore = -1
+            previousScore = None
             position = 0
             for user in users:
-                if user.globalScore > previousScore:
+                if previousScore is None or user.globalScore < previousScore:
                     position += 1
+                    previousScore = user.globalScore
                 user.globalPosition = position
                 user.save()
+                print("new position:", user.globalScore, user.globalPosition)
+        else:
+            print(timezone.now(), "there is not events in last 2 minutes")

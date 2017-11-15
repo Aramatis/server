@@ -32,6 +32,9 @@ class EventScoreTest(TransactionTestCase):
         self.machineId = self.test.askForMachineId(licencePlate)
         self.token = self.test.getInBusWithMachineId(self.phoneId, self.service, self.machineId)
 
+        self.userId = '123456789'
+        self.sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
+
     def check_user_data(self, jsonScoreResponse, userObj, score):
         """ check user data given by url """
         self.assertEqual(jsonScoreResponse['userData']['id'], str(userObj.externalId))
@@ -39,8 +42,16 @@ class EventScoreTest(TransactionTestCase):
         self.assertIn("globalPosition", jsonScoreResponse['userData']['ranking'].keys())
         self.assertEqual(jsonScoreResponse['userData']['level']['name'], userObj.level.name)
         self.assertEqual(jsonScoreResponse['userData']['level']['maxScore'], userObj.level.maxScore)
+        self.assertEqual(jsonScoreResponse['userData']['level']['minScore'], userObj.level.minScore)
         self.assertEqual(jsonScoreResponse['userData']['level']['position'], userObj.level.position)
         self.assertEqual(userObj.globalScore, score)
+
+    def create_user(self):
+        """ create fake user in database """
+        tranSappUser = TranSappUser.objects.create(userId=self.userId, name='Te st', email='a@b.com',
+                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
+                                    level=Level.objects.get(position=1), sessionToken=self.sessionToken, globalPosition=1)
+        self.assertIsNotNone(tranSappUser.timeCreation)
 
     def test_calculateBusEventScoreWithoutParams(self):
         """This method test event score when the info is sending without params"""
@@ -56,16 +67,11 @@ class EventScoreTest(TransactionTestCase):
 
     def test_calculateBusEventScoreWithGoodParams(self):
 
-        # create TranSappUser
-        userId = '123456789'
-        sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
-        TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
-                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
+        self.create_user()
 
         # report a bus event
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
-                                                     self.service, self.eventBusCode, userId, sessionToken)
+                                                     self.service, self.eventBusCode, self.userId, self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],
@@ -82,8 +88,8 @@ class EventScoreTest(TransactionTestCase):
         # we will vote -1
         jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
                                                                self.service, self.eventBusCode,
-                                                               EventRegistration.DECLINE, userId,
-                                                               sessionToken)
+                                                               EventRegistration.DECLINE, self.userId,
+                                                               self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],
@@ -98,16 +104,11 @@ class EventScoreTest(TransactionTestCase):
 
     def test_calculateBusEventScoreWithParamsButWrongUserId(self):
 
-        # create TranSappUser
-        userId = '123456789'
+        self.create_user()
         wrongUserId = '987654321'
-        sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
-        TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
-                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
 
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
-                                                     self.service, self.eventBusCode, wrongUserId, sessionToken)
+                                                     self.service, self.eventBusCode, wrongUserId, self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
 
@@ -121,15 +122,11 @@ class EventScoreTest(TransactionTestCase):
 
     def test_calculateBusEventScoreWithParamsButWrongSessionToken(self):
 
-        # create TranSappUser
-        userId = '123456789'
-        sessionToken = 'd5dbd0ea-1dd5-4e0a-a8da-5a03e5e617d4'
+        self.create_user()
         wrongSessionToken = '3586b9f9-de09-4dca-99ee-892b803ac6e8'
-        TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
-                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
+
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
-                                                     self.service, self.eventBusCode, userId, wrongSessionToken)
+                                                     self.service, self.eventBusCode, self.userId, wrongSessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
 
@@ -144,12 +141,7 @@ class EventScoreTest(TransactionTestCase):
 
     def test_userPassToNextLevel(self):
 
-        # create TranSappUser
-        userId = '123456789'
-        sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
-        TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
-                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
+        self.create_user()
 
         # increase score of event to pass level
         scoreEventObj = ScoreEvent.objects.first()
@@ -158,7 +150,7 @@ class EventScoreTest(TransactionTestCase):
 
         # report a bus event
         jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
-                                                     self.service, self.eventBusCode, userId, sessionToken)
+                                                     self.service, self.eventBusCode, self.userId, self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],
@@ -166,10 +158,9 @@ class EventScoreTest(TransactionTestCase):
         self.assertEqual(jsonScoreResponse['message'],
                          Status.getJsonStatus(Status.OK, {})['message'])
 
-        nextLevel = Level.objects.get(position=2)
-
         userObj = TranSappUser.objects.first()
         self.check_user_data(jsonScoreResponse, userObj, scoreEventObj.score)
+        self.assertEquals(userObj.level.position, 2)
 
         self.assertEqual(ScoreHistory.objects.first().score, scoreEventObj.score)
         self.assertEqual(ScoreHistory.objects.first().meta, None)
@@ -183,16 +174,11 @@ class EventScoreTest(TransactionTestCase):
         score = 150
         ScoreEvent.objects.create(code=eventStopCode, score=score)
 
-        # create TranSappUser
-        userId = '123456789'
-        sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
-        TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
-                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
+        self.create_user()
 
         # report a bus event
         jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode,
-                                                       eventStopCode, userId, sessionToken)
+                                                       eventStopCode, self.userId, self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],
@@ -208,8 +194,8 @@ class EventScoreTest(TransactionTestCase):
 
         # we will vote -1
         jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId, stopCode,
-                                                                 eventStopCode, EventRegistration.DECLINE, userId,
-                                                                 sessionToken)
+                                                                 eventStopCode, EventRegistration.DECLINE, self.userId,
+                                                                 self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],
@@ -231,12 +217,7 @@ class EventScoreTest(TransactionTestCase):
         eventCode = 'evn00300'
         ScoreEvent.objects.create(code=eventCode, score=score)
 
-        # create TranSappUser
-        userId = '123456789'
-        sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
-        TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
-                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
+        self.create_user()
 
         # send poses
         now = timezone.make_aware(dt.datetime.now())
@@ -286,7 +267,7 @@ class EventScoreTest(TransactionTestCase):
         calculatedScore = 147.30380245
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(travelToken=self.token,
-                                                           poses=poses, userId=userId, sessionToken=sessionToken)
+                                                           poses=poses, userId=self.userId, sessionToken=self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],
@@ -310,12 +291,7 @@ class EventScoreTest(TransactionTestCase):
         eventCode = 'evn00300'
         ScoreEvent.objects.create(code=eventCode, score=score)
 
-        # create TranSappUser
-        userId = '123456789'
-        sessionToken = '4951e324-9ab4-4f1f-845c-04259785b58b'
-        TranSappUser.objects.create(userId=userId, name='Te st', email='a@b.com',
-                                    phoneId=self.phoneId, accountType=TranSappUser.FACEBOOK,
-                                    level=Level.objects.get(position=1), sessionToken=sessionToken, globalPosition=1)
+        self.create_user()
 
         # send poses
         now = timezone.make_aware(dt.datetime.now())
@@ -354,7 +330,7 @@ class EventScoreTest(TransactionTestCase):
         }
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(travelToken=self.token,
-                                                           poses=poses1, userId=userId, sessionToken=sessionToken)
+                                                           poses=poses1, userId=self.userId, sessionToken=self.sessionToken)
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],
                          Status.getJsonStatus(Status.OK, {})['status'])
@@ -383,7 +359,7 @@ class EventScoreTest(TransactionTestCase):
         calculatedScoreTotal = 147.30380245
 
         jsonResponse = self.test.sendFakeTrajectoryOfToken(travelToken=self.token,
-                                                           poses=poses2, userId=userId, sessionToken=sessionToken)
+                                                           poses=poses2, userId=self.userId, sessionToken=self.sessionToken)
 
         jsonScoreResponse = jsonResponse['gamificationData']
         self.assertEqual(jsonScoreResponse['status'],

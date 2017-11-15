@@ -35,23 +35,24 @@ class SendPoses(View):
                 trajectory = trajectory['poses']
 
                 # update the token time stamp, for maintanence purpuses
-                aToken = ActiveToken.objects.get(token__token=pToken)
-                aToken.timeStamp = timezone.now()
-                aToken.save()
+                activeToken = ActiveToken.objects.select_related("token").get(token__token=pToken)
+                activeToken.timeStamp = timezone.now()
+                activeToken.save()
 
-                theToken = Token.objects.get(token=pToken)
-                
+                positions = []
                 for pose in trajectory:
                     # set awareness to time stamp, to the server UTC
                     aTimeStamp = dateparse.parse_datetime(pose['timeStamp'])
                     aTimeStamp = timezone.make_aware(aTimeStamp)
 
-                    PoseInTrajectoryOfToken.objects.create(
+                    position = PoseInTrajectoryOfToken(
                         longitude=pose['longitud'],
                         latitude=pose['latitud'],
                         timeStamp=aTimeStamp,
                         inVehicleOrNot=pose["inVehicleOrNot"],
-                        token=theToken)
+                        token=activeToken.token)
+                    positions.append(position)
+                PoseInTrajectoryOfToken.objects.bulk_create(positions)
 
                 # update score
                 EVENT_ID = 'evn00300'

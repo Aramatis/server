@@ -19,7 +19,8 @@ class UserValidation(object):
     def validateUser(self, userId, sessionToken):
         """ validate user session """
         response = {}
-        Status.getJsonStatus(Status.OK, response)
+        userIsLogged = False
+        tranSappUser = None
 
         if userId and sessionToken:
             try:
@@ -27,7 +28,9 @@ class UserValidation(object):
                     get(userId=userId)
 
                 if user.sessionToken == uuid.UUID(sessionToken):
-                    return True, user, response
+                    userIsLogged = True
+                    tranSappUser = user
+                    Status.getJsonStatus(Status.OK, response)
                 else:
                     Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             except TranSappUser.DoesNotExist:
@@ -35,7 +38,7 @@ class UserValidation(object):
         else:
             Status.getJsonStatus(Status.INVALID_PARAMS, response)
 
-        return False, None, response
+        return userIsLogged, tranSappUser, response
 
 
 class CalculateScore:
@@ -51,14 +54,14 @@ class CalculateScore:
         userId = request.POST.get('userId', None)
         sessionToken = request.POST.get('sessionToken', None)
 
-        self.loggedUser, self.user, self.response = UserValidation().validateUser(userId, sessionToken)
+        self.userIsLogged, self.user, self.response = UserValidation().validateUser(userId, sessionToken)
 
     @abc.abstractmethod
     def getScore(self, eventCode, metaData):
         return
 
     def updateScore(self, scoreEvent, meta=None):
-        if self.loggedUser:
+        if self.userIsLogged:
             additionalScore = self.getScore(scoreEvent, meta)
 
             self.user.globalScore += additionalScore
@@ -89,7 +92,7 @@ class EventScore(CalculateScore):
         """ It calculates score """
         try:
             score = ScoreEvent.objects.get(code=eventCode).score
-        except:
+        except ScoreEvent.DoesNotExist:
             errorMsg = 'event code: {} does not exist in database'.format(eventCode)
             self.logger.error(errorMsg)
             score = 0
@@ -112,19 +115,16 @@ class DistanceScore(CalculateScore):
         firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
         firstPointTime = timezone.make_aware(firstPointTime)
         distance = 0
-        try:
-            previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken,
-                                                                   timeStamp__lt=firstPointTime).order_by('-timeStamp')[
-                0]
+
+        previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, timeStamp__lt=firstPointTime).\
+            order_by('-timeStamp').first()
+        if previousPoint is not None:
             distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
                                                points[0]['longitud'], points[0]['latitud'], measure='km')
-        except:
-            # there is not previous point
-            pass
 
         try:
             score = ScoreEvent.objects.get(code=eventCode).score
-        except:
+        except ScoreEvent.DoesNotExist:
             errorMsg = 'event code: {} does not exist in database'.format(eventCode)
             self.logger.error(errorMsg)
             score = 0
@@ -134,8 +134,53 @@ class DistanceScore(CalculateScore):
                                                points[index + 1]['longitud'], points[index + 1]['latitud'],
                                                measure='km')
 
+        # if distance is higher than 5 kilometers, fake!! don't give a shit
+        if distance > 5:
+            distance = 0
+
         return round(score * distance, 8)
 
+"""
+def checkCompleteTripScore(trip_token):
+    "
+    Update score based on all data of a trip. Conditions:
+    1 - total distances greater than 100 meters
+    2 - total time is greater than 3 minutes
+    "
+
+    scores = ScoreHistory.objects.filter(meta__contains=trip_token).values_list("meta", "score")
+
+    points = metaData['poses']
+    tripToken = metaData['tripToken']
+
+    firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
+    firstPointTime = timezone.make_aware(firstPointTime)
+    distance = 0
+
+    previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, timeStamp__lt=firstPointTime).\
+        order_by('-timeStamp').first()
+    if previousPoint is not None:
+        distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
+                                           points[0]['longitud'], points[0]['latitud'], measure='km')
+
+    try:
+        score = ScoreEvent.objects.get(code=eventCode).score
+    except ScoreEvent.DoesNotExist:
+        errorMsg = 'event code: {} does not exist in database'.format(eventCode)
+        self.logger.error(errorMsg)
+        score = 0
+
+    for index, point in enumerate(points[:-1]):
+        distance += gpsFunctions.haversine(point['longitud'], point['latitud'],
+                                           points[index + 1]['longitud'], points[index + 1]['latitud'],
+                                           measure='km')
+
+    # if distance is higher than 5 kilometers, fake!! don't give a shit
+    if distance > 5:
+        distance = 0
+
+    return round(score * distance, 8)
+"""
 
 def calculateEventScore(request, eventCode):
     """ """

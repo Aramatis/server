@@ -1,8 +1,10 @@
 from django.test import TestCase
 
-from AndroidRequests.models import Token
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
+from AndroidRequests.models import Token, TranSappUser, Level, ScoreHistory
+
+import uuid
 
 
 class EvaluateTripTest(TestCase):
@@ -15,12 +17,12 @@ class EvaluateTripTest(TestCase):
 
         self.service = '401'
         self.licencePlate = 'AA1111'
-        self.userId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         self.test.insertServicesOnDatabase([self.service])
 
-        self.token = self.test.getInBusWithLicencePlate(
-                self.userId, self.service, self.licencePlate)
+        self.token = self.test.getInBusWithLicencePlateByPost(
+                self.phoneId, self.service, self.licencePlate)
 
     def test_tripEvaluationWithGoodEvaluationFormat(self):
         """This method test trip evaluation """
@@ -53,3 +55,39 @@ class EvaluateTripTest(TestCase):
         self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
         self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
+
+
+class EvaluateTripWithLoggedUserTest(TestCase):
+    """ test for DevicePositionInTime model """
+    fixtures = ["scoreEvents"]
+
+    def setUp(self):
+        """ this method will automatically call for every single test """
+
+        self.test = TestHelper(self)
+
+        self.service = '401'
+        self.licencePlate = 'AA1111'
+        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+
+        self.test.insertServicesOnDatabase([self.service])
+
+        self.tranSappUserObj = self.test.createTranSappUsers(1)[0]
+
+        self.token = self.test.getInBusWithLicencePlateByPost(
+            self.phoneId, self.service, self.licencePlate, userId=self.tranSappUserObj.userId,
+            sessionToken=self.tranSappUserObj.sessionToken)
+
+    def test_tripEvaluation(self):
+        """ logged user evaluates trip, so we will give to him some points """
+
+        evaluation = 1
+        jsonResponse = self.test.evaluateTrip(self.token, evaluation, self.tranSappUserObj.userId,
+                                              self.tranSappUserObj.sessionToken)
+
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
+        self.assertEqual(Token.objects.get(token=self.token).userEvaluation, evaluation)
+
+        # check points
+        self.assertEquals(ScoreHistory.objects.count(), 1)

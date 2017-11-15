@@ -54,13 +54,13 @@ git fetch
 # if tag exists -> update code
 if git tag --list | egrep "^$serverVersion$"
 then
-	# stop server
-	service apache2 stop
+    # install new dependencies if exists
+    pip install -r requirement.txt
+
     # stash changes
     git stash 
 
     git checkout tags/"$serverVersion"
-    python manage.py makemigrations
     python manage.py migrate
     python manage.py collectstatic --noinput
 
@@ -70,12 +70,12 @@ then
     # run test
     coverage run --source='.' manage.py test
     coverage report --omit=DataDictionary,server,AndroidRequestsBackups,AndroidRequests/migrations/* -m
-    
+
     # apply changes not committed
     git stash apply
 
 	# start server
-    service apache2 start
+    service apache2 restart
 else
     echo "FYI: Tag $serverVersion does not exists."
 fi
@@ -84,7 +84,7 @@ fi
 # Update data
 #####################################################################
 
-if [ "$fileVersion" -ne "0" ]
+if [ "$fileVersion" != "0" ]
 then
     python updateData.py "$fileVersion"
     echo "loading stop data ..."
@@ -96,7 +96,7 @@ then
     echo "loading service stop distance data ..."
     python loadData.py "$fileVersion" servicestopdistance InitialData/"$fileVersion"/servicestopdistance.csv
     echo "loading service location data ..."
-    python loadData.py "$fileVersion" ServiceLocation InitialData/"$fileVersion"/servicelocation.csv
+    python loadData.py "$fileVersion" servicelocation InitialData/"$fileVersion"/servicelocation.csv
     echo "loading events data ..."
     python loadData.py "$fileVersion" event InitialData/events.csv
     #python loadData.py "$fileVersion" route InitialData/"$fileVersion"/routes.csv

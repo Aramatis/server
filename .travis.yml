@@ -23,12 +23,13 @@ services:
   postgresql
 
 addons:
-  postgresql: "9.3"
+  postgresql: "9.6"
 
 # test matrix
 env:
-  - DJANGO_VERSION=1.8.4
-  - DJANGO_VERSION=1.11.0
+  - DJANGO_VERSION=1.11.4
+  - DJANGO_VERSION=1.11.5
+  - DJANGO_VERSION=1.11.6
 
 # Use https (public access) instead of git for git-submodules. This modifies only Travis-CI behavior!
 git:
@@ -40,7 +41,8 @@ before_install:
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
 
-install: 
+install:
+  - pip install --upgrade setuptools
   - pip install requests[security]
   - pip install urllib3[secure]
   # Install the dependencies the app itself 

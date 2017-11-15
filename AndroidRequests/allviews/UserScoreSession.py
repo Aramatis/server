@@ -9,12 +9,22 @@ from AndroidRequests.models import TranSappUser, Level
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.encoder import TranSappJSONEncoder
 
+from google.oauth2 import id_token
+from google.auth.transport import requests as googleRequests
+
 import json
 import logging
 import uuid
 import requests
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
+
+class InvalidFacebookSessionException(Exception):
+    pass
+
+
+class InvalidGoogleSessionException(Exception):
+    pass
 
 
 class TranSappUserLogin(View):
@@ -29,9 +39,25 @@ class TranSappUserLogin(View):
     def dispatch(self, request, *args, **kwargs):
         return super(TranSappUserLogin, self).dispatch(request, *args, **kwargs)
 
-    # def checkGoogleId(self, googleId):
-    #    """ ask to facebook if tokenId is valid """
-    #    pass
+    def checkGoogleId(self, accessToken):
+        """ ask to google if accessToken is valid """
+        try:
+            idinfo = id_token.verify_oauth2_token(accessToken, googleRequests.Request(), settings.GOOGLE_LOGIN_KEY)
+
+            if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                #raise ValueError('Wrong issuer.')
+                return None
+
+            # If auth request is from a G Suite domain:
+            # if idinfo['hd'] != GSUITE_DOMAIN_NAME:
+            #     raise ValueError('Wrong hosted domain.')
+
+            # ID token is valid. Get the user's Google Account ID from the decoded token.
+            userid = idinfo['sub']
+            return userid
+
+        except ValueError:
+            return None
 
     def checkFacebookId(self, accessToken):
         """ ask to facebook if accessToken is valid """
@@ -59,56 +85,66 @@ class TranSappUserLogin(View):
         nickname = request.POST.get('nickname')
 
         response = {}
-        # access token invalid
-        Status.getJsonStatus(Status.INVALID_ACCESS_TOKEN, response)
 
-        if accountType == TranSappUser.FACEBOOK:
-            facebookUserId = self.checkFacebookId(accessToken)
+        try:
+            users = None
 
-            if facebookUserId and userId == facebookUserId:
-                # is a valid facebook user
-                users = TranSappUser.objects.filter(userId=userId)
-                sessionToken = uuid.uuid4()
+            if accountType == TranSappUser.FACEBOOK:
+                facebookUserId = self.checkFacebookId(accessToken)
 
-                try:
-                    if users:
-                        # user exists
-                        user = users[0]
-                        user.phoneId = phoneId
-                        user.sessionToken = sessionToken
-                        user.photoURI = photoURI
-                        user.nickname = nickname
-                        user.save()
-                    else:
-                        # user does not exist
-                        firstLevel = Level.objects.get(position=1)
-                        if TranSappUser.objects.count() > 0:
-                            globalPosition, globalScore = TranSappUser.objects.order_by("-globalPosition").\
-                                values_list("globalPosition", "globalScore")[0]
-                            if globalScore != 0:
-                                globalPosition += 1
-                        else:
-                            globalPosition = 1
-                        user = TranSappUser.objects.create(userId=userId,
-                                                           accountType=TranSappUser.FACEBOOK,
-                                                           name=name,
-                                                           email=email,
-                                                           phoneId=phoneId,
-                                                           photoURI=photoURI,
-                                                           nickname=nickname,
-                                                           sessionToken=sessionToken,
-                                                           globalPosition=globalPosition,
-                                                           level=firstLevel)
+                if facebookUserId and userId == facebookUserId:
+                    users = TranSappUser.objects.filter(userId=userId, accountType=TranSappUser.FACEBOOK)
+                else:
+                    raise InvalidFacebookSessionException
+            elif accountType == TranSappUser.GOOGLE:
+                googleUserId = self.checkGoogleId(accessToken)
 
-                    # ok
-                    Status.getJsonStatus(Status.OK, response)
-                    response['sessionToken'] = user.sessionToken
-                    response.update(user.getLoginData())
-                except Exception as e:
-                    Status.getJsonStatus(Status.INTERNAL_ERROR, response)
-                    self.logger.error(str(e))
-        # elif accountType == TranSappUser.GOOGLE:
-        #    googleUserId = self.checkGoogleId(tokenId)
+                if googleUserId and userId == googleUserId:
+                    users = TranSappUser.objects.filter(userId=userId, accountType=TranSappUser.GOOGLE)
+                else:
+                    raise InvalidGoogleSessionException
+
+            sessionToken = uuid.uuid4()
+
+            if users:
+                # user exists
+                user = users[0]
+                user.phoneId = phoneId
+                user.sessionToken = sessionToken
+                user.photoURI = photoURI
+                user.nickname = nickname
+                user.save()
+            else:
+                # user does not exist
+                firstLevel = Level.objects.get(position=1)
+                if TranSappUser.objects.count() > 0:
+                    globalPosition, globalScore = TranSappUser.objects.order_by("-globalPosition").\
+                        values_list("globalPosition", "globalScore")[0]
+                    if globalScore != 0:
+                        globalPosition += 1
+                else:
+                    globalPosition = 1
+                user = TranSappUser.objects.create(userId=userId,
+                                                   accountType=accountType,
+                                                   name=name,
+                                                   email=email,
+                                                   phoneId=phoneId,
+                                                   photoURI=photoURI,
+                                                   nickname=nickname,
+                                                   sessionToken=sessionToken,
+                                                   globalPosition=globalPosition,
+                                                   level=firstLevel)
+
+            # ok
+            Status.getJsonStatus(Status.OK, response)
+            response['sessionToken'] = user.sessionToken
+            response.update(user.getLoginData())
+        except (InvalidFacebookSessionException, InvalidGoogleSessionException) as e:
+            Status.getJsonStatus(Status.INVALID_USER, response)
+            self.logger.error(str(e))
+        except Exception as e:
+            Status.getJsonStatus(Status.INTERNAL_ERROR, response)
+            self.logger.error(str(e))
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 

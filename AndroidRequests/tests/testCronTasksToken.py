@@ -12,8 +12,8 @@ class CronTasksTestCase(TestCase):
 
     def setUp(self):
         self.phoneId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
-        self.busService = '506'
-        self.registrationPlate = 'XXYY25'
+        self.route = '506'
+        self.licensePlate = 'XXYY25'
 
         self.helper = TestHelper(self)
 
@@ -25,7 +25,7 @@ class CronTasksTestCase(TestCase):
         timeStamp = timezone.now() - timezone.timedelta(minutes=delta)
 
         token = self.helper.getInBusWithLicencePlate(
-            self.phoneId, self.busService, self.registrationPlate, timeStamp)
+            self.phoneId, self.route, self.licensePlate, timeStamp)
 
         self.assertEqual(ActiveToken.objects.count(), 1)
         self.assertEqual(ActiveToken.objects.first().token.token, token)
@@ -38,10 +38,12 @@ class CronTasksTestCase(TestCase):
         timeStamp = timezone.now()
 
         token = self.helper.getInBusWithLicencePlate(
-            self.phoneId, self.busService, self.registrationPlate, timeStamp)
+            self.phoneId, self.route, self.licensePlate, timeStamp)
 
         self.assertEqual(ActiveToken.objects.count(), 1)
         self.assertEqual(ActiveToken.objects.first().token.token, token)
+
+        self.helper.sendFakeTrajectoryOfToken(token)
 
         cronTasks.cleanActiveTokenTable()
 
