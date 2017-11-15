@@ -140,6 +140,47 @@ class DistanceScore(CalculateScore):
 
         return round(score * distance, 8)
 
+"""
+def checkCompleteTripScore(trip_token):
+    "
+    Update score based on all data of a trip. Conditions:
+    1 - total distances greater than 100 meters
+    2 - total time is greater than 3 minutes
+    "
+
+    scores = ScoreHistory.objects.filter(meta__contains=trip_token).values_list("meta", "score")
+
+    points = metaData['poses']
+    tripToken = metaData['tripToken']
+
+    firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
+    firstPointTime = timezone.make_aware(firstPointTime)
+    distance = 0
+
+    previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, timeStamp__lt=firstPointTime).\
+        order_by('-timeStamp').first()
+    if previousPoint is not None:
+        distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
+                                           points[0]['longitud'], points[0]['latitud'], measure='km')
+
+    try:
+        score = ScoreEvent.objects.get(code=eventCode).score
+    except ScoreEvent.DoesNotExist:
+        errorMsg = 'event code: {} does not exist in database'.format(eventCode)
+        self.logger.error(errorMsg)
+        score = 0
+
+    for index, point in enumerate(points[:-1]):
+        distance += gpsFunctions.haversine(point['longitud'], point['latitud'],
+                                           points[index + 1]['longitud'], points[index + 1]['latitud'],
+                                           measure='km')
+
+    # if distance is higher than 5 kilometers, fake!! don't give a shit
+    if distance > 5:
+        distance = 0
+
+    return round(score * distance, 8)
+"""
 
 def calculateEventScore(request, eventCode):
     """ """
