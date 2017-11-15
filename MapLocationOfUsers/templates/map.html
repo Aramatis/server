@@ -53,7 +53,7 @@
 
     info.onAdd = function () {
         this._div = L.DomUtil.create('div', 'info');
-        this._div.innerHTML = '<h4>Usuarios gamificados por día</h4><span id="userChart"></span>';
+        this._div.innerHTML = '<h4>Nuevos usuarios gamificados por día</h4><span id="userChart"></span><span id="userTotal"></span>';
         return this._div;
     };
     info.addTo(map);
@@ -90,6 +90,7 @@
 
     function drawChartOnMap(days) {
         var chartData = days.map(function(el) { return el.users;});
+        var userTotal = days.reduce(function (previous, current) { return previous + current.users; }, 0);
         var opts = {
             type: "bar",
             color: "green",
@@ -99,7 +100,8 @@
                 return day + "  ->  " + val.value;
             }
         };
-        jQuery("#userChart").sparkline(chartData, opts)
+        jQuery("#userChart").sparkline(chartData, opts);
+        jQuery("#userTotal").html(" = " + userTotal);
     }
     function drawMarkersOnMap(markers) {
         //removes prevevius markers
