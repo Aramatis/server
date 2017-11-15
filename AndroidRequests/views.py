@@ -28,12 +28,11 @@ def userPosition(request, pPhoneId, pLat, pLon):
     :return: json
     """
 
-    currPose = DevicePositionInTime(
+    DevicePositionInTime.objects.create(
         longitude=pLon,
         latitude=pLat,
         timeStamp=timezone.now(),
         phoneId=pPhoneId)
-    currPose.save()
 
     response = {'response': 'Pose registered.'}
     return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
