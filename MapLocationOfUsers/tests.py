@@ -144,17 +144,18 @@ class GetMapPositionsTest(TestCase):
         distribution = [1, 3, 25, 5, 0, 10, 30, 26]
         currentUserNumber = 0
         distribution_index = 0
-        for user in TranSappUser.objects.all():
+        for user in TranSappUser.objects.all().iterator():
             if currentUserNumber == distribution[distribution_index]:
                 distribution_index += 1
                 currentUserNumber = 0
-                hour = int(random.random()*23)
-                minute = int(random.random()*60)
-                day = day.replace(hour=hour, minute=minute) + datetime.timedelta(days=1)
+                day = day.replace(day=day.day + 1)
                 while distribution[distribution_index] == 0:
                     distribution_index += 1
-                    day = day + datetime.timedelta(days=1)
+                    day = day.replace(day=day.day + 1)
             currentUserNumber += 1
+            hour = int(random.random()*19 + 4)
+            minute = int(random.random()*59)
+            day = day.replace(hour=hour, minute=minute)
             user.timeCreation = day
             user.save()
 
