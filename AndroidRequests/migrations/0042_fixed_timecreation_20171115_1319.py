@@ -10,7 +10,7 @@ def fixed_timecreation(apps, schema_editor):
     ScoreHistory = apps.get_model('AndroidRequests', 'scorehistory')
     counter = 0
 
-    for token in Token.objects.filter().all().iterator():
+    for token in Token.objects.all().iterator():
         locationObj = PoseTrajectoryOfToken.objects.filter(token=token).order_by("timeStamp").first()
         scoreHistoryObj = ScoreHistory.objects.filter(meta__icontains=token.token).first()
 
