@@ -55,7 +55,7 @@ class Migration42Test(TestMigrations):
         PoseTrajectoryOfToken = apps.get_model('AndroidRequests', 'poseintrajectoryoftoken')
 
         level = Level.objects.create(position=1)
-        tranSappUser = TranSappUser.objects.create(phoneId=uuid.uuid4(), sessionToken=uuid.uuid4(), level=level,
+        self.tranSappUser = TranSappUser.objects.create(phoneId=uuid.uuid4(), sessionToken=uuid.uuid4(), level=level,
                                                    globalPosition=1)
         bus = Bus.objects.create(uuid=uuid.uuid4())
         busAssignment = Busassignment.objects.create(uuid=bus)
@@ -64,7 +64,7 @@ class Migration42Test(TestMigrations):
         token = self.Token.objects.create(token=self.uuidToken, phoneId=uuid.uuid4(), busassignment=busAssignment)
 
         scoreEvent = ScoreEvent.objects.create()
-        ScoreHistory.objects.create(tranSappUser=tranSappUser, scoreEvent=scoreEvent, timeCreation=timezone.now(),
+        ScoreHistory.objects.create(tranSappUser=self.tranSappUser, scoreEvent=scoreEvent, timeCreation=timezone.now(),
                                     score=10, meta="asd %s 12312" % self.uuidToken)
 
         self.timeCreation = timezone.now()
@@ -74,3 +74,4 @@ class Migration42Test(TestMigrations):
         """ at this point migration was executed and now we have to check asserts """
         tokenObj = self.Token.objects.get(token=self.uuidToken)
         self.assertEquals(tokenObj.timeCreation, self.timeCreation)
+        self.assertEquals(tokenObj.tranSappUser_id, self.tranSappUser.id)
