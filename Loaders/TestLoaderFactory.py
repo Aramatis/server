@@ -18,8 +18,6 @@ class TestLoaderFactory(object):
             return ServicesByBusStopTestLoader
         elif(model.lower() == "service"):
             return ServiceTestLoader
-        elif(model.lower() == "event"):
-            return EventTestLoader
         elif(model.lower() == "route"):
             return RouteTestLoader
         else:

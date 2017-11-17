@@ -281,59 +281,6 @@ class ServiceLocationTestLoader(TestLoader):
                 print super(ServiceLocationTestLoader, self).rowAddedMessage(self.className, i)
 
 
-class EventTestLoader(TestLoader):
-    """ This class load the events data to the database."""
-    _className = "EventTestLoader"
-    ticks = 100000
-
-    @property
-    def className(self):
-        return self._className
-
-    def deleteAllRecords(self):
-        Event.objects.all().delete()
-
-    def load(self, dataFilter):
-        self.deleteAllRecords()
-        i = 1
-        for line in self.csv:
-            line = deleteEndOfLine(line)
-            if len(line) == 0:
-                continue
-
-            data = line.split(";")
-
-            pId = data[0]
-            pEventType = data[1]
-            pCategory = data[2]
-            pOrigin = data[3]
-            pName = data[4]
-            pDescription = data[5]
-            pLifespam = data[6]
-            try:
-                Event.objects.create(
-                    id=pId,
-                    eventType=pEventType,
-                    category=pCategory,
-                    origin=pOrigin,
-                    name=pName,
-                    description=pDescription,
-                    lifespam=pLifespam)
-            except Exception as e:
-                dataName = "id,eventType,category,origin,name,description,lifespam"
-                dataValue = "{};{};{};{};{};{};{}".format(
-                    pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
-                errorMessage = super(
-                    EventTestLoader, self).getErrorMessage(
-                    self.className, e, dataName, dataValue)
-                self.log.write(errorMessage)
-                continue
-
-            i += 1
-            if(i % self.ticks == 0):
-                print super(EventTestLoader, self).rowAddedMessage(self.className, i)
-
-
 class RouteTestLoader(TestLoader):
     """ This class load service-routes data to the database."""
     _className = "RouteTestLoader"

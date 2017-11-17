@@ -1,4 +1,4 @@
-from ModelLoaders import BusStopLoader, ServiceStopDistanceLoader, ServiceLocationLoader, ServicesByBusStopLoader, ServiceLoader, EventLoader, RouteLoader
+from ModelLoaders import BusStopLoader, ServiceStopDistanceLoader, ServiceLocationLoader, ServicesByBusStopLoader, ServiceLoader, RouteLoader
 
 
 class LoaderFactory(object):
@@ -10,17 +10,15 @@ class LoaderFactory(object):
 
         if(model.lower() == "busstop"):
             return BusStopLoader
-        elif(model.lower() == "servicestopdistance"):
+        elif(model.lower() == "routestopdistance"):
             return ServiceStopDistanceLoader
-        elif(model.lower() == "servicelocation"):
+        elif(model.lower() == "routelocation"):
             return ServiceLocationLoader
-        elif(model.lower() == "servicesbybusstop"):
+        elif(model.lower() == "routebybusstop"):
             return ServicesByBusStopLoader
-        elif(model.lower() == "service"):
-            return ServiceLoader
-        elif(model.lower() == "event"):
-            return EventLoader
         elif(model.lower() == "route"):
+            return ServiceLoader
+        elif(model.lower() == "shape"):
             return RouteLoader
         else:
             return None

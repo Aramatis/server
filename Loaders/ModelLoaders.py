@@ -308,65 +308,6 @@ class ServiceLocationLoader(Loader):
             self.processData(rows, i)
 
 
-class EventLoader(Loader):
-    """ This class load the events data to the database."""
-    _className = "Event"
-    ticks = 1
-
-    @property
-    def className(self):
-        return self._className
-
-    def load(self):
-        i = 1
-        for line in self.csv:
-            line = deleteEndOfLine(line)
-            if len(line) == 0:
-                continue
-
-            data = line.split(";")
-
-            pId = data[0]
-            pEventType = data[1]
-            pCategory = data[2]
-            pOrigin = data[3]
-            pName = data[4]
-            pDescription = data[5]
-            pLifespam = data[6]
-            try:
-                if Event.objects.filter(id=pId).exists():
-                    event = Event.objects.get(id=pId)
-                    event.eventType = pEventType
-                    event.category = pCategory
-                    event.origin = pOrigin
-                    event.name = pName
-                    event.description = pDescription
-                    event.lifespam = pLifespam
-                    event.save()
-                else:
-                    Event.objects.create(
-                        id=pId,
-                        eventType=pEventType,
-                        category=pCategory,
-                        origin=pOrigin,
-                        name=pName,
-                        description=pDescription,
-                        lifespam=pLifespam)
-            except Exception as e:
-                dataName = "id,eventType,category,origin,name,description,lifespam"
-                dataValue = "{};{};{};{};{};{};{}\n".format(
-                    pId, pEventType, pCategory, pOrigin, pName, pDescription, pLifespam)
-                errorMessage = super(
-                    EventLoader, self).getErrorMessage(
-                    self.className, e, dataName, dataValue)
-                self.log.write(errorMessage)
-                continue
-
-            i += 1
-            if(i % self.ticks == 0):
-                print super(EventLoader, self).rowAddedMessage(self.className, i)
-
-
 class RouteLoader(Loader):
     """ This class load service-routes data to the database."""
     _className = "Route"
