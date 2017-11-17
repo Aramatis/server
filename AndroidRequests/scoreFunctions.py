@@ -171,6 +171,7 @@ def checkCompleteTripScore(trip_token):
 
         # if distance is less than 100 meters or duration is less than 1 minute, subtract points
         minutes = 1
+
         if distance < 0.1 or diffTime < minutes * 60:
             newScore = 0
             ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).update(score=newScore)
