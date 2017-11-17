@@ -98,6 +98,7 @@ INSTALLED_APPS = (
     'routeplanner',
     'AndroidRequestsBackups',
     'onlinegps',
+    'gtfs'
 )
 
 MIDDLEWARE_CLASSES = (
