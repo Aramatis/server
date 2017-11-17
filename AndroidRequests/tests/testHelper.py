@@ -431,7 +431,7 @@ class TestHelper:
         BUS EVENT METHODS BY POST
     """
 
-    def reportEventV2ByPost(self, phoneId, machineId, route, eventCode, userId, sessionToken):
+    def reportEventV2ByPost(self, phoneId, machineId, route, eventCode, userId=None, sessionToken=None):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2'
         c = Client()
@@ -439,9 +439,11 @@ class TestHelper:
                 'machineId': machineId,
                 'service': route,
                 'eventId': eventCode,
-                'vote': EventRegistration.CONFIRM,
-                'userId': userId,
-                'sessionToken': sessionToken}
+                'vote': EventRegistration.CONFIRM
+                }
+        if userId is not None:
+            data["userId"] = userId
+            data["sessionToken"] = sessionToken
         response = c.post(URL, data)
 
         self.test.assertEqual(response.status_code, 200)

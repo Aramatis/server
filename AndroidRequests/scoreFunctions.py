@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+from django.utils import timezone, dateparse
+
+from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level, PoseInTrajectoryOfToken
+from AndroidRequests.statusResponse import Status
+
+import AndroidRequests.gpsFunctions as gpsFunctions
 import abc
 import logging
 import uuid
-
-from django.utils import timezone, dateparse
-
-import AndroidRequests.gpsFunctions as gpsFunctions
-from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level, PoseInTrajectoryOfToken
-from AndroidRequests.statusResponse import Status
+import json
 
 
 class UserValidation(object):
@@ -72,6 +73,8 @@ class CalculateScore:
                 self.user.level = nextLevel
                 self.user.save()
 
+            if meta is not None:
+                meta = json.dumps(meta)
             # to score log
             scoreEventObj = ScoreEvent.objects.get(code=scoreEvent)
             ScoreHistory.objects.create(tranSappUser=self.user, scoreEvent=scoreEventObj,
@@ -134,53 +137,51 @@ class DistanceScore(CalculateScore):
                                                points[index + 1]['longitud'], points[index + 1]['latitud'],
                                                measure='km')
 
-        # if distance is higher than 5 kilometers, fake!! don't give a shit
-        if distance > 5:
+        # if distance is higher than 8 kilometers, fake!! don't give a shit
+        if distance > 8:
             distance = 0
 
         return round(score * distance, 8)
 
-"""
+
 def checkCompleteTripScore(trip_token):
-    "
+    """
     Update score based on all data of a trip. Conditions:
     1 - total distances greater than 100 meters
-    2 - total time is greater than 3 minutes
-    "
+    2 - total time is greater than 1 minute
+    """
+    oldScore = 0
+    scoreHistoryObjs = list(ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).\
+        order_by("timeCreation"))
 
-    scores = ScoreHistory.objects.filter(meta__contains=trip_token).values_list("meta", "score")
+    if len(scoreHistoryObjs) > 0:
+        for scoreHistoryObj in scoreHistoryObjs:
+            oldScore += scoreHistoryObj.score
+        oldScore = round(oldScore, 8)
 
-    points = metaData['poses']
-    tripToken = metaData['tripToken']
+        firstPoint = json.loads(scoreHistoryObjs[0].meta)["poses"][0]
+        lastPoint = json.loads(scoreHistoryObjs[-1].meta)["poses"][-1]
+        startTime = timezone.make_aware(dateparse.parse_datetime(firstPoint['timeStamp']))
+        lastTime = timezone.make_aware(dateparse.parse_datetime(lastPoint['timeStamp']))
 
-    firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
-    firstPointTime = timezone.make_aware(firstPointTime)
-    distance = 0
+        distance = gpsFunctions.haversine(firstPoint["longitud"], firstPoint["latitud"],
+                                          lastPoint['longitud'], lastPoint['latitud'], measure='km')
 
-    previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, timeStamp__lt=firstPointTime).\
-        order_by('-timeStamp').first()
-    if previousPoint is not None:
-        distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
-                                           points[0]['longitud'], points[0]['latitud'], measure='km')
+        diffTime = (lastTime-startTime).total_seconds()
 
-    try:
-        score = ScoreEvent.objects.get(code=eventCode).score
-    except ScoreEvent.DoesNotExist:
-        errorMsg = 'event code: {} does not exist in database'.format(eventCode)
-        self.logger.error(errorMsg)
-        score = 0
+        # if distance is less than 100 meters or duration is less than 1 minute, subtract points
+        minutes = 1
+        if distance < 0.1 or diffTime < minutes * 60:
+            newScore = 0
+            ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).update(score=newScore)
 
-    for index, point in enumerate(points[:-1]):
-        distance += gpsFunctions.haversine(point['longitud'], point['latitud'],
-                                           points[index + 1]['longitud'], points[index + 1]['latitud'],
-                                           measure='km')
+            user = TranSappUser.objects.select_related("level").get(id=scoreHistoryObjs[0].tranSappUser_id)
+            user.globalScore -= oldScore
+            if user.globalScore < user.level.minScore:
+                previousLevel = Level.objects.get(position=user.level.position - 1)
+                user.level = previousLevel
+            user.save()
 
-    # if distance is higher than 5 kilometers, fake!! don't give a shit
-    if distance > 5:
-        distance = 0
-
-    return round(score * distance, 8)
-"""
 
 def calculateEventScore(request, eventCode):
     """ """
