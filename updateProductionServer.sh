@@ -28,7 +28,7 @@ KEY_FILES=(
 
 for FILE_NAME in "${KEY_FILES[@]}"
 do
-    if [ ! -f $KEY_PATH/$FILE_NAME ]; then
+    if [ ! -f "$KEY_PATH/$FILE_NAME" ]; then
         echo "REMEMBER TO ADD ALL KEY FILES IN THIS SERVER"
         echo "THE NEXT FILE COULD NOT FIND: $FILE_NAME"
         exit

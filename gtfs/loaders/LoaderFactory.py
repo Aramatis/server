@@ -1,4 +1,5 @@
-from ModelLoaders import BusStopLoader, ServiceStopDistanceLoader, ServiceLocationLoader, ServicesByBusStopLoader, ServiceLoader, RouteLoader
+from ModelLoaders import BusStopLoader, ServiceStopDistanceLoader, ServiceLocationLoader, ServicesByBusStopLoader, \
+    ServiceLoader, RouteLoader
 
 
 class LoaderFactory(object):
@@ -8,17 +9,17 @@ class LoaderFactory(object):
         """It receives a string indicating the table/model where you want to save the data
         and returns the respective Loader."""
 
-        if(model.lower() == "busstop"):
+        if (model.lower() == "stop"):
             return BusStopLoader
-        elif(model.lower() == "routestopdistance"):
+        elif (model.lower() == "routestopdistance"):
             return ServiceStopDistanceLoader
-        elif(model.lower() == "routelocation"):
+        elif (model.lower() == "routelocation"):
             return ServiceLocationLoader
-        elif(model.lower() == "routebybusstop"):
+        elif (model.lower() == "routebystop"):
             return ServicesByBusStopLoader
-        elif(model.lower() == "route"):
+        elif (model.lower() == "route"):
             return ServiceLoader
-        elif(model.lower() == "shape"):
+        elif (model.lower() == "shape"):
             return RouteLoader
         else:
-            return None
+            raise ValueError('%s is not valid model' % model)

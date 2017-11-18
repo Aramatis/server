@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import abc
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-django.setup()
-from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation, GTFS
 from django.utils import timezone
+
+from gtfs.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Route, ServiceLocation, GTFS
+
+import abc
 
 
 def deleteEndOfLine(line):
@@ -42,12 +40,12 @@ class Loader:
         """ Return a String with a message error and the data produced the error """
         msgException = str(exception)
         msgException = msgException.replace('\n', '')
-        messageError = "=========================================\n"\
-                       "Exception: {}\n"\
-                       "Loader: {}\n"\
-                       "Data columns: {}\n"\
-                       "Values: {}"\
-                       "=========================================\n".\
+        messageError = "=========================================\n" \
+                       "Exception: {}\n" \
+                       "Loader: {}\n" \
+                       "Data columns: {}\n" \
+                       "Values: {}" \
+                       "=========================================\n". \
             format(msgException, className, dataName, dataValue)
         return messageError
 
@@ -81,9 +79,9 @@ class BusStopLoader(Loader):
             pLon = data[3]
 
             try:
-                BusStop.objects.get_or_create(code=pCode, gtfs=self.gtfs, 
+                BusStop.objects.get_or_create(code=pCode, gtfs=self.gtfs,
                                               defaults={'name': pName,
-                                                        'latitude': pLat, 
+                                                        'latitude': pLat,
                                                         'longitude': pLon})
             except Exception as e:
                 dataName = "code,name,lat,lon"
@@ -95,7 +93,7 @@ class BusStopLoader(Loader):
                 continue
 
             i += 1
-            if(i % self.ticks == 0):
+            if (i % self.ticks == 0):
                 print super(BusStopLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -124,9 +122,9 @@ class ServiceLoader(Loader):
             pColorId = data[4]
 
             try:
-                Service.objects.get_or_create(service=pServiceName,gtfs=self.gtfs,
-                        defaults={'origin':pOrigin, 'destiny':pDestination,
-                                  'color':pColor, 'color_id':pColorId})
+                Service.objects.get_or_create(service=pServiceName, gtfs=self.gtfs,
+                                              defaults={'origin': pOrigin, 'destiny': pDestination,
+                                                        'color': pColor, 'color_id': pColorId})
             except Exception as e:
                 dataName = "serviceName,origin,destination,color,colorId"
                 dataValue = "{};{};{};{};{}\n".format(
@@ -138,7 +136,7 @@ class ServiceLoader(Loader):
                 continue
 
             i += 1
-            if(i % self.ticks == 0):
+            if (i % self.ticks == 0):
                 print super(ServiceLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -166,8 +164,8 @@ class ServiceStopDistanceLoader(Loader):
             pDistance = data[2]
             try:
                 busStop = BusStop.objects.get(code=pBusStopCode, gtfs=self.gtfs)
-                ServiceStopDistance.objects.get_or_create(busStop=busStop, service=pServiceName, gtfs=self.gtfs, 
-                        defaults={'distance':int(pDistance)})
+                ServiceStopDistance.objects.get_or_create(busStop=busStop, service=pServiceName, gtfs=self.gtfs,
+                                                          defaults={'distance': int(pDistance)})
             except Exception as e:
                 dataName = "busStopCode,serviceName,distance"
                 dataValue = "{};{};{}\n".format(
@@ -179,7 +177,7 @@ class ServiceStopDistanceLoader(Loader):
                 continue
 
             i += 1
-            if(i % self.ticks == 0):
+            if (i % self.ticks == 0):
                 print super(ServiceStopDistanceLoader, self).rowAddedMessage(self.className, i)
 
 
@@ -206,7 +204,7 @@ class ServicesByBusStopLoader(Loader):
                 ServicesByBusStopLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
             self.log.write(errorMessage)
-            print "{}: Error in bulk_create [{},{}]".format(self._className, index-self.ticks, index)
+            print "{}: Error in bulk_create [{},{}]".format(self._className, index - self.ticks, index)
 
     def load(self):
         i = 0
@@ -224,7 +222,7 @@ class ServicesByBusStopLoader(Loader):
 
             for pService in pServices:
                 serviceWithoutDirection = pService[:-1]
-                
+
                 try:
                     serviceObj = Service.objects.get(
                         service=serviceWithoutDirection, gtfs=self.gtfs)
@@ -242,7 +240,7 @@ class ServicesByBusStopLoader(Loader):
                     continue
 
                 i += 1
-                if(i % self.ticks == 0):
+                if (i % self.ticks == 0):
                     self.processData(rows, i)
                     rows = []
 
@@ -273,7 +271,7 @@ class ServiceLocationLoader(Loader):
                 ServiceLocationLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
             self.log.write(errorMessage)
-            print "{}: Error in bulk_create [{},{}]".format(self._className, index-self.ticks, index)
+            print "{}: Error in bulk_create [{},{}]".format(self._className, index - self.ticks, index)
 
     def load(self):
         i = 0
@@ -300,7 +298,7 @@ class ServiceLocationLoader(Loader):
             rows.append(row)
 
             i += 1
-            if(i % self.ticks == 0):
+            if (i % self.ticks == 0):
                 self.processData(rows, i)
                 rows = []
 
@@ -331,7 +329,7 @@ class RouteLoader(Loader):
                 RouteLoader, self).getErrorMessage(
                 self.className, e, dataName, dataValue)
             self.log.write(errorMessage)
-            print "{}: Error in bulk_create [{},{}]".format(self._className, index-self.ticks, index)
+            print "{}: Error in bulk_create [{},{}]".format(self._className, index - self.ticks, index)
 
     def load(self):
         i = 0
@@ -348,16 +346,15 @@ class RouteLoader(Loader):
             pLat = data[1]
             pLon = data[2]
             pSequence = data[3]
-            
+
             row = Route(serviceCode=pServiceCode, latitude=pLat,
                         longitude=pLon, sequence=pSequence, gtfs=self.gtfs)
             rows.append(row)
 
             i += 1
-            if(i % self.ticks == 0):
+            if (i % self.ticks == 0):
                 self.processData(rows, i)
                 rows = []
 
         if len(rows) > 0:
             self.processData(rows, i)
-

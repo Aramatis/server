@@ -1,12 +1,14 @@
 from django.test import TransactionTestCase
 from django.utils import timezone
 
-from AndroidRequests.models import BusStop, GTFS, EventRegistration
+from gtfs.models import GTFS, BusStop
+from AndroidRequests.models import EventRegistration
 from AndroidRequests.tests.testHelper import TestHelper
 
 
 class BusStopEventTestCase(TransactionTestCase):
     """ test the behavior of events when busstops are updated """
+    fixtures = ["events"]
 
     # TERMINAR ESTO!!!!!! EL TEST; HACER LA URL; CAMBIAR LA SESION Y LISTO
     def setUp(self):
@@ -16,7 +18,6 @@ class BusStopEventTestCase(TransactionTestCase):
 
         self.test = TestHelper(self)
 
-        self.test.insertEventsOnDatabase()
         self.test.insertBusstopsOnDatabase([self.busStopCode])
 
         # report bus stop event

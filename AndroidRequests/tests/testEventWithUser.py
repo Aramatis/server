@@ -7,12 +7,12 @@ from AndroidRequests.tests.testHelper import TestHelper
 
 class EventWithUserTestCase(TransactionTestCase):
     """ test for DevicePositionInTime model """
+    fixtures = ["events"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
         # create events
         self.test = TestHelper(self)
-        self.test.insertEventsOnDatabase()
         self.eventBusCode = 'evn00201'
 
         # create levels 

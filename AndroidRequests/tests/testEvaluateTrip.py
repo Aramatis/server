@@ -2,9 +2,7 @@ from django.test import TestCase
 
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
-from AndroidRequests.models import Token, TranSappUser, Level, ScoreHistory
-
-import uuid
+from AndroidRequests.models import Token, ScoreHistory
 
 
 class EvaluateTripTest(TestCase):

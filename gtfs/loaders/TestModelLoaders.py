@@ -4,7 +4,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 django.setup()
-from AndroidRequests.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Event, Route, ServiceLocation, GTFS
+from gtfs.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Route, ServiceLocation, GTFS
 from django.utils import timezone
 
 

@@ -8,8 +8,9 @@ from django.utils import timezone
 # views
 import AndroidRequests.views as views
 # my stuff
-from AndroidRequests.models import DevicePositionInTime, BusStop, Service, ServiceStopDistance, ServiceLocation, \
-    ActiveToken, Token, EventForBusStop, Event, Busv2, Busassignment, GTFS
+from AndroidRequests.models import DevicePositionInTime, ActiveToken, Token, EventForBusStop, Event, Busv2, \
+    Busassignment
+from gtfs.models import GTFS, BusStop, Service, ServiceStopDistance, ServiceLocation
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
 
@@ -67,6 +68,7 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
 
 class DevicePositionInTimeTest(TransactionTestCase):
     """ test for DevicePositionInTime model """
+    fixtures = ["events"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
@@ -95,8 +97,6 @@ class DevicePositionInTimeTest(TransactionTestCase):
         # initial config for ActiveToken
 
         self.test = TestHelper(self)
-
-        self.test.insertEventsOnDatabase()
 
         self.gtfs = GTFS.objects.get(version=settings.GTFS_VERSION)
         # add dummy  bus

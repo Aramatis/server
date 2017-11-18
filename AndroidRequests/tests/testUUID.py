@@ -7,7 +7,6 @@ from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
-from AndroidRequests.allviews.RequestUUID import RequestUUID
 from AndroidRequests.models import Busv2, ActiveToken, Token, Busassignment, Event, EventForBusv2, EventForBusStop
 from AndroidRequests.tests.testHelper import TestHelper
 
@@ -17,6 +16,7 @@ import re
 
 
 class DummyLicensePlateUUIDTest(TransactionTestCase):
+    fixtures = ["events"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
@@ -28,7 +28,6 @@ class DummyLicensePlateUUIDTest(TransactionTestCase):
 
         # loads the events
         self.helper = TestHelper(self)
-        self.helper.insertEventsOnDatabase()
 
         # add dummy  bus
         self.licencePlate = "AA1111"

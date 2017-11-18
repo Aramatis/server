@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.utils import timezone
 
-from Loaders.LoaderFactory import LoaderFactory
+from gtfs.loaders.LoaderFactory import LoaderFactory
 
 import os
 
@@ -13,42 +13,50 @@ class Command(BaseCommand):
     def __init__(self):
         super(Command, self).__init__()
 
-        self.app_name = 'gtfs'
-        self.log_folder_name = 'log'
-        self.log_file_name = '%s.log' % timezone.now().strftime('%Y%m%d%H%M%S')
-        self.data_folder_name = 'data'
+        app_name = 'gtfs'
+        log_folder_name = 'log'
+        self.log_file_name = '%s.log' % timezone.now().strftime('%Y%m%d_%H%M%S')
+        data_folder_name = 'data'
 
+        self.file_path = os.path.join(settings.BASE_DIR, app_name, data_folder_name)
+        self.log_path = os.path.join(settings.BASE_DIR, app_name, log_folder_name)
+        
         self.gtfs_version = None
         self.models = []
 
     def add_arguments(self, parser):
-        parser.add_argument('gtfs_version', type=int, help='gtfs version to load')
+        parser.add_argument('gtfs_version', help='gtfs version to load')
         parser.add_argument('models', nargs='+',
                             help='models to update. possible values : '
                                  'stop route routelocation routestopdistance routebystop shape')
+        parser.add_argument('--logfilename', default=None, help='name of log file generated in the execution')
 
     def handle(self, *args, **options):
         self.gtfs_version = options['gtfs_version']
         self.models = options['models']
+        log_file_name = options['logfilename']
 
-        log_file = os.path.join(settings.BASE_DIR, self.app_name, self.log_folder_name, self.log_file_name)
+        if log_file_name:
+            log_file = os.path.join(self.log_path, log_file_name)
+        else:
+            log_file = os.path.join(self.log_path, self.log_file_name)
+
         try:
             factory = LoaderFactory()
             with open(log_file, 'w+') as log:
                 for model in self.models:
-                    csv = open(self.get_path_file(model), 'r')
-                    # skip header
-                    csv.next()
-                    loader = factory.getModelLoader(model)(csv, log, self.gtfs_version)
-                    loader.load()
-                    csv.close()
+                    path = self.get_path_file(model)
+                    with open(path, 'r') as csv_file:
+                        # skip header
+                        csv_file.next()
+                        loader = factory.getModelLoader(model)(csv_file, log, self.gtfs_version)
+                        loader.load()
+                    self.stdout.write(self.style.SUCCESS("%s data copied successfully." % model))
         except Exception as e:
             raise CommandError(str(e))
 
     def get_path_file(self, model_name):
         """ get path of file to upload """
-
-        file_path = os.path.join(settings.BASE_DIR, self.app_name, self.gtfs_version, self.data_folder_name)
         
         if model_name == 'stop':
             file_name = 'busstop.csv'
@@ -66,4 +74,4 @@ class Command(BaseCommand):
             raise ValueError('model name does not match with any valid model name: '
                              'stop route routelocation routestopdistance routebystop shape')
             
-        return os.path.join(file_path, file_name)
+        return os.path.join(self.file_path, self.gtfs_version, file_name)

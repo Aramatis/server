@@ -8,12 +8,12 @@ import AndroidRequests.cronTasks as cronTasks
 
 class CronTasksTestCase(TransactionTestCase):
     """ test for cron-task actions """
+    fixtures = ["events"]
 
     def setUp(self):
         self.factory = RequestFactory()
 
         self.test = TestHelper(self)
-        self.test.insertEventsOnDatabase()
 
         # create bus stop
         self.stop = 'PI62'

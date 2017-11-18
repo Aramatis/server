@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.test import TestCase
 
-from AndroidRequests.models import ServiceLocation, BusStop, ServiceStopDistance, Busassignment, GTFS
+from AndroidRequests.models import ServiceLocation, BusStop, ServiceStopDistance, Busassignment
+from gtfs.models import GTFS
 from AndroidRequests.tests.testHelper import TestHelper
 
 

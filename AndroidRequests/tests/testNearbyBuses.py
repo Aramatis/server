@@ -2,7 +2,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory
 
 from AndroidRequests.tests.testHelper import TestHelper
-from AndroidRequests.models import BusStop
+from gtfs.models import BusStop
 
 import AndroidRequests.constants as Constants
 import AndroidRequests.views as views
@@ -52,6 +52,7 @@ class NearbyBusesTest(TestCase):
 
 class NearbyBusesResponseTest(TestCase):
     """ test for response of nearbybuses function """
+    fixtures = ["events"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
@@ -412,7 +413,6 @@ class NearbyBusesResponseTest(TestCase):
     def test_EventsFromSameMachineButDifferentRoute(self):
         """ case: first event reported with one route, second event reported in the same machine but different route.
             Expected answer: new user bus has to have two events """
-        self.helper.insertEventsOnDatabase()
 
         licensePlate = "BJFB28"
         previousRoute = "999"

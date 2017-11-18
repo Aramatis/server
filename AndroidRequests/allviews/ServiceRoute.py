@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.generic import View
 
-from AndroidRequests.models import Route
+from gtfs.models import Route
 from AndroidRequests.encoder import TranSappJSONEncoder
 
 

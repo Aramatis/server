@@ -6,12 +6,12 @@ from AndroidRequests.tests.testHelper import TestHelper
 
 class BusEventUserListTestCase(TransactionTestCase):
     """ test for user list returned by an event """
+    fixtures = ["events"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
         # create events
         self.test = TestHelper(self)
-        self.test.insertEventsOnDatabase()
         self.eventCode = 'evn00201'
 
         # create levels 

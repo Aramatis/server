@@ -5,17 +5,18 @@ from django.utils import timezone
 
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.models import TranSappUser, Level, EventRegistration
-from Loaders.TestLoaderFactory import TestLoaderFactory
+from gtfs.loaders.TestLoaderFactory import TestLoaderFactory
 
 import datetime as dt
 import json
 import uuid
+import os
 
 
 class TestHelper:
     """ methods that help to create test cases """
-    FILE_SOURCE = 'InitialData'
-    GTFS_PATH = 'InitialData/{}'.format(settings.GTFS_VERSION)
+    FILE_SOURCE = 'gtfs'
+    GTFS_PATH = os.path.join(FILE_SOURCE, 'data', settings.GTFS_VERSION)
     LOG_FILE_NAME = 'loadDataErrorTest.log'
 
     def __init__(self, testInstance):
@@ -34,15 +35,6 @@ class TestHelper:
         loader.load(dataFilter)
         csv.close()
         log.close()
-
-    def insertEventsOnDatabase(self):
-        """ loads events """
-
-        log = open(self.LOG_FILE_NAME, 'w')
-        filePath = self.FILE_SOURCE + '/events.csv'
-        model = 'event'
-
-        self.__loadData(model, filePath, log)
 
     def insertServicesOnDatabase(self, serviceList):
         """ load services """

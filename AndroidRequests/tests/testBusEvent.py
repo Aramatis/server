@@ -9,6 +9,7 @@ import AndroidRequests.constants as constants
 
 class BusEventTest(TransactionTestCase):
     """ test for bus events """
+    fixtures = ["events"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
@@ -21,7 +22,6 @@ class BusEventTest(TransactionTestCase):
         self.stop = 'PA459'
 
         self.test = TestHelper(self)
-        self.test.insertEventsOnDatabase()
         self.test.insertServicesOnDatabase([self.route])
         self.test.insertBusstopsOnDatabase([self.stop])
 

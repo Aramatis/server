@@ -25,13 +25,12 @@ class ScoreTest(TestCase):
 
 class EventScoreTest(ScoreTest):
     """ test score related with events """
-    fixtures = ["levels", "scoreEvents"]
+    fixtures = ["events", "levels", "scoreEvents"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
         # create events
         self.test = TestHelper(self)
-        self.test.insertEventsOnDatabase()
         self.eventBusCode = 'evn00201'
 
         self.score = ScoreEvent.objects.get(code=self.eventBusCode).score

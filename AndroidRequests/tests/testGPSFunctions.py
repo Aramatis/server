@@ -1,16 +1,16 @@
-import json
-from datetime import datetime
-
 from django.test import TestCase
 from django.utils.dateparse import parse_datetime
 
+from datetime import datetime
+
+from AndroidRequests.tests.testHelper import TestHelper
+
 import AndroidRequests.constants as Constants
 import AndroidRequests.gpsFunctions as Gps
-from AndroidRequests.tests.testHelper import TestHelper
+import json
 
 
 class TestGPSFunctions(TestCase):
-
     def setUp(self):
         # self.phoneId = '067e6162-3b6f-4ae2-a171-2470b63dff00'
         # self.route = '506'
