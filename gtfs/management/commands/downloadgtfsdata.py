@@ -47,12 +47,12 @@ class Command(BaseCommand):
                 filePath = os.path.join(self.file_path, self.gtfs_version, fileName)
 
                 if os.path.isfile(filePath):
-                    message = "file '{}' exists. Do you want to replace it?(yes/no)".format(fileName)
+                    message = "file '%s' exists. Do you want to replace it?(yes/no)" % fileName
                     answer = raw_input(message)
                     if answer.lower() in ['yes', 'y']:
                         self.downloadFile(fileName, webFileName, filePath)
                     else:
-                        print "file '{}' skipped".format(fileName)
+                        self.stdout.write(self.style.NOTICE("file '%s' skipped" % fileName))
                 else:
                     self.downloadFile(fileName, webFileName, filePath)
         except Exception as e:
