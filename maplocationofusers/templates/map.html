@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8/>
+    <title>A simple map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no'/>
+    <!--js script libraries-->
+    <script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+    <!--CSS libraries-->
+    <link href='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.css' rel='stylesheet'/>
+    <style>
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        .info h4 {
+            margin: 0 0 5px;
+            color: #777;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id='map'></div>
+
+<script>
+
+    //get the map
+    L.mapbox.accessToken = 'pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
+
+    //centering in Santiago
+    var map = L.mapbox.map('map', 'cephei.nhfb48an')
+        .setView([-33.446209, -70.660803], 13);
+
+    // add chart of new gamificated users
+    var info = L.control();
+
+    info.onAdd = function () {
+        this._div = L.DomUtil.create('div', 'info');
+        this._div.innerHTML = '<h4>Nuevos usuarios gamificados por día</h4><span id="userChart"></span><span id="userTotal"></span>';
+        return this._div;
+    };
+    info.addTo(map);
+
+    askMarkersOnMap();
+
+    function askMarkersOnMap() {
+
+        $.ajax({
+            url: "/map/activeuserpose",// ask for current poses
+            success: function (data) {
+                drawMarkersOnMap(data);
+            }
+        });
+
+        $.ajax({
+            url: "/map/activetrajectory",// ask for current poses
+            success: function (data) {
+                drawTrajactorysOnMap(data);
+            }
+        });
+
+        $.ajax({
+            url: "/map/gamificatedusersbyday",// ask for current poses
+            success: function (data) {
+                drawChartOnMap(data.usersByDay);
+            }
+        });
+        //this does the update in the map
+        setTimeout(askMarkersOnMap, 60000);
+    }
+
+    var currentMarkers = [];
+
+    function drawChartOnMap(days) {
+        var chartData = days.map(function(el) { return el.users;});
+        var userTotal = days.reduce(function (previous, current) { return previous + current.users; }, 0);
+        var opts = {
+            type: "bar",
+            color: "green",
+            tooltipFormatter: function (el, opt, val) {
+                val = val[0];
+                var day = (new Date(days[val.offset].day)).toLocaleDateString();
+                return day + "  ->  " + val.value;
+            }
+        };
+        jQuery("#userChart").sparkline(chartData, opts);
+        jQuery("#userTotal").html(" = " + userTotal);
+    }
+    function drawMarkersOnMap(markers) {
+        //removes prevevius markers
+        jQuery.each(currentMarkers, function (idx, val) {
+            map.removeLayer(val);
+        });
+
+        currentMarkers = [];
+
+        // add new markers
+        jQuery.each(markers, function (idx, val) {
+            var newMarker = L.marker([val.latitud, val.longitud], {
+                icon: L.mapbox.marker.icon({
+                    'marker-size': 'small',
+                    'marker-symbol': 'pitch',
+                    'marker-color': '#fa0'
+                })
+            });
+            // draws it in the map
+            newMarker.addTo(map);
+            // keep reference to the current markers
+            currentMarkers.push(newMarker);
+        });
+    }
+
+    var currentTrajectorys = [];
+
+    function drawTrajactorysOnMap(trajectorys) {
+
+        //removes prevevius markers
+        /*jQuery.each(currentTrajectorys,function(idx, val){
+          map.removeLayer(val);
+        });*/
+
+        trajectorys.sort
+        (
+            function (a, b) {
+                return a.token.localeCompare(b.token) * -1;
+            }
+        );
+
+        jQuery.each(trajectorys, function (idx, val) {
+            // the color of the line
+            var myColor = val.myColor;
+            //get the trajectory points
+            var lastPose = val.lastPose;
+            //set the style, in this case the color of the line
+            var postionMarker = L.marker(lastPose, {
+                icon: L.mapbox.marker.icon({
+                    'marker-size': 'small',
+                    'marker-symbol': 'bus',
+                    'marker-color': myColor
+                })
+            });
+
+            var cont = currentTrajectorys.length;
+
+            if (cont == 0) {
+                postionMarker.addTo(map);
+                var addVal = [val.token, postionMarker, 1];
+                currentTrajectorys.push(addVal);
+            }
+
+            while (cont > 0) {
+                cont--;
+                var aPose = currentTrajectorys[cont];
+                var comp = val.token.localeCompare(aPose[0]);
+
+                if (comp == 0) {
+                    aPose[2] = 1;
+                    aPose[1].setLatLng(L.latLng(lastPose[0], lastPose[1]));
+                }
+                else if (comp > 0) {
+                    postionMarker.addTo(map);
+                    var addVal = [val.token, postionMarker, 1];
+                    currentTrajectorys.splice(cont + 1, 0, addVal);
+                }
+                else if (cont == 0) {
+                    postionMarker.addTo(map);
+                    var addVal = [val.token, postionMarker, 1];
+                    currentTrajectorys.splice(cont, 0, addVal);
+                }
+            }
+
+        });
+
+        var i = currentTrajectorys.length;
+        while (i) {
+            i--;
+            var aux = currentTrajectorys[i];
+            if (aux[2] == 0) {
+                map.removeLayer(aux[1]);
+                currentTrajectorys.splice(i, 1);
+            }
+            else {
+                aux[2] = 0;
+            }
+
+        }
+    }
+
+    /*
+    var line_points = [
+        [38.893596444352134, -77.0381498336792],
+        [38.89337933372204, -77.03792452812195],
+        [38.89316222242831, -77.03761339187622],
+        [38.893028615148424, -77.03731298446655],
+        [38.892920059048464, -77.03691601753235],
+        [38.892903358095296, -77.03637957572937],
+        [38.89301191422077, -77.03592896461487],
+        [38.89316222242831, -77.03549981117249],
+        [38.89340438498248, -77.03514575958252],
+        [38.893596444352134, -77.0349633693695]
+    ];
+
+    // Define polyline options
+    // http://leafletjs.com/reference.html#polyline
+    var polyline_options = {
+        color: '#000'
+    };
+
+    // Defining a polygon here instead of a polyline will connect the
+    // endpoints and fill the path.
+    // http://leafletjs.com/reference.html#polygon
+    var polyline = L.polyline(line_points, polyline_options).addTo(map);
+    */
+
+</script>
+</body>
+</html>
+
