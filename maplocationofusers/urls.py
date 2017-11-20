@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from MapLocationOfUsers.views import MapHandler, GetMapPositions, GetMapTrajectory, GetGamificationUsersByDay
+from maplocationofusers.views import MapHandler, GetMapPositions, GetMapTrajectory, GetGamificationUsersByDay
 
 app_name = "map"
 urlpatterns = [

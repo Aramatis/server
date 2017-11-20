@@ -91,7 +91,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_crontab',
     'AndroidRequests',
-    'MapLocationOfUsers',
+    'maplocationofusers',
     'modelsdoc',
     'DataDictionary',
     'PredictorDTPM',
