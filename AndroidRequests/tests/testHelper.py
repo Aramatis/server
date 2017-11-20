@@ -15,8 +15,7 @@ import os
 
 class TestHelper:
     """ methods that help to create test cases """
-    FILE_SOURCE = 'gtfs'
-    GTFS_PATH = os.path.join(FILE_SOURCE, 'data', settings.GTFS_VERSION)
+    GTFS_PATH = os.path.join(settings.BASE_DIR, 'gtfs', 'data', settings.GTFS_VERSION)
     LOG_FILE_NAME = 'loadDataErrorTest.log'
 
     def __init__(self, testInstance):
@@ -40,7 +39,7 @@ class TestHelper:
         """ load services """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = self.GTFS_PATH + '/services.csv'
+        filePath = os.path.join(self.GTFS_PATH, 'services.csv')
         model = 'service'
 
         self.__loadData(model, filePath, log, serviceList)
@@ -49,7 +48,7 @@ class TestHelper:
         """ load bus stops """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = self.GTFS_PATH + '/busstop.csv'
+        filePath = os.path.join(self.GTFS_PATH, 'busstop.csv')
         model = 'busstop'
 
         self.__loadData(model, filePath, log, busStopList)
@@ -58,7 +57,7 @@ class TestHelper:
         """ load services by bus stops """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = self.GTFS_PATH + '/servicesbybusstop.csv'
+        filePath = os.path.join(self.GTFS_PATH, 'servicesbybusstop.csv')
         model = 'servicesbybusstop'
 
         self.__loadData(model, filePath, log, busStopList)
@@ -67,7 +66,7 @@ class TestHelper:
         """ load service stop distance data by service with direction """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = self.GTFS_PATH + '/servicestopdistance.csv'
+        filePath = os.path.join(self.GTFS_PATH, 'servicestopdistance.csv')
         model = 'servicestopdistance'
 
         self.__loadData(model, filePath, log, stopList)
@@ -76,7 +75,7 @@ class TestHelper:
         """ load service location data by service with direction """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = self.GTFS_PATH + '/servicelocation.csv'
+        filePath = os.path.join(self.GTFS_PATH, 'servicelocation.csv')
         model = 'servicelocation'
 
         self.__loadData(model, filePath, log, servicesWithDirection)

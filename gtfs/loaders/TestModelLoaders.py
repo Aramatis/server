@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import abc
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-django.setup()
-from gtfs.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Route, ServiceLocation, GTFS
 from django.utils import timezone
+
+from gtfs.models import BusStop, ServiceStopDistance, Service, ServicesByBusStop, Route, ServiceLocation, GTFS
+
+import abc
 
 
 def deleteEndOfLine(line):

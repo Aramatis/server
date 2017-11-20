@@ -1,21 +1,17 @@
-import django
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
 from django.test import TransactionTestCase, RequestFactory
 from django.utils import timezone
 
-# views
-import AndroidRequests.views as views
-# my stuff
 from AndroidRequests.models import DevicePositionInTime, ActiveToken, Token, EventForBusStop, Event, Busv2, \
     Busassignment
 from gtfs.models import GTFS, BusStop, Service, ServiceStopDistance, ServiceLocation
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
 
-
-# Create your tests here.
+import AndroidRequests.views as views
+import django
 
 
 class DevicePositionInTimeTestCase(TransactionTestCase):
@@ -27,8 +23,7 @@ class DevicePositionInTimeTestCase(TransactionTestCase):
         minutes = timezone.timedelta(minutes=1)
         self.timeStamp = [timezone.now(), timezone.now() + minutes, timezone.now() + minutes + minutes]
         self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
-        self.latitude = [-33.4577491104941, -
-        33.4445256604888, -33.4402777996082]
+        self.latitude = [-33.4577491104941, -33.4445256604888, -33.4402777996082]
         self.longitude = [-70.6634020999999, -70.6509264499999, -70.6433333]
 
     def test_consistency_model_DevicePositionInTime(self):
@@ -90,15 +85,13 @@ class DevicePositionInTimeTest(TransactionTestCase):
             latitude=5.2,
             timeStamp=self.time)
         # this should not be answered
-        DevicePositionInTime.objects.create(phoneId=self.phoneId, longitude=3.3, latitude=4.2, timeStamp=self.time
-                                                                                                         - timezone.timedelta(
-            minutes=11))
-
-        # initial config for ActiveToken
+        DevicePositionInTime.objects.create(phoneId=self.phoneId, longitude=3.3, latitude=4.2,
+                                            timeStamp=self.time - timezone.timedelta(minutes=11))
 
         self.test = TestHelper(self)
 
-        self.gtfs = GTFS.objects.get(version=settings.GTFS_VERSION)
+        self.gtfs = GTFS.objects.create(version=settings.GTFS_VERSION, timeCreation=timezone.now())
+
         # add dummy  bus
         phoneId = '159fc6b77a20477eb5c7af421e1e0e16'
         registrationPlate = 'AA1111'
@@ -213,7 +206,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
 
     def test_EventsByBusStop(self):
-        """This method test two thing, the posibility to report an event and asking
+        """This method test two thing, the possibility to report an event and asking
         the events for the specific busStop"""
 
         busStopCode = 'PA459'
