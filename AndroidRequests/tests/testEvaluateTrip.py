@@ -1,8 +1,9 @@
+from __future__ import unicode_literals
 from django.test import TestCase
 
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
-from AndroidRequests.models import Token, ScoreHistory
+from AndroidRequests.models import Token, ScoreHistory, ScoreEvent
 
 
 class EvaluateTripTest(TestCase):
@@ -89,3 +90,9 @@ class EvaluateTripWithLoggedUserTest(TestCase):
 
         # check points
         self.assertEquals(ScoreHistory.objects.count(), 1)
+        scoreObj = ScoreHistory.objects.select_related("scoreEvent").first()
+        evaluationCode = "evn00301"
+        scoreEventObj = ScoreEvent.objects.get(code=evaluationCode)
+        self.assertEquals(scoreObj.score, scoreEventObj.score)
+        self.assertIn(self.token, scoreObj.meta)
+        self.assertEquals(scoreObj.scoreEvent, scoreEventObj)

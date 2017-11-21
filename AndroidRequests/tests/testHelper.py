@@ -230,7 +230,8 @@ class TestHelper:
                  "timeStamp": fTimes[6], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.457196, "longitud": -70.664636,
                  "timeStamp": fTimes[7], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.457070, "longitud": -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot": "vehicle"}]}
+                {"latitud": -33.457070, "longitud": -70.660559,
+                 "timeStamp": fTimes[8], "inVehicleOrNot": "vehicle"}]}
 
         c = Client()
         URL = '/android/sendTrajectory'
