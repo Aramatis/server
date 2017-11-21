@@ -90,6 +90,9 @@ class CronTasksWithUserTestCase(TestCase):
         }
         self.helper.sendFakeTrajectoryOfToken(self.token, poses, self.user.userId, self.user.sessionToken)
 
+        # evaluate trip
+        self.helper.evaluateTrip(self.token, 4, self.user.userId, self.user.sessionToken)
+
         # check score was updated
         self.user.refresh_from_db()
         self.assertNotEqual(self.user.globalScore, 0)

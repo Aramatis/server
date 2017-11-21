@@ -61,7 +61,7 @@ class CalculateScore:
     def getScore(self, eventCode, metaData):
         return
 
-    def updateScore(self, scoreEvent, meta=None):
+    def updateScore(self, scoreEvent, meta):
         if self.userIsLogged:
             additionalScore = self.getScore(scoreEvent, meta)
 
@@ -109,11 +109,11 @@ class DistanceScore(CalculateScore):
     def __init__(self, request):
         CalculateScore.__init__(self, request)
 
-    def getScore(self, eventCode, metaData):
+    def getScore(self, eventCode, meta):
         """ It calculates score """
 
-        points = metaData['poses']
-        tripToken = metaData['tripToken']
+        points = meta['poses']
+        tripToken = meta['tripToken']
 
         firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
         firstPointTime = timezone.make_aware(firstPointTime)
@@ -151,8 +151,9 @@ def checkCompleteTripScore(trip_token):
     2 - total time is greater than 1 minute
     """
     oldScore = 0
+    evaluationEvent = "evn00301"
     scoreHistoryObjs = list(ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).\
-        order_by("timeCreation"))
+                            exclude(scoreEvent__code=evaluationEvent).order_by("timeCreation"))
 
     if len(scoreHistoryObjs) > 0:
         for scoreHistoryObj in scoreHistoryObjs:
@@ -174,7 +175,18 @@ def checkCompleteTripScore(trip_token):
 
         if distance < 0.1 or diffTime < minutes * 60:
             newScore = 0
-            ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).update(score=newScore)
+            ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).\
+                exclude(scoreEvent__code=evaluationEvent).update(score=newScore)
+
+            # if user evaluate trip we don't give point for that
+            evaluationEvent = "evn00301"
+            try:
+                evaluationObj = ScoreHistory.objects.get(meta__contains=trip_token, scoreEvent__code=evaluationEvent)
+                oldScore += evaluationObj.score
+                evaluationObj.score = 0
+                evaluationObj.save()
+            except ScoreHistory.DoesNotExist:
+                pass
 
             user = TranSappUser.objects.select_related("level").get(id=scoreHistoryObjs[0].tranSappUser_id)
             user.globalScore -= oldScore
@@ -184,10 +196,10 @@ def checkCompleteTripScore(trip_token):
             user.save()
 
 
-def calculateEventScore(request, eventCode):
+def calculateEventScore(request, eventCode, metaData=None):
     """ """
     ces = EventScore(request)
-    return ces.updateScore(eventCode)
+    return ces.updateScore(eventCode, metaData)
 
 
 def calculateDistanceScore(request, eventCode, metaData):
