@@ -592,6 +592,8 @@ class TranSappUser(models.Model):
     """ global position betweenn TranSapp users """
     timeCreation = models.DateTimeField(default=timezone.now, null=False)
     """ time when user was created """
+    timestamp = models.DateTimeField(default=timezone.now, null=False)
+    """ last time when user opened app while is logged """
 
     def getDictionary(self):
         """ get dictionary of public data """

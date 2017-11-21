@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
@@ -18,6 +19,7 @@ import uuid
 import requests
 
 NULL_SESSION_TOKEN = uuid.UUID('a81d843e65154f2894798fc436827b33')
+
 
 class InvalidFacebookSessionException(Exception):
     pass
@@ -113,6 +115,7 @@ class TranSappUserLogin(View):
                 user.sessionToken = sessionToken
                 user.photoURI = photoURI
                 user.nickname = nickname
+                user.timestamp = timezone.now()
                 user.save()
             else:
                 # user does not exist
