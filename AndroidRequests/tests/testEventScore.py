@@ -287,7 +287,7 @@ class DistanceScoreTest(ScoreTest):
         self.assertEqual(scoreHistoryObj.scoreEvent.code, self.eventCode)
         self.assertEqual(scoreHistoryObj.score, calculatedScore)
         meta = json.loads(scoreHistoryObj.meta)
-        self.assertEqual(meta["tripToken"], self.token)
+        self.assertEqual(meta["token"], self.token)
         for index, pose in enumerate(meta["poses"]):
             self.assertEquals(pose["latitud"], poses["poses"][index]["latitud"])
             self.assertEquals(pose["longitud"], poses["poses"][index]["longitud"])
@@ -390,7 +390,7 @@ class DistanceScoreTest(ScoreTest):
             self.assertEqual(scoreHistoryObj.scoreEvent.code, eventCode)
             self.assertEqual(scoreHistoryObj.score, calculatedScore)
             meta = json.loads(scoreHistoryObj.meta)
-            self.assertEqual(meta["tripToken"], self.token)
+            self.assertEqual(meta["token"], self.token)
             for index, pose in enumerate(meta["poses"]):
                 self.assertEquals(pose["latitud"], poses["poses"][index]["latitud"])
                 self.assertEquals(pose["longitud"], poses["poses"][index]["longitud"])

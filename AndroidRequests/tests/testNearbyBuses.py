@@ -425,7 +425,7 @@ class NearbyBusesResponseTest(TestCase):
         otherUser = "0cf16966-8643-4887-92b4-7015b4d1dbde"
 
         # trip on route 509
-        tripToken = self.getInBus(self.phoneId, previousRoute, licensePlate)
+        token = self.getInBus(self.phoneId, previousRoute, licensePlate)
         self.helper.reportEventV2ByPost(self.phoneId, machineId, previousRoute, eventCode1, None, None)
 
         buses = self.getBuses(self.stopObj, otherUser, [])
@@ -437,10 +437,10 @@ class NearbyBusesResponseTest(TestCase):
                 self.assertEqual(bus["eventos"][0]["eventcode"], eventCode1)
                 self.assertEqual(len(bus["eventos"]), 1)
 
-        self.helper.endRoute(tripToken)
+        self.helper.endRoute(token)
 
         # trip on route 507
-        tripToken2 = self.getInBus(self.phoneId2, self.service, licensePlate)
+        token2 = self.getInBus(self.phoneId2, self.service, licensePlate)
         self.helper.reportEventV2ByPost(self.phoneId2, machineId, self.service, eventCode2, None, None)
 
         buses = self.getBuses(self.stopObj, otherUser, [])
@@ -455,7 +455,7 @@ class NearbyBusesResponseTest(TestCase):
                 self.assertEqual(bus["eventos"][1]["eventcode"], eventCode1)
                 self.assertEqual(len(bus["eventos"]), 2)
 
-        self.helper.endRoute(tripToken2)
+        self.helper.endRoute(token2)
 
         # ask for bus events without passengers on buses
         buses = self.getBuses(self.stopObj, otherUser, [])

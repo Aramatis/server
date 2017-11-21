@@ -113,13 +113,13 @@ class DistanceScore(CalculateScore):
         """ It calculates score """
 
         points = meta['poses']
-        tripToken = meta['tripToken']
+        token = meta['token']
 
         firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
         firstPointTime = timezone.make_aware(firstPointTime)
         distance = 0
 
-        previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=tripToken, timeStamp__lt=firstPointTime).\
+        previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=token, timeStamp__lt=firstPointTime).\
             order_by('-timeStamp').first()
         if previousPoint is not None:
             distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,

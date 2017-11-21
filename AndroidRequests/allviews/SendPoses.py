@@ -56,7 +56,7 @@ class SendPoses(View):
 
                 # update score
                 EVENT_ID = 'evn00300'
-                metaData = {'poses': trajectory, 'tripToken': pToken}
+                metaData = {'poses': trajectory, 'token': pToken}
                 jsonScoreResponse = score.calculateDistanceScore(request, EVENT_ID, metaData)
                 response["gamificationData"] = jsonScoreResponse
    
