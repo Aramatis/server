@@ -2,6 +2,8 @@ from django.test import TestCase, Client
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 
+from django.contrib.auth.models import User
+
 from AndroidRequests.models import DevicePositionInTime, PoseInTrajectoryOfToken, TranSappUser
 from AndroidRequests.tests.testHelper import TestHelper
 
@@ -12,11 +14,29 @@ import random
 
 
 class GetMapPositionsTest(TestCase):
+
     def setUp(self):
         self.phoneId = uuid.uuid4()
         self.phoneId2 = uuid.uuid4()
 
         self.helper = TestHelper(self)
+        self.client = self.create_logged_client("A", "B")
+
+    def create_logged_client(self, username, password):
+        """ get test logged test client  """
+
+        # log in inputs
+        email = "a@b.cl"
+
+        # create user on django contrib user model
+        User.objects.create_superuser(username=username, email=email, password=password)
+
+        # log in process
+        client = Client()
+        response = client.login(username=username, password=password)
+        self.assertTrue(response)
+
+        return client
 
     def test_getPositions(self):
         """This test the response of the current poses"""
@@ -42,7 +62,7 @@ class GetMapPositionsTest(TestCase):
                 timeStamp=point[3])
 
         url = reverse("map:activeuserpose")
-        response = Client(url).get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
@@ -56,7 +76,7 @@ class GetMapPositionsTest(TestCase):
     def test_showMap(self):
         """this test is for testing the response of the map view"""
         url = reverse("map:show")
-        response = Client(url).get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
@@ -123,7 +143,7 @@ class GetMapPositionsTest(TestCase):
             data.save()
 
         url = reverse("map:activetrajectory")
-        response = Client().get(url)
+        response = self.client.get(url)
 
         responseMessage = json.loads(response.content)
 
@@ -160,7 +180,7 @@ class GetMapPositionsTest(TestCase):
             user.save()
 
         url = reverse("map:gamificatedusersbyday")
-        response = Client().get(url)
+        response = self.client.get(url)
         data = json.loads(response.content)["usersByDay"]
 
         self.assertEqual(response.status_code, 200)
@@ -171,7 +191,7 @@ class GetMapPositionsTest(TestCase):
     def test_gamificatedUsersByDayWithoutUsers(self):
 
         url = reverse("map:gamificatedusersbyday")
-        response = Client().get(url)
+        response = self.client.get(url)
         data = json.loads(response.content)["usersByDay"]
 
         self.assertEqual(response.status_code, 200)
