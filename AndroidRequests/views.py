@@ -77,7 +77,7 @@ def nearbyBuses(request, pPhoneId, pBusStop):
     IP = "18.231.23.145"
     url = "http://{}/dtpm/busStopInfo/".format(IP)
     url = "{}{}/{}".format(url, settings.SECRET_KEY, pBusStop)
-    response = requests.get(url=url, timeout=0.001)
+    response = requests.get(url=url)
 
     authBuses = []
     if response.text != "":

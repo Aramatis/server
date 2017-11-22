@@ -66,7 +66,7 @@ class TranSappUserLogin(View):
 
         URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'. \
             format(accessToken, settings.FACEBOOK_APP_ID, settings.FACEBOOK_APP_SECRET)
-        response = requests.get(URL, timeout=0.001)
+        response = requests.get(URL)
         response = json.loads(response.text)
 
         if response['data'] and response['data']['is_valid'] and response['data']['app_id'] == settings.FACEBOOK_APP_ID:
