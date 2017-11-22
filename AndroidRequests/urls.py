@@ -15,6 +15,7 @@ from AndroidRequests.allviews.RequestToken import RequestToken
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.allviews.RequestUUID import RequestUUID
 from AndroidRequests.allviews.SendPoses import SendPoses
+from AndroidRequests.allviews.SendPosesV2 import SendPosesV2
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
 from AndroidRequests.allviews.SetDirection import SetDirection
 from AndroidRequests.allviews.UserRanking import UserRanking
@@ -110,5 +111,5 @@ urlpatterns = [
     # GET IN THE BUS   
     # =====================================================
     url(r'^requestToken/v2$', RequestTokenV2.as_view()),
-
+    url(r'^sendTrajectory/v2$', SendPosesV2.as_view()),
 ]

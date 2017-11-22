@@ -8,6 +8,7 @@ class Status:
     TRIP_EVALUATION_FORMAT_ERROR = 405
     TRIP_TOKEN_DOES_NOT_EXIST = 406
     TRIP_TOKEN_COULD_NOT_BE_CREATED = 407
+    USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS = 408
 
     statusDict = {
         OK: {'status': 200, 'message': 'ok'},
@@ -23,6 +24,10 @@ class Status:
             'status': TRIP_TOKEN_COULD_NOT_BE_CREATED,
             'message': 'active token could not be created'
         },
+        USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS: {
+            'status': USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS,
+            'message': 'user bus is far way from real bus'
+        }
     }
 
     @staticmethod

@@ -249,6 +249,50 @@ class TestHelper:
 
         return jsonResponse
 
+    def sendFakeTrajectoryOfTokenV21(self, travelToken, poses=None, userId=None, sessionToken=None):
+        """ send fake positions for user travel """
+        import random
+        times = []
+        for _ in range(9):
+            times.append(random.randint(-40, -1))
+
+        if poses is None:
+            poses = {"poses": [
+                {"latitud": -33.458771, "longitud": -70.676266,
+                 "timeStamp": times[0], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.458699, "longitud": -70.675708,
+                 "timeStamp": times[1], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.458646, "longitud": -70.674678,
+                 "timeStamp": times[2], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.458646, "longitud": -70.673799,
+                 "timeStamp": times[3], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.458413, "longitud": -70.671631,
+                 "timeStamp": times[4], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.457983, "longitud": -70.669035,
+                 "timeStamp": times[5], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.457518, "longitud": -70.666718,
+                 "timeStamp": times[6], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.457196, "longitud": -70.664636,
+                 "timeStamp": times[7], "inVehicleOrNot": "vehicle"},
+                {"latitud": -33.457070, "longitud": -70.660559,
+                 "timeStamp": times[8], "inVehicleOrNot": "vehicle"}]}
+
+        c = Client()
+        URL = '/android/sendTrajectory/v2'
+        data = {'token': travelToken,
+                'trajectory': json.dumps(poses)
+                }
+        if userId is not None:
+            data["userId"] = userId
+            data["sessionToken"] = sessionToken
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
     def setDirection(self, travelKey, direction):
         """ set direction of trip """
         URL = '/android/setDirection'
