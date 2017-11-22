@@ -4,6 +4,7 @@ from django.utils.dateparse import parse_datetime
 from datetime import datetime
 
 from AndroidRequests.tests.testHelper import TestHelper
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 import AndroidRequests.constants as Constants
 import AndroidRequests.gpsFunctions as Gps
@@ -28,7 +29,7 @@ class TestGPSFunctions(TestCase):
                 "time": "2016-11-29T12:41:36"
             },
             "error": False
-        })
+        }, cls=TranSappJSONEncoder)
         self.helper = TestHelper(self)
 
     def test_haversineFunction(self):

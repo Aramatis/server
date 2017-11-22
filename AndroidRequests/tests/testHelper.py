@@ -5,12 +5,13 @@ from django.utils import timezone
 
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
 from AndroidRequests.models import TranSappUser, Level, EventRegistration
+from AndroidRequests.encoder import TranSappJSONEncoder
 from gtfs.loaders.TestLoaderFactory import TestLoaderFactory
 
-import datetime as dt
 import json
 import uuid
 import os
+import random
 
 
 class TestHelper:
@@ -198,16 +199,16 @@ class TestHelper:
 
     def sendFakeTrajectoryOfToken(self, travelToken, poses=None, userId=None, sessionToken=None):
         """ send fake positions for user travel """
-        now = dt.datetime.now()
+        now = timezone.now()
         times = [now,
-                 now - dt.timedelta(minutes=5),
-                 now - dt.timedelta(minutes=10),
-                 now - dt.timedelta(minutes=15),
-                 now - dt.timedelta(minutes=20),
-                 now - dt.timedelta(minutes=25),
-                 now - dt.timedelta(minutes=30),
-                 now - dt.timedelta(minutes=35),
-                 now - dt.timedelta(minutes=40)]
+                 now - timezone.timedelta(minutes=5),
+                 now - timezone.timedelta(minutes=10),
+                 now - timezone.timedelta(minutes=15),
+                 now - timezone.timedelta(minutes=20),
+                 now - timezone.timedelta(minutes=25),
+                 now - timezone.timedelta(minutes=30),
+                 now - timezone.timedelta(minutes=35),
+                 now - timezone.timedelta(minutes=40)]
         fTimes = []
         for time in times:
             fTimes.append(time.strftime("%Y-%m-%dT%X"))
@@ -236,7 +237,7 @@ class TestHelper:
         c = Client()
         URL = '/android/sendTrajectory'
         data = {'pToken': travelToken,
-                'pTrajectory': json.dumps(poses)
+                'pTrajectory': json.dumps(poses, cls=TranSappJSONEncoder)
                 }
         if userId is not None:
             data["userId"] = userId
@@ -249,38 +250,37 @@ class TestHelper:
 
         return jsonResponse
 
-    def sendFakeTrajectoryOfTokenV21(self, travelToken, poses=None, userId=None, sessionToken=None):
+    def sendFakeTrajectoryOfTokenV2(self, travelToken, poses=None, userId=None, sessionToken=None):
         """ send fake positions for user travel """
-        import random
         times = []
         for _ in range(9):
             times.append(random.randint(-40, -1))
 
         if poses is None:
             poses = {"poses": [
-                {"latitud": -33.458771, "longitud": -70.676266,
-                 "timeStamp": times[0], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.458699, "longitud": -70.675708,
-                 "timeStamp": times[1], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.458646, "longitud": -70.674678,
-                 "timeStamp": times[2], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.458646, "longitud": -70.673799,
-                 "timeStamp": times[3], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.458413, "longitud": -70.671631,
-                 "timeStamp": times[4], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.457983, "longitud": -70.669035,
-                 "timeStamp": times[5], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.457518, "longitud": -70.666718,
-                 "timeStamp": times[6], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.457196, "longitud": -70.664636,
-                 "timeStamp": times[7], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.457070, "longitud": -70.660559,
-                 "timeStamp": times[8], "inVehicleOrNot": "vehicle"}]}
+                {"latitude": -33.458771, "longitude": -70.676266,
+                 "timeDelay": times[0], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.458699, "longitude": -70.675708,
+                 "timeDelay": times[1], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.458646, "longitude": -70.674678,
+                 "timeDelay": times[2], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.458646, "longitude": -70.673799,
+                 "timeDelay": times[3], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.458413, "longitude": -70.671631,
+                 "timeDelay": times[4], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.457983, "longitude": -70.669035,
+                 "timeDelay": times[5], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.457518, "longitude": -70.666718,
+                 "timeDelay": times[6], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.457196, "longitude": -70.664636,
+                 "timeDelay": times[7], "inVehicleOrNot": "vehicle"},
+                {"latitude": -33.457070, "longitude": -70.660559,
+                 "timeDelay": times[8], "inVehicleOrNot": "vehicle"}]}
 
         c = Client()
         URL = '/android/sendTrajectory/v2'
         data = {'token': travelToken,
-                'trajectory': json.dumps(poses)
+                'trajectory': json.dumps(poses, cls=TranSappJSONEncoder)
                 }
         if userId is not None:
             data["userId"] = userId

@@ -3,6 +3,7 @@ from django.utils import timezone, dateparse
 
 from AndroidRequests.models import TranSappUser, ScoreHistory, ScoreEvent, Level, PoseInTrajectoryOfToken
 from AndroidRequests.statusResponse import Status
+from AndroidRequests.encoder import TranSappJSONEncoder
 
 import AndroidRequests.gpsFunctions as gpsFunctions
 import abc
@@ -74,7 +75,7 @@ class CalculateScore:
                 self.user.save()
 
             if meta is not None:
-                meta = json.dumps(meta)
+                meta = json.dumps(meta, cls=TranSappJSONEncoder)
             # to score log
             scoreEventObj = ScoreEvent.objects.get(code=scoreEvent)
             ScoreHistory.objects.create(tranSappUser=self.user, scoreEvent=scoreEventObj,
@@ -115,15 +116,13 @@ class DistanceScore(CalculateScore):
         points = meta['poses']
         token = meta['token']
 
-        firstPointTime = dateparse.parse_datetime(points[0]['timeStamp'])
-        firstPointTime = timezone.make_aware(firstPointTime)
         distance = 0
-
-        previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=token, timeStamp__lt=firstPointTime).\
+        timestamp = points[0][2]
+        previousPoint = PoseInTrajectoryOfToken.objects.filter(token__token=token, timeStamp__lt=timestamp).\
             order_by('-timeStamp').first()
         if previousPoint is not None:
             distance += gpsFunctions.haversine(previousPoint.longitude, previousPoint.latitude,
-                                               points[0]['longitud'], points[0]['latitud'], measure='km')
+                                               points[0][0], points[0][1], measure='km')
 
         try:
             score = ScoreEvent.objects.get(code=eventCode).score
@@ -133,8 +132,10 @@ class DistanceScore(CalculateScore):
             score = 0
 
         for index, point in enumerate(points[:-1]):
-            distance += gpsFunctions.haversine(point['longitud'], point['latitud'],
-                                               points[index + 1]['longitud'], points[index + 1]['latitud'],
+            longitude = point[0]
+            latitude = point[1]
+            distance += gpsFunctions.haversine(longitude, latitude,
+                                               points[index + 1][0], points[index + 1][1],
                                                measure='km')
 
         # if distance is higher than 8 kilometers, fake!! don't give a shit
@@ -156,44 +157,52 @@ def checkCompleteTripScore(trip_token):
                             exclude(scoreEvent__code=evaluationEvent).order_by("timeCreation"))
 
     if len(scoreHistoryObjs) > 0:
+        #search first location
+        firstPoint = None
+        lastPoint = None
+
         for scoreHistoryObj in scoreHistoryObjs:
             oldScore += scoreHistoryObj.score
+            locations = json.loads(scoreHistoryObj.meta)["poses"]
+            if len(locations) > 0:
+                if firstPoint is None:
+                    firstPoint = locations[0]
+                lastPoint = locations[-1]
         oldScore = round(oldScore, 8)
 
-        firstPoint = json.loads(scoreHistoryObjs[0].meta)["poses"][0]
-        lastPoint = json.loads(scoreHistoryObjs[-1].meta)["poses"][-1]
-        startTime = timezone.make_aware(dateparse.parse_datetime(firstPoint['timeStamp']))
-        lastTime = timezone.make_aware(dateparse.parse_datetime(lastPoint['timeStamp']))
+        if firstPoint is not None and lastPoint is not None:
+            startTime = dateparse.parse_datetime(firstPoint[2])
+            lastTime = dateparse.parse_datetime(lastPoint[2])
 
-        distance = gpsFunctions.haversine(firstPoint["longitud"], firstPoint["latitud"],
-                                          lastPoint['longitud'], lastPoint['latitud'], measure='km')
+            distance = gpsFunctions.haversine(firstPoint[0], firstPoint[1], lastPoint[0], lastPoint[1])
+            diffTime = (lastTime-startTime).total_seconds()
 
-        diffTime = (lastTime-startTime).total_seconds()
+            # if distance is less than 100 meters or duration is less than 1 minute, subtract points
+            second_limit = 1 * 60
+            distance_limit_mts = 100
 
-        # if distance is less than 100 meters or duration is less than 1 minute, subtract points
-        minutes = 1
+            if distance < distance_limit_mts or diffTime < second_limit:
+                newScore = 0
+                ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).\
+                    exclude(scoreEvent__code=evaluationEvent).update(score=newScore)
 
-        if distance < 0.1 or diffTime < minutes * 60:
-            newScore = 0
-            ScoreHistory.objects.filter(meta__contains=trip_token, tranSappUser__isnull=False).\
-                exclude(scoreEvent__code=evaluationEvent).update(score=newScore)
+                # if user evaluate trip we don't give point for that
+                evaluationEvent = "evn00301"
+                try:
+                    evaluationObj = ScoreHistory.objects.get(meta__contains=trip_token,
+                                                             scoreEvent__code=evaluationEvent)
+                    oldScore += evaluationObj.score
+                    evaluationObj.score = 0
+                    evaluationObj.save()
+                except ScoreHistory.DoesNotExist:
+                    pass
 
-            # if user evaluate trip we don't give point for that
-            evaluationEvent = "evn00301"
-            try:
-                evaluationObj = ScoreHistory.objects.get(meta__contains=trip_token, scoreEvent__code=evaluationEvent)
-                oldScore += evaluationObj.score
-                evaluationObj.score = 0
-                evaluationObj.save()
-            except ScoreHistory.DoesNotExist:
-                pass
-
-            user = TranSappUser.objects.select_related("level").get(id=scoreHistoryObjs[0].tranSappUser_id)
-            user.globalScore -= oldScore
-            if user.globalScore < user.level.minScore:
-                previousLevel = Level.objects.get(position=user.level.position - 1)
-                user.level = previousLevel
-            user.save()
+                user = TranSappUser.objects.select_related("level").get(id=scoreHistoryObjs[0].tranSappUser_id)
+                user.globalScore -= oldScore
+                if user.globalScore < user.level.minScore:
+                    previousLevel = Level.objects.get(position=user.level.position - 1)
+                    user.level = previousLevel
+                user.save()
 
 
 def calculateEventScore(request, eventCode, metaData=None):

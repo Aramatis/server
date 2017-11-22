@@ -1,11 +1,10 @@
 from django.test import TestCase
-from django.utils import timezone
+from django.utils import timezone, dateparse
 
 from AndroidRequests.models import Level, ScoreEvent, TranSappUser, ScoreHistory, EventRegistration
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.tests.testHelper import TestHelper
 
-import datetime as dt
 import json
 
 
@@ -223,7 +222,7 @@ class DistanceScoreTest(ScoreTest):
     def test_calculateDistanceScoreWithGoodParams(self):
 
         # send poses
-        now = timezone.make_aware(dt.datetime.now())
+        now = timezone.now()
         times = [now,
                  now + timezone.timedelta(0, 5),
                  now + timezone.timedelta(0, 10),
@@ -289,14 +288,15 @@ class DistanceScoreTest(ScoreTest):
         meta = json.loads(scoreHistoryObj.meta)
         self.assertEqual(meta["token"], self.token)
         for index, pose in enumerate(meta["poses"]):
-            self.assertEquals(pose["latitud"], poses["poses"][index]["latitud"])
-            self.assertEquals(pose["longitud"], poses["poses"][index]["longitud"])
-            self.assertEquals(pose["timeStamp"], poses["poses"][index]["timeStamp"])
+            self.assertEquals(pose[0], poses["poses"][index]["longitud"])
+            self.assertEquals(pose[1], poses["poses"][index]["latitud"])
+            self.assertEquals(dateparse.parse_datetime(pose[2]),
+                              timezone.make_aware(dateparse.parse_datetime(poses["poses"][index]["timeStamp"])))
 
     def test_calculateDistanceScoreWithGoodParamsAndPreviousPoints(self):
 
         # send poses
-        now = timezone.make_aware(dt.datetime.now())
+        now = timezone.now()
         times = [now,
                  now + timezone.timedelta(0, 5),
                  now + timezone.timedelta(0, 10),
@@ -392,6 +392,7 @@ class DistanceScoreTest(ScoreTest):
             meta = json.loads(scoreHistoryObj.meta)
             self.assertEqual(meta["token"], self.token)
             for index, pose in enumerate(meta["poses"]):
-                self.assertEquals(pose["latitud"], poses["poses"][index]["latitud"])
-                self.assertEquals(pose["longitud"], poses["poses"][index]["longitud"])
-                self.assertEquals(pose["timeStamp"], poses["poses"][index]["timeStamp"])
+                self.assertEquals(pose[0], poses["poses"][index]["longitud"])
+                self.assertEquals(pose[1], poses["poses"][index]["latitud"])
+                self.assertEquals(dateparse.parse_datetime(pose[2]),
+                                  timezone.make_aware(dateparse.parse_datetime(poses["poses"][index]["timeStamp"])))

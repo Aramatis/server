@@ -8,7 +8,8 @@ class Status:
     TRIP_EVALUATION_FORMAT_ERROR = 405
     TRIP_TOKEN_DOES_NOT_EXIST = 406
     TRIP_TOKEN_COULD_NOT_BE_CREATED = 407
-    USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS = 408
+    TRAJECTORY_DOES_NOT_HAVE_LOCATIONS = 408
+    USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS = 409
 
     statusDict = {
         OK: {'status': 200, 'message': 'ok'},
@@ -27,6 +28,10 @@ class Status:
         USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS: {
             'status': USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS,
             'message': 'user bus is far way from real bus'
+        },
+        TRAJECTORY_DOES_NOT_HAVE_LOCATIONS: {
+            'status': TRAJECTORY_DOES_NOT_HAVE_LOCATIONS,
+            'message': 'trajectory does not have locations'
         }
     }
 
