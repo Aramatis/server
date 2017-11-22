@@ -174,7 +174,7 @@ def get_user_buses(stop_obj, questioner):
     active_user_buses = Token.objects.select_related('tranSappUser__level').\
         prefetch_related("busassignment__uuid__busassignment_set").filter(
         busassignment__service__in=route_names,
-        activetoken__isnull=False)
+        activetoken__isnull=False).order_by("id")
 
     # retrieve events for all user buses and busassignments related
     bus_assignments = []
