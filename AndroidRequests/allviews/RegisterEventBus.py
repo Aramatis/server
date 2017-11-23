@@ -6,8 +6,9 @@ from AndroidRequests.models import Event, Busv2, Busassignment, EventForBusv2, S
 from EventsByBusV2 import EventsByBusV2
 from AndroidRequests.encoder import TranSappJSONEncoder
 
+from onlinegps.views import get_real_machine_info_with_distance
+
 import AndroidRequests.constants as Constants
-import AndroidRequests.gpsFunctions as Gps
 
 
 class RegisterEventBus(View):
@@ -62,8 +63,8 @@ class RegisterEventBus(View):
                 service=pBusService, uuid=theBus)
 
         # get the GPS data from the url
-        responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
-            theBus.registrationPlate, timeStamp, float(pLongitude), float(pLatitude))
+        responseLongitude, responseLatitude, responseTimeStamp, responseDistance = get_real_machine_info_with_distance(
+            theBus.registrationPlate, float(pLongitude), float(pLatitude))
 
         # check if there is an event
         eventReport = EventForBusv2.objects.filter(

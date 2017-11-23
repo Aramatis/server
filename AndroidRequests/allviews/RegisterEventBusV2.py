@@ -1,5 +1,3 @@
-import json
-
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -8,11 +6,13 @@ from django.views.generic import View
 
 from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment, \
     TranSappUser
-from EventsByBusV2 import EventsByBusV2
+from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 from AndroidRequests.encoder import TranSappJSONEncoder
 
-import AndroidRequests.gpsFunctions as Gps
+from onlinegps.views import get_real_machine_info_with_distance
+
 import AndroidRequests.scoreFunctions as score
+import json
 
 
 class RegisterEventBusV2(View):
@@ -66,8 +66,8 @@ class RegisterEventBusV2(View):
             return JsonResponse({}, safe=False, encoder=TranSappJSONEncoder)
 
         # get the GPS data from the url
-        responseLongitude, responseLatitude, responseTimeStamp, responseDistance = Gps.getGPSData(
-            theBus.registrationPlate, timeStamp, float(pLongitude), float(pLatitude))
+        responseLongitude, responseLatitude, responseTimeStamp, responseDistance = get_real_machine_info_with_distance(
+            theBus.registrationPlate, float(pLongitude), float(pLatitude))
 
         # check if there is an event
         eventReport = EventForBusv2.objects.filter(

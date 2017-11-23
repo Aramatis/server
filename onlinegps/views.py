@@ -6,6 +6,8 @@ from AndroidRequests.gpsFunctions import haversine
 
 from onlinegps.models import LastGPS
 
+import time
+
 DIRECTIONS = ["I", "R"]
 
 
@@ -38,15 +40,24 @@ def get_user_route(user_route):
     return None
 
 
-def get_locations(license_plate_list):
+def get_machine_locations(license_plates):
     """ retrieve location based on license plate """
+    is_list = False
+    location_query = LastGPS.objects
+    if isinstance(license_plates, list):
+        location_query = location_query.filter(licensePlate__in=license_plates)
+        is_list = True
+    else:
+        location_query = location_query.filter(licensePlate=license_plates)
+    location_query = location_query.values_list('licensePlate', 'latitude',
+                                                'longitude', 'userRouteCode',
+                                                'timestamp')
+    if location_query.count() == 0:
+        # maybe the data is loading, so we wait a little bit
+        time.sleep(0.06)
 
     answer = {}
-    locations = LastGPS.objects.filter(licensePlate__in=license_plate_list).values_list('licensePlate', 'latitude',
-                                                                                        'longitude', 'userRouteCode',
-                                                                                        'timestamp')
-
-    for location in locations:
+    for location in location_query:
         answer[location[0]] = {
             "latitude": location[1],
             "longitude": location[2],
@@ -55,7 +66,29 @@ def get_locations(license_plate_list):
             "timestamp": location[4]
         }
 
-    return answer
+    if len(answer.keys())==0:
+        return None
+    elif is_list:
+        return answer
+    else:
+        return answer[license_plates]
+
+
+def get_real_machine_info_with_distance(registrationPlate, longitude, latitude):
+
+    longitude = None
+    latitude = None
+    time = None
+    distance = None
+
+    machine_info = get_machine_locations(registrationPlate)
+    if machine_info is not None:
+        longitude = machine_info["longitude"]
+        latitude = machine_info["latitude"]
+        time = machine_info["timestamp"]
+        distance = haversine(longitude, latitude, longitude, latitude)
+
+    return longitude, latitude, time, distance
 
 
 def is_near_to_bus_position(licensePlate, positions):
@@ -68,11 +101,9 @@ def is_near_to_bus_position(licensePlate, positions):
     max_seconds = 10
     max_distance_mts = 500
 
-    info = get_locations([licensePlate])
+    machineInfo = get_machine_locations(licensePlate)
 
-    if licensePlate in info.keys():
-        machineInfo = get_locations([licensePlate])[licensePlate]
-    else:
+    if machineInfo is None:
         return True
 
     nearestPosition = None

@@ -7,7 +7,8 @@ from django.utils import timezone
 
 from io import BytesIO
 
-from onlinegps.views import get_locations, get_user_route, get_direction, is_near_to_bus_position
+from onlinegps.views import get_machine_locations, get_user_route, get_direction, is_near_to_bus_position, \
+    get_real_machine_info_with_distance
 from onlinegps.models import LastGPS
 
 from AndroidRequests.gpsFunctions import haversine
@@ -38,9 +39,9 @@ class VehicleDataTest(TestCase):
         """ test get_location function """
         call_command("loadgpspoints", self.test_file_name)
 
-        license_plates = LastGPS.objects.values_list("licensePlate", flat=True)
+        license_plates = list(LastGPS.objects.values_list("licensePlate", flat=True))
 
-        answer = get_locations(license_plates)
+        answer = get_machine_locations(license_plates)
 
         for key, value in answer.iteritems():
             self.assertIsNotNone(value["latitude"])
@@ -64,6 +65,23 @@ class VehicleDataTest(TestCase):
         for index, route in enumerate(routes):
             self.assertEquals(get_user_route(route), expected_answer[index])
 
+    def test_get_real_machine_info(self):
+        # create record
+        license_plate = "AFBG45"
+        route = "506I"
+        timestamp = timezone.now()
+        latitude = -33.457136
+        longitude = -70.664040
+        LastGPS.objects.create(licensePlate=license_plate, userRouteCode=route, timestamp=timestamp,
+                               longitude=longitude, latitude=latitude)
+
+        answer = get_real_machine_info_with_distance(license_plate, longitude, latitude)
+
+        self.assertEquals(answer[0], longitude)
+        self.assertEquals(answer[1], latitude)
+        self.assertEquals(answer[2], timestamp)
+        self.assertEquals(answer[3], 0)
+
 
 class UserBusIsNearToRealBusTest(TestCase):
     """ test functions to know if user bus is near to real bus (based on gps) """
@@ -80,7 +98,7 @@ class UserBusIsNearToRealBusTest(TestCase):
 
     def get_tuple(self, time_deltas, locations=None):
 
-        machine_info = get_locations([self.license_plate])[self.license_plate]
+        machine_info = get_machine_locations([self.license_plate])[self.license_plate]
 
         now = machine_info["timestamp"]
         times = []
@@ -89,7 +107,7 @@ class UserBusIsNearToRealBusTest(TestCase):
 
         if locations == None:
             locations = [
-                (-70.647482, -33.380137), # nearest point
+                (-70.647482, -33.380137),  # nearest point
                 (-70.64712, -33.380238),
                 (-70.646807, -33.380336),
                 (-70.64645, -33.380492)
@@ -162,7 +180,6 @@ class UserBusIsNearToRealBusTest(TestCase):
         time_deltas = [9, 11, 24, 36]
         positions = self.get_tuple(time_deltas, locations)
         self.assertFalse(is_near_to_bus_position(self.license_plate, positions))
-
 
     def test_license_plate_does_not_exist(self):
         """ license plate does not exist in database """

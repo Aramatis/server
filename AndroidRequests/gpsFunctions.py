@@ -1,11 +1,4 @@
-import json
-import urllib2
 from math import radians, cos, sin, asin, sqrt
-
-from django.utils.dateparse import parse_datetime
-from django.conf import settings
-
-from pytz import timezone
 
 
 def haversine(lon1, lat1, lon2, lat2, measure='m'):
@@ -24,38 +17,3 @@ def haversine(lon1, lat1, lon2, lat2, measure='m'):
     if measure == 'm':
         return km * 1000
     return km
-
-
-def getGPSData(registrationPlate, timeStamp, plon, plat, jsonContent=None):
-    parameters = {
-        'licencePlate': registrationPlate,
-        'time': timeStamp.strftime("%Y-%m-%d %H:%M:%S").replace(" ", "%20")
-    }
-    url = "http://200.9.100.91/onlinegps/transappBusPosition/getEstimatedPosition"
-    full_url = url + '?licencePlate=' + \
-        parameters['licencePlate'] + '&time=' + parameters['time']
-
-    longitude = None
-    latitude = None
-    time = None
-    distance = None
-
-    try:
-        if jsonContent is not None:
-            response = json.loads(jsonContent)
-        else:
-            data = urllib2.urlopen(full_url)
-            response = json.load(data)
-        if response['error'] is False and response['machine'][
-                'licencePlate'] == parameters['licencePlate']:
-            longitude = response['nearestGpsPoint']['longitude']
-            latitude = response['nearestGpsPoint']['latitude']
-            time = response['nearestGpsPoint']['time']
-            time = parse_datetime(time)
-            local = timezone(settings.TIME_ZONE)
-            time = local.localize(time)
-            distance = haversine(longitude, latitude, plon, plat)
-    except:
-        pass
-
-    return longitude, latitude, time, distance
