@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 from django.views.generic import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from AndroidRequests.models import ActiveToken, Token
 from AndroidRequests.encoder import TranSappJSONEncoder
@@ -13,6 +15,10 @@ class EndRoute(View):
     def __init__(self):
         super(EndRoute, self).__init__()
         self.context = {}
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(EndRoute, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
         """Delete the token from the active ones."""
