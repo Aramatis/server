@@ -197,6 +197,23 @@ class TestHelper:
 
         return jsonResponse
 
+    def endRouteByPost(self, token, purgeType):
+        """ revoke token used to identify a trip """
+        URL = '/android/endRoute'
+        c = Client()
+        URL = URL
+        data = {
+            'token': token,
+            'purgeType': purgeType
+        }
+        response = c.post(URL, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        jsonResponse = json.loads(response.content)
+
+        return jsonResponse
+
     def sendFakeTrajectoryOfToken(self, travelToken, poses=None, userId=None, sessionToken=None):
         """ send fake positions for user travel """
         now = timezone.now()

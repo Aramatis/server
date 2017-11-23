@@ -112,4 +112,5 @@ urlpatterns = [
     # =====================================================
     url(r'^requestToken/v2$', RequestTokenV2.as_view()),
     url(r'^sendTrajectory/v2$', SendPosesV2.as_view()),
+    url(r'^endRoute$', EndRoute.as_view()),
 ]

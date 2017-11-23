@@ -7,7 +7,7 @@ import AndroidRequests.constants as Constants
 import uuid
 
 
-class EndRouteTest(TestCase):
+class EndRouteByPostTest(TestCase):
     """ test for end route url """
 
     def setUp(self):
@@ -29,11 +29,11 @@ class EndRouteTest(TestCase):
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
-        jsonResponse = self.helper.endRoute(travelKey)
+        jsonResponse = self.helper.endRouteByPost(travelKey, Token.USER_SAYS_GET_OFF)
 
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
         self.assertEqual(ActiveToken.objects.count(), 0)
-        self.assertIsNone(Token.objects.first().purgeType)
+        self.assertEqual(Token.objects.first().purgeType, Token.USER_SAYS_GET_OFF)
 
     def test_endRouteWithInvalidActiveToken(self):
         """ finish unactive travel """
@@ -42,16 +42,16 @@ class EndRouteTest(TestCase):
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
         self.helper.sendFakeTrajectoryOfToken(travelKey)
 
-        self.helper.endRoute(travelKey)
+        self.helper.endRouteByPost(travelKey, Token.SERVER_SAYS_GET_OFF)
 
-        jsonResponse = self.helper.endRoute(travelKey)
+        jsonResponse = self.helper.endRouteByPost(travelKey, Token.USER_SAYS_GET_OFF)
 
         self.assertEqual(jsonResponse['response'], 'Token doesn\'t exist.')
         self.assertEqual(ActiveToken.objects.count(), 0)
-        self.assertIsNone(Token.objects.first().purgeType)
+        self.assertEqual(Token.objects.first().purgeType, Token.SERVER_SAYS_GET_OFF)
 
 
-class EndRouteWithUserTest(TestCase):
+class EndRouteByPostWithUserTest(TestCase):
     """ test for end route url """
     fixtures = ["scoreEvents"]
 
@@ -77,10 +77,9 @@ class EndRouteWithUserTest(TestCase):
         self.user.refresh_from_db()
         oldScore = self.user.globalScore
 
-        self.helper.endRoute(travelKey)
+        self.helper.endRouteByPost(travelKey, Token.USER_SAYS_GET_OFF)
 
         self.user.refresh_from_db()
         self.assertTrue(oldScore > self.user.globalScore)
-
         self.assertEqual(ActiveToken.objects.count(), 0)
-        self.assertIsNone(Token.objects.first().purgeType)
+        self.assertEqual(Token.objects.first().purgeType, Token.USER_SAYS_GET_OFF)

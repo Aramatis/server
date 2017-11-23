@@ -460,12 +460,23 @@ class Token(models.Model):
     """ User evaluation does at the end of trip """
     tranSappUser = models.ForeignKey('TranSappUser', null=True)
     """ Logged user with social media (if exists) """
-
-    def getBusesIn(self, pListOfServices):
-        """ return a list of buses that match with buses given as parameter """
+    USER_SAYS_GET_OFF = 'user'
+    SERVER_SAYS_GET_OFF = 'server'
+    SERVER_DOES_NOT_RECEIVE_LOCATIONS = 'cron_finished_trip'
+    SMARTPHONE_SAYS_IS_FAR_AWAY_FROM_REAL_BUS = 'phone_far_away'
+    SMARTPHONE_SAYS_THAT_THERE_IS_NOT_MOVEMENT = 'phone_still'
+    PURGE_TYPE_CHOICES = (
+        (USER_SAYS_GET_OFF, 'user says get off'),
+        (SERVER_SAYS_GET_OFF, 'server says get off'),
+        (SERVER_DOES_NOT_RECEIVE_LOCATIONS, 'cron finished trip'),
+        (SMARTPHONE_SAYS_IS_FAR_AWAY_FROM_REAL_BUS, 'smartphone says that is far away from real bus'),
+        (SMARTPHONE_SAYS_THAT_THERE_IS_NOT_MOVEMENT, 'smartphone says that there is not movement')
+    )
+    purgeType = models.CharField(max_length=50, null=True, choices=PURGE_TYPE_CHOICES)
+    """ To know why trip finished """
 
     def get_distance_to(self, longitude, latitude):
-        """ it calculate distance between last point saved in poseTrajectoryOfToken and point given. It returns
+        """ it calculates distance between last point saved in poseTrajectoryOfToken and point given. It returns
         distance in meters """
 
         if self.poseintrajectoryoftoken_set.count() > 0:
