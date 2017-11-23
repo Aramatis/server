@@ -8,7 +8,7 @@ from AndroidRequests.models import ActiveToken, PoseInTrajectoryOfToken
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.encoder import TranSappJSONEncoder
 
-from onlinegps.views import is_near_to_bus_position
+from onlinegps import views as onlinepgsview
 
 import AndroidRequests.scoreFunctions as score
 import json
@@ -67,8 +67,11 @@ class SendPosesV2(View):
 
                 # check with real bus
                 licensePlate = activeToken.token.busassignment.uuid.registrationPlate
-                if not is_near_to_bus_position(licensePlate, tupleList):
+                is_near_to_real_bus = onlinepgsview.is_near_to_bus_position(licensePlate, tupleList)
+                if is_near_to_real_bus == onlinepgsview.GET_OFF:
                     Status.getJsonStatus(Status.USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS, response)
+                elif is_near_to_real_bus == onlinepgsview.I_DO_NOT_KNOW:
+                    Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, response)
                 else:
                     Status.getJsonStatus(Status.OK, response)
             else:

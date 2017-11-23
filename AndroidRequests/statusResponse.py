@@ -10,6 +10,7 @@ class Status:
     TRIP_TOKEN_COULD_NOT_BE_CREATED = 407
     TRAJECTORY_DOES_NOT_HAVE_LOCATIONS = 408
     USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS = 409
+    I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS = 410
 
     statusDict = {
         OK: {'status': 200, 'message': 'ok'},
@@ -28,6 +29,10 @@ class Status:
         USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS: {
             'status': USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS,
             'message': 'user bus is far way from real bus'
+        },
+        I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS: {
+            'status': I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS,
+            'message': 'i do not know anything about real bus'
         },
         TRAJECTORY_DOES_NOT_HAVE_LOCATIONS: {
             'status': TRAJECTORY_DOES_NOT_HAVE_LOCATIONS,

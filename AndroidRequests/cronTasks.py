@@ -8,7 +8,7 @@ django.setup()
 
 from django.utils import timezone
 from django.db import transaction
-from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser, ScoreHistory
+from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser, ScoreHistory, Token
 from AndroidRequests.scoreFunctions import checkCompleteTripScore
 
 # for cleanActiveTokenTable method
@@ -28,12 +28,15 @@ def cleanActiveTokenTable():
     logger = logging.getLogger(__name__)
 
     currentTimeMinusXMinutes = timezone.now() - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
-    activeTokens = ActiveToken.objects.select_related("token").filter(timeStamp__lt=currentTimeMinusXMinutes).all()
-    for activeToken in activeTokens:
-        # check if points are valid
-        checkCompleteTripScore(activeToken.token.token)
-        activeToken.delete()
-        logger.info("{} deleted by clenaActiveTokenTable method".format(activeToken.token.token))
+    with transaction.atomic():
+        activeTokens = ActiveToken.objects.select_related("token").filter(timeStamp__lt=currentTimeMinusXMinutes).all()
+        for activeToken in activeTokens:
+            # check if points are valid
+            checkCompleteTripScore(activeToken.token.token)
+            activeToken.token.purgeType = Token.SERVER_DOES_NOT_RECEIVE_LOCATIONS
+            activeToken.token.save()
+            activeToken.delete()
+            logger.info("{} deleted by clenaActiveTokenTable method".format(activeToken.token.token))
 
 
 def clearEventsThatHaveBeenDecline():

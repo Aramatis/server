@@ -55,8 +55,11 @@ class SendTrajectoryV2Test(TestCase):
         tripToken = self.helper.getInBusWithLicencePlateByPost(self.phoneId, self.route, self.licensePlate)
         jsonResponse = self.helper.sendFakeTrajectoryOfTokenV2(tripToken)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
+        # there is not gps position for real bus so server answe "i don't know"
+        self.assertEqual(jsonResponse['status'],
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['status'])
+        self.assertEqual(jsonResponse['message'],
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['message'])
 
         self.assertEquals(PoseInTrajectoryOfToken.objects.count(), 9)
 
@@ -67,17 +70,19 @@ class SendTrajectoryV2Test(TestCase):
         jsonResponse = self.helper.sendFakeTrajectoryOfTokenV2(tripToken, userId=self.user.userId,
                                                                sessionToken=self.user.sessionToken)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
-
+        # there is not gps position for real bus so server answe "i don't know"
+        self.assertEqual(jsonResponse['status'],
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['status'])
+        self.assertEqual(jsonResponse['message'],
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['message'])
 
     def test_send_trajectory_with_get_off_response(self):
         """ send trajectory """
         now = timezone.now()
         # distance between points is greater than 500 meters
         locations = [
-            (-70.664046,-33.457106),
-            (-70.676224,-33.458655)
+            (-70.664046, -33.457106),
+            (-70.676224, -33.458655)
         ]
         LastGPS.objects.create(licensePlate=self.licensePlate, userRouteCode="{0}I".format(self.route), timestamp=now,
                                longitude=locations[0][0], latitude=locations[0][1])
@@ -85,16 +90,42 @@ class SendTrajectoryV2Test(TestCase):
         tripToken = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.route, self.licensePlate, userId=self.user.userId, sessionToken=self.user.sessionToken)
         poses = {"poses": [{
-                "longitude": locations[1][0],
-                "latitude": locations[1][1],
-                "timeDelay": -2300,
-                "inVehicleOrNot": True
-            }]
+            "longitude": locations[1][0],
+            "latitude": locations[1][1],
+            "timeDelay": -2300,
+            "inVehicleOrNot": True
+        }]
         }
         jsonResponse = self.helper.sendFakeTrajectoryOfTokenV2(tripToken, poses, userId=self.user.userId,
                                                                sessionToken=self.user.sessionToken)
-        
-        self.assertEqual(jsonResponse['status'], 
+
+        self.assertEqual(jsonResponse['status'],
                          Status.getJsonStatus(Status.USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS, {})['status'])
-        self.assertEqual(jsonResponse['message'], 
+        self.assertEqual(jsonResponse['message'],
                          Status.getJsonStatus(Status.USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS, {})['message'])
+
+    def test_send_trajectory_with_ok_response(self):
+        """ send trajectory """
+        now = timezone.now()
+        # distance between points is less than 500 meters
+        locations = [
+            (-70.664038, -33.457104),
+            (-70.663116, -33.456990)
+        ]
+        LastGPS.objects.create(licensePlate=self.licensePlate, userRouteCode="{0}I".format(self.route), timestamp=now,
+                               longitude=locations[0][0], latitude=locations[0][1])
+
+        tripToken = self.helper.getInBusWithLicencePlateByPost(
+            self.phoneId, self.route, self.licensePlate, userId=self.user.userId, sessionToken=self.user.sessionToken)
+        poses = {"poses": [{
+            "longitude": locations[1][0],
+            "latitude": locations[1][1],
+            "timeDelay": -2300,
+            "inVehicleOrNot": True
+        }]
+        }
+        jsonResponse = self.helper.sendFakeTrajectoryOfTokenV2(tripToken, poses, userId=self.user.userId,
+                                                               sessionToken=self.user.sessionToken)
+
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])

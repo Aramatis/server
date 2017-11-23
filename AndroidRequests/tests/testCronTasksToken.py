@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 
-from AndroidRequests.models import ActiveToken, Level
+from AndroidRequests.models import ActiveToken, Level, Token
 from AndroidRequests.tests.testHelper import TestHelper
 
 import AndroidRequests.cronTasks as cronTasks
@@ -34,6 +34,7 @@ class CronTasksTestCase(TestCase):
         cronTasks.cleanActiveTokenTable()
 
         self.assertEqual(ActiveToken.objects.count(), 0)
+        self.assertEqual(Token.objects.first().purgeType, Token.SERVER_DOES_NOT_RECEIVE_LOCATIONS)
 
     def test_keep_active_token(self):
         timeStamp = timezone.now()
@@ -50,6 +51,7 @@ class CronTasksTestCase(TestCase):
 
         self.assertEqual(ActiveToken.objects.count(), 1)
         self.assertEqual(ActiveToken.objects.first().token.token, token)
+        self.assertIsNone(Token.objects.first().purgeType)
 
 
 class CronTasksWithUserTestCase(TestCase):

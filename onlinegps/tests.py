@@ -7,8 +7,7 @@ from django.utils import timezone
 
 from io import BytesIO
 
-from onlinegps.views import get_machine_locations, get_user_route, get_direction, is_near_to_bus_position, \
-    get_real_machine_info_with_distance
+from onlinegps import views as onlinegpsview
 from onlinegps.models import LastGPS
 
 from AndroidRequests.gpsFunctions import haversine
@@ -41,7 +40,7 @@ class VehicleDataTest(TestCase):
 
         license_plates = list(LastGPS.objects.values_list("licensePlate", flat=True))
 
-        answer = get_machine_locations(license_plates)
+        answer = onlinegpsview.get_machine_locations(license_plates)
 
         for key, value in answer.iteritems():
             self.assertIsNotNone(value["latitude"])
@@ -55,7 +54,7 @@ class VehicleDataTest(TestCase):
         expected_answer = ["I", "R", "I", "I", "I", "I", "R"]
 
         for index, route in enumerate(routes):
-            self.assertEquals(get_direction(route), expected_answer[index])
+            self.assertEquals(onlinegpsview.get_direction(route), expected_answer[index])
 
     def test_get_user_route(self):
         """ test get_user_route function """
@@ -63,7 +62,7 @@ class VehicleDataTest(TestCase):
         expected_answer = ["B01", "102", "506e", "506N", "B03", "B04v", "C02c"]
 
         for index, route in enumerate(routes):
-            self.assertEquals(get_user_route(route), expected_answer[index])
+            self.assertEquals(onlinegpsview.get_user_route(route), expected_answer[index])
 
     def test_get_real_machine_info(self):
         # create record
@@ -75,7 +74,7 @@ class VehicleDataTest(TestCase):
         LastGPS.objects.create(licensePlate=license_plate, userRouteCode=route, timestamp=timestamp,
                                longitude=longitude, latitude=latitude)
 
-        answer = get_real_machine_info_with_distance(license_plate, longitude, latitude)
+        answer = onlinegpsview.get_real_machine_info_with_distance(license_plate, longitude, latitude)
 
         self.assertEquals(answer[0], longitude)
         self.assertEquals(answer[1], latitude)
@@ -94,11 +93,11 @@ class UserBusIsNearToRealBusTest(TestCase):
     def test_give_empty_list(self):
         """ test is_near_to_bus_position function. It receives empty list"""
         positions = []
-        self.assertRaises(AssertionError, is_near_to_bus_position, self.license_plate, positions)
+        self.assertRaises(AssertionError, onlinegpsview.is_near_to_bus_position, self.license_plate, positions)
 
     def get_tuple(self, time_deltas, locations=None):
 
-        machine_info = get_machine_locations([self.license_plate])[self.license_plate]
+        machine_info = onlinegpsview.get_machine_locations([self.license_plate])[self.license_plate]
 
         now = machine_info["timestamp"]
         times = []
@@ -126,11 +125,11 @@ class UserBusIsNearToRealBusTest(TestCase):
         time_deltas = [1, 2, 4, 6]
 
         positions = self.get_tuple(time_deltas)
-        self.assertTrue(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions), onlinegpsview.IS_OK)
 
-        time_deltas = [-1, -2, -4, -6]
+        time_deltas = map(lambda x: x * -1, time_deltas)
         positions = self.get_tuple(time_deltas)
-        self.assertTrue(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions), onlinegpsview.IS_OK)
 
     def test_time_not_ok_and_distance_not_ok(self):
         """ time diff 30 seconds and distance less than 500 meter """
@@ -138,11 +137,13 @@ class UserBusIsNearToRealBusTest(TestCase):
         time_deltas = [30, 32, 44, 56]
 
         positions = self.get_tuple(time_deltas)
-        self.assertTrue(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions),
+                         onlinegpsview.I_DO_NOT_KNOW)
 
-        time_deltas = [-30, -32, -44, -56]
+        time_deltas = map(lambda x: x * -1, time_deltas)
         positions = self.get_tuple(time_deltas)
-        self.assertTrue(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions),
+                         onlinegpsview.I_DO_NOT_KNOW)
 
     def test_time_not_ok_and_distance_ok(self):
         """ time diff 30 seconds but distance greater than 500 meter """
@@ -156,11 +157,13 @@ class UserBusIsNearToRealBusTest(TestCase):
         ]
 
         positions = self.get_tuple(time_deltas, locations)
-        self.assertTrue(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions),
+                         onlinegpsview.I_DO_NOT_KNOW)
 
-        time_deltas = [-30, -32, -44, -56]
+        time_deltas = map(lambda x: x * -1, time_deltas)
         positions = self.get_tuple(time_deltas, locations)
-        self.assertTrue(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions),
+                         onlinegpsview.I_DO_NOT_KNOW)
 
     def test_time_ok_and_distance_ok(self):
         """ time diff 10 seconds but distance greater than 500 meter """
@@ -175,11 +178,11 @@ class UserBusIsNearToRealBusTest(TestCase):
         ]
 
         positions = self.get_tuple(time_deltas, locations)
-        self.assertFalse(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions), onlinegpsview.GET_OFF)
 
-        time_deltas = [9, 11, 24, 36]
+        time_deltas = map(lambda x: x * -1, time_deltas)
         positions = self.get_tuple(time_deltas, locations)
-        self.assertFalse(is_near_to_bus_position(self.license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(self.license_plate, positions), onlinegpsview.GET_OFF)
 
     def test_license_plate_does_not_exist(self):
         """ license plate does not exist in database """
@@ -190,4 +193,4 @@ class UserBusIsNearToRealBusTest(TestCase):
         time_deltas = [9, 11, 24, 36]
 
         positions = self.get_tuple(time_deltas)
-        self.assertTrue(is_near_to_bus_position(license_plate, positions))
+        self.assertEqual(onlinegpsview.is_near_to_bus_position(license_plate, positions), onlinegpsview.I_DO_NOT_KNOW)

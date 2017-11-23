@@ -91,6 +91,11 @@ def get_real_machine_info_with_distance(registrationPlate, longitude, latitude):
     return longitude, latitude, time, distance
 
 
+GET_OFF = 'get_off'
+IS_OK = 'is_ok'
+I_DO_NOT_KNOW = 'i_do_not_know'
+
+
 def is_near_to_bus_position(licensePlate, positions):
     """
     Check if time nearest in positions has distance with last gps point greater than max_distance meters
@@ -104,7 +109,7 @@ def is_near_to_bus_position(licensePlate, positions):
     machineInfo = get_machine_locations(licensePlate)
 
     if machineInfo is None:
-        return True
+        return I_DO_NOT_KNOW
 
     nearestPosition = None
     diffTime = timezone.timedelta(days=700)
@@ -117,9 +122,13 @@ def is_near_to_bus_position(licensePlate, positions):
 
     distance = haversine(machineInfo['longitude'], machineInfo['latitude'],
                          nearestPosition[0], nearestPosition[1])
-    if diffTime.total_seconds() < max_seconds and distance > max_distance_mts:
-        # break trip
-        return False
-
-    # in any other case don't do anything
-    return True
+    if diffTime.total_seconds() < max_seconds:
+        if distance > max_distance_mts:
+            # break trip
+            return GET_OFF
+        else:
+            # ok, continue
+            return IS_OK
+    else:
+        # i do not know
+        return I_DO_NOT_KNOW
