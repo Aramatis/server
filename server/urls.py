@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^map/', include('maplocationofusers.urls')),
     url(r'^modeldic/', include('DataDictionary.urls')),
     url(r'^routeplanner/', include('routeplanner.urls')),
+    url(r'^gtfs/', include('gtfs.urls')),
 ]

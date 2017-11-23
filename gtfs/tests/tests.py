@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase, TransactionTestCase, Client
 from django.core.management import call_command, CommandError
 from django.conf import settings
+from django.urls import reverse
 
 from io import BytesIO
 from mock import Mock
@@ -12,6 +13,7 @@ from gtfs.management.commands import downloadgtfsdata
 import os
 import shutil
 import urllib
+import json
 
 
 class CommandLoadgtfsdataTest(TransactionTestCase):
@@ -110,9 +112,23 @@ class CommandDownloadgtfsdataTest(TransactionTestCase):
         self.assertIn("file 'servicestopdistance.csv' updated", out.getvalue())
         self.assertIn("file 'servicelocation.csv' updated", out.getvalue())
 
+
 class LoaderFactoryTest(TestCase):
 
     def test_loader_factory_with_wrong_model(self):
         """ tray to get loader that not exist """
         non_exist_model = "asdad"
         self.assertRaises(ValueError, LoaderFactory().getModelLoader, non_exist_model)
+
+
+class GetGTFSVersionTest(TestCase):
+
+    def test_get_gtfs_version(self):
+        client = Client()
+        url = reverse("gtfs:version")
+        json_response = client.get(url)
+
+        self.assertEquals(json_response.status_code, 200)
+
+        json_response = json.loads(json_response.content)
+        self.assertEquals(json_response["version"], settings.GTFS_VERSION)
