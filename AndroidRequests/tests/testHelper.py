@@ -197,14 +197,14 @@ class TestHelper:
 
         return jsonResponse
 
-    def endRouteByPost(self, token, purgeType):
+    def endRouteByPost(self, token, purgeCause):
         """ revoke token used to identify a trip """
         URL = '/android/endRoute'
         c = Client()
         URL = URL
         data = {
             'token': token,
-            'purgeType': purgeType
+            'purgeCause': purgeCause
         }
         response = c.post(URL, data)
 

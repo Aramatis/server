@@ -33,7 +33,7 @@ class EndRouteTest(TestCase):
 
         self.assertEqual(jsonResponse['response'], 'Trip ended.')
         self.assertEqual(ActiveToken.objects.count(), 0)
-        self.assertIsNone(Token.objects.first().purgeType)
+        self.assertIsNone(Token.objects.first().purgeCause)
 
     def test_endRouteWithInvalidActiveToken(self):
         """ finish unactive travel """
@@ -48,7 +48,7 @@ class EndRouteTest(TestCase):
 
         self.assertEqual(jsonResponse['response'], 'Token doesn\'t exist.')
         self.assertEqual(ActiveToken.objects.count(), 0)
-        self.assertIsNone(Token.objects.first().purgeType)
+        self.assertIsNone(Token.objects.first().purgeCause)
 
 
 class EndRouteWithUserTest(TestCase):
@@ -83,4 +83,4 @@ class EndRouteWithUserTest(TestCase):
         self.assertTrue(oldScore > self.user.globalScore)
 
         self.assertEqual(ActiveToken.objects.count(), 0)
-        self.assertIsNone(Token.objects.first().purgeType)
+        self.assertIsNone(Token.objects.first().purgeCause)

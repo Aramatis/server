@@ -465,14 +465,14 @@ class Token(models.Model):
     SERVER_DOES_NOT_RECEIVE_LOCATIONS = 'cron_finished_trip'
     SMARTPHONE_SAYS_IS_FAR_AWAY_FROM_REAL_BUS = 'phone_far_away'
     SMARTPHONE_SAYS_THAT_THERE_IS_NOT_MOVEMENT = 'phone_still'
-    PURGE_TYPE_CHOICES = (
+    PURGE_CAUSE_CHOICES = (
         (USER_SAYS_GET_OFF, 'user says get off'),
         (SERVER_SAYS_GET_OFF, 'server says get off'),
         (SERVER_DOES_NOT_RECEIVE_LOCATIONS, 'cron finished trip'),
         (SMARTPHONE_SAYS_IS_FAR_AWAY_FROM_REAL_BUS, 'smartphone says that is far away from real bus'),
         (SMARTPHONE_SAYS_THAT_THERE_IS_NOT_MOVEMENT, 'smartphone says that there is not movement')
     )
-    purgeType = models.CharField(max_length=50, null=True, choices=PURGE_TYPE_CHOICES)
+    purgeCause = models.CharField(max_length=50, null=True, choices=PURGE_CAUSE_CHOICES)
     """ To know why trip finished """
 
     def get_distance_to(self, longitude, latitude):

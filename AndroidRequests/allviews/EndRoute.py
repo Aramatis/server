@@ -17,16 +17,16 @@ class EndRoute(View):
     def post(self, request):
         """Delete the token from the active ones."""
         token = request.POST.get('token')
-        purgeType = request.POST.get('purgeType')
+        purgeCause = request.POST.get('purgeCause')
 
         response = {}
         # check if the token exist
         if ActiveToken.objects.filter(token__token=token).exists():
             ActiveToken.objects.get(token__token=token).delete()
-            if purgeType in [Token.USER_SAYS_GET_OFF, Token.SERVER_SAYS_GET_OFF,
+            if purgeCause in [Token.USER_SAYS_GET_OFF, Token.SERVER_SAYS_GET_OFF,
                              Token.SMARTPHONE_SAYS_IS_FAR_AWAY_FROM_REAL_BUS,
                              Token.SMARTPHONE_SAYS_THAT_THERE_IS_NOT_MOVEMENT]:
-                Token.objects.filter(token=token).update(purgeType=purgeType)
+                Token.objects.filter(token=token).update(purgeCause=purgeCause)
             # check if points are valid
             checkCompleteTripScore(token)
 

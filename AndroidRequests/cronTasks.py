@@ -33,7 +33,7 @@ def cleanActiveTokenTable():
         for activeToken in activeTokens:
             # check if points are valid
             checkCompleteTripScore(activeToken.token.token)
-            activeToken.token.purgeType = Token.SERVER_DOES_NOT_RECEIVE_LOCATIONS
+            activeToken.token.purgeCause = Token.SERVER_DOES_NOT_RECEIVE_LOCATIONS
             activeToken.token.save()
             activeToken.delete()
             logger.info("{} deleted by clenaActiveTokenTable method".format(activeToken.token.token))
