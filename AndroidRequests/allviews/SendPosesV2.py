@@ -52,7 +52,8 @@ class SendPosesV2(View):
                     currentTime = now + timezone.timedelta(seconds=seconds)
 
                     position = PoseInTrajectoryOfToken(longitude=pose['longitude'], latitude=pose['latitude'],
-                        timeStamp=currentTime, inVehicleOrNot=pose["inVehicleOrNot"], token=activeToken.token)
+                                                       timeStamp=currentTime, inVehicleOrNot=pose["inVehicleOrNot"],
+                                                       token=activeToken.token)
                     positions.append(position)
                     tupleList.append((pose['longitude'], pose['latitude'], currentTime))
                 PoseInTrajectoryOfToken.objects.bulk_create(positions)
@@ -71,7 +72,10 @@ class SendPosesV2(View):
                 if licensePlate == constants.DUMMY_LICENSE_PLATE:
                     Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, response)
                 else:
-                    is_near_to_real_bus = onlinepgsview.is_near_to_bus_position(licensePlate, tupleList)
+                    locations = PoseInTrajectoryOfToken.objects.filter(
+                        timeStamp__gt=now - timezone.timedelta(minutes=2)).values_list("longitude", "latitude",
+                                                                                       "timeStamp")
+                    is_near_to_real_bus = onlinepgsview.is_near_to_bus_position(licensePlate, locations)
                     if is_near_to_real_bus == onlinepgsview.GET_OFF:
                         Status.getJsonStatus(Status.USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS, response)
                     elif is_near_to_real_bus == onlinepgsview.I_DO_NOT_KNOW:

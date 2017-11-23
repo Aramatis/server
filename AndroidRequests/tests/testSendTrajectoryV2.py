@@ -177,11 +177,11 @@ class SendTrajectoryV2WithDummyLicensePlateTest(TestCase):
         tripToken = self.helper.getInBusWithLicencePlateByPost(self.phoneId, self.route, self.licensePlate)
         jsonResponse = self.helper.sendFakeTrajectoryOfTokenV2(tripToken)
 
-        # there is not gps position for real bus so server answe "i don't know"
+        # how is dummy license plate, answer "i don't know"
         self.assertEqual(jsonResponse['status'],
-                         Status.getJsonStatus(Status.OK, {})['status'])
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['status'])
         self.assertEqual(jsonResponse['message'],
-                         Status.getJsonStatus(Status.OK, {})['message'])
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['message'])
 
         self.assertEquals(PoseInTrajectoryOfToken.objects.count(), 9)
 
@@ -192,8 +192,8 @@ class SendTrajectoryV2WithDummyLicensePlateTest(TestCase):
         jsonResponse = self.helper.sendFakeTrajectoryOfTokenV2(tripToken, userId=self.user.userId,
                                                                sessionToken=self.user.sessionToken)
 
-        # there is not gps position for real bus so server answe "i don't know"
+        # how is dummy license plate, answer "i don't know"
         self.assertEqual(jsonResponse['status'],
-                         Status.getJsonStatus(Status.OK, {})['status'])
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['status'])
         self.assertEqual(jsonResponse['message'],
-                         Status.getJsonStatus(Status.OK, {})['message'])
+                         Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, {})['message'])
