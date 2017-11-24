@@ -168,10 +168,10 @@ class GetMapPositionsTest(TestCase):
             if currentUserNumber == distribution[distribution_index]:
                 distribution_index += 1
                 currentUserNumber = 0
-                day = day.replace(day=day.day + 1)
+                day = day + timezone.timedelta(days=1)
                 while distribution[distribution_index] == 0:
                     distribution_index += 1
-                    day = day.replace(day=day.day + 1)
+                    day = day + timezone.timedelta(days=1)
             currentUserNumber += 1
             hour = int(random.random()*19 + 4)
             minute = int(random.random()*59)
