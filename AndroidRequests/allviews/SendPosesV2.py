@@ -72,7 +72,7 @@ class SendPosesV2(View):
                 if licensePlate == constants.DUMMY_LICENSE_PLATE:
                     Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, response)
                 else:
-                    locations = PoseInTrajectoryOfToken.objects.filter(
+                    locations = PoseInTrajectoryOfToken.objects.filter(token=activeToken.token,
                         timeStamp__gt=now - timezone.timedelta(minutes=2)).values_list("longitude", "latitude",
                                                                                        "timeStamp")
                     is_near_to_real_bus = onlinepgsview.is_near_to_bus_position(licensePlate, locations)
