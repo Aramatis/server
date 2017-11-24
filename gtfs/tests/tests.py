@@ -63,12 +63,12 @@ class CommandDownloadgtfsdataTest(TransactionTestCase):
     def setUp(self):
         self.command = 'downloadgtfsdata'
         self.gtfs_version = 'test2'
-        self.data_path = os.path.join(settings.BASE_DIR, 'gtfs', 'data', self.gtfs_version)
+        self.server_data_path = os.path.join(settings.BASE_DIR, 'gtfs', 'data', self.gtfs_version, 'server')
 
     def tearDown(self):
         """ delete log file """
-        if os.path.isdir(self.data_path):
-            shutil.rmtree(self.data_path)
+        if os.path.isdir(self.server_data_path):
+            shutil.rmtree(self.server_data_path)
 
     def test_command_too_few_arguments(self):
         """ Raise error CommandError. too few arguments"""
@@ -100,11 +100,11 @@ class CommandDownloadgtfsdataTest(TransactionTestCase):
         command_obj.downloader = urllib_mock
 
         # create directory
-        os.mkdir(self.data_path)
+        os.makedirs(self.server_data_path)
         # and file exists
-        open(os.path.join(self.data_path, "busstop.csv"), 'w').close()
+        open(os.path.join(self.server_data_path, "busstop.csv"), 'w').close()
 
-        call_command(command_obj, self.gtfs_version, '--no-input', stdout=out)
+        call_command(command_obj, self.gtfs_version, '--not-input', stdout=out)
         self.assertIn(" already exists", out.getvalue())
         self.assertIn("file 'busstop.csv' updated", out.getvalue())
         self.assertIn("file 'services.csv' updated", out.getvalue())

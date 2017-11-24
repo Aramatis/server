@@ -74,4 +74,4 @@ class Command(BaseCommand):
             raise ValueError('model name does not match with any valid model name: '
                              'stop route routelocation routestopdistance routebystop shape')
             
-        return os.path.join(self.file_path, self.gtfs_version, file_name)
+        return os.path.join(self.file_path, self.gtfs_version, 'server', file_name)
