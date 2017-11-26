@@ -518,6 +518,8 @@ class Report(models.Model):
     """ Aditinal information regarding the report. For example the user location."""
     phoneId = models.UUIDField()
     """ To identify the data owner """
+    tranSappUser = models.ForeignKey('TranSappUser', null=True)
+    """ Logged user with social media (if exists) """
 
 ##
 #
