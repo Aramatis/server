@@ -514,6 +514,8 @@ class Report(models.Model):
     """ Text reported by the user """
     imageName = models.CharField(max_length=100, default=None, null=True)
     """ image name that was saved """
+    imageFile = models.FileField(upload_to='reported_images', default=None, null=True)
+    """ image file """
     reportInfo = models.TextField()
     """ Aditinal information regarding the report. For example the user location."""
     phoneId = models.UUIDField()

@@ -9,7 +9,7 @@ from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 from AndroidRequests.allviews.RegisterEventBus import RegisterEventBus
 from AndroidRequests.allviews.RegisterEventBusStop import RegisterEventBusStop
 from AndroidRequests.allviews.RegisterEventBusV2 import RegisterEventBusV2
-from AndroidRequests.allviews.RegisterReport import RegisterReport
+from AndroidRequests.allviews.RegisterReport import RegisterReport, RegisterReportV2
 from AndroidRequests.allviews.RequestEventsToNotified import RequestEventsToNotified
 from AndroidRequests.allviews.RequestToken import RequestToken
 from AndroidRequests.allviews.RequestTokenV2 import RequestTokenV2
@@ -113,4 +113,8 @@ urlpatterns = [
     url(r'^requestToken/v2$', RequestTokenV2.as_view()),
     url(r'^sendTrajectory/v2$', SendPosesV2.as_view()),
     url(r'^endRoute$', EndRoute.as_view()),
+    # =====================================================
+    # reports
+    # =====================================================
+    url(r'^registerReport/v2$', RegisterReportV2.as_view()),
 ]

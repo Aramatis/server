@@ -590,3 +590,36 @@ class TestHelper:
             users.append(user)
 
         return users
+
+    def report(self, text, image, format_image, phone_id, report_info):
+        url = '/android/registerReport'
+        data = {
+            "text": text,
+            "img": image,
+            "ext": format_image,
+            "userId": phone_id,
+            "reportInfo": report_info
+        }
+        response = Client().post(url, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        return json.loads(response.content)
+
+    def reportV2(self, text, image, format_image, phone_id, report_info, user_id=None, session_token=None):
+        url = '/android/registerReport/v2'
+        data = {
+            "text": text,
+            "img": image,
+            "ext": format_image,
+            "phoneId": phone_id,
+            "reportInfo": report_info
+        }
+        if user_id is not None:
+            data["userId"] = user_id
+            data["sessionToken"] = session_token
+        response = Client().post(url, data)
+
+        self.test.assertEqual(response.status_code, 200)
+
+        return json.loads(response.content)

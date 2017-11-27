@@ -11,6 +11,7 @@ class Status:
     TRAJECTORY_DOES_NOT_HAVE_LOCATIONS = 408
     USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS = 409
     I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS = 410
+    REPORT_CAN_NOT_BE_SAVED = 411
 
     statusDict = {
         OK: {'status': 200, 'message': 'ok'},
@@ -37,6 +38,10 @@ class Status:
         TRAJECTORY_DOES_NOT_HAVE_LOCATIONS: {
             'status': TRAJECTORY_DOES_NOT_HAVE_LOCATIONS,
             'message': 'trajectory does not have locations'
+        },
+        REPORT_CAN_NOT_BE_SAVED: {
+            'status': REPORT_CAN_NOT_BE_SAVED,
+            'message': 'report can not be saved :-('
         }
     }
 
