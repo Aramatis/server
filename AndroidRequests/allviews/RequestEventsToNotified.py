@@ -25,6 +25,6 @@ class RequestEventsToNotified(View):
         response = []
 
         for data in events:
-            response.append(data.getDictionary())
+            response.append(data.get_dictionary())
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

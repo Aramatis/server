@@ -26,10 +26,10 @@ class UserRanking(View):
             lower_users = TranSappUser.objects.select_related("level").filter(globalScore__lte=user.globalScore). \
                               order_by("-globalScore", "globalPosition")[:self.LOWER_USERS]
 
-        top_ranking = [top_user.getDictionary() for top_user in top_users]
-        near_ranking = [upper_user.getDictionary() for upper_user in upper_users]
+        top_ranking = [top_user.get_dictionary() for top_user in top_users]
+        near_ranking = [upper_user.get_dictionary() for upper_user in upper_users]
         near_ranking.reverse()
-        near_ranking += [lower_user.getDictionary() for lower_user in lower_users]
+        near_ranking += [lower_user.get_dictionary() for lower_user in lower_users]
 
         # if user ask between updates simulate position
         cache = {}

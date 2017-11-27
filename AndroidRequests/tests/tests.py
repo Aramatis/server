@@ -337,7 +337,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         thebus = Busv2.objects.create(registrationPlate='AA1112')
         busassignment = Busassignment.objects.create(service='507', uuid=thebus)
 
-        busPose = busassignment.getLocation()
+        busPose = busassignment.get_location()
 
         self.assertTrue(busPose['random'])
         self.assertEqual(busPose['latitude'], -500)
@@ -364,7 +364,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         bus = Busv2.objects.get(registrationPlate=licencePlate)
         busassignment = Busassignment.objects.get(uuid=bus, service=service)
 
-        busPose = busassignment.getLocation()
+        busPose = busassignment.get_location()
 
         self.assertEqual(busPose['latitude'], userLatitude)
         self.assertEqual(busPose['longitude'], userLongitude)

@@ -140,7 +140,7 @@ class TranSappUserLogin(View):
             # ok
             Status.getJsonStatus(Status.OK, response)
             response['sessionToken'] = user.sessionToken
-            response.update(user.getLoginData())
+            response.update(user.get_login_data())
         except (InvalidFacebookSessionException, InvalidGoogleSessionException) as e:
             Status.getJsonStatus(Status.INVALID_USER, response)
             self.logger.error(str(e))

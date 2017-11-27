@@ -56,7 +56,7 @@ class BusStop(Location):
     gtfs = models.ForeignKey('GTFS', verbose_name='gtfs version')
     """ gtfs version """
 
-    def getDictionary(self):
+    def get_dictionary(self):
         """usefull information regarding the bus."""
         dictionary = {'codeBusStop': self.code, 'nameBusStop': self.name}
 

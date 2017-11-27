@@ -108,7 +108,7 @@ class BusDirectionTestCase(TestCase):
         distance = 25
 
         # print "upper_right_corner"
-        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
+        orientation = Busassignment.objects.first().get_direction(self.stopObj, distance)
 
         self.assertEqual(orientation, 'left')
 
@@ -185,7 +185,7 @@ class BusDirectionTestCase(TestCase):
         distance = 20
 
         # print "lower_right_corner"
-        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
+        orientation = Busassignment.objects.first().get_direction(self.stopObj, distance)
 
         self.assertEqual(orientation, 'left')
 
@@ -261,7 +261,7 @@ class BusDirectionTestCase(TestCase):
 
         distance = 20
         # print "lower_left_corner"
-        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
+        orientation = Busassignment.objects.first().get_direction(self.stopObj, distance)
 
         self.assertEqual(orientation, 'right')
 
@@ -339,6 +339,6 @@ class BusDirectionTestCase(TestCase):
         distance = 25
 
         # print "upper_left_corner"
-        orientation = Busassignment.objects.first().getDirection(self.stopObj, distance)
+        orientation = Busassignment.objects.first().get_direction(self.stopObj, distance)
 
         self.assertEqual(orientation, 'right')

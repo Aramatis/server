@@ -51,7 +51,7 @@ class Event(models.Model):
         choices=REPORT_TYPE)
     """ Represents the element to which the event refers """
 
-    def getDictionary(self):
+    def get_dictionary(self):
         """ Return a dictionary with the event information """
         dictionary = {'name': self.name, 'description': self.description, 'eventcode': self.id}
         return dictionary
@@ -77,16 +77,16 @@ class StadisticDataFromRegistration(Location):
     class Meta:
         abstract = True
 
-    def getDictionary(self):
+    def get_dictionary(self):
         """ return two list: one with confirm users and another with decline users """
         dictionary = {}
         if self.tranSappUser is not None:
-            dictionary['user'] = self.tranSappUser.getDictionary()
+            dictionary['user'] = self.tranSappUser.get_dictionary()
         else:
             dictionary['user'] = {}
         dictionary['vote'] = self.confirmDecline
-        timeStamp = timezone.localtime(self.timeStamp)
-        dictionary['timeStamp'] = timeStamp.strftime("%d-%m-%Y %H:%M:%S")
+        timestamp = timezone.localtime(self.timeStamp)
+        dictionary['timeStamp'] = timestamp.strftime("%d-%m-%Y %H:%M:%S")
 
         return dictionary
 
@@ -140,70 +140,72 @@ class EventRegistration(models.Model):
     class Meta:
         abstract = True
 
-    def getDictionary(self):
+    def get_dictionary(self):
         """A dictionary with the event information, just what was of interest to return to the app."""
-        dictionary = {'eventConfirm': self.eventConfirm, 'eventDecline': self.eventDecline}
+        dictionary = {
+            'eventConfirm': self.eventConfirm,
+            'eventDecline': self.eventDecline
+        }
 
         creation = timezone.localtime(self.timeCreation)
         stamp = timezone.localtime(self.timeStamp)
         dictionary['timeCreation'] = creation.strftime("%d-%m-%Y %H:%M:%S")
         dictionary['timeStamp'] = stamp.strftime("%d-%m-%Y %H:%M:%S")
 
-        eventDictionay = self.event.getDictionary()
-        dictionary.update(eventDictionay)
+        dictionary.update(self.event.get_dictionary())
 
         return dictionary
 
-    def createUserLists(self, records):
+    def create_user_lists(self, records):
         """
         create confirmed user list, declined user list and identify user creator (if exists)
         return creatorIndex, confirmedUserList, declinedUserList
         """
-        creatorId = None
-        creatorIndex = -1
+        creator_id = None
+        creator_index = -1
 
         first = True
-        confirmedUserDict = {}
-        declinedUserDict = {}
+        confirmed_user_dict = {}
+        declined_user_dict = {}
         for record in records.order_by("timeStamp"):
-            record = record.getDictionary()
+            record = record.get_dictionary()
             user = record['user']
 
             if first and bool(user):
-                creatorId = user["id"]
+                creator_id = user["id"]
             first = False
             if not bool(user):
                 continue
 
-            userId = user["id"]
+            user_id = user["id"]
             if record['vote'] == self.CONFIRM:
-                if userId in confirmedUserDict:
-                    confirmedUserDict[userId]["votes"] += 1
+                if user_id in confirmed_user_dict:
+                    confirmed_user_dict[user_id]["votes"] += 1
                 else:
-                    confirmedUserDict[userId] = user
-                    confirmedUserDict[userId]["votes"] = 1
-                confirmedUserDict[userId]["lastReportTimestamp"] = record["timeStamp"]
+                    confirmed_user_dict[user_id] = user
+                    confirmed_user_dict[user_id]["votes"] = 1
+                confirmed_user_dict[user_id]["lastReportTimestamp"] = record["timeStamp"]
 
             if record['vote'] == self.DECLINE:
-                if userId in declinedUserDict:
-                    declinedUserDict[userId]["votes"] += 1
+                if user_id in declined_user_dict:
+                    declined_user_dict[user_id]["votes"] += 1
                 else:
-                    declinedUserDict[userId] = user
-                    declinedUserDict[userId]["votes"] = 1
-                declinedUserDict[userId]["lastReportTimestamp"] = record["timeStamp"]
+                    declined_user_dict[user_id] = user
+                    declined_user_dict[user_id]["votes"] = 1
+                declined_user_dict[user_id]["lastReportTimestamp"] = record["timeStamp"]
 
-        confirmedVoteList = []
-        declinedVoteList = []
+        confirmed_vote_list = []
+        declined_vote_list = []
 
-        for index, (_, user) in enumerate(confirmedUserDict.items()):
-            if user["id"] == creatorId:
-                creatorIndex = index
-            confirmedVoteList.append(user)
+        for index, (_, user) in enumerate(confirmed_user_dict.items()):
+            if user["id"] == creator_id:
+                creator_index = index
+            confirmed_vote_list.append(user)
 
-        for _, user in declinedUserDict.items():
-            declinedVoteList.append(user)
+        for _, user in declined_user_dict.items():
+            declined_vote_list.append(user)
 
-        return creatorIndex, confirmedVoteList, declinedVoteList
+        return creator_index, confirmed_vote_list, declined_vote_list
 
 
 class EventForBusStop(EventRegistration):
@@ -216,15 +218,15 @@ class EventForBusStop(EventRegistration):
         default='nothing')
     """ Saves additional information required by the event """
 
-    def getDictionary(self):
-        dictionary = super(EventForBusStop, self).getDictionary()
+    def get_dictionary(self):
+        dictionary = super(EventForBusStop, self).get_dictionary()
 
         records = self.stadisticdatafromregistrationbusstop_set.all()
-        creatorIndex, confirmedVoteList, declinedVoteList = self.createUserLists(records)
+        creator_index, confirmed_vote_list, declined_vote_list = self.create_user_lists(records)
 
-        dictionary['confirmedVoteList'] = confirmedVoteList
-        dictionary['declinedVoteList'] = declinedVoteList
-        dictionary['creatorIndex'] = creatorIndex
+        dictionary['confirmedVoteList'] = confirmed_vote_list
+        dictionary['declinedVoteList'] = declined_vote_list
+        dictionary['creatorIndex'] = creator_index
 
         return dictionary
 
@@ -234,15 +236,15 @@ class EventForBusv2(EventRegistration):
     busassignment = models.ForeignKey('Busassignment', verbose_name='the bus')
     """Indicates the bus to which the event refers"""
 
-    def getDictionary(self):
-        dictionary = super(EventForBusv2, self).getDictionary()
+    def get_dictionary(self):
+        dictionary = super(EventForBusv2, self).get_dictionary()
 
         records = self.stadisticdatafromregistrationbus_set.all()
-        creatorIndex, confirmedVoteList, declinedVoteList = self.createUserLists(records)
+        creator_index, confirmed_vote_list, declined_vote_list = self.create_user_lists(records)
 
-        dictionary['confirmedVoteList'] = confirmedVoteList
-        dictionary['declinedVoteList'] = declinedVoteList
-        dictionary['creatorIndex'] = creatorIndex
+        dictionary['confirmedVoteList'] = confirmed_vote_list
+        dictionary['declinedVoteList'] = declined_vote_list
+        dictionary['creatorIndex'] = creator_index
 
         return dictionary
 
@@ -286,39 +288,39 @@ class Busassignment(models.Model):
     class Meta:
         unique_together = ('uuid', 'service')
 
-    def getDirection(self, stopObj, pDistance):
+    def get_direction(self, stop_obj, distance):
         """ Given a bus stop and the distance from the bus to the bus stop,
             return the address to which point the bus """
         try:
-            serviceCode = ServicesByBusStop.objects.filter(
-                busStop=stopObj,
+            route_code = ServicesByBusStop.objects.filter(
+                busStop=stop_obj,
                 service__service=self.service,
                 gtfs__version=settings.GTFS_VERSION).values_list('code', flat=True)[0]
         except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException(
                 "Service {} is not present in bus stop {}".format(
-                    self.service, stopObj.code))
+                    self.service, stop_obj.code))
 
         try:
-            serviceDistance = ServiceStopDistance.objects.filter(
-                busStop=stopObj,
-                service=serviceCode,
+            service_distance_obj = ServiceStopDistance.objects.filter(
+                busStop=stop_obj,
+                service=route_code,
                 gtfs__version=settings.GTFS_VERSION).values_list('distance', flat=True)[0]
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(
                 "The distance is not possible getting for bus stop '{}' and service '{}'".format(
-                    stopObj.code, serviceCode))
+                    stop_obj.code, route_code))
 
-        distance = serviceDistance - int(pDistance)
+        distance = service_distance_obj - int(distance)
         # bus service distance from route origin
         greaters = ServiceLocation.objects.filter(
-            service=serviceCode,
+            service=route_code,
             gtfs__version=settings.GTFS_VERSION,
             distance__gt=distance).order_by('distance')[:1]
         # get 2 locations greater than current location (nearer to the bus
         # stop)
         lowers = ServiceLocation.objects.filter(
-            service=serviceCode,
+            service=route_code,
             gtfs__version=settings.GTFS_VERSION,
             distance__lte=distance).order_by('-distance')[:1]
         # get 2 locations lower than current location
@@ -344,7 +346,6 @@ class Busassignment(models.Model):
             greater = greaters[1]
         elif len(greaters) == 0 and len(lowers) == 0:
             # there are not points to detect direction
-            # TODO: add log to register this situations
             logger = logging.getLogger(__name__)
             logger.info("There is not position to detect bus direction")
             return "left"
@@ -362,16 +363,16 @@ class Busassignment(models.Model):
                 return "left"
         else:
             # we compare bus location with bus stop location
-            xBusStop = stopObj.longitude
-            if x2 - xBusStop > 0:
+            x_bus_stop = stop_obj.longitude
+            if x2 - x_bus_stop > 0:
                 return "left"
             else:
                 return "right"
 
-    def getLocation(self):
+    def get_location(self):
         """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
         tokens = Token.objects.filter(busassignment=self)
-        lastDate = timezone.now() - timezone.timedelta(minutes=5)
+        last_date = timezone.now() - timezone.timedelta(minutes=5)
         passengers = 0
         lat = -500
         lon = -500
@@ -381,15 +382,15 @@ class Busassignment(models.Model):
                 continue
             passengers += 1
             try:
-                lastPose = PoseInTrajectoryOfToken.objects.filter(
-                    token=token, timeStamp__gte=lastDate).latest('timeStamp')
-                lastDate = lastPose.timeStamp
-                lat = lastPose.latitude
-                lon = lastPose.longitude
+                last_pose = PoseInTrajectoryOfToken.objects.filter(
+                    token=token, timeStamp__gte=last_date).latest('timeStamp')
+                last_date = last_pose.timeStamp
+                lat = last_pose.latitude
+                lon = last_pose.longitude
                 random = False
             except PoseInTrajectoryOfToken.DoesNotExist:
                 logger = logging.getLogger(__name__)
-                logger.info("There is not geolocation in the last 5 minutes. token: {} | time: {}". \
+                logger.info("There is not geolocation in the last 5 minutes. token: {} | time: {}".
                             format(token.token, timezone.now()))
 
         return {'latitude': lat,
@@ -398,34 +399,34 @@ class Busassignment(models.Model):
                 'random': random
                 }
 
-    def getEstimatedLocation(self, stopCode, distance):
-        """Given a distace from the bus to the busstop, this method returns the global position of the machine."""
+    def get_estimated_location(self, stop_code, distance):
+        """ Given a distance from the bus to the bus stop, this method returns the global position of the machine. """
         try:
-            serviceCode = ServicesByBusStop.objects.filter(
-                busStop__code=stopCode, service__service=self.service,
+            route_code = ServicesByBusStop.objects.filter(
+                busStop__code=stop_code, service__service=self.service,
                 gtfs__version=settings.GTFS_VERSION).values_list('code', flat=True)[0]
         except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException(
                 "Service {} is not present in bus stop {}".format(
-                    self.service, stopCode))
+                    self.service, stop_code))
 
         ssd = ServiceStopDistance.objects.filter(
-            busStop__code=stopCode, service=serviceCode,
+            busStop__code=stop_code, service=route_code,
             gtfs__version=settings.GTFS_VERSION).values_list('distance', flat=True)[0] - int(distance)
 
         try:
             closest_gt = ServiceLocation.objects.filter(
-                service=serviceCode,
+                service=route_code,
                 gtfs__version=settings.GTFS_VERSION,
                 distance__gte=ssd).order_by('distance').value_list('distance', flat=True)[0]
-        except:
+        except KeyError:
             closest_gt = 50000
         try:
             closest_lt = ServiceLocation.objects.filter(
-                service=serviceCode,
+                service=route_code,
                 gtfs__version=settings.GTFS_VERSION,
                 distance__lte=ssd).order_by('-distance').values_list('distance', flat=True)[0]
-        except:
+        except KeyError:
             closest_lt = 0
 
         if abs(closest_gt - ssd) < abs(closest_lt - ssd):
@@ -434,13 +435,13 @@ class Busassignment(models.Model):
             closest = closest_lt
 
         location = ServiceLocation.objects.filter(
-            service=serviceCode,
+            service=route_code,
             gtfs__version=settings.GTFS_VERSION,
             distance=closest).first()
 
         return {'latitude': location.latitude,
                 'longitude': location.longitude,
-                'direction': serviceCode[-1]
+                'direction': route_code[-1]
                 }
 
 
@@ -560,8 +561,8 @@ class Level(models.Model):
     position = models.IntegerField(null=False, unique=True)
     """ to order levels 1,2,3,... """
 
-    def getDictionary(self):
-        return  {
+    def get_dictionary(self):
+        return {
             "name": self.name,
             "maxScore": self.maxScore,
             "minScore": self.minScore,
@@ -612,7 +613,7 @@ class TranSappUser(models.Model):
     timestamp = models.DateTimeField(default=timezone.now, null=False)
     """ last time when user opened app while is logged """
 
-    def getDictionary(self):
+    def get_dictionary(self):
         """ get dictionary of public data """
         data = {
             "nickname": self.nickname,
@@ -632,7 +633,7 @@ class TranSappUser(models.Model):
 
         return data
 
-    def getScoreData(self):
+    def get_score_data(self):
         """ return updated score data """
         return {
             "id": self.externalId,
@@ -640,13 +641,13 @@ class TranSappUser(models.Model):
             "ranking": {
                 "globalPosition": self.globalPosition
             },
-            "level": self.level.getDictionary()
+            "level": self.level.get_dictionary()
         }
 
-    def getLoginData(self):
+    def get_login_data(self):
         """ return user info needed when finish login process """
         return {
-            "userData": self.getScoreData(),
+            "userData": self.get_score_data(),
             "userSettings": {
                 "busAvatarId": self.busAvatarId,
                 "userAvatarId": self.userAvatarId,

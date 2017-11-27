@@ -17,7 +17,7 @@ class EventsByBusStop(View):
         timestamp = timezone.now()
         stop_obj = BusStop.objects.get(code=stop_code, gtfs__version=settings.GTFS_VERSION)
 
-        event_dictionary = stop_obj.getDictionary()
+        event_dictionary = stop_obj.get_dictionary()
         event_dictionary['events'] = self.get_events_for_stop(stop_code, timestamp)
 
         return JsonResponse(event_dictionary, safe=False, encoder=TranSappJSONEncoder)
@@ -34,6 +34,6 @@ class EventsByBusStop(View):
                    expireTime__gte=timestamp, timeCreation__lte=timestamp).order_by('-timeStamp')
 
         for event in events:
-            current_event_report.append(event.getDictionary())
+            current_event_report.append(event.get_dictionary())
 
         return current_event_report

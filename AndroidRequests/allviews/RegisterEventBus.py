@@ -49,7 +49,7 @@ class RegisterEventBus(View):
             response['registrationPlate'] = license_plate
             response['service'] = route
 
-            dictionary.update(event.getDictionary())
+            dictionary.update(event.get_dictionary())
 
             events.append(dictionary)
             # events[0].

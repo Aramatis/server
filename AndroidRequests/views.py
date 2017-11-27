@@ -202,7 +202,7 @@ def get_user_buses(stop_obj, questioner):
                 if global_scores[position] < global_score:
                     global_scores[position] = global_score
                     bus['avatarId'] = token_obj.tranSappUser.busAvatarId
-                    bus['user'] = token_obj.tranSappUser.getDictionary()
+                    bus['user'] = token_obj.tranSappUser.get_dictionary()
 
             user_buses[position] = bus
 
@@ -219,9 +219,9 @@ def get_user_buses(stop_obj, questioner):
             if token_obj.tranSappUser is not None:
                 global_score = token_obj.tranSappUser.globalScore
                 bus['avatarId'] = token_obj.tranSappUser.busAvatarId
-                bus['user'] = token_obj.tranSappUser.getDictionary()
+                bus['user'] = token_obj.tranSappUser.get_dictionary()
 
-            bus_data = token_obj.busassignment.getLocation()
+            bus_data = token_obj.busassignment.get_location()
             bus['random'] = bus_data['random']
             bus['lat'] = bus_data['latitude']
             bus['lon'] = bus_data['longitude']
@@ -231,7 +231,7 @@ def get_user_buses(stop_obj, questioner):
 
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
-                bus['sentido'] = token_obj.busassignment.getDirection(
+                bus['sentido'] = token_obj.busassignment.get_direction(
                     stop_obj, 30)
             except Exception as e:
                 logger.error(str(e))
@@ -335,7 +335,7 @@ def get_authority_buses(stop_obj, data):
         service['random'] = False
 
         try:
-            bus_data = bus_assignment.getEstimatedLocation(stop_code, distance)
+            bus_data = bus_assignment.get_estimated_location(stop_code, distance)
         except Exception as e:
             logger.error("Trying to get estimated location: " + str(e))
             bus_data = {'latitude': 500, 'longitude': 500, 'direction': 'I'}
@@ -349,7 +349,7 @@ def get_authority_buses(stop_obj, data):
             service=service['servicio'], gtfs__version=settings.GTFS_VERSION).values_list('color_id', flat=True)[0]
 
         try:
-            service['sentido'] = bus_assignment.getDirection(
+            service['sentido'] = bus_assignment.get_direction(
                 stop_obj, distance)
         except Exception as e:
             logger.error(str(e))

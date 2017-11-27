@@ -80,7 +80,7 @@ class CalculateScore:
             ScoreHistory.objects.create(tranSappUser=self.user, scoreEvent=score_event_obj,
                                         timeCreation=timezone.now(), score=additional_score, meta=meta)
 
-            self.response['userData'] = self.user.getScoreData()
+            self.response['userData'] = self.user.get_score_data()
 
         return self.response
 

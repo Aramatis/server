@@ -58,7 +58,7 @@ class EventsByBusV2(View):
             aggregated_events = {}
             result = []
             for event in events:
-                event = event.getDictionary()
+                event = event.get_dictionary()
 
                 if event['eventcode'] in aggregated_events:
                     position = aggregated_events[event['eventcode']]
