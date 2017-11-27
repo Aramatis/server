@@ -34,9 +34,11 @@ class Event(models.Model):
     REPORT_ORIGIN = (
         ('i', 'the event was taken inside the bus'),  # this is an I for inside
         ('o', 'the event was taken from a bustop'),)  # this is an O for outside
+    BUS_TYPE = 'bus'
+    STOP_TYPE = 'busStop'
     REPORT_TYPE = (
-        ('bus', 'An event for the bus.'),
-        ('busStop', 'An event for the busStop.'))
+        (BUS_TYPE, 'An event for the bus.'),
+        (STOP_TYPE, 'An event for the busStop.'))
     origin = models.CharField(
         'Origin',
         max_length=1,

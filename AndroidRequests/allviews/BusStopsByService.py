@@ -11,34 +11,30 @@ from AndroidRequests.encoder import TranSappJSONEncoder
 class BusStopsByService(View):
     """This class handles requests for the list of bus stops for an specific service."""
 
-    def __init__(self):
-        self.context = {}
-
-    def get(self, request, pBusService):
+    def get(self, request, route):
         """it receive the bus Service to get all the bus stops where it service stops."""
-        response = {'service': pBusService}
+        response = {'service': route}
 
         # ask for the bus stops for this service
-        busStops = self.getBusStopsForService(pBusService)
+        bus_stops = self.get_bus_stops_for_route(route)
 
-        response['paraderos'] = busStops
+        response['paraderos'] = bus_stops
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
-    def getBusStopsForService(self, pBusService):
+    def get_bus_stops_for_route(self, route):
         """this method look for all the bus stops where the service stops."""
-        busStops = []
+        bus_stops = []
 
-        for sbs in ServicesByBusStop.objects.filter(service=pBusService, gtfs__version=settings.GTFS_VERSION):
+        for sbs in ServicesByBusStop.objects.filter(service=route, gtfs__version=settings.GTFS_VERSION):
             data = {}
-            busStop = sbs.busStop
-            data['codigo'] = busStop.code
-            data['nombre'] = busStop.name
-            data['latitud'] = busStop.latitude
-            data['longitud'] = busStop.longitude
-            getEventsByBusStop = EventsByBusStop()
-            data['eventos'] = getEventsByBusStop.getEventsForStop(
-                busStop, timezone.now())
-            busStops.append(data)
+            bus_stop = sbs.busStop
+            data['codigo'] = bus_stop.code
+            data['nombre'] = bus_stop.name
+            data['latitud'] = bus_stop.latitude
+            data['longitud'] = bus_stop.longitude
+            data['eventos'] = EventsByBusStop().getEventsForStop(
+                bus_stop, timezone.now())
+            bus_stops.append(data)
 
-        return busStops
+        return bus_stops

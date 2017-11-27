@@ -180,7 +180,7 @@ def get_user_buses(stop_obj, questioner):
     bus_assignments = []
     for token_obj in active_user_buses:
         bus_assignments += token_obj.busassignment.uuid.busassignment_set.all()
-    events_by_machine_id = EventsByBusV2().getEventsForBuses(bus_assignments, timezone.now())
+    events_by_machine_id = EventsByBusV2().get_events_for_buses(bus_assignments, timezone.now())
 
     global_scores = []
     # used to choose which bus avatar shows. Criteria: user with highest global score
@@ -298,7 +298,7 @@ def get_authority_buses(stop_obj, data):
     busassignments = []
     for bus_obj in busObjList:
         busassignments += bus_obj.busassignment_set.all()
-    events_by_machine_id = EventsByBusV2().getEventsForBuses(busassignments, timezone.now())
+    events_by_machine_id = EventsByBusV2().get_events_for_buses(busassignments, timezone.now())
 
     for service in data['servicios']:
         if service['valido'] != 1 or service['patente'] is None \

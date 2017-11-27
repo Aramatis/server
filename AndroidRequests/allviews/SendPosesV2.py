@@ -39,43 +39,45 @@ class SendPosesV2(View):
             if len(trajectory) > 0:
                 now = timezone.now()
                 # update the token timestamp, to keep as active token
-                activeToken = ActiveToken.objects.select_related("token__busassignment__uuid").get(token__token=token)
-                activeToken.timeStamp = now
-                activeToken.save()
+                active_token = ActiveToken.objects.select_related("token__busassignment__uuid").get(token__token=token)
+                active_token.timeStamp = now
+                active_token.save()
 
                 positions = []
-                tupleList = []
+                tuple_list = []
 
                 for pose in trajectory:
                     # time delay is in miliseconds
                     seconds = pose['timeDelay'] / 1000
-                    currentTime = now + timezone.timedelta(seconds=seconds)
+                    current_time = now + timezone.timedelta(seconds=seconds)
 
                     position = PoseInTrajectoryOfToken(longitude=pose['longitude'], latitude=pose['latitude'],
-                                                       timeStamp=currentTime, inVehicleOrNot=pose["inVehicleOrNot"],
-                                                       token=activeToken.token)
+                                                       timeStamp=current_time, inVehicleOrNot=pose["inVehicleOrNot"],
+                                                       token=active_token.token)
                     positions.append(position)
-                    tupleList.append((pose['longitude'], pose['latitude'], currentTime))
+                    tuple_list.append((pose['longitude'], pose['latitude'], current_time))
                 PoseInTrajectoryOfToken.objects.bulk_create(positions)
 
                 # update score
-                EVENT_ID = 'evn00300'
-                metaData = {
-                    'poses': tupleList,
+                event_id = 'evn00300'
+                meta_data = {
+                    'poses': tuple_list,
                     'token': token,
                 }
-                jsonScoreResponse = score.calculateDistanceScore(request, EVENT_ID, metaData)
-                response["gamificationData"] = jsonScoreResponse
+                json_score_response = score.calculateDistanceScore(request, event_id, meta_data)
+                response["gamificationData"] = json_score_response
 
                 # check with real bus
-                licensePlate = activeToken.token.busassignment.uuid.registrationPlate
-                if licensePlate == constants.DUMMY_LICENSE_PLATE:
+                license_plate = active_token.token.busassignment.uuid.registrationPlate
+                if license_plate == constants.DUMMY_LICENSE_PLATE:
                     Status.getJsonStatus(Status.I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS, response)
                 else:
-                    locations = PoseInTrajectoryOfToken.objects.filter(token=activeToken.token,
-                        timeStamp__gt=now - timezone.timedelta(minutes=2)).values_list("longitude", "latitude",
-                                                                                       "timeStamp")
-                    is_near_to_real_bus = onlinepgsview.is_near_to_bus_position(licensePlate, locations)
+                    time_window_minutes = 3
+                    timestamp = now - timezone.timedelta(minutes=time_window_minutes)
+                    locations = PoseInTrajectoryOfToken.objects.filter(token=active_token.token,
+                                                                       timeStamp__gt=timestamp).\
+                        values_list("longitude", "latitude", "timeStamp")
+                    is_near_to_real_bus = onlinepgsview.is_near_to_bus_position(license_plate, locations)
                     if is_near_to_real_bus == onlinepgsview.GET_OFF:
                         Status.getJsonStatus(Status.USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS, response)
                     elif is_near_to_real_bus == onlinepgsview.I_DO_NOT_KNOW:

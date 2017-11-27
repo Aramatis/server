@@ -13,10 +13,6 @@ from AndroidRequests import scoreFunctions as score
 class EvaluateTrip(View):
     """ view to evaluate trip of user """
 
-    def __init__(self):
-        super(EvaluateTrip, self).__init__()
-        self.context = {}
-
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(EvaluateTrip, self).dispatch(request, *args, **kwargs)
@@ -44,4 +40,3 @@ class EvaluateTrip(View):
             Status.getJsonStatus(Status.TRIP_EVALUATION_FORMAT_ERROR, response)
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
-

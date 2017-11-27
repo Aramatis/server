@@ -11,32 +11,29 @@ class EventsByBusStop(View):
     """This class handles requests for the current reported events
     for a given bus stop."""
 
-    def get(self, request, stopCode):
+    def get(self, request, stop_code):
         """Only the bus stop code is needed."""
 
         timestamp = timezone.now()
-        stopObj = BusStop.objects.get(code=stopCode, gtfs__version=settings.GTFS_VERSION)
+        stop_obj = BusStop.objects.get(code=stop_code, gtfs__version=settings.GTFS_VERSION)
 
-        # ask for the events
-        eventsData = self.getEventsForStop(stopCode, timestamp)
+        event_dictionary = stop_obj.getDictionary()
+        event_dictionary['events'] = self.getEventsForStop(stop_code, timestamp)
 
-        eventDictionary = stopObj.getDictionary()
-        eventDictionary['events'] = eventsData
+        return JsonResponse(event_dictionary, safe=False, encoder=TranSappJSONEncoder)
 
-        return JsonResponse(eventDictionary, safe=False, encoder=TranSappJSONEncoder)
-
-    def getEventsForStop(self, stopCode, timeStamp):
+    def getEventsForStop(self, stop_code, timestamp):
         """this method returns all the events that are active given their timestamp."""
 
-        currentEventReport = []
+        current_event_report = []
 
         # ask for events that ocured between now and the lifeSpam of it
         events = EventForBusStop.objects.prefetch_related('stadisticdatafromregistrationbusstop_set__tranSappUser',
                                                           'event'). \
-            filter(stopCode=stopCode, event__eventType='busStop', broken=False,
-                   expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+            filter(stopCode=stop_code, event__eventType='busStop', broken=False,
+                   expireTime__gte=timestamp, timeCreation__lte=timestamp).order_by('-timeStamp')
 
         for event in events:
-            currentEventReport.append(event.getDictionary())
+            current_event_report.append(event.getDictionary())
 
-        return currentEventReport
+        return current_event_report
