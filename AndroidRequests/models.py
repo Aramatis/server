@@ -418,7 +418,7 @@ class Busassignment(models.Model):
             closest_gt = ServiceLocation.objects.filter(
                 service=route_code,
                 gtfs__version=settings.GTFS_VERSION,
-                distance__gte=ssd).order_by('distance').value_list('distance', flat=True)[0]
+                distance__gte=ssd).order_by('distance').values_list('distance', flat=True)[0]
         except KeyError:
             closest_gt = 50000
         try:
