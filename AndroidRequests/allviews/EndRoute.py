@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from AndroidRequests.models import ActiveToken, Token
 from AndroidRequests.encoder import TranSappJSONEncoder
-from AndroidRequests.scoreFunctions import checkCompleteTripScore
+from AndroidRequests.scoreFunctions import check_complete_trip_score
 from AndroidRequests.statusResponse import Status
 
 
@@ -35,7 +35,7 @@ class EndRoute(View):
                                Token.SMARTPHONE_SAYS_THAT_THERE_IS_NOT_MOVEMENT]:
                 Token.objects.filter(token=token).update(purgeCause=purge_cause)
             # check if points are valid
-            checkCompleteTripScore(token)
+            check_complete_trip_score(token)
 
             Status.getJsonStatus(Status.OK, response)
         else:  # if the token was not found alert
@@ -51,7 +51,7 @@ class EndRoute(View):
             ActiveToken.objects.get(token__token=token).delete()
 
             # check if points are valid
-            checkCompleteTripScore(token)
+            check_complete_trip_score(token)
 
             response['response'] = 'Trip ended.'
         else:  # if the token was not found alert

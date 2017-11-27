@@ -32,7 +32,7 @@ class EvaluateTrip(View):
                 # add score
                 event_id = "evn00301"
                 meta = {"token": token.token}
-                response.update(score.calculateEventScore(request, event_id, meta))
+                response.update(score.calculate_event_score(request, event_id, meta))
                 Status.getJsonStatus(Status.OK, response)
             else:
                 Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, response)

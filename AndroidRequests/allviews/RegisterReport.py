@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
 
 from AndroidRequests.models import Report, TranSappUser
 from AndroidRequests.encoder import TranSappJSONEncoder
@@ -52,7 +53,7 @@ class RegisterReport(View):
         if string_image is not None:
             string_image = string_image.decode('base64')
         extension = request.POST.get('ext', '')
-        aditional_info = request.POST.get('reportInfo', '')
+        additional_info = request.POST.get('reportInfo', '')
         phone_id = request.POST.get('userId', '')
         time_stamp = timezone.now()
 
@@ -66,7 +67,7 @@ class RegisterReport(View):
                 timeStamp=time_stamp,
                 phoneId=phone_id,
                 message=text,
-                reportInfo=aditional_info,
+                reportInfo=additional_info,
                 imageName=None)
             fine = True
         except EmptyPhoneIdError as e:
@@ -140,7 +141,7 @@ class RegisterReportV2(View):
             transapp_user = None
             try:
                 transapp_user = TranSappUser.objects.get(userId=user_id, sessionToken=session_token)
-            except TranSappUser.DoesNotExist:
+            except (TranSappUser.DoesNotExist, ValidationError):
                 pass
             report = Report(
                 timeStamp=timestamp,

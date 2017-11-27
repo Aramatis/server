@@ -9,7 +9,7 @@ django.setup()
 from django.utils import timezone
 from django.db import transaction
 from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser, ScoreHistory, Token
-from AndroidRequests.scoreFunctions import checkCompleteTripScore
+from AndroidRequests.scoreFunctions import check_complete_trip_score
 
 # for cleanActiveTokenTable method
 MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
@@ -32,7 +32,7 @@ def cleanActiveTokenTable():
         activeTokens = ActiveToken.objects.select_related("token").filter(timeStamp__lt=currentTimeMinusXMinutes).all()
         for activeToken in activeTokens:
             # check if points are valid
-            checkCompleteTripScore(activeToken.token.token)
+            check_complete_trip_score(activeToken.token.token)
             activeToken.token.purgeCause = Token.SERVER_DOES_NOT_RECEIVE_LOCATIONS
             activeToken.token.save()
             activeToken.delete()

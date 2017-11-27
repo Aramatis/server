@@ -8,10 +8,6 @@ from AndroidRequests.encoder import TranSappJSONEncoder
 class ServiceRoute(View):
     """This class handles requests for a service route."""
 
-    def __init__(self):
-        super(ServiceRoute, self).__init__()
-        self.context = {}
-
     def get(self, request, pBusService, pLat1, pLon1, pLat2, pLon2):
         """it receive the bus Service to get points that creates service route """
         response = {'statusCode': "200", 'statusMessage': "ok", 'route': []}
@@ -47,10 +43,10 @@ class ServiceRoute(View):
         # get all services associated to number
         for service in Route.objects.values('serviceCode').filter(
                 serviceCode__regex=service).distinct():
-            variantCode = service['serviceCode']
-            variant = {'variant': variantCode, 'route': []}
+            variant_code = service['serviceCode']
+            variant = {'variant': variant_code, 'route': []}
             for point in Route.objects.filter(
-                    serviceCode=variantCode).order_by('sequence'):
+                    serviceCode=variant_code).order_by('sequence'):
                 # print "{} {}".format(point.serviceCode, point.sequence)
                 data = {'latitude': point.latitude, 'longitude': point.longitude, 'sequence': point.sequence}
                 variant['route'].append(data)

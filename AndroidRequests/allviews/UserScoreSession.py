@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.utils import timezone
@@ -34,20 +34,19 @@ class TranSappUserLogin(View):
 
     def __init__(self):
         super(TranSappUserLogin, self).__init__()
-        self.context = {}
         self.logger = logging.getLogger(__name__)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(TranSappUserLogin, self).dispatch(request, *args, **kwargs)
 
-    def checkGoogleId(self, accessToken):
-        """ ask to google if accessToken is valid """
+    def check_google_id(self, access_token):
+        """ ask to google if access_token is valid """
         try:
-            idinfo = id_token.verify_oauth2_token(accessToken, googleRequests.Request(), settings.GOOGLE_LOGIN_KEY)
+            id_info = id_token.verify_oauth2_token(access_token, googleRequests.Request(), settings.GOOGLE_LOGIN_KEY)
 
-            if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-                #raise ValueError('Wrong issuer.')
+            if id_info['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                # raise ValueError('Wrong issuer.')
                 return None
 
             # If auth request is from a G Suite domain:
@@ -55,18 +54,18 @@ class TranSappUserLogin(View):
             #     raise ValueError('Wrong hosted domain.')
 
             # ID token is valid. Get the user's Google Account ID from the decoded token.
-            userid = idinfo['sub']
-            return userid
+            user_id = id_info['sub']
+            return user_id
 
         except ValueError:
             return None
 
-    def checkFacebookId(self, accessToken):
+    def check_facebook_id(self, access_token):
         """ ask to facebook if accessToken is valid """
 
-        URL = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'. \
-            format(accessToken, settings.FACEBOOK_APP_ID, settings.FACEBOOK_APP_SECRET)
-        response = requests.get(URL)
+        url = 'https://graph.facebook.com/debug_token?input_token={}&access_token={}|{}'. \
+            format(access_token, settings.FACEBOOK_APP_ID, settings.FACEBOOK_APP_SECRET)
+        response = requests.get(url)
         response = json.loads(response.text)
 
         if response['data'] and response['data']['is_valid'] and response['data']['app_id'] == settings.FACEBOOK_APP_ID:
@@ -77,13 +76,13 @@ class TranSappUserLogin(View):
     def post(self, request):
         """ register user """
 
-        accessToken = request.POST.get('accessToken')
-        accountType = request.POST.get('accountType')
-        phoneId = request.POST.get('phoneId')
+        access_token = request.POST.get('accessToken')
+        account_type = request.POST.get('accountType')
+        phone_id = request.POST.get('phoneId')
         name = request.POST.get('name')
         email = request.POST.get('email')
-        userId = request.POST.get('userId')
-        photoURI = request.POST.get('photoURI')
+        user_id = request.POST.get('userId')
+        photo_uri = request.POST.get('photoURI')
         nickname = request.POST.get('nickname')
 
         response = {}
@@ -91,52 +90,52 @@ class TranSappUserLogin(View):
         try:
             users = None
 
-            if accountType == TranSappUser.FACEBOOK:
-                facebookUserId = self.checkFacebookId(accessToken)
+            if account_type == TranSappUser.FACEBOOK:
+                facebook_user_id = self.check_facebook_id(access_token)
 
-                if facebookUserId and userId == facebookUserId:
-                    users = TranSappUser.objects.filter(userId=userId, accountType=TranSappUser.FACEBOOK)
+                if facebook_user_id and user_id == facebook_user_id:
+                    users = TranSappUser.objects.filter(userId=user_id, accountType=TranSappUser.FACEBOOK)
                 else:
                     raise InvalidFacebookSessionException
-            elif accountType == TranSappUser.GOOGLE:
-                googleUserId = self.checkGoogleId(accessToken)
+            elif account_type == TranSappUser.GOOGLE:
+                google_user_id = self.check_google_id(access_token)
 
-                if googleUserId and userId == googleUserId:
-                    users = TranSappUser.objects.filter(userId=userId, accountType=TranSappUser.GOOGLE)
+                if google_user_id and user_id == google_user_id:
+                    users = TranSappUser.objects.filter(userId=user_id, accountType=TranSappUser.GOOGLE)
                 else:
                     raise InvalidGoogleSessionException
 
-            sessionToken = uuid.uuid4()
+            session_token = uuid.uuid4()
 
             if users:
                 # user exists
                 user = users[0]
-                user.phoneId = phoneId
-                user.sessionToken = sessionToken
-                user.photoURI = photoURI
+                user.phoneId = phone_id
+                user.sessionToken = session_token
+                user.photoURI = photo_uri
                 user.nickname = nickname
                 user.timestamp = timezone.now()
                 user.save()
             else:
                 # user does not exist
-                firstLevel = Level.objects.get(position=1)
+                first_level = Level.objects.get(position=1)
                 if TranSappUser.objects.count() > 0:
-                    globalPosition, globalScore = TranSappUser.objects.order_by("-globalPosition").\
+                    global_position, global_score = TranSappUser.objects.order_by("-globalPosition").\
                         values_list("globalPosition", "globalScore")[0]
-                    if globalScore != 0:
-                        globalPosition += 1
+                    if global_score != 0:
+                        global_position += 1
                 else:
-                    globalPosition = 1
-                user = TranSappUser.objects.create(userId=userId,
-                                                   accountType=accountType,
+                    global_position = 1
+                user = TranSappUser.objects.create(userId=user_id,
+                                                   accountType=account_type,
                                                    name=name,
                                                    email=email,
-                                                   phoneId=phoneId,
-                                                   photoURI=photoURI,
+                                                   phoneId=phone_id,
+                                                   photoURI=photo_uri,
                                                    nickname=nickname,
-                                                   sessionToken=sessionToken,
-                                                   globalPosition=globalPosition,
-                                                   level=firstLevel)
+                                                   sessionToken=session_token,
+                                                   globalPosition=global_position,
+                                                   level=first_level)
 
             # ok
             Status.getJsonStatus(Status.OK, response)
@@ -167,17 +166,17 @@ class TranSappUserLogout(View):
     def post(self, request):
         """ change session id to default value """
 
-        userId = request.POST.get('userId')
-        sessionToken = request.POST.get('sessionToken')
+        user_id = request.POST.get('userId')
+        session_token = request.POST.get('sessionToken')
 
         response = {}
         try:
-            user = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
+            user = TranSappUser.objects.get(userId=user_id, sessionToken=session_token)
             user.sessionToken = NULL_SESSION_TOKEN
             user.save()
 
             Status.getJsonStatus(Status.OK, response)
-        except (ObjectDoesNotExist, ValueError, ValidationError) as e:
+        except (TranSappUser.DoesNotExist, ValueError, ValidationError) as e:
             Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             self.logger.error(str(e))
 
@@ -199,28 +198,28 @@ class UpdateTranSappUserSettings(View):
     def post(self, request):
         """ register user """
 
-        sessionToken = request.POST.get('sessionToken')
-        userId = request.POST.get('userId')
+        session_token = request.POST.get('sessionToken')
+        user_id = request.POST.get('userId')
 
         nickname = request.POST.get('nickname')
-        userAvatarId = request.POST.get('userAvatarId')
-        busAvatarId = request.POST.get('busAvatarId')
-        showAvatar = request.POST.get('showAvatar')
+        user_avatar_id = request.POST.get('userAvatarId')
+        bus_avatar_id = request.POST.get('busAvatarId')
+        show_avatar = request.POST.get('showAvatar')
 
         response = {}
         user = None
         try:
-            user = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
-        except (ObjectDoesNotExist, ValueError, ValidationError) as e:
+            user = TranSappUser.objects.get(userId=user_id, sessionToken=session_token)
+        except (TranSappUser.DoesNotExist, ValueError, ValidationError) as e:
             Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, response)
             self.logger.error(str(e))
 
         try:
             if user:
-                user.showAvatar = showAvatar in ['True', 'true', 1]
+                user.showAvatar = show_avatar in ['True', 'true', 1]
                 user.nickname = nickname
-                user.userAvatarId = int(userAvatarId)
-                user.busAvatarId = int(busAvatarId)
+                user.userAvatarId = int(user_avatar_id)
+                user.busAvatarId = int(bus_avatar_id)
                 user.save()
 
                 Status.getJsonStatus(Status.OK, response)

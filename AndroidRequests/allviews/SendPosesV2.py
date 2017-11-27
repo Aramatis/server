@@ -64,7 +64,7 @@ class SendPosesV2(View):
                     'poses': tuple_list,
                     'token': token,
                 }
-                json_score_response = score.calculateDistanceScore(request, event_id, meta_data)
+                json_score_response = score.calculate_distance_score(request, event_id, meta_data)
                 response["gamificationData"] = json_score_response
 
                 # check with real bus

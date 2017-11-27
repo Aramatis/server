@@ -317,7 +317,7 @@ class DevicePositionInTimeTest(TransactionTestCase):
         request.user = AnonymousUser()
         lat = 45
         lon = 46
-        response = views.userPosition(request, self.phoneId, lat, lon)
+        response = views.save_user_position(request, self.phoneId, lat, lon)
 
         self.assertEqual(response.status_code, 200)
 

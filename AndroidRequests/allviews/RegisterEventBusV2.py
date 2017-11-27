@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from django.core.exceptions import ValidationError
 
 from AndroidRequests.models import Event, Busv2, EventForBusv2, StadisticDataFromRegistrationBus, Busassignment, \
     TranSappUser
@@ -24,109 +25,108 @@ class RegisterEventBusV2(View):
 
     def post(self, request):
         """ """
-        phoneId = request.POST.get('phoneId', '')
-        machineId = request.POST.get('machineId', '')
-        service = request.POST.get('service', '')
+        phone_id = request.POST.get('phoneId', '')
+        machine_id = request.POST.get('machineId', '')
+        route = request.POST.get('service', '')
 
-        eventCode = request.POST.get('eventId', '')
+        event_id = request.POST.get('eventId', '')
         vote = request.POST.get('vote', '')
         latitude = float(request.POST.get('latitude', '500'))
         longitude = float(request.POST.get('longitude', '500'))
 
-        userId = request.POST.get('userId')
-        sessionToken = request.POST.get('sessionToken')
+        user_id = request.POST.get('userId')
+        session_token = request.POST.get('sessionToken')
 
-        return self.get(request, phoneId, machineId, service,
-                        eventCode, vote, latitude, longitude, userId, sessionToken)
+        return self.get(request, phone_id, machine_id, route,
+                        event_id, vote, latitude, longitude, user_id, session_token)
 
     def get(
             self,
             request,
-            pPhoneId,
-            pMachineId,
-            pBusService,
-            pEventID,
-            pConfirmDecline,
-            pLatitude=500,
-            pLongitude=500,
-            userId=None,
-            sessionToken=None):
+            phone_id,
+            machine_id,
+            route,
+            event_id,
+            confirm_or_decline,
+            latitude=500,
+            longitude=500,
+            user_id=None,
+            session_token=None):
         # here we request all the info needed to proceed
-        event = Event.objects.get(id=pEventID)
-        timeStamp = timezone.now()
-        expireTime = timeStamp + timezone.timedelta(minutes=event.lifespam)
+        event_obj = Event.objects.get(id=event_id)
+        timestamp = timezone.now()
+        expire_time = timestamp + timezone.timedelta(minutes=event_obj.lifespam)
 
         # remove hyphen and convert to uppercase
         # pBusPlate = pBusPlate.replace('-', '').upper()
         try:
-            theBus = Busv2.objects.get(uuid=pMachineId)
-            theAsignment = Busassignment.objects.get(
-                uuid=theBus, service=pBusService)
-        except:
+            bus_obj = Busv2.objects.get(uuid=machine_id)
+            bus_assignment = Busassignment.objects.get(uuid=bus_obj, service=route)
+        except (Busv2.DoesNotExist, Busassignment.DoesNotExist):
             return JsonResponse({}, safe=False, encoder=TranSappJSONEncoder)
 
         # get the GPS data from the url
-        responseLongitude, responseLatitude, responseTimeStamp, responseDistance = get_real_machine_info_with_distance(
-            theBus.registrationPlate, float(pLongitude), float(pLatitude))
+        response_longitude, response_latitude, response_time_stamp, response_distance = \
+            get_real_machine_info_with_distance(bus_obj.registrationPlate, float(longitude), float(latitude))
 
         # check if there is an event
-        eventReport = EventForBusv2.objects.filter(
-            expireTime__gte=timeStamp,
-            timeCreation__lte=timeStamp,
-            busassignment=theAsignment,
+        event_report = EventForBusv2.objects.filter(
+            expireTime__gte=timestamp,
+            timeCreation__lte=timestamp,
+            busassignment=bus_assignment,
             broken=False,
-            event=event).order_by('-timeStamp').first()
+            event=event_obj).order_by('-timeStamp').first()
 
-        if eventReport is not None:
+        if event_report is not None:
             # updates to the event reported
-            eventReport.timeStamp = timeStamp
-            eventReport.expireTime = expireTime
+            event_report.timeStamp = timestamp
+            event_report.expireTime = expire_time
 
             # update the counters
-            if pConfirmDecline == EventForBusv2.DECLINE:
-                eventReport.eventDecline += 1
+            if confirm_or_decline == EventForBusv2.DECLINE:
+                event_report.eventDecline += 1
             else:
-                eventReport.eventConfirm += 1
+                event_report.eventConfirm += 1
         else:
             # if an event was not found, create a new one
-            eventReport = EventForBusv2.objects.create(
-                phoneId=pPhoneId,
-                busassignment=theAsignment,
-                event=event,
-                timeStamp=timeStamp,
-                expireTime=expireTime,
-                timeCreation=timeStamp)
+            event_report = EventForBusv2.objects.create(
+                phoneId=phone_id,
+                busassignment=bus_assignment,
+                event=event_obj,
+                timeStamp=timestamp,
+                expireTime=expire_time,
+                timeCreation=timestamp)
 
             # set the initial values for this fields
-            if pConfirmDecline == EventForBusv2.DECLINE:
-                eventReport.eventDecline = 1
-                eventReport.eventConfirm = 0
+            if confirm_or_decline == EventForBusv2.DECLINE:
+                event_report.eventDecline = 1
+                event_report.eventConfirm = 0
 
-        eventReport.save()
+        event_report.save()
 
-        tranSappUser = None
+        transapp_user = None
         try:
-            tranSappUser = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
-        except Exception:
+            transapp_user = TranSappUser.objects.get(userId=user_id, sessionToken=session_token)
+        except (TranSappUser.DoesNotExist, ValidationError):
             pass
 
         StadisticDataFromRegistrationBus.objects.create(
-            timeStamp=timeStamp,
-            confirmDecline=pConfirmDecline,
-            reportOfEvent=eventReport,
-            longitude=pLongitude,
-            latitude=pLatitude,
-            phoneId=pPhoneId,
-            gpsLongitude=responseLongitude,
-            gpsLatitude=responseLatitude,
-            gpsTimeStamp=responseTimeStamp,
-            distance=responseDistance,
-            tranSappUser=tranSappUser)
+            timeStamp=timestamp,
+            confirmDecline=confirm_or_decline,
+            reportOfEvent=event_report,
+            longitude=longitude,
+            latitude=latitude,
+            phoneId=phone_id,
+            gpsLongitude=response_longitude,
+            gpsLatitude=response_latitude,
+            gpsTimeStamp=response_time_stamp,
+            distance=response_distance,
+            tranSappUser=transapp_user)
 
         # update score
-        jsonScoreResponse = score.calculateEventScore(request, pEventID)
+        json_score_response = score.calculate_event_score(request, event_id)
         # Returns updated event list for a bus
-        jsonEventResponse = json.loads(EventsByBusV2().get(request, pMachineId).content)
-        jsonEventResponse["gamificationData"] = jsonScoreResponse
+        json_event_response = json.loads(EventsByBusV2().get(request, machine_id).content)
+        json_event_response["gamificationData"] = json_score_response
 
-        return JsonResponse(jsonEventResponse, encoder=TranSappJSONEncoder)
+        return JsonResponse(json_event_response, encoder=TranSappJSONEncoder)

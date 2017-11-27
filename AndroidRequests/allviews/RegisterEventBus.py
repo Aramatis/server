@@ -35,17 +35,20 @@ class RegisterEventBus(View):
         if license_plate == constants.DUMMY_LICENSE_PLATE:
             response = {}
             events = []
-            dictionary = {}
+
+            creation = timezone.localtime(timezone.now())
+            stamp = timezone.localtime(timezone.now())
+
+            dictionary = {
+                "eventConfirm": 1,
+                "eventDecline": 0,
+                "timeCreation": creation.strftime("%d-%m-%Y %H:%M:%S"),
+                "timeStamp": stamp.strftime("%d-%m-%Y %H:%M:%S")
+            }
 
             response['registrationPlate'] = license_plate
             response['service'] = route
 
-            dictionary['eventConfirm'] = 1
-            dictionary['eventDecline'] = 0
-            creation = timezone.localtime(timezone.now())
-            stamp = timezone.localtime(timezone.now())
-            dictionary['timeCreation'] = creation.strftime("%d-%m-%Y %H:%M:%S")
-            dictionary['timeStamp'] = stamp.strftime("%d-%m-%Y %H:%M:%S")
             dictionary.update(event.getDictionary())
 
             events.append(dictionary)

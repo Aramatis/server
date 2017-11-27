@@ -25,14 +25,14 @@ from AndroidRequests.allviews.UserScoreSession import UpdateTranSappUserSettings
 from . import views
 
 urlpatterns = [
-    url(r'^nearbyBuses/(?P<pPhoneId>[0-9a-z-]+)/(?P<pBusStop>\w+)$',
-        views.nearbyBuses),
+    url(r'^nearbyBuses/(?P<phone_id>[0-9a-z-]+)/(?P<stop_code>\w+)$',
+        views.nearby_buses),
     url(r'^registerReport$', RegisterReport.as_view()),
     url(
-        r'^userPosition/(?P<pPhoneId>[0-9a-z-]+)/(?P<pLat>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLon>[\-+]?[0-9]*\.?[0-9]*)$',
-        views.userPosition),
+        r'^userPosition/(?P<phone_id>[0-9a-z-]+)/(?P<latitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<longitude>[\-+]?[0-9]*\.?[0-9]*)$',
+        views.save_user_position),
     url(
-        r'^requestToken/(?P<pPhoneId>[0-9a-z-]+)/(?P<pBusService>[0-9,\w]*)/(?P<pRegistrationPlate>[0-9,\w,-]{6,8})$',
+        r'^requestToken/(?P<phone_id>[0-9a-z-]+)/(?P<route>[0-9,\w]*)/(?P<license_plate>[0-9,\w,-]{6,8})$',
         RequestToken.as_view()),
     url(r'^endRoute/(?P<token>[0-9,a-f]{128})$', EndRoute.as_view()),
     url(r'^sendTrajectory$', SendPoses.as_view()),
@@ -45,20 +45,20 @@ urlpatterns = [
         r'^reportEventBus/(?P<phone_id>[0-9a-z-]+)/(?P<route>[\w,0-9]*)/(?P<license_plate>[\w,0-9,-]*)/(?P<event_id>evn\d{5})/(?P<confirm_or_decline>(confirm|decline))$',
         RegisterEventBus.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pPhoneId>[0-9a-z-]+)/(?P<stopCode>[\w,0-9]*)/(?P<pEventID>evn\d{5})/(?P<pLatitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>(confirm|decline))$',
+        r'^reportEventBusStop/(?P<phone_id>[0-9a-z-]+)/(?P<stop_code>[\w,0-9]*)/(?P<event_id>evn\d{5})/(?P<latitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<longitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<confirm_or_decline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pPhoneId>[0-9a-z-]+)/(?P<stopCode>[\w,0-9]*)/(?P<pEventID>evn\d{5})/(?P<pConfirmDecline>(confirm|decline))$',
+        r'^reportEventBusStop/(?P<phone_id>[0-9a-z-]+)/(?P<stop_code>[\w,0-9]*)/(?P<event_id>evn\d{5})/(?P<confirm_or_decline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pPhoneId>[0-9a-z-]+)/(?P<stopCode>[\w,0-9]*)/(?P<pService>[0-9,\w]*)/(?P<pEventID>evn\d{5})/(?P<pLatitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>(confirm|decline))$',
+        r'^reportEventBusStop/(?P<phone_id>[0-9a-z-]+)/(?P<stop_code>[\w,0-9]*)/(?P<route>[0-9,\w]*)/(?P<event_id>evn\d{5})/(?P<latitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<longitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<confirm_or_decline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
     url(
-        r'^reportEventBusStop/(?P<pPhoneId>[0-9a-z-]+)/(?P<stopCode>[\w,0-9]*)/(?P<pService>[0-9,\w]*)/(?P<pEventID>evn\d{5})/(?P<pConfirmDecline>(confirm|decline))$',
+        r'^reportEventBusStop/(?P<phone_id>[0-9a-z-]+)/(?P<stop_code>[\w,0-9]*)/(?P<route>[0-9,\w]*)/(?P<event_id>evn\d{5})/(?P<confirm_or_decline>(confirm|decline))$',
         RegisterEventBusStop.as_view()),
  
     # List of events that depend of parameter pWhich={stopstop,stopbus, busbus}
-    url(r'^requestEventsToNotified/(?P<pWhich>[\w,0-9]*)$',
+    url(r'^requestEventsToNotified/(?P<which>[\w,0-9]*)$',
         RequestEventsToNotified.as_view()),
     # List of bus events
     url(
@@ -77,19 +77,19 @@ urlpatterns = [
         ServiceRoute.as_view()),
     # setDirection receives parameter by POST
     url(r'^setDirection$', SetDirection.as_view()),
-    url(r'^getUUID/(?P<pLicensePlate>[\w,0-9,-]{6,8})$',
+    url(r'^getUUID/(?P<license_plate>[\w,0-9,-]{6,8})$',
         RequestUUID.as_view()),
     # =====================================================
     # VERSION 2
     # =====================================================
     url(
-        r'^requestToken/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pBusService>[0-9,\w]*)/(?P<pUUID>[0-9a-z-]+)$',
+        r'^requestToken/v2/(?P<phone_id>[0-9a-z-]+)/(?P<route>[0-9,\w]*)/(?P<machine_id>[0-9a-z-]+)$',
         RequestTokenV2.as_view()),
     url(
-        r'^reportEventBus/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pMachineId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pLatitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<pLongitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBus/v2/(?P<phone_id>[0-9a-z-]+)/(?P<machine_id>[0-9a-z-]+)/(?P<route>[\w,0-9]*)/(?P<event_id>.*)/(?P<latitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<longitude>[\-+]?[0-9]*\.?[0-9]*)/(?P<confirm_or_decline>.*)$',
         RegisterEventBusV2.as_view()),
     url(
-        r'^reportEventBus/v2/(?P<pPhoneId>[0-9a-z-]+)/(?P<pMachineId>[0-9a-z-]+)/(?P<pBusService>[\w,0-9]*)/(?P<pEventID>.*)/(?P<pConfirmDecline>.*)$',
+        r'^reportEventBus/v2/(?P<phone_id>[0-9a-z-]+)/(?P<machine_id>[0-9a-z-]+)/(?P<route>[\w,0-9]*)/(?P<event_id>.*)/(?P<confirm_or_decline>.*)$',
         RegisterEventBusV2.as_view()),
     url(r'^requestEventsForBus/v2/(?P<machine_id>[0-9a-z-]+)$',
         EventsByBusV2.as_view()),

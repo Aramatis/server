@@ -4,7 +4,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from AndroidRequests.models import ActiveToken, Token, PoseInTrajectoryOfToken
+from AndroidRequests.models import ActiveToken, PoseInTrajectoryOfToken
 from AndroidRequests.statusResponse import Status
 from AndroidRequests.encoder import TranSappJSONEncoder
 
@@ -14,10 +14,6 @@ import json
 
 class SendPoses(View):
     """This class receives a segment of the trajectory associated to a token."""
-
-    def __init__(self):
-        super(SendPoses, self).__init__()
-        self.context = {}
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -35,36 +31,36 @@ class SendPoses(View):
 
             if len(trajectory) > 0:
                 # update the token time stamp, for maintanence purpuses
-                activeToken = ActiveToken.objects.select_related("token").get(token__token=token)
-                activeToken.timeStamp = timezone.now()
-                activeToken.save()
+                active_token = ActiveToken.objects.select_related("token").get(token__token=token)
+                active_token.timeStamp = timezone.now()
+                active_token.save()
 
                 positions = []
-                tupleList = []
+                tuple_list = []
 
                 for pose in trajectory:
                     # set awareness to time stamp, to the server UTC
-                    aTimeStamp = dateparse.parse_datetime(pose['timeStamp'])
-                    aTimeStamp = timezone.make_aware(aTimeStamp)
+                    timestamp = dateparse.parse_datetime(pose['timeStamp'])
+                    timestamp = timezone.make_aware(timestamp)
 
                     position = PoseInTrajectoryOfToken(
                         longitude=pose['longitud'],
                         latitude=pose['latitud'],
-                        timeStamp=aTimeStamp,
+                        timeStamp=timestamp,
                         inVehicleOrNot=pose["inVehicleOrNot"],
-                        token=activeToken.token)
+                        token=active_token.token)
                     positions.append(position)
-                    tupleList.append((pose['longitud'], pose['latitud'], aTimeStamp))
+                    tuple_list.append((pose['longitud'], pose['latitud'], timestamp))
                 PoseInTrajectoryOfToken.objects.bulk_create(positions)
 
                 # update score
-                EVENT_ID = 'evn00300'
-                metaData = {
-                    'poses': tupleList,
+                event_id = 'evn00300'
+                meta_data = {
+                    'poses': tuple_list,
                     'token': token
                 }
-                jsonScoreResponse = score.calculateDistanceScore(request, EVENT_ID, metaData)
-                response["gamificationData"] = jsonScoreResponse
+                json_score_response = score.calculate_distance_score(request, event_id, meta_data)
+                response["gamificationData"] = json_score_response
 
                 Status.getJsonStatus(Status.OK, response)
             else:

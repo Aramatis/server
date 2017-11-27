@@ -36,7 +36,7 @@ class NearbyBusesTest(TestCase):
         request = factory.get('/android/nearbyBuses')
         request.user = AnonymousUser()
 
-        response = views.nearbyBuses(request, self.phoneId, self.stopObj.code)
+        response = views.nearby_buses(request, self.phoneId, self.stopObj.code)
 
         self.assertEqual(response.status_code, 200)
 
@@ -499,13 +499,13 @@ class FormattersTest(TestCase):
         serviceName6 = "N50"
         serviceName7 = "506"
 
-        self.assertEqual(views.format_service_name(serviceName1), "506e")
-        self.assertEqual(views.format_service_name(serviceName2), "506N")
-        self.assertEqual(views.format_service_name(serviceName3), "D03N")
-        self.assertEqual(views.format_service_name(serviceName4), "D03e")
-        self.assertEqual(views.format_service_name(serviceName5), "D03")
-        self.assertEqual(views.format_service_name(serviceName6), "N50")
-        self.assertEqual(views.format_service_name(serviceName7), "506")
+        self.assertEqual(views.format_route_name(serviceName1), "506e")
+        self.assertEqual(views.format_route_name(serviceName2), "506N")
+        self.assertEqual(views.format_route_name(serviceName3), "D03N")
+        self.assertEqual(views.format_route_name(serviceName4), "D03e")
+        self.assertEqual(views.format_route_name(serviceName5), "D03")
+        self.assertEqual(views.format_route_name(serviceName6), "N50")
+        self.assertEqual(views.format_route_name(serviceName7), "506")
 
     def test_FormatTime(self):
         """ test method that apply time format """

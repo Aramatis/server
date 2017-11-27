@@ -6,6 +6,7 @@ from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction, IntegrityError
+from django.core.exceptions import ValidationError
 
 from AndroidRequests.models import Busv2, Busassignment, Token, ActiveToken, TranSappUser, PoseInTrajectoryOfToken
 from AndroidRequests.statusResponse import Status
@@ -20,10 +21,6 @@ class RequestTokenV2(View):
     """This class handles the start of the tracking, assigning a token
     to identify the trip, not the device."""
 
-    def __init__(self):
-        super(RequestTokenV2, self).__init__()
-        self.context = {}
-
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(RequestTokenV2, self).dispatch(request, *args, **kwargs)
@@ -31,50 +28,51 @@ class RequestTokenV2(View):
     def post(self, request):
         """ get in the bus """
 
-        phoneId = request.POST.get('phoneId')
+        phone_id = request.POST.get('phoneId')
         route = request.POST.get('route')
-        machineId = request.POST.get('machineId')
-        userId = request.POST.get('userId')
-        sessionToken = request.POST.get('sessionToken')
+        machine_id = request.POST.get('machineId')
+        user_id = request.POST.get('userId')
+        session_token = request.POST.get('sessionToken')
         # current bus position
-        busLatitude = request.POST.get('latitude')
-        busLongitude = request.POST.get('longitude')
+        bus_latitude = request.POST.get('latitude')
+        bus_longitude = request.POST.get('longitude')
 
-        return self.get(request, phoneId, route, machineId, busLatitude, busLongitude, userId, sessionToken)
+        return self.get(request, phone_id, route, machine_id, bus_latitude, bus_longitude, user_id, session_token)
 
-    def get(self, request, pPhoneId, pBusService, pUUID, busLatitude=None, busLongitude=None,
-            userId=None, sessionToken=None, timeStamp=None):
+    def get(self, request, phone_id, route, machine_id, bus_latitude=None, bus_longitude=None,
+            user_id=None, session_token=None, timestamp=None):
         """  """
 
-        if timeStamp is None:
-            timeStamp = timezone.now()
+        if timestamp is None:
+            timestamp = timezone.now()
         salt = os.urandom(20)
-        hashToken = hashlib.sha512(str(timeStamp) + salt).hexdigest()
+        hash_token = hashlib.sha512(str(timestamp) + salt).hexdigest()
         # the token is primary a hash of the time stamp plus a random salt
 
         response = {}
         try:
             with transaction.atomic():
-                busV2 = Busv2.objects.get(uuid=pUUID)
-                busAssignment = Busassignment.objects.get_or_create(uuid=busV2, service=pBusService)[0]
+                bus_obj = Busv2.objects.get(uuid=machine_id)
+                bus_assignment = Busassignment.objects.get_or_create(uuid=bus_obj, service=route)[0]
 
-                tranSappUser = None
+                transapp_user = None
                 try:
-                    tranSappUser = TranSappUser.objects.get(userId=userId, sessionToken=sessionToken)
-                except Exception:
+                    transapp_user = TranSappUser.objects.get(userId=user_id, sessionToken=session_token)
+                except (TranSappUser.DoesNotExist, ValidationError):
                     pass
 
-                tokenObj = Token.objects.create(phoneId=pPhoneId, token=hashToken, busassignment=busAssignment,
-                    color=self.getRandomColor(), tranSappUser=tranSappUser, timeCreation=timeStamp, direction=None)
+                token_obj = Token.objects.create(phoneId=phone_id, token=hash_token, busassignment=bus_assignment,
+                                                 color=self.get_random_color(), tranSappUser=transapp_user,
+                                                 timeCreation=timestamp, direction=None)
 
-                ActiveToken.objects.create(timeStamp=timeStamp, token=tokenObj)
+                ActiveToken.objects.create(timeStamp=timestamp, token=token_obj)
                 # add current position for tokens
-                if busLongitude is not None and busLatitude is not None:
-                    PoseInTrajectoryOfToken.objects.create(timeStamp=timeStamp, token=tokenObj,
+                if bus_longitude is not None and bus_latitude is not None:
+                    PoseInTrajectoryOfToken.objects.create(timeStamp=timestamp, token=token_obj,
                                                            inVehicleOrNot=PoseInTrajectoryOfToken.IN_VEHICLE,
-                                                           longitude=float(busLongitude), latitude=float(busLatitude))
+                                                           longitude=float(bus_longitude), latitude=float(bus_latitude))
                 # we store the active token
-                response["token"] = hashToken
+                response["token"] = hash_token
                 Status.getJsonStatus(Status.OK, response)
         except IntegrityError as e:
             logger = logging.getLogger(__name__)
@@ -83,7 +81,7 @@ class RequestTokenV2(View):
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
-    def getRandomColor(self):
+    def get_random_color(self):
         # color used by web page that shows trip trajectories
         # unused -> letters = '0123456789ABCDEF0'
         colors = {'#2c7fb8', '#dd1c77', '#016c59', '#de2d26', '#d95f0e'}

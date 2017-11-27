@@ -11,16 +11,16 @@ class RequestEventsToNotified(View):
     so I report things from the bus stop and what I can see of the bus. If i'm on a bus
     I can report detailed problems about the bus."""
 
-    def get(self, request, pWhich):
+    def get(self, request, which):
 
         events = []
 
-        if pWhich == 'stopstop':
-            events = Event.objects.filter(eventType='busStop')
-        elif pWhich == 'stopbus':
-            events = Event.objects.filter(eventType='bus', origin='o')
-        elif pWhich == 'busbus':
-            events = Event.objects.filter(eventType='bus', origin='i')
+        if which == 'stopstop':
+            events = Event.objects.filter(eventType=Event.STOP_TYPE)
+        elif which == 'stopbus':
+            events = Event.objects.filter(eventType=Event.BUS_TYPE, origin='o')
+        elif which == 'busbus':
+            events = Event.objects.filter(eventType=Event.BUS_TYPE, origin='i')
 
         response = []
 
