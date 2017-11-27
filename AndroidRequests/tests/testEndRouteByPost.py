@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from AndroidRequests.tests.testHelper import TestHelper
 from AndroidRequests.models import Token, ActiveToken
+from AndroidRequests.statusResponse import Status
 
 import AndroidRequests.constants as Constants
 import uuid
@@ -31,12 +32,12 @@ class EndRouteByPostTest(TestCase):
 
         jsonResponse = self.helper.endRouteByPost(travelKey, Token.USER_SAYS_GET_OFF)
 
-        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
         self.assertEqual(ActiveToken.objects.count(), 0)
         self.assertEqual(Token.objects.first().purgeCause, Token.USER_SAYS_GET_OFF)
 
     def test_endRouteWithInvalidActiveToken(self):
-        """ finish unactive travel """
+        """ finish inactive travel """
 
         travelKey = self.helper.getInBusWithLicencePlateByPost(
             self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
@@ -46,7 +47,7 @@ class EndRouteByPostTest(TestCase):
 
         jsonResponse = self.helper.endRouteByPost(travelKey, Token.USER_SAYS_GET_OFF)
 
-        self.assertEqual(jsonResponse['response'], 'Token doesn\'t exist.')
+        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
         self.assertEqual(ActiveToken.objects.count(), 0)
         self.assertEqual(Token.objects.first().purgeCause, Token.SERVER_SAYS_GET_OFF)
 
