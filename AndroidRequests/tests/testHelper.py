@@ -19,202 +19,202 @@ class TestHelper:
     GTFS_PATH = os.path.join(settings.BASE_DIR, 'gtfs', 'data', settings.GTFS_VERSION)
     LOG_FILE_NAME = 'loadDataErrorTest.log'
 
-    def __init__(self, testInstance):
+    def __init__(self, test_instance):
         self.factory = RequestFactory()
-        self.test = testInstance
+        self.test = test_instance
 
-    def __loadData(self, model, filePath, log, dataFilter=None):
+    def __load_data(self, model, file_path, log, data_filter=None):
         """ load data on database """
 
-        if dataFilter is None:
-            dataFilter = []
-        csv = open(filePath, 'r')  # path to csv file
+        if data_filter is None:
+            data_filter = []
+        csv = open(file_path, 'r')  # path to csv file
         csv.next()
         factory = TestLoaderFactory()
         loader = factory.getModelLoader(model)(csv, log, settings.GTFS_VERSION)
-        loader.load(dataFilter)
+        loader.load(data_filter)
         csv.close()
         log.close()
 
-    def insertServicesOnDatabase(self, serviceList):
+    def insertServicesOnDatabase(self, route_list):
         """ load services """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = os.path.join(self.GTFS_PATH, 'services.csv')
+        file_path = os.path.join(self.GTFS_PATH, 'services.csv')
         model = 'service'
 
-        self.__loadData(model, filePath, log, serviceList)
+        self.__load_data(model, file_path, log, route_list)
 
-    def insertBusstopsOnDatabase(self, busStopList):
+    def insertBusstopsOnDatabase(self, stop_list):
         """ load bus stops """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = os.path.join(self.GTFS_PATH, 'busstop.csv')
+        file_path = os.path.join(self.GTFS_PATH, 'busstop.csv')
         model = 'busstop'
 
-        self.__loadData(model, filePath, log, busStopList)
+        self.__load_data(model, file_path, log, stop_list)
 
-    def insertServicesByBusstopsOnDatabase(self, busStopList):
+    def insertServicesByBusstopsOnDatabase(self, stop_list):
         """ load services by bus stops """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = os.path.join(self.GTFS_PATH, 'servicesbybusstop.csv')
+        file_path = os.path.join(self.GTFS_PATH, 'servicesbybusstop.csv')
         model = 'servicesbybusstop'
 
-        self.__loadData(model, filePath, log, busStopList)
+        self.__load_data(model, file_path, log, stop_list)
 
-    def insertServiceStopDistanceOnDatabase(self, stopList):
+    def insertServiceStopDistanceOnDatabase(self, stop_list):
         """ load service stop distance data by service with direction """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = os.path.join(self.GTFS_PATH, 'servicestopdistance.csv')
+        file_path = os.path.join(self.GTFS_PATH, 'servicestopdistance.csv')
         model = 'servicestopdistance'
 
-        self.__loadData(model, filePath, log, stopList)
+        self.__load_data(model, file_path, log, stop_list)
 
-    def insertServiceLocationOnDatabase(self, servicesWithDirection):
+    def insertServiceLocationOnDatabase(self, routes_with_direction):
         """ load service location data by service with direction """
 
         log = open(self.LOG_FILE_NAME, 'w')
-        filePath = os.path.join(self.GTFS_PATH, 'servicelocation.csv')
+        file_path = os.path.join(self.GTFS_PATH, 'servicelocation.csv')
         model = 'servicelocation'
 
-        self.__loadData(model, filePath, log, servicesWithDirection)
+        self.__load_data(model, file_path, log, routes_with_direction)
 
-    def askForMachineId(self, pLicencePlate):
+    def askForMachineId(self, license_plate):
         """ simulate a request to get machine id based on its licence plate """
-        URL = '/android/getUUID/'
+        url = '/android/getUUID/'
         c = Client()
-        URL = URL + '/'.join([pLicencePlate])
-        response = c.get(URL, {})
+        url = url + '/'.join([license_plate])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
-        machineId = jsonResponse['uuid']
+        json_response = json.loads(response.content)
+        machine_id = json_response['uuid']
 
-        return machineId
+        return machine_id
 
-    def createBusAndAssignmentOnDatabase(self, phoneId, service, licencePlate):
+    def createBusAndAssignmentOnDatabase(self, phone_id, route, license_plate):
         """ create a bus object and assignment object """
-        self.getInBusWithLicencePlate(phoneId, service, licencePlate)
+        self.getInBusWithLicencePlate(phone_id, route, license_plate)
 
     def getInBusWithLicencePlate(
-            self, phoneId, service, licencePlate, time=timezone.now()):
+            self, phone_id, route, license_plate, time=timezone.now()):
         """ create a user on bus in database """
-        machineId = self.askForMachineId(licencePlate)
-        URL = '/android/requestToken/v2/'
-        request = self.factory.get(URL)
+        machine_id = self.askForMachineId(license_plate)
+        url = '/android/requestToken/v2/'
+        request = self.factory.get(url)
         request.user = AnonymousUser()
 
         view = RequestTokenV2()
-        response = view.get(request, phoneId, service, machineId, None, None, None, None, time)
+        response = view.get(request, phone_id, route, machine_id, None, None, None, None, time)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
-        token = jsonResponse['token']
+        json_response = json.loads(response.content)
+        token = json_response['token']
 
         return token
 
-    def getInBusWithMachineId(self, phoneId, service, machineId):
+    def getInBusWithMachineId(self, phone_id, route, machine_id):
         """ create a user on bus in database """
-        URL = '/android/requestToken/v2/'
+        url = '/android/requestToken/v2/'
         c = Client()
-        URL = URL + '/'.join([phoneId, service, machineId])
-        response = c.get(URL, {})
+        url = url + '/'.join([phone_id, route, machine_id])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
-        token = jsonResponse['token']
+        json_response = json.loads(response.content)
+        token = json_response['token']
 
         return token
 
     def getInBusWithLicencePlateByPost(
-            self, phoneId, route, licencePlate, busLongitude=None, busLatitude=None,
-            userId=None, sessionToken=None):
+            self, phone_id, route, license_plate, bus_longitude=None, bus_latitude=None,
+            user_id=None, session_token=None):
         """ create a user on bus in database """
-        machineId = self.askForMachineId(licencePlate)
-        URL = '/android/requestToken/v2'
+        machine_id = self.askForMachineId(license_plate)
+        url = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId,
+        data = {'phoneId': phone_id,
                 'route': route,
-                'machineId': machineId
+                'machineId': machine_id
                 }
-        if userId is not None:
-            data['userId'] = userId
-            data['sessionToken'] = sessionToken
-        if busLongitude is not None:
-            data["longitude"] = busLongitude
-        if busLatitude is not None:
-            data["latitude"] = busLatitude
+        if user_id is not None:
+            data['userId'] = user_id
+            data['sessionToken'] = session_token
+        if bus_longitude is not None:
+            data["longitude"] = bus_longitude
+        if bus_latitude is not None:
+            data["latitude"] = bus_latitude
 
-        response = c.post(URL, data)
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
-        token = jsonResponse['token']
+        json_response = json.loads(response.content)
+        token = json_response['token']
 
         return token
 
-    def getInBusWithMachineIdByPost(self, phoneId, route, machineId, busLongitude=None, busLatitude=None,
-                                    userId=None, sessionToken=None):
+    def getInBusWithMachineIdByPost(self, phone_id, route, machine_id, bus_longitude=None, bus_latitude=None,
+                                    user_id=None, session_token=None):
         """ create a user on bus in database """
-        URL = '/android/requestToken/v2'
+        url = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId}
-        if userId is not None:
-            data['userId'] = userId,
-            data['sessionToken'] = sessionToken
-        if busLongitude is not None:
-            data["longitude"] = busLongitude
-        if busLatitude is not None:
-            data["latitude"] = busLatitude
+        data = {'phoneId': phone_id, 'route': route, 'machineId': machine_id}
+        if user_id is not None:
+            data['userId'] = user_id,
+            data['sessionToken'] = session_token
+        if bus_longitude is not None:
+            data["longitude"] = bus_longitude
+        if bus_latitude is not None:
+            data["latitude"] = bus_latitude
 
-        response = c.post(URL, data)
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
-        token = jsonResponse['token']
+        json_response = json.loads(response.content)
+        token = json_response['token']
 
         return token
 
     def endRoute(self, token):
         """ revoke token used to identify a trip """
-        URL = '/android/endRoute/'
+        url = '/android/endRoute/'
         c = Client()
-        URL = URL + token
-        response = c.get(URL, {})
+        url = url + token
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def endRouteByPost(self, token, purgeCause):
         """ revoke token used to identify a trip """
-        URL = '/android/endRoute'
+        url = '/android/endRoute'
         c = Client()
-        URL = URL
+        url = url
         data = {
             'token': token,
             'purgeCause': purgeCause
         }
-        response = c.post(URL, data)
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
-    def sendFakeTrajectoryOfToken(self, travelToken, poses=None, userId=None, sessionToken=None):
+    def sendFakeTrajectoryOfToken(self, travel_token, poses=None, user_id=None, session_token=None):
         """ send fake positions for user travel """
         now = timezone.now()
         times = [now,
@@ -252,22 +252,22 @@ class TestHelper:
                  "timeStamp": fTimes[8], "inVehicleOrNot": "vehicle"}]}
 
         c = Client()
-        URL = '/android/sendTrajectory'
-        data = {'pToken': travelToken,
+        url = '/android/sendTrajectory'
+        data = {'pToken': travel_token,
                 'pTrajectory': json.dumps(poses, cls=TranSappJSONEncoder)
                 }
-        if userId is not None:
-            data["userId"] = userId
-            data["sessionToken"] = sessionToken
-        response = c.post(URL, data)
+        if user_id is not None:
+            data["userId"] = user_id
+            data["sessionToken"] = session_token
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
-    def sendFakeTrajectoryOfTokenV2(self, travelToken, poses=None, userId=None, sessionToken=None):
+    def sendFakeTrajectoryOfTokenV2(self, travelToken, poses=None, user_id=None, session_token=None):
         """ send fake positions for user travel """
         times = []
         for _ in range(9):
@@ -295,39 +295,39 @@ class TestHelper:
                  "timeDelay": times[8], "inVehicleOrNot": "vehicle"}]}
 
         c = Client()
-        URL = '/android/sendTrajectory/v2'
+        url = '/android/sendTrajectory/v2'
         data = {'token': travelToken,
                 'trajectory': json.dumps(poses, cls=TranSappJSONEncoder)
                 }
-        if userId is not None:
-            data["userId"] = userId
-            data["sessionToken"] = sessionToken
-        response = c.post(URL, data)
+        if user_id is not None:
+            data["userId"] = user_id
+            data["sessionToken"] = session_token
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def setDirection(self, travelKey, direction):
         """ set direction of trip """
-        URL = '/android/setDirection'
+        url = '/android/setDirection'
         c = Client()
-        URL = URL
-        response = c.post(URL, {'pToken': travelKey, 'pDirection': direction})
+        url = url
+        response = c.post(url, {'pToken': travelKey, 'pDirection': direction})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
-    def evaluateTrip(self, travelToken, evaluation, userId=None, sessionToken=None):
+    def evaluateTrip(self, travelToken, evaluation, user_id=None, session_token=None):
         """ send trip evaluation """
 
-        URL = '/android/evaluateTrip'
-        request = self.factory.post(URL)
+        url = '/android/evaluateTrip'
+        request = self.factory.post(url)
         request.user = AnonymousUser()
 
         c = Client()
@@ -335,258 +335,255 @@ class TestHelper:
             'token': travelToken,
             'evaluation': evaluation
         }
-        if userId is not None:
-            data["userId"] = userId
-            data["sessionToken"] = sessionToken
-        response = c.post(URL, data)
+        if user_id is not None:
+            data["userId"] = user_id
+            data["sessionToken"] = session_token
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     """
        BUS EVENT METHODS V1
     """
 
-    def reportEvent(self, phoneId, route, licencePlate, eventCode):
+    def reportEvent(self, phone_id, route, licencePlate, event_code):
         """ report an event with the old version  """
-        URL = '/android/reportEventBus/'
+        url = '/android/reportEventBus/'
         c = Client()
-        URL = URL + '/'.join([phoneId, route, licencePlate, eventCode, EventRegistration.CONFIRM])
-        response = c.get(URL, {})
+        url = url + '/'.join([phone_id, route, licencePlate, event_code, EventRegistration.CONFIRM])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
-    def confirmOrDeclineEvent(self, phoneId, route,
-                              licencePlate, eventCode, confirmOrDecline):
+    def confirmOrDeclineEvent(self, phone_id, route, licencePlate, event_code, confirm_or_decline):
         """ report an event with the old version  """
-        URL = '/android/reportEventBus/'
+        url = '/android/reportEventBus/'
         c = Client()
-        URL = URL + '/'.join([phoneId, route, licencePlate,
-                              eventCode, confirmOrDecline])
-        response = c.get(URL, {})
+        url = url + '/'.join([phone_id, route, licencePlate, event_code, confirm_or_decline])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def requestEventsForBus(self, route, licencePlate):
         """ ask for events related to machine id """
-        URL = '/android/requestEventsForBus/'
+        url = '/android/requestEventsForBus/'
         c = Client()
-        URL = URL + '/'.join([licencePlate, route])
-        response = c.get(URL, {})
+        url = url + '/'.join([licencePlate, route])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     """
        BUS EVENT METHODS V2
     """
 
-    def reportEventV2(self, phoneId, machineId, route, eventCode):
+    def reportEventV2(self, phone_id, machine_id, route, event_code):
         """ report an event with the new version  """
-        URL = '/android/reportEventBus/v2/'
+        url = '/android/reportEventBus/v2/'
         c = Client()
-        URL = URL + '/'.join([phoneId, machineId, route,
-                              eventCode, EventRegistration.CONFIRM])
-        response = c.get(URL, {})
+        url = url + '/'.join([phone_id, machine_id, route,
+                              event_code, EventRegistration.CONFIRM])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def confirmOrDeclineEventV2(
-            self, phoneId, machineId, route, eventCode, confirmOrDecline):
+            self, phone_id, machine_id, route, event_code, confirm_or_decline):
         """ confirm or decline an event with the new version  """
-        URL = '/android/reportEventBus/v2/'
+        url = '/android/reportEventBus/v2/'
         c = Client()
-        URL = URL + '/'.join([phoneId, machineId, route,
-                              eventCode, confirmOrDecline])
-        response = c.get(URL, {})
+        url = url + '/'.join([phone_id, machine_id, route, event_code, confirm_or_decline])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
-    def requestEventsForBusV2(self, machineId):
+    def requestEventsForBusV2(self, machine_id):
         """ ask for events related to machine id """
-        URL = '/android/requestEventsForBus/v2/'
+        url = '/android/requestEventsForBus/v2/'
         c = Client()
-        URL = URL + '/'.join([machineId])
-        response = c.get(URL, {})
+        url = url + '/'.join([machine_id])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     """
         STOP METHODS
     """
 
-    def reportStopEvent(self, phoneId, stopCode, eventCode, aditionalInfo=None):
+    def reportStopEvent(self, phone_id, stop_code, event_code, aditionalInfo=None):
         """ report an event for stop """
-        URL = '/android/reportEventBusStop/'
+        url = '/android/reportEventBusStop/'
         c = Client()
         if aditionalInfo is None:
-            params = [phoneId, stopCode, eventCode, EventRegistration.CONFIRM]
+            params = [phone_id, stop_code, event_code, EventRegistration.CONFIRM]
         else:
-            params = [phoneId, stopCode, aditionalInfo, eventCode, EventRegistration.CONFIRM]
-        URL = URL + '/'.join(params)
-        response = c.get(URL, {})
+            params = [phone_id, stop_code, aditionalInfo, event_code, EventRegistration.CONFIRM]
+        url = url + '/'.join(params)
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def confirmOrDeclineStopEvent(
-            self, phoneId, stopCode, eventCode, confirmOrDecline):
+            self, phone_id, stop_code, event_code, confirm_or_decline):
         """ confirm or decline an event for stop """
-        URL = '/android/reportEventBusStop/'
+        url = '/android/reportEventBusStop/'
         c = Client()
-        URL = URL + '/'.join([phoneId, stopCode, eventCode, confirmOrDecline])
-        response = c.get(URL, {})
+        url = url + '/'.join([phone_id, stop_code, event_code, confirm_or_decline])
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def requestEventsForBusStop(self, code):
         """ ask for events related to bus stop """
-        URL = '/android/requestEventsForBusStop/'
+        url = '/android/requestEventsForBusStop/'
         c = Client()
-        URL = URL + code
-        response = c.get(URL, {})
+        url = url + code
+        response = c.get(url, {})
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     """
         BUS EVENT METHODS BY POST
     """
 
-    def reportEventV2ByPost(self, phoneId, machineId, route, eventCode, userId=None, sessionToken=None):
+    def reportEventV2ByPost(self, phone_id, machine_id, route, event_code, user_id=None, session_token=None):
         """ report an event with the new version  """
-        URL = '/android/reportEventBus/v2'
+        url = '/android/reportEventBus/v2'
         c = Client()
-        data = {'phoneId': phoneId,
-                'machineId': machineId,
+        data = {'phoneId': phone_id,
+                'machineId': machine_id,
                 'service': route,
-                'eventId': eventCode,
+                'eventId': event_code,
                 'vote': EventRegistration.CONFIRM
                 }
-        if userId is not None:
-            data["userId"] = userId
-            data["sessionToken"] = sessionToken
-        response = c.post(URL, data)
+        if user_id is not None:
+            data["userId"] = user_id
+            data["sessionToken"] = session_token
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def confirmOrDeclineEventV2ByPost(
-            self, phoneId, machineId, route, eventCode, confirmOrDecline, userId, sessionToken):
+            self, phone_id, machine_id, route, event_code, confirm_or_decline, user_id, session_token):
         """ confirm or decline an event with the new version  """
-        URL = '/android/reportEventBus/v2'
+        url = '/android/reportEventBus/v2'
         c = Client()
-        data = {'phoneId': phoneId,
-                'machineId': machineId,
+        data = {'phoneId': phone_id,
+                'machineId': machine_id,
                 'service': route,
-                'eventId': eventCode,
-                'vote': confirmOrDecline,
-                'userId': userId,
-                'sessionToken': sessionToken}
-        response = c.post(URL, data)
+                'eventId': event_code,
+                'vote': confirm_or_decline,
+                'userId': user_id,
+                'sessionToken': session_token}
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
-    def reportStopEventByPost(self, phoneId, stopCode, eventCode, userId, sessionToken):
+    def reportStopEventByPost(self, phone_id, stop_code, event_code, user_id, session_token):
         """ report an event for stop """
-        URL = '/android/reportEventBusStop'
+        url = '/android/reportEventBusStop'
         c = Client()
-        data = {'phoneId': phoneId,
-                'stopCode': stopCode,
-                'eventId': eventCode,
+        data = {'phoneId': phone_id,
+                'stopCode': stop_code,
+                'eventId': event_code,
                 'vote': EventRegistration.CONFIRM,
-                'userId': userId,
-                'sessionToken': sessionToken}
+                'userId': user_id,
+                'sessionToken': session_token}
 
-        response = c.post(URL, data)
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
     def confirmOrDeclineStopEventByPost(
-            self, phoneId, stopCode, eventCode, confirmOrDecline, userId, sessionToken):
+            self, phone_id, stop_code, event_code, confirm_or_decline, user_id, session_token):
         """ confirm or decline an event for stop """
-        URL = '/android/reportEventBusStop'
+        url = '/android/reportEventBusStop'
         c = Client()
-        data = {'phoneId': phoneId,
-                'stopCode': stopCode,
-                'eventId': eventCode,
-                'vote': confirmOrDecline,
-                'userId': userId,
-                'sessionToken': sessionToken}
+        data = {'phoneId': phone_id,
+                'stopCode': stop_code,
+                'eventId': event_code,
+                'vote': confirm_or_decline,
+                'userId': user_id,
+                'sessionToken': session_token}
 
-        response = c.post(URL, data)
+        response = c.post(url, data)
 
         self.test.assertEqual(response.status_code, 200)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        return jsonResponse
+        return json_response
 
-    def createTranSappUsers(self, userQuantity):
+    def createTranSappUsers(self, user_quantity):
         """ create @quantity users and put the user asked in @userPosition """
         users = []
 
         level, created = Level.objects.get_or_create(position=1,
                                                      defaults={'name': 'level 1', 'minScore': 0, 'maxScore': 1000})
 
-        for index in range(userQuantity):
+        for index in range(user_quantity):
             name = "name{}".format(index)
             nickname = "nickname{}".format(index)
-            userId = "userId{}".format(index)
-            sessionToken = uuid.uuid4()
-            phoneId = uuid.uuid4()
-            user = TranSappUser.objects.create(userId=userId,
-                                               sessionToken=sessionToken, name=name, nickname=nickname,
-                                               phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
+            user_id = "userId{}".format(index)
+            session_token = uuid.uuid4()
+            phone_id = uuid.uuid4()
+            user = TranSappUser.objects.create(userId=user_id,
+                                               sessionToken=session_token, name=name, nickname=nickname,
+                                               phoneId=phone_id, accountType=TranSappUser.FACEBOOK,
                                                level=level, globalScore=(100 * (index + 1)),
-                                               globalPosition=(userQuantity - 1))
+                                               globalPosition=(user_quantity - 1))
             users.append(user)
 
         return users

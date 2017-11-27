@@ -11,12 +11,12 @@ class SetDirectionTest(TestCase):
     def setUp(self):
         """ this method will automatically call for every single test """
 
-        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phone_id = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         self.helper = TestHelper(self)
 
         self.service = '507'
-        self.licencePlate = 'PABJ45'
+        self.license_plate = 'PABJ45'
         self.busStop = 'PA459'
 
         self.helper.insertServicesOnDatabase([self.service])
@@ -26,81 +26,81 @@ class SetDirectionTest(TestCase):
     def test_setDirectionWithActiveTokenWithDummyLicencePlate(self):
         """ set direction of travel has not been finished with dummy licence plate """
 
-        travelKey = self.helper.getInBusWithLicencePlateByPost(
-            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
-        self.helper.sendFakeTrajectoryOfToken(travelKey)
+        travel_key = self.helper.getInBusWithLicencePlateByPost(
+            self.phone_id, self.service, Constants.DUMMY_LICENSE_PLATE)
+        self.helper.sendFakeTrajectoryOfToken(travel_key)
 
         directions = ["I", "R"]
         for direction in directions:
-            jsonResponse = self.helper.setDirection(travelKey, direction)
+            json_response = self.helper.setDirection(travel_key, direction)
 
-            self.assertEqual(jsonResponse['valid'], True)
+            self.assertEqual(json_response['valid'], True)
             self.assertEqual(
-                jsonResponse['message'],
+                json_response['message'],
                 "User bus direction updated.")
 
-        self.helper.endRoute(travelKey)
+        self.helper.endRoute(travel_key)
 
     def test_setDirectionWithActiveToken(self):
         """ set direction of travel has not been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlateByPost(
-            self.phoneId, self.service, self.licencePlate)
-        self.helper.sendFakeTrajectoryOfToken(travelKey)
+        travel_key = self.helper.getInBusWithLicencePlateByPost(
+            self.phone_id, self.service, self.license_plate)
+        self.helper.sendFakeTrajectoryOfToken(travel_key)
 
         directions = ["I", "R"]
         for direction in directions:
-            jsonResponse = self.helper.setDirection(travelKey, direction)
+            json_response = self.helper.setDirection(travel_key, direction)
 
-            self.assertEqual(jsonResponse['valid'], True)
+            self.assertEqual(json_response['valid'], True)
             self.assertEqual(
-                jsonResponse['message'],
+                json_response['message'],
                 "User bus direction updated.")
 
-        self.helper.endRoute(travelKey)
+        self.helper.endRoute(travel_key)
 
     def test_setDirectionWithoutActiveToken(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlateByPost(
-            self.phoneId, self.service, self.licencePlate)
-        self.helper.sendFakeTrajectoryOfToken(travelKey)
-        self.helper.endRoute(travelKey)
+        travel_key = self.helper.getInBusWithLicencePlateByPost(
+            self.phone_id, self.service, self.license_plate)
+        self.helper.sendFakeTrajectoryOfToken(travel_key)
+        self.helper.endRoute(travel_key)
 
         directions = ["I", "R"]
         for direction in directions:
-            jsonResponse = self.helper.setDirection(travelKey, direction)
+            json_response = self.helper.setDirection(travel_key, direction)
 
-            self.assertEqual(jsonResponse['valid'], False)
-            self.assertEqual(jsonResponse['message'], "Token doesn't exist.")
+            self.assertEqual(json_response['valid'], False)
+            self.assertEqual(json_response['message'], "Token doesn't exist.")
 
     def test_setDirectionWithoutActiveTokenWithDummyLicencePlate(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlateByPost(
-            self.phoneId, self.service, Constants.DUMMY_LICENSE_PLATE)
-        self.helper.sendFakeTrajectoryOfToken(travelKey)
-        self.helper.endRoute(travelKey)
+        travel_key = self.helper.getInBusWithLicencePlateByPost(
+            self.phone_id, self.service, Constants.DUMMY_LICENSE_PLATE)
+        self.helper.sendFakeTrajectoryOfToken(travel_key)
+        self.helper.endRoute(travel_key)
 
         directions = ["I", "R"]
         for direction in directions:
-            jsonResponse = self.helper.setDirection(travelKey, direction)
+            json_response = self.helper.setDirection(travel_key, direction)
 
-            self.assertEqual(jsonResponse['valid'], False)
-            self.assertEqual(jsonResponse['message'], "Token doesn't exist.")
+            self.assertEqual(json_response['valid'], False)
+            self.assertEqual(json_response['message'], "Token doesn't exist.")
 
     def test_setDirectionWithWrongDirection(self):
         """ set direction of travel has been finished """
 
-        travelKey = self.helper.getInBusWithLicencePlateByPost(
-            self.phoneId, self.service, self.licencePlate)
-        self.helper.sendFakeTrajectoryOfToken(travelKey)
+        travel_key = self.helper.getInBusWithLicencePlateByPost(
+            self.phone_id, self.service, self.license_plate)
+        self.helper.sendFakeTrajectoryOfToken(travel_key)
 
         directions = ["Z", "S", "other things"]
         for direction in directions:
-            jsonResponse = self.helper.setDirection(travelKey, direction)
+            json_response = self.helper.setDirection(travel_key, direction)
 
-            self.assertEqual(jsonResponse['valid'], False)
-            self.assertEqual(jsonResponse['message'], "Invalid direction.")
+            self.assertEqual(json_response['valid'], False)
+            self.assertEqual(json_response['message'], "Invalid direction.")
 
-        self.helper.endRoute(travelKey)
+        self.helper.endRoute(travel_key)

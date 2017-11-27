@@ -15,33 +15,33 @@ class EvaluateTripTest(TestCase):
         self.test = TestHelper(self)
 
         self.service = '401'
-        self.licencePlate = 'AA1111'
-        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.license_plate = 'AA1111'
+        self.phone_id = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         self.test.insertServicesOnDatabase([self.service])
 
         self.token = self.test.getInBusWithLicencePlateByPost(
-                self.phoneId, self.service, self.licencePlate)
+            self.phone_id, self.service, self.license_plate)
 
     def test_tripEvaluationWithGoodEvaluationFormat(self):
         """This method test trip evaluation """
 
         evaluation = 1
-        jsonResponse = self.test.evaluateTrip(self.token, evaluation)
+        json_response = self.test.evaluateTrip(self.token, evaluation)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
+        self.assertEqual(json_response['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(json_response['message'], Status.getJsonStatus(Status.OK, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, evaluation)
 
     def test_tripEvaluationWithBadEvaluationFormat(self):
         """This method test trip evaluation """
 
         evaluation = "asd"
-        jsonResponse = self.test.evaluateTrip(self.token, evaluation)
+        json_response = self.test.evaluateTrip(self.token, evaluation)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(
+        self.assertEqual(json_response['status'], Status.getJsonStatus(
             Status.TRIP_EVALUATION_FORMAT_ERROR, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(
+        self.assertEqual(json_response['message'], Status.getJsonStatus(
             Status.TRIP_EVALUATION_FORMAT_ERROR, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
 
@@ -49,10 +49,11 @@ class EvaluateTripTest(TestCase):
         """This method test trip evaluation """
 
         evaluation = 5
-        jsonResponse = self.test.evaluateTrip('aasd', evaluation)
+        json_response = self.test.evaluateTrip('aasd', evaluation)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['message'])
+        self.assertEqual(json_response['status'], Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['status'])
+        self.assertEqual(json_response['message'],
+                         Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, None)
 
 
@@ -66,33 +67,33 @@ class EvaluateTripWithLoggedUserTest(TestCase):
         self.test = TestHelper(self)
 
         self.service = '401'
-        self.licencePlate = 'AA1111'
-        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.license_plate = 'AA1111'
+        self.phone_id = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         self.test.insertServicesOnDatabase([self.service])
 
-        self.tranSappUserObj = self.test.createTranSappUsers(1)[0]
+        self.transapp_user_obj = self.test.createTranSappUsers(1)[0]
 
         self.token = self.test.getInBusWithLicencePlateByPost(
-            self.phoneId, self.service, self.licencePlate, userId=self.tranSappUserObj.userId,
-            sessionToken=self.tranSappUserObj.sessionToken)
+            self.phone_id, self.service, self.license_plate, user_id=self.transapp_user_obj.userId,
+            session_token=self.transapp_user_obj.sessionToken)
 
     def test_tripEvaluation(self):
         """ logged user evaluates trip, so we will give to him some points """
 
         evaluation = 1
-        jsonResponse = self.test.evaluateTrip(self.token, evaluation, self.tranSappUserObj.userId,
-                                              self.tranSappUserObj.sessionToken)
+        json_response = self.test.evaluateTrip(self.token, evaluation, self.transapp_user_obj.userId,
+                                               self.transapp_user_obj.sessionToken)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.OK, {})['status'])
-        self.assertEqual(jsonResponse['message'], Status.getJsonStatus(Status.OK, {})['message'])
+        self.assertEqual(json_response['status'], Status.getJsonStatus(Status.OK, {})['status'])
+        self.assertEqual(json_response['message'], Status.getJsonStatus(Status.OK, {})['message'])
         self.assertEqual(Token.objects.get(token=self.token).userEvaluation, evaluation)
 
         # check points
         self.assertEquals(ScoreHistory.objects.count(), 1)
-        scoreObj = ScoreHistory.objects.select_related("scoreEvent").first()
-        evaluationCode = "evn00301"
-        scoreEventObj = ScoreEvent.objects.get(code=evaluationCode)
-        self.assertEquals(scoreObj.score, scoreEventObj.score)
-        self.assertIn(self.token, scoreObj.meta)
-        self.assertEquals(scoreObj.scoreEvent, scoreEventObj)
+        score_obj = ScoreHistory.objects.select_related("scoreEvent").first()
+        evaluation_code = "evn00301"
+        score_event_obj = ScoreEvent.objects.get(code=evaluation_code)
+        self.assertEquals(score_obj.score, score_event_obj.score)
+        self.assertIn(self.token, score_obj.meta)
+        self.assertEquals(score_obj.scoreEvent, score_event_obj)

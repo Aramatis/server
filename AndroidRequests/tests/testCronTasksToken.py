@@ -12,9 +12,9 @@ class CronTasksTestCase(TestCase):
     """ test for cron-task actions """
 
     def setUp(self):
-        self.phoneId = str(uuid.uuid4())
+        self.phone_id = str(uuid.uuid4())
         self.route = '506'
-        self.licensePlate = 'XXYY25'
+        self.license_plate = 'XXYY25'
 
         self.helper = TestHelper(self)
 
@@ -23,10 +23,9 @@ class CronTasksTestCase(TestCase):
         # token requested. Simulate that request was asked double of time
         # defined in MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS ago
         delta = cronTasks.MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS * 2
-        timeStamp = timezone.now() - timezone.timedelta(minutes=delta)
+        timestamp = timezone.now() - timezone.timedelta(minutes=delta)
 
-        token = self.helper.getInBusWithLicencePlate(
-            self.phoneId, self.route, self.licensePlate, timeStamp)
+        token = self.helper.getInBusWithLicencePlate(self.phone_id, self.route, self.license_plate, timestamp)
 
         self.assertEqual(ActiveToken.objects.count(), 1)
         self.assertEqual(ActiveToken.objects.first().token.token, token)
@@ -37,10 +36,10 @@ class CronTasksTestCase(TestCase):
         self.assertEqual(Token.objects.first().purgeCause, Token.SERVER_DOES_NOT_RECEIVE_LOCATIONS)
 
     def test_keep_active_token(self):
-        timeStamp = timezone.now()
+        timestamp = timezone.now()
 
         token = self.helper.getInBusWithLicencePlate(
-            self.phoneId, self.route, self.licensePlate, timeStamp)
+            self.phone_id, self.route, self.license_plate, timestamp)
 
         self.assertEqual(ActiveToken.objects.count(), 1)
         self.assertEqual(ActiveToken.objects.first().token.token, token)
@@ -59,9 +58,9 @@ class CronTasksWithUserTestCase(TestCase):
     fixtures = ["scoreEvents", "levels"]
 
     def setUp(self):
-        self.phoneId = str(uuid.uuid4())
+        self.phone_id = str(uuid.uuid4())
         self.route = '506'
-        self.licensePlate = 'XXYY25'
+        self.license_plate = 'XXYY25'
 
         self.helper = TestHelper(self)
 
@@ -70,8 +69,8 @@ class CronTasksWithUserTestCase(TestCase):
         self.user.save()
 
         self.token = self.helper.getInBusWithLicencePlateByPost(
-            self.phoneId, self.route, self.licensePlate, userId=self.user.userId,
-            sessionToken=str(self.user.sessionToken))
+            self.phone_id, self.route, self.license_plate, user_id=self.user.userId,
+            session_token=str(self.user.sessionToken))
         # timeCreation of token
         self.now = timezone.now() - timezone.timedelta(minutes=cronTasks.MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS * 2)
 
@@ -80,14 +79,14 @@ class CronTasksWithUserTestCase(TestCase):
 
         times = [self.now,
                  self.now + timezone.timedelta(minutes=5)]
-        fTimes = [time.strftime("%Y-%m-%dT%X") for time in times]
+        format_times = [time.strftime("%Y-%m-%dT%X") for time in times]
 
         # distance is like 60 meters app.
         poses = {"poses": [
             {"latitud": -33.457187, "longitud": -70.664014,
-             "timeStamp": fTimes[0], "inVehicleOrNot": "vehicle"},
+             "timeStamp": format_times[0], "inVehicleOrNot": "vehicle"},
             {"latitud": -33.45708, "longitud": -70.663542,
-             "timeStamp": fTimes[1], "inVehicleOrNot": "vehicle"}
+             "timeStamp": format_times[1], "inVehicleOrNot": "vehicle"}
             ]
         }
         self.helper.sendFakeTrajectoryOfToken(self.token, poses, self.user.userId, self.user.sessionToken)
@@ -113,14 +112,14 @@ class CronTasksWithUserTestCase(TestCase):
 
         times = [self.now,
                  self.now + timezone.timedelta(seconds=59)]
-        fTimes = [time.strftime("%Y-%m-%dT%X") for time in times]
+        format_times = [time.strftime("%Y-%m-%dT%X") for time in times]
 
         # distance is like 60 meters app.
         poses = {"poses": [
             {"latitud": -33.457187, "longitud": -70.664014,
-             "timeStamp": fTimes[0], "inVehicleOrNot": "vehicle"},
+             "timeStamp": format_times[0], "inVehicleOrNot": "vehicle"},
             {"latitud": -33.456936, "longitud": -70.660688,
-             "timeStamp": fTimes[1], "inVehicleOrNot": "vehicle"}
+             "timeStamp": format_times[1], "inVehicleOrNot": "vehicle"}
             ]
         }
         self.helper.sendFakeTrajectoryOfToken(self.token, poses, self.user.userId, self.user.sessionToken)
@@ -143,22 +142,22 @@ class CronTasksWithUserTestCase(TestCase):
 
         times = [self.now,
                  self.now + timezone.timedelta(seconds=59)]
-        fTimes = [time.strftime("%Y-%m-%dT%X") for time in times]
+        format_times = [time.strftime("%Y-%m-%dT%X") for time in times]
 
         # distance is like 60 meters app.
         poses = {"poses": [
             {"latitud": -33.457187, "longitud": -70.664014,
-             "timeStamp": fTimes[0], "inVehicleOrNot": "vehicle"},
+             "timeStamp": format_times[0], "inVehicleOrNot": "vehicle"},
             {"latitud": -33.456936, "longitud": -70.660688,
-             "timeStamp": fTimes[1], "inVehicleOrNot": "vehicle"}
+             "timeStamp": format_times[1], "inVehicleOrNot": "vehicle"}
         ]
         }
         self.helper.sendFakeTrajectoryOfToken(self.token, poses, self.user.userId, self.user.sessionToken)
 
         # set user score to global score in min score of level 2 and user is in level 2
-        level = Level.objects.get(position=2)
-        self.user.level = level
-        self.user.globalScore = level.minScore
+        level_obj = Level.objects.get(position=2)
+        self.user.level = level_obj
+        self.user.globalScore = level_obj.minScore
         self.user.save()
 
         # clean token and run evaluate score
@@ -168,4 +167,3 @@ class CronTasksWithUserTestCase(TestCase):
         # user changed level to level 1
         self.user.refresh_from_db()
         self.assertEquals(self.user.level.position, 1)
-

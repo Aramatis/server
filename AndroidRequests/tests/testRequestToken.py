@@ -3,7 +3,7 @@ from django.test import TestCase
 from AndroidRequests.tests.testHelper import TestHelper
 from AndroidRequests.models import ActiveToken, PoseInTrajectoryOfToken, Token, Busv2
 
-import AndroidRequests.constants as Constants
+import AndroidRequests.constants as constants
 
 
 class RequestTokenTest(TestCase):
@@ -12,29 +12,29 @@ class RequestTokenTest(TestCase):
     def setUp(self):
         """ this method will automatically call for every single test """
         self.helper = TestHelper(self)
-        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+        self.phone_id = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
-        self.licensePlate = 'AA1111'
+        self.license_plate = 'AA1111'
         self.route = '507'
-        self.machineId = self.helper.askForMachineId(self.licensePlate)
+        self.machine_id = self.helper.askForMachineId(self.license_plate)
 
     def test_RequestTokenV2WithRealLicencePlateAndTranSappUser(self):
         """ This method will test to ask a token with transapp user data """
 
         user = self.helper.createTranSappUsers(1)[0]
 
-        testToken = self.helper.getInBusWithMachineIdByPost(
-            self.phoneId, self.route, self.machineId, None, None, user.userId, user.sessionToken)
+        test_token = self.helper.getInBusWithMachineIdByPost(
+            self.phone_id, self.route, self.machine_id, None, None, user.userId, user.sessionToken)
 
         # the created token is an active token
         self.assertEqual(
             ActiveToken.objects.filter(
-                token__token=testToken, token__tranSappUser=user).exists(), True)
+                token__token=test_token, token__tranSappUser=user).exists(), True)
         # the created token exist in the table of token
-        self.assertEqual(Token.objects.filter(token=testToken, tranSappUser=user).exists(), True)
+        self.assertEqual(Token.objects.filter(token=test_token, tranSappUser=user).exists(), True)
 
-        jsonResponse = self.helper.endRoute(testToken)
-        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+        json_response = self.helper.endRoute(test_token)
+        self.assertEqual(json_response['response'], 'Trip ended.')
 
     def test_RequestTokenV2WithRealLicencePlateAndFakeTranSappUser(self):
         """ This method will test to ask a token with fake transapp user data """
@@ -42,74 +42,66 @@ class RequestTokenTest(TestCase):
         user = self.helper.createTranSappUsers(1)[0]
 
         # userId is None
-        testToken = self.helper.getInBusWithMachineIdByPost(
-            self.phoneId, self.route, self.machineId, None, None, None, user.sessionToken)
+        test_token = self.helper.getInBusWithMachineIdByPost(
+            self.phone_id, self.route, self.machine_id, None, None, None, user.sessionToken)
 
         # the created token is an active token
         self.assertEqual(
-            ActiveToken.objects.filter(
-                token__token=testToken, token__tranSappUser=None).exists(), True)
+            ActiveToken.objects.filter(token__token=test_token, token__tranSappUser=None).exists(), True)
         # the created token exist in the table of token
-        self.assertEqual(Token.objects.filter(token=testToken, tranSappUser=None).exists(), True)
+        self.assertEqual(Token.objects.filter(token=test_token, tranSappUser=None).exists(), True)
 
-        jsonResponse = self.helper.endRoute(testToken)
-        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+        json_response = self.helper.endRoute(test_token)
+        self.assertEqual(json_response['response'], 'Trip ended.')
 
     def test_RequestTokenV2WithRealLicencePlateAndPosition(self):
         """ This method will test to ask a token with transapp user data and check that latitude and longitude sent
             was saved """
-        busLatitude = -33.456973
-        busLongitude = -70.663947
+        bus_latitude = -33.456973
+        bus_longitude = -70.663947
 
-        testToken = self.helper.getInBusWithMachineIdByPost(
-            self.phoneId, self.route, self.machineId, busLongitude, busLatitude)
+        test_token = self.helper.getInBusWithMachineIdByPost(
+            self.phone_id, self.route, self.machine_id, bus_longitude, bus_latitude)
 
         # the created token is an active token
         self.assertEqual(
             ActiveToken.objects.all().exists(), True)
         # the created token exist in the table of token
-        self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
-        self.assertEqual(PoseInTrajectoryOfToken.objects.filter(token__token=testToken).count(), 1)
+        self.assertEqual(Token.objects.filter(token=test_token).exists(), True)
+        self.assertEqual(PoseInTrajectoryOfToken.objects.filter(token__token=test_token).count(), 1)
 
-        jsonResponse = self.helper.endRoute(testToken)
-        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+        json_response = self.helper.endRoute(test_token)
+        self.assertEqual(json_response['response'], 'Trip ended.')
 
-    def test_RequestTokenWithDummyLicensePlateUUID(self):
+    def test_RequestTokenV2WithDummyLicensePlateUUID(self):
         """ This method will test a token for a dummy license plate bus with uuid """
-
-        licencePlate = Constants.DUMMY_LICENSE_PLATE
+        license_plate = constants.DUMMY_LICENSE_PLATE
 
         # a ghost bus is created with the same uuid that was received
-        self.assertEqual(Busv2.objects.filter(uuid=self.machineId).exists(), True)
+        self.assertEqual(Busv2.objects.filter(uuid=self.machine_id).exists(), True)
 
-        testToken = self.helper.getInBusWithMachineId(
-            self.phoneId, self.route, self.machineId)
+        test_token = self.helper.getInBusWithLicencePlate(self.phone_id, self.route, license_plate)
 
         # the created token is an active token
-        self.assertEqual(
-            ActiveToken.objects.filter(
-                token__token=testToken).exists(), True)
+        self.assertEqual(ActiveToken.objects.filter(token__token=test_token).exists(), True)
         # the created token exist in the table of token
-        self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
+        self.assertEqual(Token.objects.filter(token=test_token).exists(), True)
 
-        jsonResponse = self.helper.endRoute(testToken)
-        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+        json_response = self.helper.endRoute(test_token)
+        self.assertEqual(json_response['response'], 'Trip ended.')
 
     def test_RequestTokenV2WithRealLicencePlate(self):
         """ This method will test a token for bus with uuid """
 
         # a ghost bus is created with the same uuid that was received
-        self.assertEqual(Busv2.objects.filter(uuid=self.machineId).exists(), True)
+        self.assertEqual(Busv2.objects.filter(uuid=self.machine_id).exists(), True)
 
-        testToken = self.helper.getInBusWithMachineId(
-            self.phoneId, self.route, self.machineId)
+        test_token = self.helper.getInBusWithMachineId(self.phone_id, self.route, self.machine_id)
 
         # the created token is an active token
-        self.assertEqual(
-            ActiveToken.objects.filter(
-                token__token=testToken).exists(), True)
+        self.assertEqual(ActiveToken.objects.filter(token__token=test_token).exists(), True)
         # the created token exist in the table of token
-        self.assertEqual(Token.objects.filter(token=testToken).exists(), True)
+        self.assertEqual(Token.objects.filter(token=test_token).exists(), True)
 
-        jsonResponse = self.helper.endRoute(testToken)
-        self.assertEqual(jsonResponse['response'], 'Trip ended.')
+        json_response = self.helper.endRoute(test_token)
+        self.assertEqual(json_response['response'], 'Trip ended.')

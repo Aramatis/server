@@ -21,39 +21,38 @@ class BusEventUserListTestCase(TransactionTestCase):
         self.score = 100
         ScoreEvent.objects.create(code=self.eventCode, score=self.score)
 
-        self.phoneId = '1df6e1b6a1b840d689b364119db3fb7c'
-        licensePlate = 'AA1111'
+        self.phone_id = '1df6e1b6a1b840d689b364119db3fb7c'
+        license_plate = 'AA1111'
         self.route = '507'
-        self.machineId = self.test.askForMachineId(licensePlate)
-        self.token = self.test.getInBusWithMachineId(self.phoneId, self.route, self.machineId)
+        self.machineId = self.test.askForMachineId(license_plate)
+        self.token = self.test.getInBusWithMachineId(self.phone_id, self.route, self.machineId)
 
     def check_user_data(self, user, vote_number):
         """ check if user info is correct """
         self.assertEqual(user['votes'], vote_number)
         self.assertIn("id", user.keys())
-        #self.assertRaises(KeyError, user.__getitem__, 'id')
         self.assertTrue(user['lastReportTimestamp'])
 
     def test_userReportsBusEventAndGetListUser(self):
         """ user reports bus event and get list users """
 
         user = self.test.createTranSappUsers(1)[0]
-        jsonResponse = self.test.reportEventV2ByPost(self.phoneId, self.machineId,
-                                                     self.route, self.eventCode, user.userId, user.sessionToken)
+        json_response = self.test.reportEventV2ByPost(self.phone_id, self.machineId,
+                                                      self.route, self.eventCode, user.userId, user.sessionToken)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], 0)
             self.assertEqual(len(event['confirmedVoteList']), 1)
             for confirmedUser in event['confirmedVoteList']:
                 self.check_user_data(confirmedUser, 1)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                               self.route, self.eventCode, EventRegistration.CONFIRM,
-                                                               user.userId,
-                                                               user.sessionToken)
+        json_response = self.test.confirmOrDeclineEventV2ByPost(self.phone_id, self.machineId,
+                                                                self.route, self.eventCode, EventRegistration.CONFIRM,
+                                                                user.userId,
+                                                                user.sessionToken)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], 0)
             self.assertEqual(len(event['confirmedVoteList']), 1)
             for confirmedUser in event['confirmedVoteList']:
@@ -61,12 +60,12 @@ class BusEventUserListTestCase(TransactionTestCase):
 
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineEventV2ByPost(self.phoneId, self.machineId,
-                                                               self.route, self.eventCode, EventRegistration.DECLINE,
-                                                               user.userId,
-                                                               user.sessionToken)
+        json_response = self.test.confirmOrDeclineEventV2ByPost(self.phone_id, self.machineId,
+                                                                self.route, self.eventCode, EventRegistration.DECLINE,
+                                                                user.userId,
+                                                                user.sessionToken)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], 0)
             self.assertEqual(len(event['confirmedVoteList']), 1)
             for confirmedUser in event['confirmedVoteList']:
@@ -78,40 +77,40 @@ class BusEventUserListTestCase(TransactionTestCase):
     def test_userReportsStopEventAndGetListUser(self):
         """ user reports bus event and get list users """
 
-        eventCode = 'evn00010'
-        stopCode = 'PA433'
-        self.test.insertBusstopsOnDatabase([stopCode])
-        ScoreEvent.objects.create(code=eventCode, score=100)
+        event_code = 'evn00010'
+        stop_code = 'PA433'
+        self.test.insertBusstopsOnDatabase([stop_code])
+        ScoreEvent.objects.create(code=event_code, score=100)
 
         user = self.test.createTranSappUsers(1)[0]
-        jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode,
-                                                       eventCode, user.userId, user.sessionToken)
+        json_response = self.test.reportStopEventByPost(self.phone_id, stop_code,
+                                                        event_code, user.userId, user.sessionToken)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], 0)
             self.assertEqual(len(event['confirmedVoteList']), 1)
             for confirmedUser in event['confirmedVoteList']:
                 self.check_user_data(confirmedUser, 1)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
-                                                                 stopCode, eventCode, EventRegistration.CONFIRM,
-                                                                 user.userId,
-                                                                 user.sessionToken)
+        json_response = self.test.confirmOrDeclineStopEventByPost(self.phone_id,
+                                                                  stop_code, event_code, EventRegistration.CONFIRM,
+                                                                  user.userId,
+                                                                  user.sessionToken)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], 0)
             self.assertEqual(len(event['confirmedVoteList']), 1)
             for confirmedUser in event['confirmedVoteList']:
                 self.check_user_data(confirmedUser, 2)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
-        jsonResponse = self.test.confirmOrDeclineStopEventByPost(self.phoneId,
-                                                                 stopCode, eventCode, EventRegistration.DECLINE,
-                                                                 user.userId,
-                                                                 user.sessionToken)
+        json_response = self.test.confirmOrDeclineStopEventByPost(self.phone_id,
+                                                                  stop_code, event_code, EventRegistration.DECLINE,
+                                                                  user.userId,
+                                                                  user.sessionToken)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], 0)
             self.assertEqual(len(event['confirmedVoteList']), 1)
             for confirmedUser in event['confirmedVoteList']:
@@ -123,26 +122,26 @@ class BusEventUserListTestCase(TransactionTestCase):
     def test_anonReportsStopEventAndAfterLoggedUserConfirmTheSameEvent(self):
         """ anon user reports stop event, after logged user confirm the same event.It checks that creator index = -1 """
 
-        eventCode = 'evn00010'
-        stopCode = 'PA433'
-        self.test.insertBusstopsOnDatabase([stopCode])
-        ScoreEvent.objects.create(code=eventCode, score=100)
+        event_code = 'evn00010'
+        stop_code = 'PA433'
+        self.test.insertBusstopsOnDatabase([stop_code])
+        ScoreEvent.objects.create(code=event_code, score=100)
 
         # anon event
-        jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode,
-                                                       eventCode, None, None)
+        json_response = self.test.reportStopEventByPost(self.phone_id, stop_code,
+                                                        event_code, None, None)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], -1)
             self.assertEqual(len(event['confirmedVoteList']), 0)
             self.assertEqual(len(event['declinedVoteList']), 0)
 
         # user event
         user = self.test.createTranSappUsers(1)[0]
-        jsonResponse = self.test.reportStopEventByPost(self.phoneId, stopCode,
-                                                       eventCode, user.userId, user.sessionToken)
+        json_response = self.test.reportStopEventByPost(self.phone_id, stop_code,
+                                                        event_code, user.userId, user.sessionToken)
 
-        for event in jsonResponse['events']:
+        for event in json_response['events']:
             self.assertEqual(event['creatorIndex'], -1)
             self.assertEqual(len(event['confirmedVoteList']), 1)
             for confirmedUser in event['confirmedVoteList']:
