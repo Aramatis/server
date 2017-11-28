@@ -8,11 +8,14 @@ from AndroidRequests.encoder import TranSappJSONEncoder
 
 
 class EventsByBusStop(View):
-    """This class handles requests for the current reported events
-    for a given bus stop."""
+    """ This class handles requests for the current reported events for a given bus stop. """
 
     def get(self, request, stop_code):
-        """Only the bus stop code is needed."""
+        """
+        :param request: django request object
+        :param stop_code: user stop code
+        :return stop events
+        """
 
         timestamp = timezone.now()
         stop_obj = BusStop.objects.get(code=stop_code, gtfs__version=settings.GTFS_VERSION)
@@ -23,7 +26,11 @@ class EventsByBusStop(View):
         return JsonResponse(event_dictionary, safe=False, encoder=TranSappJSONEncoder)
 
     def get_events_for_stop(self, stop_code, timestamp):
-        """this method returns all the events that are active given their timestamp."""
+        """
+        :param stop_code: user stop code
+        :param timestamp: time of active event
+        :return all the events that are active given their timestamp.
+        """
 
         current_event_report = []
 

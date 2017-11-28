@@ -58,10 +58,7 @@ def nearby_buses(request, phone_id, stop_code):
     """
     if phone_id != 'null':
         # Register user request
-        NearByBusesLog.objects.create(
-            phoneId=phone_id,
-            busStop=stop_obj,
-            timeStamp=time_now)
+        NearByBusesLog.objects.create(phoneId=phone_id, busStop=stop_obj, timeStamp=time_now)
     else:
         logger.error('nearbybuses: null user')
 
