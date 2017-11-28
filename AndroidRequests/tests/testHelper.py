@@ -147,8 +147,13 @@ class TestHelper:
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId,
-                'userId': userId, 'sessionToken': sessionToken}
+        data = {'phoneId': phoneId,
+                'route': route,
+                'machineId': machineId
+                }
+        if userId is not None:
+            data['userId'] = userId
+            data['sessionToken'] = sessionToken
         if busLongitude is not None:
             data["longitude"] = busLongitude
         if busLatitude is not None:
@@ -169,8 +174,10 @@ class TestHelper:
         URL = '/android/requestToken/v2'
         c = Client()
 
-        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId,
-                'userId': userId, 'sessionToken': sessionToken}
+        data = {'phoneId': phoneId, 'route': route, 'machineId': machineId}
+        if userId is not None:
+            data['userId'] = userId,
+            data['sessionToken'] = sessionToken
         if busLongitude is not None:
             data["longitude"] = busLongitude
         if busLatitude is not None:
@@ -198,13 +205,8 @@ class TestHelper:
 
         return jsonResponse
 
-    def sendFakeTrajectoryOfToken(self, travelToken, poses=None, userId='', sessionToken=''):
+    def sendFakeTrajectoryOfToken(self, travelToken, poses=None, userId=None, sessionToken=None):
         """ send fake positions for user travel """
-
-        URL = '/android/sendTrajectory'
-        request = self.factory.post(URL)
-        request.user = AnonymousUser()
-
         now = dt.datetime.now()
         times = [now,
                  now - dt.timedelta(minutes=5),
@@ -237,14 +239,18 @@ class TestHelper:
                  "timeStamp": fTimes[6], "inVehicleOrNot": "vehicle"},
                 {"latitud": -33.457196, "longitud": -70.664636,
                  "timeStamp": fTimes[7], "inVehicleOrNot": "vehicle"},
-                {"latitud": -33.457070, "longitud": -70.660559, "timeStamp": fTimes[8], "inVehicleOrNot": "vehicle"}]}
+                {"latitud": -33.457070, "longitud": -70.660559,
+                 "timeStamp": fTimes[8], "inVehicleOrNot": "vehicle"}]}
 
         c = Client()
-        URL = URL
-        response = c.post(URL, {'pToken': travelToken,
-                                'pTrajectory': json.dumps(poses),
-                                'userId': userId,
-                                'sessionToken': sessionToken})
+        URL = '/android/sendTrajectory'
+        data = {'pToken': travelToken,
+                'pTrajectory': json.dumps(poses)
+                }
+        if userId is not None:
+            data["userId"] = userId
+            data["sessionToken"] = sessionToken
+        response = c.post(URL, data)
 
         self.test.assertEqual(response.status_code, 200)
 
@@ -431,7 +437,7 @@ class TestHelper:
         BUS EVENT METHODS BY POST
     """
 
-    def reportEventV2ByPost(self, phoneId, machineId, route, eventCode, userId, sessionToken):
+    def reportEventV2ByPost(self, phoneId, machineId, route, eventCode, userId=None, sessionToken=None):
         """ report an event with the new version  """
         URL = '/android/reportEventBus/v2'
         c = Client()
@@ -439,9 +445,11 @@ class TestHelper:
                 'machineId': machineId,
                 'service': route,
                 'eventId': eventCode,
-                'vote': EventRegistration.CONFIRM,
-                'userId': userId,
-                'sessionToken': sessionToken}
+                'vote': EventRegistration.CONFIRM
+                }
+        if userId is not None:
+            data["userId"] = userId
+            data["sessionToken"] = sessionToken
         response = c.post(URL, data)
 
         self.test.assertEqual(response.status_code, 200)
@@ -525,7 +533,8 @@ class TestHelper:
             user = TranSappUser.objects.create(userId=userId,
                                                sessionToken=sessionToken, name=name, nickname=nickname,
                                                phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
-                                               level=level, globalScore=(100*(index+1)), globalPosition=(userQuantity - 1))
+                                               level=level, globalScore=(100 * (index + 1)),
+                                               globalPosition=(userQuantity - 1))
             users.append(user)
 
         return users

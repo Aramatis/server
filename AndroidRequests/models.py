@@ -746,7 +746,7 @@ class TranSappUser(models.Model):
         """ get dictionary of public data """
         data = {
             "nickname": self.nickname,
-            "globalScore": self.globalScore,
+            "globalScore": round(self.globalScore, 8),
             "showAvatar": self.showAvatar,
             "levelName": self.level.name,
             "levelPosition": self.level.position,
@@ -766,7 +766,7 @@ class TranSappUser(models.Model):
         """ return updated score data """
         return {
             "id": self.externalId,
-            "score": self.globalScore,
+            "score": round(self.globalScore, 8),
             "ranking": {
                 "globalPosition": self.globalPosition
             },

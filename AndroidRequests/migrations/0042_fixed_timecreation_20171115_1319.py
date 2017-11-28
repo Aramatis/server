@@ -12,7 +12,7 @@ def fixed_timecreation(apps, schema_editor):
 
     for token in Token.objects.all().iterator():
         locationObj = PoseTrajectoryOfToken.objects.filter(token=token).order_by("timeStamp").first()
-        scoreHistoryObj = ScoreHistory.objects.filter(meta__icontains=token.token).first()
+        scoreHistoryObj = ScoreHistory.objects.filter(meta__contains=token.token).first()
 
         if locationObj is not None:
             token.timeCreation = locationObj.timeStamp

@@ -1,7 +1,9 @@
 from django.test import TestCase
 
-import AndroidRequests.constants as Constants
 from AndroidRequests.tests.testHelper import TestHelper
+
+import AndroidRequests.constants as Constants
+import uuid
 
 
 class EndRouteTest(TestCase):
@@ -42,3 +44,35 @@ class EndRouteTest(TestCase):
         jsonResponse = self.helper.endRoute(travelKey)
 
         self.assertEqual(jsonResponse['response'], 'Token doesn\'t exist.')
+
+
+class EndRouteWithUserTest(TestCase):
+    """ test for end route url """
+    fixtures = ["scoreEvents"]
+
+    def setUp(self):
+        """ this method will automatically call for every single test """
+        self.helper = TestHelper(self)
+
+        self.phoneId = str(uuid.uuid4())
+        self.service = '507'
+        self.licencePlate = 'PABJ45'
+
+        self.helper.insertServicesOnDatabase([self.service])
+        self.user = self.helper.createTranSappUsers(1)[0]
+        self.user.globalScore = 0
+        self.user.save()
+
+    def test_endRouteWithValidActiveToken(self):
+        """ finish active travel """
+        travelKey = self.helper.getInBusWithLicencePlateByPost(
+            self.phoneId, self.service, self.licencePlate, userId=self.user.userId, sessionToken=self.user.sessionToken)
+        self.helper.sendFakeTrajectoryOfToken(travelKey, userId=self.user.userId, sessionToken=self.user.sessionToken)
+
+        self.user.refresh_from_db()
+        oldScore = self.user.globalScore
+
+        self.helper.endRoute(travelKey)
+
+        self.user.refresh_from_db()
+        self.assertTrue(oldScore > self.user.globalScore)

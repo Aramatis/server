@@ -1,5 +1,7 @@
 import os
 import django
+import logging
+import datetime
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 django.setup()
@@ -7,9 +9,7 @@ django.setup()
 from django.utils import timezone
 from django.db import transaction
 from AndroidRequests.models import ActiveToken, EventForBusStop, EventForBusv2, TranSappUser, ScoreHistory
-
-import logging
-import datetime
+from AndroidRequests.scoreFunctions import checkCompleteTripScore
 
 # for cleanActiveTokenTable method
 MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS = 10
@@ -27,12 +27,13 @@ def cleanActiveTokenTable():
     token was granted with new position doesn't exceed a big amount of time."""
     logger = logging.getLogger(__name__)
 
-    activeTokens = ActiveToken.objects.all()
     currentTimeMinusXMinutes = timezone.now() - timezone.timedelta(minutes=MINUTES_BEFORE_CLEAN_ACTIVE_TOKENS)
+    activeTokens = ActiveToken.objects.select_related("token").filter(timeStamp__lt=currentTimeMinusXMinutes).all()
     for activeToken in activeTokens:
-        if activeToken.timeStamp < currentTimeMinusXMinutes:
-            activeToken.delete()
-            logger.info("{} deleted by clenaActiveTokenTable method".format(activeToken.token.token))
+        # check if points are valid
+        checkCompleteTripScore(activeToken.token.token)
+        activeToken.delete()
+        logger.info("{} deleted by clenaActiveTokenTable method".format(activeToken.token.token))
 
 
 def clearEventsThatHaveBeenDecline():
