@@ -257,6 +257,14 @@ class ServiceDistanceNotFoundException(Exception):
     """ error produced when it is not possible to get distance between a service and bus stop """
 
 
+class RouteDoesNotStopInBusStop(Exception):
+    """ error produced when route does not match with stop, so we can not know distance from start point """
+
+
+class ThereIsNotClosestLocation(Exception):
+    """ raise when there is not closest location """
+
+
 class Busv2(models.Model):
     """Represent a bus like the unique combination of registration plate and service as one.
     So there can be two buses with the same service and two buses with the same registration plate.
@@ -280,10 +288,7 @@ class Busassignment(models.Model):
     """ It indicates the service performed by the bus """
     uuid = models.ForeignKey(Busv2, verbose_name='Thebusv2')
     """ Unique ID to primarily identify Buses created without registrationPlate """
-    events = models.ManyToManyField(
-        Event,
-        verbose_name='the event',
-        through=EventForBusv2)
+    events = models.ManyToManyField(Event, verbose_name='the event', through=EventForBusv2)
 
     class Meta:
         unique_together = ('uuid', 'service')
@@ -292,38 +297,25 @@ class Busassignment(models.Model):
         """ Given a bus stop and the distance from the bus to the bus stop,
             return the address to which point the bus """
         try:
-            route_code = ServicesByBusStop.objects.filter(
-                busStop=stop_obj,
-                service__service=self.service,
-                gtfs__version=settings.GTFS_VERSION).values_list('code', flat=True)[0]
+            route_code = ServicesByBusStop.objects.get(busStop=stop_obj, service__service=self.service,
+                                                       gtfs__version=settings.GTFS_VERSION).code
         except ServicesByBusStop.DoesNotExist:
             raise ServiceNotFoundException(
-                "Service {} is not present in bus stop {}".format(
-                    self.service, stop_obj.code))
+                "Service {} is not present in bus stop {}".format(self.service, stop_obj.code))
 
         try:
-            service_distance_obj = ServiceStopDistance.objects.filter(
-                busStop=stop_obj,
-                service=route_code,
-                gtfs__version=settings.GTFS_VERSION).values_list('distance', flat=True)[0]
+            route_distance = ServiceStopDistance.objects.get(busStop=stop_obj, service=route_code,
+                                                             gtfs__version=settings.GTFS_VERSION).distance
         except ServiceStopDistance.DoesNotExist:
             raise ServiceDistanceNotFoundException(
-                "The distance is not possible getting for bus stop '{}' and service '{}'".format(
-                    stop_obj.code, route_code))
+                "The distance is not possible getting for bus stop '{}' and service '{}'".format(stop_obj.code,
+                                                                                                 route_code))
 
-        distance = service_distance_obj - int(distance)
-        # bus service distance from route origin
-        greaters = ServiceLocation.objects.filter(
-            service=route_code,
-            gtfs__version=settings.GTFS_VERSION,
-            distance__gt=distance).order_by('distance')[:1]
-        # get 2 locations greater than current location (nearer to the bus
-        # stop)
-        lowers = ServiceLocation.objects.filter(
-            service=route_code,
-            gtfs__version=settings.GTFS_VERSION,
-            distance__lte=distance).order_by('-distance')[:1]
-        # get 2 locations lower than current location
+        distance = route_distance - int(distance)
+        greaters = ServiceLocation.objects.filter(service=route_code, distance__gt=distance,
+                                                  gtfs__version=settings.GTFS_VERSION).order_by('distance')[:1]
+        lowers = ServiceLocation.objects.filter(service=route_code, distance__lte=distance,
+                                                gtfs__version=settings.GTFS_VERSION).order_by('-distance')[:1]
 
         # we need two point to detect the bus direction (left, right, up, down)
         if len(greaters) > 0 and len(lowers) > 0:
@@ -402,47 +394,43 @@ class Busassignment(models.Model):
     def get_estimated_location(self, stop_code, distance):
         """ Given a distance from the bus to the bus stop, this method returns the global position of the machine. """
         try:
-            route_code = ServicesByBusStop.objects.filter(
-                busStop__code=stop_code, service__service=self.service,
-                gtfs__version=settings.GTFS_VERSION).values_list('code', flat=True)[0]
-        except ServicesByBusStop.DoesNotExist:
-            raise ServiceNotFoundException(
-                "Service {} is not present in bus stop {}".format(
-                    self.service, stop_code))
-
-        ssd = ServiceStopDistance.objects.filter(
-            busStop__code=stop_code, service=route_code,
-            gtfs__version=settings.GTFS_VERSION).values_list('distance', flat=True)[0] - int(distance)
+            route_code = ServicesByBusStop.objects.filter(busStop__code=stop_code, service__service=self.service,
+                                                          gtfs__version=settings.GTFS_VERSION).only('code').first().code
+        except AttributeError:
+            raise ServiceNotFoundException("Service {} is not present in bus stop {}".format(self.service, stop_code))
 
         try:
-            closest_gt = ServiceLocation.objects.filter(
-                service=route_code,
-                gtfs__version=settings.GTFS_VERSION,
-                distance__gte=ssd).order_by('distance').values_list('distance', flat=True)[0]
-        except KeyError:
-            closest_gt = 50000
-        try:
-            closest_lt = ServiceLocation.objects.filter(
-                service=route_code,
-                gtfs__version=settings.GTFS_VERSION,
-                distance__lte=ssd).order_by('-distance').values_list('distance', flat=True)[0]
-        except KeyError:
-            closest_lt = 0
+            ssd = ServiceStopDistance.objects.filter(
+                busStop__code=stop_code, service=route_code,
+                gtfs__version=settings.GTFS_VERSION).only('distance').first().distance - int(distance)
+        except AttributeError:
+            raise RouteDoesNotStopInBusStop(
+                "route({0}) and bus stop({1}) does not match in ServiceStopDistance".format(route_code, stop_code))
+
+        closest_gt_obj = ServiceLocation.objects.filter(service=route_code, gtfs__version=settings.GTFS_VERSION,
+                                                        distance__gte=ssd).order_by('distance').first()
+        closest_gt = closest_gt_obj.distance if closest_gt_obj is not None else 50000
+
+        closest_lt_obj = ServiceLocation.objects.filter(service=route_code, gtfs__version=settings.GTFS_VERSION,
+                                                        distance__lte=ssd).order_by('-distance').first()
+        closest_lt = closest_lt_obj.distance if closest_lt_obj is None else 0
 
         if abs(closest_gt - ssd) < abs(closest_lt - ssd):
-            closest = closest_gt
+            closest_location = closest_gt_obj
         else:
-            closest = closest_lt
+            closest_location = closest_lt_obj
 
-        location = ServiceLocation.objects.filter(
-            service=route_code,
-            gtfs__version=settings.GTFS_VERSION,
-            distance=closest).first()
+        if closest_location is None:
+            raise ThereIsNotClosestLocation(
+                "There is not exist closest location with distance {}, route {} and bus stop {}".format(distance,
+                                                                                                        route_code,
+                                                                                                        stop_code))
 
-        return {'latitude': location.latitude,
-                'longitude': location.longitude,
-                'direction': route_code[-1]
-                }
+        return {
+            'latitude': closest_location.latitude,
+            'longitude': closest_location.longitude,
+            'direction': route_code[-1]
+        }
 
 
 class Token(models.Model):
@@ -525,6 +513,7 @@ class Report(models.Model):
     """ To identify the data owner """
     tranSappUser = models.ForeignKey('TranSappUser', null=True)
     """ Logged user with social media (if exists) """
+
 
 ##
 #

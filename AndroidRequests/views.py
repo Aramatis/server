@@ -9,6 +9,8 @@ from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, \
     ServicesByBusStop, Token
+from AndroidRequests.models import ServiceNotFoundException, ServiceDistanceNotFoundException, \
+    RouteDoesNotStopInBusStop, ThereIsNotClosestLocation
 
 import AndroidRequests.constants as constants
 
@@ -336,7 +338,8 @@ def get_authority_buses(stop_obj, data):
 
         try:
             bus_data = bus_assignment.get_estimated_location(stop_code, distance)
-        except Exception as e:
+        except (ServiceNotFoundException, ServiceDistanceNotFoundException, RouteDoesNotStopInBusStop,
+                ThereIsNotClosestLocation) as e:
             logger.error("Trying to get estimated location: " + str(e))
             bus_data = {'latitude': 500, 'longitude': 500, 'direction': 'I'}
             service['random'] = True
