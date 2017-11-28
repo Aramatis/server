@@ -22,9 +22,10 @@ urlpatterns = [
     url(r'^dtpm/', include('PredictorDTPM.urls')),
     url(r'^android/', include('AndroidRequests.urls')),
     url(r'^phone/', include('AndroidRequests.urls')),
-    url(r'^map/', include('MapLocationOfUsers.urls')),
+    url(r'^map/', include('maplocationofusers.urls')),
     url(r'^modeldic/', include('DataDictionary.urls')),
     url(r'^routeplanner/', include('routeplanner.urls')),
+    url(r'^gtfs/', include('gtfs.urls')),
 ]
 
 if settings.DEBUG:

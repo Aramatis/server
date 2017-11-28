@@ -22,14 +22,14 @@ class SetDirection(View):
         response = {}
 
         if request.method == 'POST':
-            pToken = request.POST.get('pToken', '')
-            pDirection = request.POST.get('pDirection', '')
+            token = request.POST.get('pToken', '')
+            direction = request.POST.get('pDirection', '')
 
-            if pDirection in ["I", "R"]:
-                if ActiveToken.objects.filter(token__token=pToken).exists():
-                    aToken = Token.objects.get(token=pToken)
-                    aToken.direction = pDirection
-                    aToken.save()
+            if direction in ["I", "R"]:
+                if ActiveToken.objects.filter(token__token=token).exists():
+                    token_obj = Token.objects.get(token=token)
+                    token_obj.direction = direction
+                    token_obj.save()
 
                     response['message'] = 'User bus direction updated.'
                     response['valid'] = True

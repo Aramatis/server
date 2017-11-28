@@ -28,7 +28,7 @@ KEY_FILES=(
 
 for FILE_NAME in "${KEY_FILES[@]}"
 do
-    if [ ! -f $KEY_PATH/$FILE_NAME ]; then
+    if [ ! -f "$KEY_PATH/$FILE_NAME" ]; then
         echo "REMEMBER TO ADD ALL KEY FILES IN THIS SERVER"
         echo "THE NEXT FILE COULD NOT FIND: $FILE_NAME"
         exit
@@ -65,7 +65,7 @@ then
     python manage.py collectstatic --noinput
 
     # load data from fixture
-    python manage.py loaddata levels scoreEvents
+    python manage.py loaddata events levels scoreEvents
 
     # run test
     coverage run --source='.' manage.py test
@@ -86,20 +86,8 @@ fi
 
 if [ "$fileVersion" != "0" ]
 then
-    python updateData.py "$fileVersion"
-    echo "loading stop data ..."
-    python loadData.py "$fileVersion" busstop InitialData/"$fileVersion"/busstop.csv 
-    echo "loading trip data ..."
-    python loadData.py "$fileVersion" service InitialData/"$fileVersion"/services.csv 
-    echo "loading services by stop data ..."
-    python loadData.py "$fileVersion" servicesbybusstop InitialData/"$fileVersion"/servicesbybusstop.csv 
-    echo "loading service stop distance data ..."
-    python loadData.py "$fileVersion" servicestopdistance InitialData/"$fileVersion"/servicestopdistance.csv
-    echo "loading service location data ..."
-    python loadData.py "$fileVersion" servicelocation InitialData/"$fileVersion"/servicelocation.csv
-    echo "loading events data ..."
-    python loadData.py "$fileVersion" event InitialData/events.csv
-    #python loadData.py "$fileVersion" route InitialData/"$fileVersion"/routes.csv
+    python manage.py downloadgtfsdata "$fileVersion"
+    python manage.py loadgtfsdata "$fileVersion" "stop" "route" "routelocation" "routestopdistance" "routebystop"
 else 
     echo "FYI: It was not updated data because file version was not given."
 fi

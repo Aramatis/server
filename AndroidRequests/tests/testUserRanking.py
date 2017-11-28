@@ -18,58 +18,58 @@ class UserRankingTestCase(TestCase):
 
         if params is None:
             params = {}
-        URL = self.URL_PREFIX + url
+        url = self.URL_PREFIX + url
         c = Client()
-        response = c.get(URL, params)
+        response = c.get(url, params)
         self.assertEqual(response.status_code, 200)
 
         return json.loads(response.content)
 
-    def createUsers(self, userQuantity, userPosition, userObj):
-        """ create @quantity users and put the user asked in @userPosition """
+    def createUsers(self, user_quantity, user_position, user_obj):
+        """ create @quantity users and put the user asked in @user_position """
 
-        phoneId = uuid.UUID('56fbbcbf-e48a-458a-9645-65ab145e35ea')
+        phone_id = uuid.UUID('56fbbcbf-e48a-458a-9645-65ab145e35ea')
         score = 1000000
 
         position = 1
-        for index in range(userQuantity):
-            if index == userPosition - 1:
-                userObj.globalScore = score
-                userObj.globalPosition = position
-                userObj.save()
+        for index in range(user_quantity):
+            if index == user_position - 1:
+                user_obj.globalScore = score
+                user_obj.globalPosition = position
+                user_obj.save()
             else:
                 name = "name{}".format(index + 1)
                 nickname = "nickname{}".format(index + 1)
-                userId = "userId{}".format(index + 1)
-                showAvatar = bool(random.getrandbits(1))
-                photoURI = 'thisIsAPhotoURI'
-                sessionToken = uuid.uuid4()
-                TranSappUser.objects.create(userId=userId,
-                                            sessionToken=sessionToken, name=name, nickname=nickname,
-                                            phoneId=phoneId, accountType=TranSappUser.FACEBOOK,
-                                            level=self.level, globalScore=score, showAvatar=showAvatar,
-                                            photoURI=photoURI, globalPosition=position)
+                user_id = "userId{}".format(index + 1)
+                show_avatar = bool(random.getrandbits(1))
+                photo_uri = 'thisIsAPhotoURI'
+                session_token = uuid.uuid4()
+                TranSappUser.objects.create(userId=user_id,
+                                            sessionToken=session_token, name=name, nickname=nickname,
+                                            phoneId=phone_id, accountType=TranSappUser.FACEBOOK,
+                                            level=self.level, globalScore=score, showAvatar=show_avatar,
+                                            photoURI=photo_uri, globalPosition=position)
             score -= 100
             position += 1
 
-    def checkRankingList(self, userId, sessionToken, userPosition, topUserNumber, nearUserNumber):
+    def checkRankingList(self, user_id, session_token, user_position, top_user_number, near_user_number):
         """ check ranking list returned by url """
-        URL = 'getRanking'
+        url = 'getRanking'
         data = {
-            "userId": userId,
-            "sessionToken": sessionToken
+            "userId": user_id,
+            "sessionToken": session_token
         }
-        jsonResponse = self.makeGetRequest(URL, data)
+        json_response = self.makeGetRequest(url, data)
 
-        self.assertEqual(jsonResponse['status'],
+        self.assertEqual(json_response['status'],
                          Status.getJsonStatus(Status.OK, {})['status'])
 
-        topRanking = jsonResponse['ranking']['top']
-        self.assertEqual(len(topRanking), topUserNumber)
-        previousScore = None
-        previousPosition = None
-        for index, user in enumerate(topRanking):
-            if index == userPosition - 1:
+        top_ranking = json_response['ranking']['top']
+        self.assertEqual(len(top_ranking), top_user_number)
+        previous_score = None
+        previous_position = None
+        for index, user in enumerate(top_ranking):
+            if index == user_position - 1:
                 self.assertEqual(user['nickname'], self.NICKNAME)
                 self.assertEqual(user['showAvatar'], self.SHOW_AVATAR)
                 if not user['showAvatar']:
@@ -80,21 +80,21 @@ class UserRankingTestCase(TestCase):
             else:
                 self.assertTrue(user['photoURI'])
 
-            if previousScore is not None:
-                self.assertTrue(previousScore > user['globalScore'])
-            if previousPosition is not None:
-                self.assertTrue(previousPosition < user["ranking"]['globalPosition'])
+            if previous_score is not None:
+                self.assertTrue(previous_score > user['globalScore'])
+            if previous_position is not None:
+                self.assertTrue(previous_position < user["ranking"]['globalPosition'])
 
-            previousScore = user['globalScore']
-            previousPosition = user["ranking"]['globalPosition']
+            previous_score = user['globalScore']
+            previous_position = user["ranking"]['globalPosition']
 
-        nearRanking = jsonResponse['ranking']['near']
-        self.assertEqual(len(nearRanking), nearUserNumber)
-        previousScore = None
-        previousPosition = None
-        delta = nearRanking[0]["ranking"]['globalPosition']
-        for index, user in enumerate(nearRanking):
-            if index + delta == userPosition:
+        near_ranking = json_response['ranking']['near']
+        self.assertEqual(len(near_ranking), near_user_number)
+        previous_score = None
+        previous_position = None
+        delta = near_ranking[0]["ranking"]['globalPosition']
+        for index, user in enumerate(near_ranking):
+            if index + delta == user_position:
                 self.assertEqual(user['nickname'], self.NICKNAME)
                 self.assertEqual(user['showAvatar'], self.SHOW_AVATAR)
                 if not user['showAvatar']:
@@ -105,13 +105,13 @@ class UserRankingTestCase(TestCase):
             else:
                 self.assertTrue(user['photoURI'])
 
-            if previousScore is not None:
-                self.assertTrue(previousScore > user['globalScore'])
-            if previousPosition is not None:
-                self.assertTrue(previousPosition < user["ranking"]['globalPosition'])
+            if previous_score is not None:
+                self.assertTrue(previous_score > user['globalScore'])
+            if previous_position is not None:
+                self.assertTrue(previous_position < user["ranking"]['globalPosition'])
 
-            previousScore = user['globalScore']
-            previousPosition = user["ranking"]['globalPosition']
+            previous_score = user['globalScore']
+            previous_position = user["ranking"]['globalPosition']
 
     def setUp(self):
         """   """
@@ -139,79 +139,81 @@ class UserRankingTestCase(TestCase):
 
     def testUserDoesNotExist(self):
         """ user without session ask for ranking """
-        URL = 'getRanking'
-        userId = 'fakeUserId'
-        sessionToken = uuid.uuid4()
+        url = 'getRanking'
+        user_id = 'fakeUserId'
+        session_token = uuid.uuid4()
 
         data = {
-            "userId": userId,
-            "sessionToken": sessionToken
+            "userId": user_id,
+            "sessionToken": session_token
         }
-        jsonResponse = self.makeGetRequest(URL, data)
+        json_response = self.makeGetRequest(url, data)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_USER, {})['status'])
+        self.assertEqual(json_response['status'], Status.getJsonStatus(Status.INVALID_USER, {})['status'])
 
     def testInvalidSession(self):
         """ user without session ask for ranking """
-        URL = 'getRanking'
-        userId = self.USER_ID
-        sessionToken = uuid.uuid4()
+        url = 'getRanking'
+        user_id = self.USER_ID
+        session_token = uuid.uuid4()
 
         data = {
-            "userId": userId,
-            "sessionToken": sessionToken
+            "userId": user_id,
+            "sessionToken": session_token
         }
-        jsonResponse = self.makeGetRequest(URL, data)
+        json_response = self.makeGetRequest(url, data)
 
-        self.assertEqual(jsonResponse['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
+        self.assertEqual(json_response['status'], Status.getJsonStatus(Status.INVALID_SESSION_TOKEN, {})['status'])
 
     def testDoNotSendParams(self):
         """ user without session ask for ranking """
-        URL = 'getRanking'
+        url = 'getRanking'
 
         data = {}
-        jsonResponse = self.makeGetRequest(URL, data)
+        json_response = self.makeGetRequest(url, data)
 
-        self.assertEqual(jsonResponse['status'],
+        self.assertEqual(json_response['status'],
                          Status.getJsonStatus(Status.INVALID_PARAMS, {})['status'])
 
     def testUserOnTopFive(self):
         """   """
-        userQuantity = 5
-        userPosition = 3
-        self.createUsers(userQuantity, userPosition, self.user)
+        user_quantity = 5
+        user_position = 3
+        self.createUsers(user_quantity, user_position, self.user)
 
-        topUserQuantity = UserRanking.TOP_USERS if userQuantity > UserRanking.TOP_USERS else userQuantity
+        top_user_quantity = UserRanking.TOP_USERS if user_quantity > UserRanking.TOP_USERS else user_quantity
 
-        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, userPosition, topUserQuantity, userQuantity)
+        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, user_position, top_user_quantity, user_quantity)
 
     def testUserOnTopTen(self):
         """   """
-        userQuantity = 10
-        userPosition = 7
-        self.createUsers(userQuantity, userPosition, self.user)
+        user_quantity = 10
+        user_position = 7
+        self.createUsers(user_quantity, user_position, self.user)
 
-        userQuantityResult = UserRanking.UPPER_USERS + 1 + (userQuantity - userPosition if userQuantity - userPosition < UserRanking.LOWER_USERS else UserRanking.LOWER_USERS)
-        topUserQuantity = UserRanking.TOP_USERS if userQuantity > UserRanking.TOP_USERS else userQuantity
+        user_quantity_result = UserRanking.UPPER_USERS + 1 + (
+        user_quantity - user_position if user_quantity - user_position < UserRanking.LOWER_USERS else UserRanking.LOWER_USERS)
+        top_user_quantity = UserRanking.TOP_USERS if user_quantity > UserRanking.TOP_USERS else user_quantity
 
-        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, userPosition, topUserQuantity, userQuantityResult)
+        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, user_position, top_user_quantity, user_quantity_result)
 
     def testUserOnTopTwenty(self):
         """   """
-        userQuantity = 20
-        userPosition = 18
-        self.createUsers(userQuantity, userPosition, self.user)
+        user_quantity = 20
+        user_position = 18
+        self.createUsers(user_quantity, user_position, self.user)
 
-        userQuantityResult = UserRanking.UPPER_USERS + 1 + (userQuantity-userPosition if userQuantity-userPosition < UserRanking.LOWER_USERS else UserRanking.LOWER_USERS)
-        topUserQuantity = UserRanking.TOP_USERS if userQuantity > UserRanking.TOP_USERS else userQuantity
-        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, userPosition, topUserQuantity, userQuantityResult)
+        user_quantity_result = UserRanking.UPPER_USERS + 1 + (
+        user_quantity - user_position if user_quantity - user_position < UserRanking.LOWER_USERS else UserRanking.LOWER_USERS)
+        top_user_quantity = UserRanking.TOP_USERS if user_quantity > UserRanking.TOP_USERS else user_quantity
+        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, user_position, top_user_quantity, user_quantity_result)
 
     def testUserOnTopOne(self):
         """   """
-        userQuantity = 100
-        userPosition = 1
-        self.createUsers(userQuantity, userPosition, self.user)
+        user_quantity = 100
+        user_position = 1
+        self.createUsers(user_quantity, user_position, self.user)
 
-        userQuantityResult = 5
-        topUserQuantity = UserRanking.TOP_USERS if userQuantity > UserRanking.TOP_USERS else userQuantity
-        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, userPosition, topUserQuantity, userQuantityResult)
+        user_quantity_result = 5
+        top_user_quantity = UserRanking.TOP_USERS if user_quantity > UserRanking.TOP_USERS else user_quantity
+        self.checkRankingList(self.USER_ID, self.SESSION_TOKEN, user_position, top_user_quantity, user_quantity_result)

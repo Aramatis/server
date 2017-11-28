@@ -14,60 +14,61 @@ class EventsByBusV2(View):
     """This class handles requests for the registered events for an specific bus."""
 
     def __init__(self):
-        self.context = {}
+        super(EventsByBusV2, self).__init__()
         self.logger = logging.getLogger(__name__)
 
-    def get(self, request, pPhoneId):
+    def get(self, request, machine_id):
         """The UUID field can identify the bus, and the service can identify
         the bus assignment"""
 
-        response = {'uuid': pPhoneId}
+        response = {'uuid': machine_id}
         # response['registrationPlate'] = pRegistrationPlate
 
         try:
-            bus = Busv2.objects.get(uuid=pPhoneId)
-            pRegistrationPlate = bus.registrationPlate
-            assignments = Busassignment.objects.filter(uuid=bus)
-            events = self.getEventsForBuses(assignments, timezone.now())[bus.uuid]
-        except Exception as e:
+            bus = Busv2.objects.get(uuid=machine_id)
+            license_plate = bus.registrationPlate
+            bus_assignments = Busassignment.objects.filter(uuid=bus)
+            events = self.get_events_for_buses(bus_assignments, timezone.now())[bus.uuid]
+        except (Busv2.DoesNotExist, KeyError) as e:
+            # is related with uuid does not have events
             self.logger.error(str(e))
             events = []
-            pRegistrationPlate = ''
+            license_plate = ''
 
-        response['registrationPlate'] = pRegistrationPlate
+        response['registrationPlate'] = license_plate
         response['events'] = events
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
 
-    def getEventsForBuses(self, busassignments, timeStamp):
+    def get_events_for_buses(self, bus_assignments, timestamp):
         """ this method get events of group of buses with one hit to database """
 
         events = EventForBusv2.objects.prefetch_related('stadisticdatafromregistrationbus_set__tranSappUser',
                                                         'busassignment__uuid',
                                                         'busassignment__events').filter(
-            busassignment__in=busassignments, event__eventType='bus', broken=False,
-            expireTime__gte=timeStamp, timeCreation__lte=timeStamp).order_by('-timeStamp')
+            busassignment__in=bus_assignments, event__eventType='bus', broken=False,
+            expireTime__gte=timestamp, timeCreation__lte=timestamp).order_by('-timeStamp')
 
-        eventsByMachineId = defaultdict(list)
+        events_by_machine_id = defaultdict(list)
         for event in events:
-            eventsByMachineId[event.busassignment.uuid.uuid].append(event)
+            events_by_machine_id[event.busassignment.uuid.uuid].append(event)
 
-        eventListByBus = defaultdict(None)
-        for machineId, events in eventsByMachineId.iteritems():
-            aggregatedEvents = {}
+        event_list_by_bus = defaultdict(None)
+        for machine_id, events in events_by_machine_id.iteritems():
+            aggregated_events = {}
             result = []
             for event in events:
-                event = event.getDictionary()
+                event = event.get_dictionary()
 
-                if event['eventcode'] in aggregatedEvents:
-                    position = aggregatedEvents[event['eventcode']]
+                if event['eventcode'] in aggregated_events:
+                    position = aggregated_events[event['eventcode']]
                     result[position]['eventConfirm'] += event['eventConfirm']
                     result[position]['eventDecline'] += event['eventDecline']
                     result[position]['confirmedVoteList'] += event['confirmedVoteList']
                     result[position]['declinedVoteList'] += event['declinedVoteList']
                 else:
-                    aggregatedEvents[event['eventcode']] = len(result)
+                    aggregated_events[event['eventcode']] = len(result)
                     result.append(event)
-            eventListByBus[machineId] = result
+            event_list_by_bus[machine_id] = result
 
-        return eventListByBus
+        return event_list_by_bus

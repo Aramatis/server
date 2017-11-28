@@ -1,9 +1,12 @@
 from django.http import JsonResponse
 from django.views.generic import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
-from AndroidRequests.models import ActiveToken
+from AndroidRequests.models import ActiveToken, Token
 from AndroidRequests.encoder import TranSappJSONEncoder
-from AndroidRequests.scoreFunctions import checkCompleteTripScore
+from AndroidRequests.scoreFunctions import check_complete_trip_score
+from AndroidRequests.statusResponse import Status
 
 
 class EndRoute(View):
@@ -14,15 +17,41 @@ class EndRoute(View):
         super(EndRoute, self).__init__()
         self.context = {}
 
-    def get(self, request, pToken):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(EndRoute, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        """Delete the token from the active ones."""
+        token = request.POST.get('token')
+        purge_cause = request.POST.get('purgeCause')
+
+        response = {}
+        # check if the token exist
+        if ActiveToken.objects.filter(token__token=token).exists():
+            ActiveToken.objects.get(token__token=token).delete()
+            if purge_cause in [Token.USER_SAYS_GET_OFF, Token.SERVER_SAYS_GET_OFF,
+                               Token.SMARTPHONE_SAYS_IS_FAR_AWAY_FROM_REAL_BUS,
+                               Token.SMARTPHONE_SAYS_THAT_THERE_IS_NOT_MOVEMENT]:
+                Token.objects.filter(token=token).update(purgeCause=purge_cause)
+            # check if points are valid
+            check_complete_trip_score(token)
+
+            Status.getJsonStatus(Status.OK, response)
+        else:  # if the token was not found alert
+            Status.getJsonStatus(Status.TRIP_TOKEN_DOES_NOT_EXIST, response)
+
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
+
+    def get(self, request, token):
         """Delete the token from the active ones."""
         response = {}
         # check if the token exist
-        if ActiveToken.objects.filter(token__token=pToken).exists():
-            ActiveToken.objects.get(token__token=pToken).delete()
+        if ActiveToken.objects.filter(token__token=token).exists():
+            ActiveToken.objects.get(token__token=token).delete()
 
             # check if points are valid
-            checkCompleteTripScore(pToken)
+            check_complete_trip_score(token)
 
             response['response'] = 'Trip ended.'
         else:  # if the token was not found alert

@@ -8,6 +8,10 @@ class Status:
     TRIP_EVALUATION_FORMAT_ERROR = 405
     TRIP_TOKEN_DOES_NOT_EXIST = 406
     TRIP_TOKEN_COULD_NOT_BE_CREATED = 407
+    TRAJECTORY_DOES_NOT_HAVE_LOCATIONS = 408
+    USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS = 409
+    I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS = 410
+    REPORT_CAN_NOT_BE_SAVED = 411
 
     statusDict = {
         OK: {'status': 200, 'message': 'ok'},
@@ -23,6 +27,22 @@ class Status:
             'status': TRIP_TOKEN_COULD_NOT_BE_CREATED,
             'message': 'active token could not be created'
         },
+        USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS: {
+            'status': USER_BUS_IS_FAR_AWAY_FROM_REAL_BUS,
+            'message': 'user bus is far way from real bus'
+        },
+        I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS: {
+            'status': I_DO_NOT_KNOW_ANYTHING_ABOUT_REAL_BUS,
+            'message': 'i do not know anything about real bus'
+        },
+        TRAJECTORY_DOES_NOT_HAVE_LOCATIONS: {
+            'status': TRAJECTORY_DOES_NOT_HAVE_LOCATIONS,
+            'message': 'trajectory does not have locations'
+        },
+        REPORT_CAN_NOT_BE_SAVED: {
+            'status': REPORT_CAN_NOT_BE_SAVED,
+            'message': 'report can not be saved :-('
+        }
     }
 
     @staticmethod

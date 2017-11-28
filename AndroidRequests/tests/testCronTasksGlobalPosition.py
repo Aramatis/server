@@ -14,12 +14,12 @@ class CronTasksTestCase(TestCase):
     def setUp(self):
         self.helper = TestHelper(self)
 
-        userQuantity = 100
-        self.helper.createTranSappUsers(userQuantity)
+        user_quantity = 100
+        self.helper.createTranSappUsers(user_quantity)
 
         # simulate a report to execute update of global positions
-        score = ScoreEvent.objects.create(code="111", score=100)
-        ScoreHistory.objects.create(tranSappUser_id=TranSappUser.objects.first().id, scoreEvent=score,
+        score_obj = ScoreEvent.objects.create(code="111", score=100)
+        ScoreHistory.objects.create(tranSappUser_id=TranSappUser.objects.first().id, scoreEvent=score_obj,
                                     timeCreation=timezone.now())
 
     def testGlobalPositionCrontabWithScoreEvent(self):
@@ -31,19 +31,19 @@ class CronTasksTestCase(TestCase):
         cronTasks.updateGlobalRanking()
 
         # check global position
-        previousScore = None
-        previousPosition = None
+        previous_score = None
+        previous_position = None
         for user in TranSappUser.objects.all().order_by("-globalScore"):
-            if previousScore is None:
-                previousScore = user.globalScore
-                previousPosition = user.globalPosition
+            if previous_score is None:
+                previous_score = user.globalScore
+                previous_position = user.globalPosition
                 continue
-            if user.globalScore < previousScore:
-                self.assertEquals(user.globalPosition, previousPosition + 1)
+            if user.globalScore < previous_score:
+                self.assertEquals(user.globalPosition, previous_position + 1)
             else:
-                self.assertEquals(user.globalPosition, previousPosition)
-            previousPosition = user.globalPosition
-            previousScore = user.globalScore
+                self.assertEquals(user.globalPosition, previous_position)
+            previous_position = user.globalPosition
+            previous_score = user.globalScore
 
     def testGlobalPositionCrontabWithoutScoreEvent(self):
         """ test method used by crontab to reorder users based on globalScore updating globalPosition but without

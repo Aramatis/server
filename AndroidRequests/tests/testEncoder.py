@@ -11,7 +11,7 @@ import uuid
 class EncoderTest(TransactionTestCase):
 
     def test_DictWithUUIDField(self):
-        """ serialize dictionary with uuid attribute  """
+        """ serialize dictionary with uuid attribute """
 
         # create object
         datetime_object = datetime.now()

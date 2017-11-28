@@ -1,14 +1,12 @@
-import json
-
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 
-# views
 from AndroidRequests.allviews.ServiceRoute import ServiceRoute
-# my stuff
-from AndroidRequests.models import Route, GTFS
+from gtfs.models import Route, GTFS
+
+import json
 
 
 class ServiceRouteTestCase(TestCase):
@@ -92,23 +90,23 @@ class ServiceRouteTestCase(TestCase):
         request = self.factory.get('/android/requestRouteForService/')
         request.user = AnonymousUser()
 
-        reponseView = ServiceRoute()
+        reponse_view = ServiceRoute()
         lat1 = 1
         lon1 = 1
         lat2 = 2
         lon2 = 2
-        response = reponseView.get(
+        response = reponse_view.get(
             request, self.service, lat1, lon1, lat2, lon2)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        self.assertEqual(jsonResponse['service'], self.service)
-        self.assertEqual(jsonResponse['statusMessage'], "ok")
-        self.assertEqual(jsonResponse['statusCode'], "200")
+        self.assertEqual(json_response['service'], self.service)
+        self.assertEqual(json_response['statusMessage'], "ok")
+        self.assertEqual(json_response['statusCode'], "200")
 
         index = 1
 
-        for route in jsonResponse['route']:
+        for route in json_response['route']:
             if index < 6:
                 self.assertEqual(route['variant'], self.serviceCodeI)
             else:
@@ -125,17 +123,17 @@ class ServiceRouteTestCase(TestCase):
         request = self.factory.get('/android/requestRouteForService/')
         request.user = AnonymousUser()
 
-        reponseView = ServiceRoute()
+        reponse_view = ServiceRoute()
         lat1 = 1
         lon1 = 1
         lat2 = 2
         lon2 = 2
-        response = reponseView.get(request, '507', lat1, lon1, lat2, lon2)
+        response = reponse_view.get(request, '507', lat1, lon1, lat2, lon2)
 
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
-        self.assertEqual(jsonResponse['service'], '507')
+        self.assertEqual(json_response['service'], '507')
         self.assertEqual(
-            jsonResponse['statusMessage'],
+            json_response['statusMessage'],
             "Service does not have route in the database.")
-        self.assertEqual(jsonResponse['statusCode'], "300")
+        self.assertEqual(json_response['statusCode'], "300")

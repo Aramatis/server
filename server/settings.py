@@ -93,13 +93,14 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'django_crontab',
     'AndroidRequests',
-    'MapLocationOfUsers',
+    'maplocationofusers',
     'modelsdoc',
     'DataDictionary',
     'PredictorDTPM',
     'routeplanner',
     'AndroidRequestsBackups',
     'onlinegps',
+    'gtfs'
 )
 
 from django.http import HttpResponse
@@ -308,6 +309,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+# set login url
+LOGIN_URL = "/admin/login"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/

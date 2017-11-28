@@ -1,36 +1,43 @@
-import logging
-import os
-
-from django.conf import settings
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
 
-# import DB's models
-from AndroidRequests.models import Report
+from AndroidRequests.models import Report, TranSappUser
 from AndroidRequests.encoder import TranSappJSONEncoder
+from AndroidRequests.statusResponse import Status
+
+import logging
 
 
 class IncorrectExtensionImageError(Exception):
     """ Image extension is not valid """
+    def __str__(self):
+        return "Extension image is not valid."
 
 
 class EmptyTextMessageError(Exception):
     """ Text message is empty """
+    def __str__(self):
+        return "It has to exist a text message."
 
 
 class EmptyPhoneIdError(Exception):
     """ PhoneId is empty """
+    def __str__(self):
+        return "It has to exist a user id."
 
 
 class RegisterReport(View):
     """This class handles requests for report an event not supported by the system."""
 
     def __init__(self):
-        self.context = {}
+        super(RegisterReport, self).__init__()
+        self.logger = logging.getLogger(__name__)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -38,68 +45,121 @@ class RegisterReport(View):
 
     def post(self, request):
         """ It receives the data for the free report """
-
-        logger = logging.getLogger(__name__)
-
         fine = False
         message = 'Report saved.'
 
-        if request.method == 'POST':
-            text = request.POST.get('text', '')
-            stringImage = request.POST.get('img', '')
-            if stringImage is not None:
-                stringImage = stringImage.decode('base64')
-            extension = request.POST.get('ext', '')
-            aditionalInfo = request.POST.get('reportInfo', '')
-            pPhoneId = request.POST.get('userId', '')
-            pTimeStamp = timezone.now()
+        text = request.POST.get('text', '')
+        string_image = request.POST.get('img', '')
+        if string_image is not None:
+            string_image = string_image.decode('base64')
+        extension = request.POST.get('ext', '')
+        additional_info = request.POST.get('reportInfo', '')
+        phone_id = request.POST.get('userId', '')
+        time_stamp = timezone.now()
 
+        try:
+            if text == '':
+                raise EmptyTextMessageError
+            if phone_id == '':
+                raise EmptyPhoneIdError
+
+            report = Report.objects.create(
+                timeStamp=time_stamp,
+                phoneId=phone_id,
+                message=text,
+                reportInfo=additional_info,
+                imageName=None)
+            fine = True
+        except EmptyPhoneIdError as e:
+            message = 'Has to exist a user id.'
+            self.logger.error(str(e))
+        except EmptyTextMessageError as e:
+            message = 'Has to exist a text message.'
+            self.logger.error(str(e))
+        except (IntegrityError, ValueError) as e:
+            message = 'Error to create record.'
+            self.logger.error(str(e))
+        else:
             try:
-                if text == '':
-                    raise EmptyTextMessageError
-                if pPhoneId == '':
-                    raise EmptyPhoneIdError
+                if string_image != '':
+                    if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
+                        raise IncorrectExtensionImageError
 
-                report = Report.objects.create(
-                    timeStamp=pTimeStamp,
-                    phoneId=pPhoneId,
-                    message=text,
-                    reportInfo=aditionalInfo,
-                    imageName=None)
-                fine = True
-            except EmptyPhoneIdError as e:
-                message = 'Has to exist a user id.'
-                logger.error(str(e))
-            except EmptyTextMessageError as e:
-                message = 'Has to exist a text message.'
-                logger.error(str(e))
-            except (IntegrityError, ValueError) as e:
-                message = 'Error to create record.'
-                logger.error(str(e))
-            else:
-                try:
-                    if stringImage != '':
-                        if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
-                            raise IncorrectExtensionImageError
-
-                        imageName = str(
-                            report.pk) + "_" + pTimeStamp.strftime('%H-%M-%S_%Y-%m-%d') + "." + extension
-                        path = os.path.join(settings.MEDIA_IMAGE, imageName)
-                        imageFile = open(path, "wb")
-                        imageFile.write(stringImage)
-                        imageFile.close()
-                        report.imageName = imageName
-                        report.save()
-                except IncorrectExtensionImageError as e:
-                    logger.error(str(e))
-                    message = 'Extension image is not valid.'
-                    report.delete()
-                    fine = False
-                except Exception as e:
-                    logger.error(str(e))
-                    message = 'Error to save image'
-                    report.delete()
-                    fine = False
+                    image_name = str(report.pk) + "_" + time_stamp.strftime('%H-%M-%S_%Y-%m-%d') + "." + extension
+                    report.imageFile.save(image_name, ContentFile(string_image))
+                    report.imageName = image_name
+                    report.save()
+            except IncorrectExtensionImageError as e:
+                self.logger.error(str(e))
+                message = 'Extension image is not valid.'
+                report.delete()
+                fine = False
+            except Exception as e:
+                self.logger.error(str(e))
+                message = 'Error to save image'
+                report.delete()
+                fine = False
 
         response = {'valid': fine, 'message': message}
+        return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)
+
+
+class RegisterReportV2(View):
+    """ save free report generated by users """
+
+    def __init__(self):
+        super(RegisterReportV2, self).__init__()
+        self.logger = logging.getLogger(__name__)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RegisterReportV2, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        """ It receives the data for the free report """
+        response = {}
+        Status.getJsonStatus(Status.OK, response)
+
+        text = request.POST.get('text', '')
+        string_image = request.POST.get('img', '')
+        if string_image is not None:
+            string_image = string_image.decode('base64')
+        extension = request.POST.get('ext', '')
+        additional_info = request.POST.get('reportInfo', '')
+        phone_id = request.POST.get('phoneId', '')
+        timestamp = timezone.now()
+
+        user_id = request.POST.get('userId')
+        session_token = request.POST.get('sessionToken')
+
+        try:
+            if text == '':
+                raise EmptyTextMessageError
+            if phone_id == '':
+                raise EmptyPhoneIdError
+
+            transapp_user = None
+            try:
+                transapp_user = TranSappUser.objects.get(userId=user_id, sessionToken=session_token)
+            except (TranSappUser.DoesNotExist, ValidationError):
+                pass
+            report = Report(
+                timeStamp=timestamp,
+                phoneId=phone_id,
+                message=text,
+                reportInfo=additional_info,
+                imageName=None,
+                tranSappUser=transapp_user)
+
+            if string_image != '':
+                if extension.upper() not in ['JPG', 'JPEG', 'PNG']:
+                    raise IncorrectExtensionImageError
+
+                image_name = timestamp.strftime('%H-%M-%S_%Y-%m-%d') + "." + extension
+                report.imageFile.save(image_name, ContentFile(string_image))
+            report.save()
+        except (EmptyTextMessageError, EmptyPhoneIdError, IncorrectExtensionImageError) as e:
+            self.logger.error(str(e))
+            Status.getJsonStatus(Status.REPORT_CAN_NOT_BE_SAVED, response)
+
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

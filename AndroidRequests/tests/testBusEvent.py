@@ -1,4 +1,4 @@
-from django.test import TransactionTestCase, RequestFactory
+from django.test import TransactionTestCase
 from django.utils import timezone
 
 from AndroidRequests.models import Busv2, Busassignment, Event, EventForBusv2
@@ -9,114 +9,107 @@ import AndroidRequests.constants as constants
 
 class BusEventTest(TransactionTestCase):
     """ test for bus events """
+    fixtures = ["events"]
 
     def setUp(self):
         """ this method will automatically call for every single test """
-        # for testing requests inside the project
-        self.factory = RequestFactory()
-
-        self.phoneId = "067e6162-3b6f-4ae2-a171-2470b63dff00"
-
+        self.phone_id = "067e6162-3b6f-4ae2-a171-2470b63dff00"
         self.route = '507'
-        self.stop = 'PA459'
+        self.stop_code = 'PA459'
 
         self.test = TestHelper(self)
-        self.test.insertEventsOnDatabase()
         self.test.insertServicesOnDatabase([self.route])
-        self.test.insertBusstopsOnDatabase([self.stop])
+        self.test.insertBusstopsOnDatabase([self.stop_code])
 
     def test_EventsByBusWithDummyLicensePlate(self):
         """This method test the bus with a dummy license plate """
 
-        licencePlate = constants.DUMMY_LICENSE_PLATE
-        self.test.getInBusWithLicencePlateByPost(
-            self.phoneId, self.route, licencePlate)
-        eventCode = 'evn00202'
+        license_plate = constants.DUMMY_LICENSE_PLATE
+        self.test.getInBusWithLicencePlateByPost(self.phone_id, self.route, license_plate)
+        event_id = 'evn00202'
 
         # submitting one event to the server
-        jsonResponse = self.test.reportEvent(
-            self.phoneId, self.route, licencePlate, eventCode)
+        json_response = self.test.reportEvent(
+            self.phone_id, self.route, license_plate, event_id)
 
-        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
-        self.assertEqual(jsonResponse['service'], self.route)
-        self.assertEqual(len(jsonResponse['events']), 1)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 1)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
+        self.assertEqual(json_response['registrationPlate'], license_plate)
+        self.assertEqual(json_response['service'], self.route)
+        self.assertEqual(len(json_response['events']), 1)
+        self.assertEqual(json_response['events'][0]['eventDecline'], 0)
+        self.assertEqual(json_response['events'][0]['eventConfirm'], 1)
+        self.assertEqual(json_response['events'][0]['eventcode'], event_id)
 
     def test_EventsByBus(self):
         """This method test two thing, the posibility to report an event and asking
         the events for the specific bus"""
 
-        licencePlate = 'AA0000'
-        eventCode = 'evn00202'
+        license_plate = 'AA0000'
+        event_id = 'evn00202'
         self.test.getInBusWithLicencePlateByPost(
-            self.phoneId, self.route, licencePlate)
+            self.phone_id, self.route, license_plate)
 
         # submitting one event to the server
-        jsonResponse = self.test.reportEvent(
-            self.phoneId, self.route, licencePlate, eventCode)
+        json_response = self.test.reportEvent(
+            self.phone_id, self.route, license_plate, event_id)
 
-        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 1)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
+        self.assertEqual(json_response['registrationPlate'], license_plate)
+        self.assertEqual(json_response['events'][0]['eventDecline'], 0)
+        self.assertEqual(json_response['events'][0]['eventConfirm'], 1)
+        self.assertEqual(json_response['events'][0]['eventcode'], event_id)
 
         # ===================================================================================
         # do event +1 to the event
-        jsonResponse = self.test.confirmOrDeclineEvent(
-            self.phoneId, self.route, licencePlate, eventCode, EventForBusv2.CONFIRM)
+        json_response = self.test.confirmOrDeclineEvent(
+            self.phone_id, self.route, license_plate, event_id, EventForBusv2.CONFIRM)
 
-        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 2)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
+        self.assertEqual(json_response['registrationPlate'], license_plate)
+        self.assertEqual(json_response['events'][0]['eventDecline'], 0)
+        self.assertEqual(json_response['events'][0]['eventConfirm'], 2)
+        self.assertEqual(json_response['events'][0]['eventcode'], event_id)
 
         # do event -1 to the event
-        jsonResponse = self.test.confirmOrDeclineEvent(
-            self.phoneId, self.route, licencePlate, eventCode, EventForBusv2.DECLINE)
+        json_response = self.test.confirmOrDeclineEvent(
+            self.phone_id, self.route, license_plate, event_id, EventForBusv2.DECLINE)
 
-        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 2)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
+        self.assertEqual(json_response['registrationPlate'], license_plate)
+        self.assertEqual(json_response['events'][0]['eventDecline'], 1)
+        self.assertEqual(json_response['events'][0]['eventConfirm'], 2)
+        self.assertEqual(json_response['events'][0]['eventcode'], event_id)
 
         # ask for events
-        jsonResponse = self.test.requestEventsForBus(
-            self.route, licencePlate)
+        json_response = self.test.requestEventsForBus(
+            self.route, license_plate)
 
-        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 1)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 2)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
+        self.assertEqual(json_response['registrationPlate'], license_plate)
+        self.assertEqual(json_response['events'][0]['eventDecline'], 1)
+        self.assertEqual(json_response['events'][0]['eventConfirm'], 2)
+        self.assertEqual(json_response['events'][0]['eventcode'], event_id)
 
         # change manually the timeStamp to simulate an event that has expired
-        bus = Busv2.objects.get(registrationPlate=licencePlate)
-        busassignment = Busassignment.objects.get(
-            uuid=bus, service=self.route)
-        event = Event.objects.get(id=eventCode)
-        anEvent = EventForBusv2.objects.get(
-            busassignment=busassignment, event=event)
+        bus = Busv2.objects.get(registrationPlate=license_plate)
+        busassignment = Busassignment.objects.get(uuid=bus, service=self.route)
+        event = Event.objects.get(id=event_id)
+        event_for_bus_obj = EventForBusv2.objects.get(busassignment=busassignment, event=event)
 
-        anEvent.timeStamp = anEvent.timeStamp - timezone.timedelta(minutes=event.lifespam)
-        anEvent.timeCreation = anEvent.timeCreation - timezone.timedelta(minutes=event.lifespam)
-        anEvent.expireTime = anEvent.expireTime - timezone.timedelta(minutes=event.lifespam)
-        anEvent.save()
+        event_for_bus_obj.timeStamp = event_for_bus_obj.timeStamp - timezone.timedelta(minutes=event.lifespam)
+        event_for_bus_obj.timeCreation = event_for_bus_obj.timeCreation - timezone.timedelta(minutes=event.lifespam)
+        event_for_bus_obj.expireTime = event_for_bus_obj.expireTime - timezone.timedelta(minutes=event.lifespam)
+        event_for_bus_obj.save()
 
         # ask for events and the answer should be none
-        jsonResponse = self.test.reportEvent(
-            self.phoneId, self.route, licencePlate, eventCode)
-        self.assertEqual(jsonResponse['events'][0]['eventDecline'], 0)
-        self.assertEqual(jsonResponse['events'][0]['eventConfirm'], 1)
-        self.assertEqual(jsonResponse['events'][0]['eventcode'], eventCode)
+        json_response = self.test.reportEvent(
+            self.phone_id, self.route, license_plate, event_id)
+        self.assertEqual(json_response['events'][0]['eventDecline'], 0)
+        self.assertEqual(json_response['events'][0]['eventConfirm'], 1)
+        self.assertEqual(json_response['events'][0]['eventcode'], event_id)
 
     def test_AskForEventsOfNonExistentBus(self):
         # ask for events for a bus that does not exists
-        licencePlate = 'AABB00'
+        license_plate = 'AABB00'
 
-        jsonResponse = self.test.requestEventsForBus(
-            self.route, licencePlate)
+        json_response = self.test.requestEventsForBus(
+            self.route, license_plate)
 
-        self.assertEqual(len(jsonResponse['events']), 0)
-        self.assertEqual(jsonResponse['registrationPlate'], licencePlate)
-        self.assertEqual(jsonResponse['service'], self.route)
+        self.assertEqual(len(json_response['events']), 0)
+        self.assertEqual(json_response['registrationPlate'], license_plate)
+        self.assertEqual(json_response['service'], self.route)

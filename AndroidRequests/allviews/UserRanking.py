@@ -15,60 +15,60 @@ class UserRanking(View):
     UPPER_USERS = 5
     LOWER_USERS = 5
 
-    def getRanking(self, user):
+    def get_ranking(self, user):
         """ return ranking list """
 
         with transaction.atomic():
-            topUsers = TranSappUser.objects.select_related("level"). \
+            top_users = TranSappUser.objects.select_related("level"). \
                             order_by("-globalScore", "globalPosition")[:self.TOP_USERS]
-            upperUsers = TranSappUser.objects.select_related("level").filter(globalScore__gt=user.globalScore). \
-                             order_by("globalScore", "globalPosition")[:self.UPPER_USERS]
-            lowerUsers = TranSappUser.objects.select_related("level").filter(globalScore__lte=user.globalScore). \
-                             order_by("-globalScore", "globalPosition")[:self.LOWER_USERS]
+            upper_users = TranSappUser.objects.select_related("level").filter(globalScore__gt=user.globalScore). \
+                              order_by("globalScore", "globalPosition")[:self.UPPER_USERS]
+            lower_users = TranSappUser.objects.select_related("level").filter(globalScore__lte=user.globalScore). \
+                              order_by("-globalScore", "globalPosition")[:self.LOWER_USERS]
 
-        topRanking = [topUser.getDictionary() for topUser in topUsers]
-        nearRanking = [upperUser.getDictionary() for upperUser in upperUsers]
-        nearRanking.reverse()
-        nearRanking += [lowerUser.getDictionary() for lowerUser in lowerUsers]
+        top_ranking = [top_user.get_dictionary() for top_user in top_users]
+        near_ranking = [upper_user.get_dictionary() for upper_user in upper_users]
+        near_ranking.reverse()
+        near_ranking += [lower_user.get_dictionary() for lower_user in lower_users]
 
         # if user ask between updates simulate position
         cache = {}
-        newTopRanking = []
+        new_top_ranking = []
         position = 0
-        for user in topRanking:
+        for user in top_ranking:
             if user["globalScore"] in user.keys():
                 user["ranking"]["globalPosition"] = cache[user["globalScore"]]
             else:
                 position += 1
                 cache[user["globalScore"]] = position
                 user["ranking"]["globalPosition"] = position
-            newTopRanking.append(user)
+            new_top_ranking.append(user)
 
-        newNearRanking = []
-        position = nearRanking[0]["ranking"]["globalPosition"] - 1 if len(nearRanking) > 0 else None
-        for user in nearRanking:
+        new_near_ranking = []
+        position = near_ranking[0]["ranking"]["globalPosition"] - 1 if len(near_ranking) > 0 else None
+        for user in near_ranking:
             if user["globalScore"] in user.keys():
                 user["ranking"]["globalPosition"] = cache[user["globalScore"]]
             else:
                 position += 1
                 cache[user["globalScore"]] = position
                 user["ranking"]["globalPosition"] = position
-            newNearRanking.append(user)
+            new_near_ranking.append(user)
 
-        return newTopRanking, newNearRanking
+        return new_top_ranking, new_near_ranking
 
     def get(self, request):
         """return list of ranking with @TOP_USERS + @UPPER_USERS + @LOWER_USERS """
 
-        userId = request.GET.get("userId")
-        sessionToken = request.GET.get("sessionToken")
+        user_id = request.GET.get("userId")
+        session_token = request.GET.get("sessionToken")
 
-        loggedUser, user, statusResponse = UserValidation().validateUser(userId, sessionToken)
+        logged_user, user, status_response = UserValidation().validate_user(user_id, session_token)
 
         response = defaultdict(dict)
-        response.update(statusResponse)
+        response.update(status_response)
 
-        if loggedUser:
-            response["ranking"]["top"], response["ranking"]["near"] = self.getRanking(user)
+        if logged_user:
+            response["ranking"]["top"], response["ranking"]["near"] = self.get_ranking(user)
 
         return JsonResponse(response, safe=False, encoder=TranSappJSONEncoder)

@@ -53,7 +53,7 @@ class RoutePlannerTest(TestCase):
         #    'destination': destination}
         response = c.get(URL, data)
         self.assertEqual(response.status_code, 200)
-        jsonResponse = json.loads(response.content)
+        #jsonResponse = json.loads(response.content)
         #print jsonResponse
 
     def test_calculateTripWithGoodParams(self):

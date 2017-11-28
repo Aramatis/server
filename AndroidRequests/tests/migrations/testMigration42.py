@@ -56,22 +56,22 @@ class Migration42Test(TestMigrations):
 
         level = Level.objects.create(position=1)
         self.tranSappUser = TranSappUser.objects.create(phoneId=uuid.uuid4(), sessionToken=uuid.uuid4(), level=level,
-                                                   globalPosition=1)
+                                                        globalPosition=1)
         bus = Bus.objects.create(uuid=uuid.uuid4())
-        busAssignment = Busassignment.objects.create(uuid=bus)
+        bus_assignment = Busassignment.objects.create(uuid=bus)
 
         self.uuidToken = uuid.uuid4()
-        token = self.Token.objects.create(token=self.uuidToken, phoneId=uuid.uuid4(), busassignment=busAssignment)
+        token = self.Token.objects.create(token=self.uuidToken, phoneId=uuid.uuid4(), busassignment=bus_assignment)
 
-        scoreEvent = ScoreEvent.objects.create()
-        ScoreHistory.objects.create(tranSappUser=self.tranSappUser, scoreEvent=scoreEvent, timeCreation=timezone.now(),
-                                    score=10, meta="asd %s 12312" % self.uuidToken)
+        score_event_ob = ScoreEvent.objects.create()
+        ScoreHistory.objects.create(tranSappUser=self.tranSappUser, scoreEvent=score_event_ob,
+                                    timeCreation=timezone.now(), score=10, meta="asd %s 12312" % self.uuidToken)
 
         self.timeCreation = timezone.now()
         PoseTrajectoryOfToken.objects.create(token=token, timeStamp=self.timeCreation, longitude=1, latitude=1)
 
     def test_checkMigration(self):
         """ at this point migration was executed and now we have to check asserts """
-        tokenObj = self.Token.objects.get(token=self.uuidToken)
-        self.assertEquals(tokenObj.timeCreation, self.timeCreation)
-        self.assertEquals(tokenObj.tranSappUser_id, self.tranSappUser.id)
+        token_obj = self.Token.objects.get(token=self.uuidToken)
+        self.assertEquals(token_obj.timeCreation, self.timeCreation)
+        self.assertEquals(token_obj.tranSappUser_id, self.tranSappUser.id)

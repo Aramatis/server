@@ -1,0 +1,404 @@
+[
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00000",
+    "fields": {
+        "name": "2 juntos",
+        "description": "2 buses pasan juntos",
+        "lifespam": 1440,
+        "category": "buses juntos",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00001",
+    "fields": {
+        "name": "3 o + juntos",
+        "description": "Más de 2 buses pasan juntos",
+        "lifespam": 1440,
+        "category": "buses juntos",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00010",
+    "fields": {
+        "name": "No hay techo",
+        "description": "Techo dañado o ausente",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00011",
+    "fields": {
+        "name": "No hay asientos",
+        "description": "No hay asientos",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00012",
+    "fields": {
+        "name": "No hay iluminación",
+        "description": "No hay luces",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},{
+    "model": "AndroidRequests.event",
+    "pk": "evn00013",
+    "fields": {
+        "name": "Falta info de recorridos",
+        "description": "No se informa que servicios pasan",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00014",
+    "fields": {
+        "name": "Sin problema",
+        "description": "Paradero sin problemas",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00020",
+    "fields": {
+        "name": "Robos o desordenes",
+        "description": "Se presencian robos o disturbios",
+        "lifespam": 30,
+        "category": "ambiente",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00021",
+    "fields": {
+        "name": "Ebrio",
+        "description": "Personas ebrias en el paradero",
+        "lifespam": 30,
+        "category": "ambiente",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00022",
+    "fields": {
+        "name": "Paradero lleno",
+        "description": "Paradero está lleno de personas",
+        "lifespam": 30,
+        "category": "ambiente",
+        "origin": "o",
+        "eventType": "busStop"
+    }
+},{
+    "model": "AndroidRequests.event",
+    "pk": "evn00100",
+    "fields": {
+        "name": "Bus en tránsito",
+        "description": "El bus pasó en tránsito",
+        "lifespam": 0,
+        "category": "desde paradero",
+        "origin": "o",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00101",
+    "fields": {
+        "name": "Bus vacío no se detuvo",
+        "description": "Bus con pocos pasajeros y no para",
+        "lifespam": 0,
+        "category": "desde paradero",
+        "origin": "o",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00102",
+    "fields": {
+        "name": "Bus lleno no se detuvo",
+        "description": "Bus con muchos pasajeros y no para",
+        "lifespam": 0,
+        "category": "desde paradero",
+        "origin": "o",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00200",
+    "fields": {
+        "name": "Imposible moverse",
+        "description": "No se puede transitar por el bus",
+        "lifespam": 20,
+        "category": "hacinamiento",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00201",
+    "fields": {
+        "name": "Se camina con dificultad",
+        "description": "Es difícil transitar por el bus",
+        "lifespam": 20,
+        "category": "hacinamiento",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},{
+    "model": "AndroidRequests.event",
+    "pk": "evn00202",
+    "fields": {
+        "name": "No hay asientos disponibles",
+        "description": "No hay asientos disponibles",
+        "lifespam": 20,
+        "category": "hacinamiento",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00203",
+    "fields": {
+        "name": "Hay asientos disponibles",
+        "description": "Hay asientos disponibles",
+        "lifespam": 20,
+        "category": "hacinamiento",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00210",
+    "fields": {
+        "name": "Están Robando",
+        "description": "En el bus se presenció un robo",
+        "lifespam": 20,
+        "category": "incidentes en el bus",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00211",
+    "fields": {
+        "name": "Están Bebiendo",
+        "description": "Pasajeros bebiendo en el bus",
+        "lifespam": 20,
+        "category": "incidentes en el bus",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00212",
+    "fields": {
+        "name": "Grupo haciendo desorden",
+        "description": "Gente haciendo desorden en el bus",
+        "lifespam": 20,
+        "category": "incidentes en el bus",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},{
+    "model": "AndroidRequests.event",
+    "pk": "evn00213",
+    "fields": {
+        "name": "Todo tranquilo",
+        "description": "No hay incidentes en el bus",
+        "lifespam": 20,
+        "category": "incidentes en el bus",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00220",
+    "fields": {
+        "name": "Puerta en mal estado",
+        "description": "Puerta(s) en mal estado",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00221",
+    "fields": {
+        "name": "Pasamanos en mal estado",
+        "description": "Pasamano(s) en mal estado",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00222",
+    "fields": {
+        "name": "Ventana en mal estado",
+        "description": "Ventana(s) en mal estado",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00223",
+    "fields": {
+        "name": "Timbre en mal estado",
+        "description": "Timbre(s) en mal estado",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},{
+    "model": "AndroidRequests.event",
+    "pk": "evn00224",
+    "fields": {
+        "name": "Sucio",
+        "description": "El bus está sucio",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00225",
+    "fields": {
+        "name": "Bus en buen estado",
+        "description": "El bus está en buenas condiciones",
+        "lifespam": 129600,
+        "category": "estado físico",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00230",
+    "fields": {
+        "name": "Conducción brusca",
+        "description": "Chofer realiza maniobras bruscas",
+        "lifespam": 30,
+        "category": "conductor",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00231",
+    "fields": {
+        "name": "No para en paradero",
+        "description": "El bus no paró en el paradero",
+        "lifespam": 180,
+        "category": "conductor",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00232",
+    "fields": {
+        "name": "Habla por celular",
+        "description": "Conductor habla por celular",
+        "lifespam": 30,
+        "category": "conductor",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},{
+    "model": "AndroidRequests.event",
+    "pk": "evn00233",
+    "fields": {
+        "name": "Buen comportamiento",
+        "description": "Conductor maneja bien",
+        "lifespam": 30,
+        "category": "conductor",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00240",
+    "fields": {
+        "name": "Taco",
+        "description": "El bus está en un taco",
+        "lifespam": 20,
+        "category": "incidente en la via",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00241",
+    "fields": {
+        "name": "Accidente",
+        "description": "El bus pasó cerca de un accidente",
+        "lifespam": 20,
+        "category": "incidente en la via",
+        "origin": "i",
+        "eventType": "bus"
+    }
+},
+{
+    "model": "AndroidRequests.event",
+    "pk": "evn00242",
+    "fields": {
+        "name": "Sin novedad",
+        "description": "Sin incidente en la vía",
+        "lifespam": 20,
+        "category": "incidente en la via",
+        "origin": "i",
+        "eventType": "bus"
+    }
+}
+]
