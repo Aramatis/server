@@ -249,11 +249,11 @@ class EventForBusv2(EventRegistration):
         return dictionary
 
 
-class ServiceNotFoundException(Exception):
+class RouteNotFoundException(Exception):
     """ error produced when service information does not exist in service table """
 
 
-class ServiceDistanceNotFoundException(Exception):
+class RouteDistanceNotFoundException(Exception):
     """ error produced when it is not possible to get distance between a service and bus stop """
 
 
@@ -300,14 +300,14 @@ class Busassignment(models.Model):
             route_code = ServicesByBusStop.objects.get(busStop=stop_obj, service__service=self.service,
                                                        gtfs__version=settings.GTFS_VERSION).code
         except ServicesByBusStop.DoesNotExist:
-            raise ServiceNotFoundException(
+            raise RouteNotFoundException(
                 "Service {} is not present in bus stop {}".format(self.service, stop_obj.code))
 
         try:
             route_distance = ServiceStopDistance.objects.get(busStop=stop_obj, service=route_code,
                                                              gtfs__version=settings.GTFS_VERSION).distance
         except ServiceStopDistance.DoesNotExist:
-            raise ServiceDistanceNotFoundException(
+            raise RouteDistanceNotFoundException(
                 "The distance is not possible getting for bus stop '{}' and service '{}'".format(stop_obj.code,
                                                                                                  route_code))
 
@@ -397,7 +397,7 @@ class Busassignment(models.Model):
             route_code = ServicesByBusStop.objects.filter(busStop__code=stop_code, service__service=self.service,
                                                           gtfs__version=settings.GTFS_VERSION).only('code').first().code
         except AttributeError:
-            raise ServiceNotFoundException("Service {} is not present in bus stop {}".format(self.service, stop_code))
+            raise RouteNotFoundException("Service {} is not present in bus stop {}".format(self.service, stop_code))
 
         try:
             ssd = ServiceStopDistance.objects.filter(

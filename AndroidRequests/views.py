@@ -9,7 +9,7 @@ from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
 from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, \
     ServicesByBusStop, Token
-from AndroidRequests.models import ServiceNotFoundException, ServiceDistanceNotFoundException, \
+from AndroidRequests.models import RouteNotFoundException, RouteDistanceNotFoundException, \
     RouteDoesNotStopInBusStop, ThereIsNotClosestLocation
 
 import AndroidRequests.constants as constants
@@ -41,7 +41,12 @@ def save_user_position(request, phone_id, latitude, longitude):
 
 
 def nearby_buses(request, phone_id, stop_code):
-    """ return all information about bus stop: events and buses """
+    """
+    Return all information about bus stop: events and buses
+    :param request: django request object
+    :param phone_id: phone identifier
+    :param stop_code: user stop identifier
+    """
 
     logger = logging.getLogger(__name__)
 
@@ -233,9 +238,8 @@ def get_user_buses(stop_obj, questioner):
 
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
-                bus['sentido'] = token_obj.busassignment.get_direction(
-                    stop_obj, 30)
-            except Exception as e:
+                bus['sentido'] = token_obj.busassignment.get_direction(stop_obj, 30)
+            except (RouteNotFoundException, RouteDistanceNotFoundException) as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
 
@@ -338,7 +342,7 @@ def get_authority_buses(stop_obj, data):
 
         try:
             bus_data = bus_assignment.get_estimated_location(stop_code, distance)
-        except (ServiceNotFoundException, ServiceDistanceNotFoundException, RouteDoesNotStopInBusStop,
+        except (RouteNotFoundException, RouteDistanceNotFoundException, RouteDoesNotStopInBusStop,
                 ThereIsNotClosestLocation) as e:
             logger.error("Trying to get estimated location: " + str(e))
             bus_data = {'latitude': 500, 'longitude': 500, 'direction': 'I'}
@@ -352,9 +356,8 @@ def get_authority_buses(stop_obj, data):
             service=service['servicio'], gtfs__version=settings.GTFS_VERSION).values_list('color_id', flat=True)[0]
 
         try:
-            service['sentido'] = bus_assignment.get_direction(
-                stop_obj, distance)
-        except Exception as e:
+            service['sentido'] = bus_assignment.get_direction(stop_obj, distance)
+        except (RouteNotFoundException, RouteDistanceNotFoundException) as e:
             logger.error(str(e))
             service['sentido'] = "left"
 
