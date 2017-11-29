@@ -252,7 +252,7 @@ class Busv2(models.Model):
     """Represent a bus like the unique combination of registration plate and service as one.
     So there can be two buses with the same service and two buses with the same registration plate.
     The last thing means that one fisical bus can work in two different services."""
-    registrationPlate = models.CharField(max_length=8)
+    registrationPlate = models.CharField(max_length=8, db_index=True)
     """ It's the registration plate for the bus, without hyphen """
     # service = models.CharField(max_length=5, null=False, blank=False)
     # """ It indicates the service performed by the bus """
