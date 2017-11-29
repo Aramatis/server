@@ -83,12 +83,12 @@ class GetMapPositionsTest(TestCase):
     def test_getGetMapTrajectory(self):
         """this test the trajectory that the server gives to the map. """
 
-        timeStampNow = str(timezone.localtime(timezone.now()))
-        timeStampNow = timeStampNow[0:19]
-        testPoses = {"poses": [
+        time_stamp_now = str(timezone.localtime(timezone.now()))
+        time_stamp_now = time_stamp_now[0:19]
+        test_locations = {"poses": [
             {"latitud": -33.458771,
              "longitud": -70.676266,
-             "timeStamp": str(timeStampNow),
+             "timeStamp": str(time_stamp_now),
              "inVehicleOrNot": "vehicle"},
             {"latitud": -33.458699,
              "longitud": -70.675708,
@@ -120,59 +120,58 @@ class GetMapPositionsTest(TestCase):
              "inVehicleOrNot": "vehicle"},
             {"latitud": -33.457070,
              "longitud": -70.660559,
-             "timeStamp": str(timeStampNow),
+             "timeStamp": str(time_stamp_now),
              "inVehicleOrNot": "vehicle"}]}
 
         buses_number = 6
-        testTokens = []
+        test_tokens = []
 
         for cont in range(buses_number):
-            testToken = self.helper.getInBusWithLicencePlateByPost(self.phoneId, "503", "ZZZZ00")
-            testTokens.append(testToken)
+            test_token = self.helper.getInBusWithLicencePlateByPost(self.phoneId, "503", "ZZZZ00")
+            test_tokens.append(test_token)
 
         # save last token
-        timeOutToken = testTokens[-1]
+        timeout_token = test_tokens[-1]
 
         for cont in range(buses_number):
-            self.helper.sendFakeTrajectoryOfToken(testTokens[cont], testPoses)
+            self.helper.sendFakeTrajectoryOfToken(test_tokens[cont], test_locations)
 
-        nonTrajectory = PoseInTrajectoryOfToken.objects.filter(
-            token__token=timeOutToken)
-        for data in nonTrajectory:
+        non_trajectory = PoseInTrajectoryOfToken.objects.filter(
+            token__token=timeout_token)
+        for data in non_trajectory:
             data.timeStamp = data.timeStamp - timezone.timedelta(minutes=61)
             data.save()
 
         url = reverse("map:activetrajectory")
         response = self.client.get(url)
 
-        responseMessage = json.loads(response.content)
+        response_message = json.loads(response.content)
 
         # all tokens given by GetMapTrajectory are different of timeOutToken
         # and its positions is the most recent
-        for aMsg in responseMessage:
-            print(aMsg)
-            self.assertTrue(aMsg['token'] != timeOutToken)
-            self.assertEqual(aMsg["lastPose"][1], -70.676266)
-            self.assertEqual(aMsg["lastPose"][0], -33.458771)
+        for msg in response_message:
+            self.assertTrue(msg['token'] != timeout_token)
+            self.assertEqual(msg["lastPose"][1], -70.676266)
+            self.assertEqual(msg["lastPose"][0], -33.458771)
 
-        self.assertEqual(len(responseMessage), len(testTokens) - 1)
+        self.assertEqual(len(response_message), len(test_tokens) - 1)
 
     def test_gamificatedUsersByDay(self):
         self.helper.createTranSappUsers(100)
 
         day = timezone.now()
         distribution = [1, 3, 25, 5, 0, 10, 30, 26]
-        currentUserNumber = 0
+        current_user_number = 0
         distribution_index = 0
         for user in TranSappUser.objects.all().iterator():
-            if currentUserNumber == distribution[distribution_index]:
+            if current_user_number == distribution[distribution_index]:
                 distribution_index += 1
-                currentUserNumber = 0
+                current_user_number = 0
                 day = day + timezone.timedelta(days=1)
                 while distribution[distribution_index] == 0:
                     distribution_index += 1
                     day = day + timezone.timedelta(days=1)
-            currentUserNumber += 1
+            current_user_number += 1
             hour = int(random.random()*19 + 4)
             minute = int(random.random()*59)
             day = day.replace(hour=hour, minute=minute)
