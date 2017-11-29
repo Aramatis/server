@@ -337,7 +337,7 @@ def get_authority_buses(stop_obj, data):
         service['random'] = False
 
         try:
-            bus_data = get_estimated_location(stop_code, distance, route)
+            bus_data = get_estimated_location(stop_code, route, distance)
         except (RouteNotFoundException, RouteDistanceNotFoundException, RouteDoesNotStopInBusStop,
                 ThereIsNotClosestLocation) as e:
             logger.error("Trying to get estimated location: " + str(e))
