@@ -7,10 +7,12 @@ from collections import defaultdict
 from AndroidRequests.encoder import TranSappJSONEncoder
 from AndroidRequests.allviews.EventsByBusStop import EventsByBusStop
 from AndroidRequests.allviews.EventsByBusV2 import EventsByBusV2
-from AndroidRequests.models import DevicePositionInTime, BusStop, NearByBusesLog, Busv2, Busassignment, Service, \
-    ServicesByBusStop, Token
-from AndroidRequests.models import RouteNotFoundException, RouteDistanceNotFoundException, \
-    RouteDoesNotStopInBusStop, ThereIsNotClosestLocation
+from AndroidRequests.models import DevicePositionInTime, NearByBusesLog, Busv2, Busassignment, Service, Token
+
+from gtfs.models import BusStop, ServicesByBusStop
+from gtfs.exceptions import RouteNotFoundException, RouteDistanceNotFoundException, RouteDoesNotStopInBusStop, \
+    ThereIsNotClosestLocation
+from gtfs.utils import get_estimated_location, get_direction
 
 import AndroidRequests.constants as constants
 
@@ -235,7 +237,8 @@ def get_user_buses(stop_obj, questioner):
 
             try:
                 # assume that bus is 30 meters from bus stop to predict direction
-                bus['sentido'] = token_obj.busassignment.get_direction(stop_obj, 30)
+                distance = token_obj.get_distance_to(stop_obj.longitude, stop_obj.latitude)
+                bus['sentido'] = get_direction(stop_obj, token_obj.busassignment.service, distance)
             except (RouteNotFoundException, RouteDistanceNotFoundException) as e:
                 logger.error(str(e))
                 bus['sentido'] = "left"
@@ -323,22 +326,18 @@ def get_authority_buses(stop_obj, data):
         if license_plate not in bus_dict.keys():
             bus = Busv2.objects.create(registrationPlate=license_plate)
             service['busId'] = bus.uuid
-            bus_assignment = Busassignment.objects.create(service=route, uuid=bus)
+            Busassignment.objects.create(service=route, uuid=bus)
         else:
             service['busId'] = bus_dict[service['patente']]['uuid']
             if route not in bus_dict[license_plate]['busassignments']:
-                bus_assignment = Busassignment.objects.create(service=route, uuid=bus_obj_dict[license_plate])
-            else:
-                # this uses prefetch related made in busObjList
-                bus_assignment = [b for b in bus_obj_dict[license_plate].busassignment_set.all()
-                                  if b.service == route][0]
+                Busassignment.objects.create(service=route, uuid=bus_obj_dict[license_plate])
 
         service['eventos'] = events_by_machine_id[service['busId']] \
             if service['busId'] in events_by_machine_id.keys() else []
         service['random'] = False
 
         try:
-            bus_data = bus_assignment.get_estimated_location(stop_code, distance)
+            bus_data = get_estimated_location(stop_code, distance, route)
         except (RouteNotFoundException, RouteDistanceNotFoundException, RouteDoesNotStopInBusStop,
                 ThereIsNotClosestLocation) as e:
             logger.error("Trying to get estimated location: " + str(e))
@@ -353,7 +352,7 @@ def get_authority_buses(stop_obj, data):
             service=service['servicio'], gtfs__version=settings.GTFS_VERSION).values_list('color_id', flat=True)[0]
 
         try:
-            service['sentido'] = bus_assignment.get_direction(stop_obj, distance)
+            service['sentido'] = get_direction(stop_obj, route, distance)
         except (RouteNotFoundException, RouteDistanceNotFoundException) as e:
             logger.error(str(e))
             service['sentido'] = "left"

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -249,22 +248,6 @@ class EventForBusv2(EventRegistration):
         return dictionary
 
 
-class RouteNotFoundException(Exception):
-    """ error produced when service information does not exist in service table """
-
-
-class RouteDistanceNotFoundException(Exception):
-    """ error produced when it is not possible to get distance between a service and bus stop """
-
-
-class RouteDoesNotStopInBusStop(Exception):
-    """ error produced when route does not match with stop, so we can not know distance from start point """
-
-
-class ThereIsNotClosestLocation(Exception):
-    """ raise when there is not closest location """
-
-
 class Busv2(models.Model):
     """Represent a bus like the unique combination of registration plate and service as one.
     So there can be two buses with the same service and two buses with the same registration plate.
@@ -293,85 +276,16 @@ class Busassignment(models.Model):
     class Meta:
         unique_together = ('uuid', 'service')
 
-    def get_direction(self, stop_obj, distance):
-        """ Given a bus stop and the distance from the bus to the bus stop,
-            return the address to which point the bus """
-        try:
-            route_code = ServicesByBusStop.objects.get(busStop=stop_obj, service__service=self.service,
-                                                       gtfs__version=settings.GTFS_VERSION).code
-        except ServicesByBusStop.DoesNotExist:
-            raise RouteNotFoundException(
-                "Service {} is not present in bus stop {}".format(self.service, stop_obj.code))
-
-        try:
-            route_distance = ServiceStopDistance.objects.get(busStop=stop_obj, service=route_code,
-                                                             gtfs__version=settings.GTFS_VERSION).distance
-        except ServiceStopDistance.DoesNotExist:
-            raise RouteDistanceNotFoundException(
-                "The distance is not possible getting for bus stop '{}' and service '{}'".format(stop_obj.code,
-                                                                                                 route_code))
-
-        distance = route_distance - int(distance)
-        greaters = ServiceLocation.objects.filter(service=route_code, distance__gt=distance,
-                                                  gtfs__version=settings.GTFS_VERSION).order_by('distance')[:1]
-        lowers = ServiceLocation.objects.filter(service=route_code, distance__lte=distance,
-                                                gtfs__version=settings.GTFS_VERSION).order_by('-distance')[:1]
-
-        # we need two point to detect the bus direction (left, right, up, down)
-        if len(greaters) > 0 and len(lowers) > 0:
-            greater = greaters[0]
-            lower = lowers[0]
-        elif len(greaters) == 0 and len(lowers) == 2:
-            greater = lowers[0]
-            lower = lowers[1]
-        elif len(greaters) == 0 and len(lowers) == 1:
-            greater = lowers[0]
-            lower = lowers[0]
-        elif len(lowers) == 0 and len(greaters) == 2:
-            lower = greaters[0]
-            greater = greaters[1]
-        elif len(lowers) == 0 and len(greaters) == 1:
-            lower = greaters[0]
-            greater = greaters[0]
-        elif len(lowers) == 0 and len(greaters) == 2:
-            lower = greaters[0]
-            greater = greaters[1]
-        elif len(greaters) == 0 and len(lowers) == 0:
-            # there are not points to detect direction
-            logger = logging.getLogger(__name__)
-            logger.info("There is not position to detect bus direction")
-            return "left"
-
-        epsilon = 0.00008
-        x1 = lower.longitude
-        # y1 = lower.latitude
-        x2 = greater.longitude
-        # y2 = greater.latitude
-
-        if abs(x2 - x1) >= epsilon:
-            if x2 - x1 > 0:
-                return "right"
-            else:
-                return "left"
-        else:
-            # we compare bus location with bus stop location
-            x_bus_stop = stop_obj.longitude
-            if x2 - x_bus_stop > 0:
-                return "left"
-            else:
-                return "right"
-
     def get_location(self):
         """This method estimate the location of a bus given one user that is inside or gives a geolocation estimated."""
-        tokens = Token.objects.filter(busassignment=self)
-        last_date = timezone.now() - timezone.timedelta(minutes=5)
+        tokens = Token.objects.filter(busassignment=self, activetoken__isnull=False)
+        minutes = 5
+        last_date = timezone.now() - timezone.timedelta(minutes=minutes)
         passengers = 0
         lat = -500
         lon = -500
         random = True
         for token in tokens:
-            if not hasattr(token, 'activetoken'):
-                continue
             passengers += 1
             try:
                 last_pose = PoseInTrajectoryOfToken.objects.filter(
@@ -385,51 +299,11 @@ class Busassignment(models.Model):
                 logger.info("There is not geolocation in the last 5 minutes. token: {} | time: {}".
                             format(token.token, timezone.now()))
 
-        return {'latitude': lat,
-                'longitude': lon,
-                'passengers': passengers,
-                'random': random
-                }
-
-    def get_estimated_location(self, stop_code, distance):
-        """ Given a distance from the bus to the bus stop, this method returns the global position of the machine. """
-        try:
-            route_code = ServicesByBusStop.objects.filter(busStop__code=stop_code, service__service=self.service,
-                                                          gtfs__version=settings.GTFS_VERSION).only('code').first().code
-        except AttributeError:
-            raise RouteNotFoundException("Service {} is not present in bus stop {}".format(self.service, stop_code))
-
-        try:
-            ssd = ServiceStopDistance.objects.filter(
-                busStop__code=stop_code, service=route_code,
-                gtfs__version=settings.GTFS_VERSION).only('distance').first().distance - int(distance)
-        except AttributeError:
-            raise RouteDoesNotStopInBusStop(
-                "route({0}) and bus stop({1}) does not match in ServiceStopDistance".format(route_code, stop_code))
-
-        closest_gt_obj = ServiceLocation.objects.filter(service=route_code, gtfs__version=settings.GTFS_VERSION,
-                                                        distance__gte=ssd).order_by('distance').first()
-        closest_gt = closest_gt_obj.distance if closest_gt_obj is not None else 50000
-
-        closest_lt_obj = ServiceLocation.objects.filter(service=route_code, gtfs__version=settings.GTFS_VERSION,
-                                                        distance__lte=ssd).order_by('-distance').first()
-        closest_lt = closest_lt_obj.distance if closest_lt_obj is None else 0
-
-        if abs(closest_gt - ssd) < abs(closest_lt - ssd):
-            closest_location = closest_gt_obj
-        else:
-            closest_location = closest_lt_obj
-
-        if closest_location is None:
-            raise ThereIsNotClosestLocation(
-                "There is not exist closest location with distance {}, route {} and bus stop {}".format(distance,
-                                                                                                        route_code,
-                                                                                                        stop_code))
-
         return {
-            'latitude': closest_location.latitude,
-            'longitude': closest_location.longitude,
-            'direction': route_code[-1]
+            'latitude': lat,
+            'longitude': lon,
+            'passengers': passengers,
+            'random': random
         }
 
 

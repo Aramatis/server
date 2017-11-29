@@ -3,7 +3,7 @@ from django.core.cache import cache
 import hashlib
 
 
-def cache_get_key(*args, **kwargs):
+def __cache_get_key(*args, **kwargs):
     """
     Get the cache key for storage
     :param args: function args
@@ -29,7 +29,7 @@ def cache_for(time):
 
     def decorator(fn):
         def wrapper(*args, **kwargs):
-            key = cache_get_key(fn.__name__, *args, **kwargs)
+            key = __cache_get_key(fn.__name__, *args, **kwargs)
             result = cache.get(key)
             if not result:
                 result = fn(*args, **kwargs)

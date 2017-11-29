@@ -620,3 +620,16 @@ class TestHelper:
         self.test.assertEqual(response.status_code, 200)
 
         return json.loads(response.content)
+
+    def requestNearbyBuses(self, phone_id, stop_code):
+        """ ask for nearbybuses """
+        url = '/android/nearbyBuses/'
+        c = Client()
+        url = url + "/".join([phone_id, stop_code])
+        response = c.get(url, {})
+
+        self.test.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+
+        return json_response

@@ -1,5 +1,4 @@
-from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, override_settings
 
 from AndroidRequests.tests.testHelper import TestHelper
 from gtfs.models import BusStop
@@ -9,6 +8,11 @@ import AndroidRequests.views as views
 import json
 
 
+@override_settings(CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+})
 class NearbyBusesTest(TestCase):
     """ test for DevicePositionInTime model """
 
@@ -32,15 +36,7 @@ class NearbyBusesTest(TestCase):
 
     def test_nearbyBuses(self):
 
-        factory = RequestFactory()
-        request = factory.get('/android/nearbyBuses')
-        request.user = AnonymousUser()
-
-        response = views.nearby_buses(request, self.phone_id, self.stop_obj.code)
-
-        self.assertEqual(response.status_code, 200)
-
-        json_response = json.loads(response.content)
+        json_response = self.helper.requestNearbyBuses(self.phone_id, self.stop_code)
 
         if json_response['DTPMError'] != "":
             self.assertEqual(json_response['DTPMError'],
@@ -50,6 +46,11 @@ class NearbyBusesTest(TestCase):
             self.assertEqual('eventos' in json_response, True)
 
 
+@override_settings(CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+})
 class NearbyBusesResponseTest(TestCase):
     """ test for response of nearbybuses function """
     fixtures = ["events"]

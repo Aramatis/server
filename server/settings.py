@@ -244,8 +244,9 @@ CACHES = {
         }
     }
 }
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
+# reference: https://docs.djangoproject.com/en/1.11/topics/http/sessions/#configuring-the-session-engine
+# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SESSION_CACHE_ALIAS = "default"
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
