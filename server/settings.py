@@ -99,7 +99,7 @@ INSTALLED_APPS = (
     'routeplanner',
     'AndroidRequestsBackups',
     'onlinegps',
-    'gtfs'
+    'gtfs',
     'debug_toolbar',
     'debug_panel'
 )
