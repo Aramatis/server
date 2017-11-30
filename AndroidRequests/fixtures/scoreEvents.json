@@ -38,7 +38,7 @@
   "fields": {"code": "evn00022","score": 5}
  },{
   "model": "AndroidRequests.scoreEvent","pk": 13,
-  "fields": {"code": "evn00200","score": 10}
+  "fields": {"code": "evn00200","score": 5}
  },{
   "model": "AndroidRequests.scoreEvent","pk": 14,
   "fields": {"code": "evn00201","score": 5},
