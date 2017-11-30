@@ -78,7 +78,8 @@ DEBUG = True
 '172.17.77.240' => private dev server ip
 """
 ALLOWED_HOSTS = ['54.94.231.101', '200.9.100.91', '172.17.77.240', u'172.17.57.156', '127.0.0.1']
-
+# for debug_toolbar
+INTERNAL_IPS = ['172.17.57.156']
 
 # Application definition
 
@@ -98,6 +99,8 @@ INSTALLED_APPS = (
     'routeplanner',
     'AndroidRequestsBackups',
     'onlinegps',
+    'debug_toolbar',
+    'debug_panel'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -108,6 +111,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_panel.middleware.DebugPanelMiddleware',
 )
 
 ROOT_URLCONF = 'server.urls'
