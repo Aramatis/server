@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
+from django.conf import settings
 from django.contrib import admin
 
 urlpatterns = [
@@ -26,3 +27,10 @@ urlpatterns = [
     url(r'^routeplanner/', include('routeplanner.urls')),
     url(r'^gtfs/', include('gtfs.urls')),
 ]
+
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
