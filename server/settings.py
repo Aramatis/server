@@ -17,26 +17,28 @@ import json
 from server.keys.android_requests_backups import ANDROID_REQUESTS_BACKUPS
 from server.keys.android_requests_backups import android_requests_backups_update_jobs
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SETTING_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(SETTING_DIR)
+
+KEY_DIR = os.path.join(SETTING_DIR, 'keys')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(os.path.dirname(__file__), 'keys/secret_key.txt')) as secretFile:
+with open(os.path.join(KEY_DIR, 'secret_key.txt')) as secretFile:
     SECRET_KEY = secretFile.read().strip()
-    # 'cbwz-*ri$u=_v@xa5m(3)qujt8yur&id*j%ps3src9^l+doxx4'
 
 # Google key to ask for google services
-with open(os.path.join(os.path.dirname(__file__), 'keys/google_key.json')) as googleFile:
-    googleJson = json.load(googleFile)
-    GOOGLE_KEY = googleJson['key']
-    GOOGLE_LOGIN_KEY = googleJson['user_validation_key']
+with open(os.path.join(KEY_DIR, 'google_key.json')) as googleFile:
+    google_json = json.load(googleFile)
+    GOOGLE_KEY = google_json['key']
+    GOOGLE_LOGIN_KEY = google_json['user_validation_key']
 
-    del googleJson
+    del google_json
 
 # Define the user will receive email when server has an error
-with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as adminFile:
+with open(os.path.join(KEY_DIR, 'admins.json')) as adminFile:
     adminsJson = json.load(adminFile)['admins']
     # print jsonAdmins
     ADMINS = []
@@ -47,7 +49,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/admins.json')) as adminF
     del adminsJson
 
 # Set email configuration to report errors
-with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as email_file:
+with open(os.path.join(KEY_DIR, 'email_config.json')) as email_file:
     emailConfigJson = json.load(email_file)
     EMAIL_HOST = emailConfigJson["EMAIL_HOST"]
     EMAIL_PORT = emailConfigJson["EMAIL_PORT"]
@@ -62,7 +64,7 @@ with open(os.path.join(os.path.dirname(__file__), 'keys/email_config.json')) as 
     del emailConfigJson
 
 # facebook keys to log in users
-with open(os.path.join(os.path.dirname(__file__), 'keys/facebook_config.json')) as facebook_file:
+with open(os.path.join(KEY_DIR, 'facebook_config.json')) as facebook_file:
     facebookConfig = json.load(facebook_file)
     FACEBOOK_APP_ID = facebookConfig['APP_ID']
     FACEBOOK_APP_SECRET = facebookConfig['APP_SECRET']
@@ -238,16 +240,17 @@ LOGGING = {
     },
 }
 
-# Cache
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+with open(os.path.join(KEY_DIR, 'cache_config.json')) as facebook_file:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379/1",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
         }
     }
-}
+
 # reference: https://docs.djangoproject.com/en/1.11/topics/http/sessions/#configuring-the-session-engine
 # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 # SESSION_CACHE_ALIAS = "default"
@@ -255,7 +258,7 @@ CACHES = {
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-with open(os.path.join(os.path.dirname(__file__), 'keys/database_config.json')) as db_file:
+with open(os.path.join(KEY_DIR, 'database_config.json')) as db_file:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
