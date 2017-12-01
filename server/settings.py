@@ -240,16 +240,8 @@ LOGGING = {
     },
 }
 
-with open(os.path.join(KEY_DIR, 'cache_config.json')) as facebook_file:
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://127.0.0.1:6379/1",
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            }
-        }
-    }
+with open(os.path.join(KEY_DIR, 'cache_config.json')) as cache_file:
+    CACHES = json.loads(cache_file.read())
 
 # reference: https://docs.djangoproject.com/en/1.11/topics/http/sessions/#configuring-the-session-engine
 # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
