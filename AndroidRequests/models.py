@@ -84,8 +84,7 @@ class StadisticDataFromRegistration(Location):
         else:
             dictionary['user'] = {}
         dictionary['vote'] = self.confirmDecline
-        timestamp = timezone.localtime(self.timeStamp)
-        dictionary['timeStamp'] = timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        dictionary['timeStamp'] = self.timeStamp
 
         return dictionary
 
@@ -145,11 +144,8 @@ class EventRegistration(models.Model):
             'eventConfirm': self.eventConfirm,
             'eventDecline': self.eventDecline
         }
-
-        creation = timezone.localtime(self.timeCreation)
-        stamp = timezone.localtime(self.timeStamp)
-        dictionary['timeCreation'] = creation.strftime("%d-%m-%Y %H:%M:%S")
-        dictionary['timeStamp'] = stamp.strftime("%d-%m-%Y %H:%M:%S")
+        dictionary['timeCreation'] = self.timeCreation
+        dictionary['timeStamp'] = self.timeStamp
 
         dictionary.update(self.event.get_dictionary())
 

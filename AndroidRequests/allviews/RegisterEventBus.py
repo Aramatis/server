@@ -36,14 +36,13 @@ class RegisterEventBus(View):
             response = {}
             events = []
 
-            creation = timezone.localtime(timezone.now())
-            stamp = timezone.localtime(timezone.now())
+            timestamp = timezone.now()
 
             dictionary = {
                 "eventConfirm": 1,
                 "eventDecline": 0,
-                "timeCreation": creation.strftime("%d-%m-%Y %H:%M:%S"),
-                "timeStamp": stamp.strftime("%d-%m-%Y %H:%M:%S")
+                "timeCreation": timestamp,
+                "timeStamp": timestamp
             }
 
             response['registrationPlate'] = license_plate
