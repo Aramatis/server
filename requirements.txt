@@ -8,7 +8,7 @@ django-modelsdoc==0.1.7
 coveralls==1.2
 suds==0.4
 googlemaps==2.5.1
-pyasn1==0.3.1
+pyasn1==0.4.2
 pyOpenSSL==17.2
 ndg-httpsclient==0.4.2
 mock==2.0.0
