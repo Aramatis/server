@@ -16,7 +16,7 @@ import random
 
 class TestHelper:
     """ methods that help to create test cases """
-    GTFS_PATH = os.path.join(settings.BASE_DIR, 'gtfs', 'data', settings.GTFS_VERSION)
+    GTFS_PATH = os.path.join(settings.BASE_DIR, 'gtfs', 'data', settings.GTFS_VERSION, 'server')
     LOG_FILE_NAME = 'loadDataErrorTest.log'
 
     def __init__(self, test_instance):
